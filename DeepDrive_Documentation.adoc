@@ -1,12 +1,12 @@
-= Arichetecture
+= Architecture
 
 DeepDrive 2.0 consists of three main components. 
 
-1. https://github.com/deepdrive/deepdrive[DeepDrive] The 'game' or simulation consisting of all the assets, materials, blueprints, lighting, etc... a la a traiditional Unreal game project
-2. https://github.com/deepdrive/deepdrive-plugin[DeepDrivePlugin] The liason between Unreal and your Python, delivering sensor data from the game and receiving control and configuration commands through a combined C++ Python extension / Unreal Plugin.
+1. https://github.com/deepdrive/deepdrive[DeepDrive] The 'game' or simulation, including all the assets, materials, blueprints, lighting, etc... a la a traditional Unreal game project
+2. https://github.com/deepdrive/deepdrive-plugin[DeepDrivePlugin] The liaison between Unreal and your Python, delivering sensor data from the game and receiving control and configuration commands through a combined C++ Python extension / Unreal Plugin.
 3. https://github.com/deepdrive/deepdrive-agents[DeepDrive Agents] A Python interface, Gym environment, and baseline agents for running your AI within DeepDrive
 
-= DeepDrivePlugin techical details
+= DeepDrivePlugin technical details
 
 == Abstract
 
@@ -27,7 +27,7 @@ image:images/DeepDrive_Overview.png[Overview]     (Overview)
 
 == Capturing
 
-Capturing is the process of regularily taking a snapshot of the simulated world and processing the data (i.e. transferring snapshot data to a client). Capturing is separated into these 2 steps:
+Capturing is the process of regularly taking a snapshot of the simulated world and processing the data (i.e. transferring snapshot data to a client). Capturing is separated into these 2 steps:
 
 1. Taking the snapshot
 2. Processing the data
