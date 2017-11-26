@@ -18,7 +18,6 @@ script:
 - docker run --rm -e "DEEPDRIVE_SRC_DIR=/io" -e PYPI_USERNAME -e PYPI_PASSWORD -e
   TRAVIS_BRANCH -v `pwd`/Plugins/DeepDrivePlugin/Source:/io $DOCKER_IMAGE $PRE_CMD
   /io/DeepDrivePython/travis/build-wheels.sh
-- ls wheelhouse/
 env:
   matrix:
     secure: E6AAx3HV0jVH28fQJkKQUd/HUB9auZih29QpsAoEeWmACjulL0Hmwrmz9oWuGVp7zeWwEv60wevb7Y7CSBwuNLSY4xqzfQpnLHy+uV6L/qfY4SS2xu3hY9ZbaWj2+WbJzfjTMeF/GBaE2mvH5SIGBlPnq3pZ7ACVFo1/ubkq4xEOXNrJd/BBvXn3nAgyNkisQiysdISCkbH0u39divmkGWXbHXPASOgu5IrLR0YtL0xPI3iVJw4Xhh+bqjVEzbSrfLb6ls7DNPpIPkPLfMDTa8ztxxvTdaVH4CkYFy8b4dyJ3GTyk19yDjXBc4xHTti57A9ziqYNN1bGuFb57NKszFI2TFeW9cUB22iHOq1DktvQeu4ln7OUWX19ja6RWJ9W41H8sx27d2MXchIZrJFuGbcFn4lQWnQabe9YqT7RCXeoYMiX8+vkYjCM6Plry59euJzsTTqs1DqdKbY9PeRtRYk1hld03X1RGXHdQNuCSWIfeHo+YkVZVTQ6HOSckpUs01r4la5fikfgUAt0Bfzgfvv4YIUFgYRQCvq088HFlysmb6DH9W7IoqcieEvYpFo4Hx2EuZFTTmzHgFuPbGysRMgrU120jxx32H1+pDt4XWm4dO3MKRAkKHKRovogY46xHpmnAGTv/z/WzuKCptnXO8loSo+zREFA9WWTl1kC/vg=
