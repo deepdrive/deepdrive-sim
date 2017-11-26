@@ -1,11 +1,18 @@
 #!/usr/bin/env bash
-
 set -euxo pipefail
 
+# Compile with Python 3.5+
+# TODO: Update dynamically for > 3.6
+py_versions=( "/opt/python/cp35-cp35m/bin" "/opt/python/cp36-cp36m/bin" )
+
+# Delete previous builds (for testing locally)
+rm -rf wheelhouse
+rm -rf /io/wheelhouse/
+
 # Compile wheels
-for PYBIN in /opt/python/*/bin; do
-    "${PYBIN}/pip" install -r /io/dev-requirements.txt
-    "${PYBIN}/pip" wheel /io/ -w wheelhouse/
+for PYBIN in  "${py_versions[@]}"; do
+    "${PYBIN}/pip" install -r /io/DeepDrivePython/dev-requirements.txt
+    "${PYBIN}/pip" wheel /io/DeepDrivePython -w wheelhouse/
 done
 
 # Bundle external shared libraries into the wheels
@@ -14,11 +21,13 @@ for whl in wheelhouse/*.whl; do
 done
 
 # Test installing packages
-for PYBIN in /opt/python/*/bin/; do
-    "${PYBIN}/pip" install python-manylinux-demo --no-index -f /io/wheelhouse
+for PYBIN in  "${py_versions[@]}"; do
+    "${PYBIN}/pip" install deepdrive --no-index -f /io/wheelhouse
 done
 
 # Upload to PyPi
-for whl in wheelhouse/deepdrive*.whl; do
-    ${PYBIN}/twine upload "$whl"
-done
+if [ "$TRAVIS_BRANCH" == "release" ]; then
+    for whl in /io/wheelhouse/deepdrive*manylinux1*.whl; do
+        ${PYBIN}/twine upload -u ${PYPI_USERNAME} -p ${PYPI_PASSWORD} "$whl"
+    done
+fi
