@@ -10,8 +10,7 @@ rm -rf wheelhouse
 rm -rf /io/wheelhouse/
 
 # Set patch version to git commit time
-commit_time=`git show -s --format=%ci ${TRAVIS_COMMIT}`
-export DEEPDRIVE_PATCH_VERSION=`python3 travis/get_patch_timestamp.py "$commit_time"`
+export DEEPDRIVE_PATCH_VERSION=`python3 travis/get_patch_timestamp.py "$COMMIT_TIME"`
 
 # Compile wheels
 for PYBIN in  "${py_versions[@]}"; do

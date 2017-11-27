@@ -72,6 +72,6 @@ Content->Tuning Cars->Blueprint->AliceGT->
 ```Uncheck Edit->Editor Preferences->Use Less CPU when in Background```
 
 **Push deepdrive PyPi module**
-`git push origin master:release`
+`git push origin master && git push origin master:release`
 
 

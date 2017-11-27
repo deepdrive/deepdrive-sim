@@ -18,8 +18,8 @@ install:
 - docker pull $DOCKER_IMAGE
 script:
 # Test locally with sudo -E <command-below>
-- export COMMIT_TIME=testingthis
-- echo $COMMIT_TIME
+- export COMMIT_TIME=`git show -s --format=%ci ${TRAVIS_COMMIT}`
+- echo "commit time is $COMMIT_TIME"
 - docker run --rm -e "DEEPDRIVE_SRC_DIR=/io" -e PYPI_USERNAME -e PYPI_PASSWORD -e
-  TRAVIS_BRANCH -e TRAVIS_COMMIT -v `pwd`/Plugins/DeepDrivePlugin/Source:/io $DOCKER_IMAGE $PRE_CMD
+  TRAVIS_BRANCH -e COMMIT_TIME -v `pwd`/Plugins/DeepDrivePlugin/Source:/io $DOCKER_IMAGE $PRE_CMD
   /io/DeepDrivePython/travis/build-wheels.sh
