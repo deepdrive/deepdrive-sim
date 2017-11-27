@@ -19,8 +19,8 @@ install:
 script:
 # Set patch version to git commit time
 - export COMMIT_TIME=`git show -s --format=%ci ${TRAVIS_COMMIT}`
-- export DEEPDRIVE_PATCH_VERSION=`python3 Plugins/DeepDrivePlugin/Source/DeepDrivePython/travis/get_patch_timestamp.py "$COMMIT_TIME"`
-- echo "commit time is $COMMIT_TIME"
+- export DEEPDRIVE_PATCH_VERSION=`python Plugins/DeepDrivePlugin/Source/DeepDrivePython/travis/get_patch_timestamp.py "$COMMIT_TIME"`
+- echo "DEEPDRIVE_PATCH_VERSION is $DEEPDRIVE_PATCH_VERSION"
 # Test locally with sudo -E <command-below>
 - docker run --rm -e "DEEPDRIVE_SRC_DIR=/io" -e PYPI_USERNAME -e PYPI_PASSWORD -e
   TRAVIS_BRANCH -e DEEPDRIVE_PATCH_VERSION -v `pwd`/Plugins/DeepDrivePlugin/Source:/io $DOCKER_IMAGE $PRE_CMD
