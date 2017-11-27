@@ -18,7 +18,7 @@ install:
 - docker pull $DOCKER_IMAGE
 script:
 # Set patch version to git commit time
-- pip install pytz
+- sudo pip3 install pytz
 - export COMMIT_TIME=`git show -s --format=%ci ${TRAVIS_COMMIT}`
 - export DEEPDRIVE_PATCH_VERSION=`python3 Plugins/DeepDrivePlugin/Source/DeepDrivePython/travis/get_patch_timestamp.py "$COMMIT_TIME"`
 - echo "commit time is $COMMIT_TIME"
