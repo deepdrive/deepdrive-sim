@@ -71,4 +71,7 @@ Content->Tuning Cars->Blueprint->AliceGT->
 ***Run game full speed when the window is not focused***
 ```Uncheck Edit->Editor Preferences->Use Less CPU when in Background```
 
+**Push deepdrive PyPi module**
+`git push origin master:release`
+
 
