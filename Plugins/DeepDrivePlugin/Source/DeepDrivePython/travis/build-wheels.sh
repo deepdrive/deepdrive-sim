@@ -9,8 +9,7 @@ py_versions=( "/opt/python/cp35-cp35m/bin" "/opt/python/cp36-cp36m/bin" )
 rm -rf wheelhouse
 rm -rf /io/wheelhouse/
 
-# Set patch version to git commit time
-export DEEPDRIVE_PATCH_VERSION=`python3 travis/get_patch_timestamp.py "$COMMIT_TIME"`
+echo DEEPDRIVE_PATCH_VERSION is ${DEEPDRIVE_PATCH_VERSION}
 
 # Compile wheels
 for PYBIN in  "${py_versions[@]}"; do
