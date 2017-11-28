@@ -56,7 +56,7 @@ deepdrive_control_module = Extension	(	'deepdrive_control'
                                         )
 
 setup	(   name='deepdrive'
-        ,   version='2.0.' + os.environ['DEEPDRIVE_PATCH_VERSION']
+        ,   version=os.environ['DEEPDRIVE_VERSION']
         ,   url='https://github.com/deepdrive/deepdrive-plugin'
         ,   author='deepdrive.io'
         ,   author_email='developers@deepdrive.io'

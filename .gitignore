@@ -94,3 +94,6 @@ DerivedDataCache/*
 *.egg
 *.pyd
 PKG-INFO
+
+# manylinux build artifacts
+wheelhouse
