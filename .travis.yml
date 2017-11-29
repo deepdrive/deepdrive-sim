@@ -17,4 +17,4 @@ matrix:
 install:
 - docker pull $DOCKER_IMAGE
 script:
-- `pwd`/Plugins/DeepDrivePlugin/Source/DeepDrivePython/build/build.sh
+- Plugins/DeepDrivePlugin/Source/DeepDrivePython/build/build.sh
