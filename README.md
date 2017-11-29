@@ -35,7 +35,7 @@ git update-index --assume-unchanged $(git ls-files | tr '\n' ' ')
 
 ### Linux
 
-The Unreal Editor in Linux works, but not nearly as well as in Windows. So if you develop, we recommend getting things working in Windows, then testing / bug fixing Linux specific issues in Linux.
+The Unreal Editor in Linux works, but not as well as in Windows. So it's easiest to do most work in Windows, then test / bug fix issues in Linux.
 
 Build Unreal
 
