@@ -15,44 +15,39 @@ UCaptureCameraComponent::UCaptureCameraComponent()
 	bWantsInitializeComponent = true;
 }
 
-void UCaptureCameraComponent::InitializeComponent()
+void UCaptureCameraComponent::Initialize(UTextureRenderTarget2D *RenderTarget)
 {
-	Super::InitializeComponent();
-
 	CameraId = DeepDriveCapture::GetInstance().RegisterCaptureComponent(this);
 
-	if (SceneRenderTarget)
+	AActor *owningActor = GetOwner();
+	FString compName = "SceneCaptureComponent_" + FString::FromInt(CameraId);
+
+	m_SceneCapture = NewObject<USceneCaptureComponent2D>(owningActor, FName(*compName));
+	m_SceneCapture->RegisterComponent();
+
+	UE_LOG(DeepDriveCaptureComponent, Log, TEXT("Scene capture setup for %s at %p"), *(compName), m_SceneCapture);
+
+	if (m_SceneCapture)
 	{
-		AActor *owningActor = GetOwner();
-		FString compName = "SceneCaptureComponent_" + FString::FromInt(CameraId);
+		m_SceneCapture->TextureTarget = RenderTarget;			
+		m_SceneCapture->CaptureSource = ESceneCaptureSource::SCS_SceneColorSceneDepth;
 
-		m_SceneCapture = NewObject<USceneCaptureComponent2D>(owningActor, FName(*compName));
-		m_SceneCapture->RegisterComponent();
+		m_SceneCapture->HiddenActors.Add(GetOwner());
 
-		UE_LOG(DeepDriveCaptureComponent, Log, TEXT("Scene capture setup for %s at %p"), *(compName), m_SceneCapture);
-
-		if (m_SceneCapture)
+		if(IsCapturingActive)
 		{
-			m_SceneCapture->TextureTarget = SceneRenderTarget;			
-			m_SceneCapture->CaptureSource = ESceneCaptureSource::SCS_SceneColorSceneDepth;
-
-			m_SceneCapture->HiddenActors.Add(GetOwner());
-
-			if(IsCapturingActive)
-			{
-				m_SceneCapture->Activate();
-				m_SceneCapture->bCaptureEveryFrame = CaptureSceneEveryFrame;
-				m_SceneCapture->bCaptureOnMovement = CaptureSceneEveryFrame;
-			}
-			else
-			{
-				m_SceneCapture->Deactivate();
-				m_SceneCapture->bCaptureEveryFrame = false;
-				m_SceneCapture->bCaptureOnMovement = false;
-			}
-
-			m_SceneCapture->AttachToComponent(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
+			m_SceneCapture->Activate();
+			m_SceneCapture->bCaptureEveryFrame = CaptureSceneEveryFrame;
+			m_SceneCapture->bCaptureOnMovement = CaptureSceneEveryFrame;
 		}
+		else
+		{
+			m_SceneCapture->Deactivate();
+			m_SceneCapture->bCaptureEveryFrame = false;
+			m_SceneCapture->bCaptureOnMovement = false;
+		}
+
+		m_SceneCapture->AttachToComponent(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 	}
 
 	UE_LOG(DeepDriveCaptureComponent, Log, TEXT("UCaptureCameraComponent::InitializeComponent 0x%p camId %d"), m_SceneCapture, CameraId);
@@ -84,6 +79,8 @@ void UCaptureCameraComponent::DeactivateCapturing()
 bool UCaptureCameraComponent::capture(SCaptureRequest &reqData)
 {
 	bool shallCapture = false;
+
+	// UE_LOG(DeepDriveCaptureComponent, Log, TEXT("UCaptureCameraComponent::capture camId %d isActive %c"), CameraId, IsCapturingActive ? 'T' : 'F');
 
 	if (IsCapturingActive)
 	{

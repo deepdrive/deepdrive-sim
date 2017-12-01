@@ -21,8 +21,8 @@ void USharedMemCaptureSinkComponent::BeginPlay()
 	Super::BeginPlay();
 
 	UE_LOG(LogSharedMemCaptureSinkComponent, Log, TEXT("USharedMemCaptureSinkComponent::InitializeComponent"));
-	FString &sharedMemName = UGameplayStatics::GetPlatformName() == "Linux" ? SharedMemNameLinux : SharedMemNameWindows;
-	m_Worker = new SharedMemCaptureSinkWorker(sharedMemName, MaxSharedMemSize);
+	m_SharedMemoryName = UGameplayStatics::GetPlatformName() == "Linux" ? SharedMemNameLinux : SharedMemNameWindows;
+	m_Worker = new SharedMemCaptureSinkWorker(m_SharedMemoryName, MaxSharedMemSize);
 }
 
 void USharedMemCaptureSinkComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
