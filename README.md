@@ -58,7 +58,7 @@ Open deepdrive uproject file - choose other -> Skip Conversion
 **Building the Python Extension**
 ```
 cd Plugins/DeepDrivePlugin/Source/DeepDrivePython
-python setup.py install
+build/build-local.sh
 ```
 
 **How to change the field of view**
