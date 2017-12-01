@@ -186,7 +186,7 @@ void DeepDriveServer::handleReleaseAgentControl(const deepdrive::server::Message
 void DeepDriveServer::setAgentControlValues(const deepdrive::server::MessageHeader &message)
 {
 	const deepdrive::server::SetAgentControlValuesRequest &req = static_cast<const deepdrive::server::SetAgentControlValuesRequest&> (message);
-	m_Proxy->SetAgentControlValues(req.steering, req.throttle, req.brake, req.handbrake);
+	m_Proxy->SetAgentControlValues(req.steering, req.throttle, req.brake, req.handbrake != 0 ? true : false);
 	UE_LOG(LogDeepDriveServer, Log, TEXT("Control values received from %d"), req.client_id);
 }
 
