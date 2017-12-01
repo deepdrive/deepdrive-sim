@@ -44,9 +44,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SharedMem)
 	int32 MaxSharedMemSize = 150 * 1024 * 1024;
 
+	const FString& getSharedMemoryName();
+
 private:
 
 	CaptureSinkWorkerBase			*m_Worker = 0;
 	SCaptureSinkJobData				*m_curJobData = 0;
 
+	FString							m_SharedMemoryName;
+
 };
+
+
+inline const FString& USharedMemCaptureSinkComponent::getSharedMemoryName()
+{
+	return m_SharedMemoryName;
+}

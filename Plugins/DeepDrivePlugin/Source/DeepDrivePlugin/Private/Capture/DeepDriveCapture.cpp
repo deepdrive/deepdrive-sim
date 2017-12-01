@@ -59,8 +59,7 @@ int32 DeepDriveCapture::RegisterCaptureComponent(UCaptureCameraComponent *captur
 
 	m_CaptureComponentMap.Add(id, SCaptureComponentData(captureComponent));
 
-	const UEnum* CamTypeEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EDeepDriveCameraType"));
-	UE_LOG(LogDeepDriveCapture, Log, TEXT("Register CaptureCameraComponent of type %s with id %d"), *(CamTypeEnum ? CamTypeEnum->GetEnumName(static_cast<uint8> (captureComponent->CameraType)) : TEXT("<Invalid Enum>")), id);
+	UE_LOG(LogDeepDriveCapture, Log, TEXT("Register CaptureCameraComponent with id %d"), id);
 
 	m_CycleTimings.Add(captureComponent->CameraType, SCycleTiming(FPlatformTime::Seconds()));
 	return id;
@@ -255,3 +254,21 @@ void DeepDriveCapture::executeCaptureJob(SCaptureJob &job)
 	job.result_queue->Enqueue(&job);
 }
 
+
+USharedMemCaptureSinkComponent* DeepDriveCapture::getSharedMemorySink()
+{
+	USharedMemCaptureSinkComponent *sharedMemSink = 0;
+
+	if (m_Proxy)
+	{
+		TArray<UCaptureSinkComponentBase*>&  sinks = m_Proxy->getSinks();
+		for (auto &sink : sinks)
+		{
+			sharedMemSink = Cast<USharedMemCaptureSinkComponent>(sink);
+			if (sharedMemSink)
+				break;
+		}
+	}
+
+	return sharedMemSink;
+}

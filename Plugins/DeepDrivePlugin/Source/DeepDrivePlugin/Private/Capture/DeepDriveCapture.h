@@ -10,6 +10,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveCapture, Log, All);
 class UCaptureCameraComponent;
 class ADeepDriveCaptureProxy;
 struct SCaptureJob;
+class USharedMemCaptureSinkComponent;
 
 class DeepDriveCapture
 {
@@ -53,6 +54,8 @@ public:
 	void HandleCaptureResult();
 
 	void Capture();
+
+	USharedMemCaptureSinkComponent* getSharedMemorySink();
 
 private:
 
