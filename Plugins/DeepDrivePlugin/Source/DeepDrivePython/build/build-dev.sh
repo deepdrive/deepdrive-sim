@@ -6,7 +6,7 @@ ROOT=`git rev-parse --show-toplevel`
 
 
 # Set patch version to git commit time
-export DEEPDRIVE_VERSION=`"${ROOT}"/Packaging/get_package_version.sh`
+export DEEPDRIVE_VERSION=`python "${ROOT}"/Packaging/get_package_version.py`
 export DEEPDRIVE_BRANCH=`git rev-parse --abbrev-ref HEAD`
 
 echo "DEEPDRIVE_VERSION is $DEEPDRIVE_VERSION"

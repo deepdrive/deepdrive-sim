@@ -8,7 +8,7 @@ PKG_DIR=${HOME}/deepdrive-packaged/LinuxNoEditor  # TODO: Move this to /var or s
 mv ${PKG_DIR}/DeepDrive/Binaries/Linux/DeepDrive-Linux-Shipping ${PKG_DIR}/DeepDrive/Binaries/Linux/DeepDrive &> /dev/null || :
 chmod +x ${PKG_DIR}/DeepDrive/Binaries/Linux/DeepDrive
 
-version=`./get_package_version.sh`
+version=`python get_package_version.py`
 
 cd ${PKG_DIR}
 file_name=deepdrive-sim-"$version".zip
