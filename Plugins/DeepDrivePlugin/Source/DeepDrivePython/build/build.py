@@ -15,8 +15,11 @@ def run_command(cmd, cwd=None, env=None, stream=False):
             sys.stdout.write(''.join(map(chr, c)))
     else:
         result, err = p.communicate()
-        result = ''.join(map(chr, result)).strip()
+        if isinstance(result, bytes):
+            result = ''.join(map(chr, result)).strip()
         if p.returncode != 0:
+            if isinstance(err, bytes):
+                err = ''.join(map(chr, err)).strip()
             raise RuntimeError(cmd + ' finished with error ' + ''.join(map(chr, err)).strip())
         return result
 
@@ -34,12 +37,13 @@ def main(build_type):
         if env['DEEPDRIVE_BRANCH'] == 'release':
             for name in os.listdir(os.path.join(ext_root, 'dist')):
                 if env['DEEPDRIVE_VERSION'] in name and name.endswith(".whl"):
-                    run_command('twine upload ' + os.path.join(ext_root, 'dist', name), env=env, cwd=ext_root, stream=True)
+                    run_command('twine upload ' + os.path.join(ext_root, 'dist', name), env=env, cwd=ext_root,
+                                stream=True)
     elif build_type == 'linux':
         env['PRE_CMD'] = env.get('PRE_CMD') or ''
         env['DOCKER_IMAGE'] = env.get('DOCKER_IMAGE') or 'quay.io/pypa/manylinux1_x86_64'
 
-        # Build in CentOS to get a portable linux binary
+        # Build in CentOS to get a portable binary
         run_command('docker run --rm -e "DEEPDRIVE_SRC_DIR=/io" \
             -e PYPI_USERNAME \
             -e PYPI_PASSWORD \
@@ -48,7 +52,7 @@ def main(build_type):
             -v ${ROOT}/Plugins/DeepDrivePlugin/Source:/io \
             ${DOCKER_IMAGE} \
             ${PRE_CMD} \
-            /io/DeepDrivePython/build/build-wheels.sh  ', env=env, cwd=os.path.dirname(DIR), stream=True)
+            /io/DeepDrivePython/build/build-linux-wheels.sh  ', env=env, cwd=os.path.dirname(DIR), stream=True)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=None)

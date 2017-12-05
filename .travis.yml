@@ -1,4 +1,7 @@
-language: generic
+language: python
+python:
+  # We build with multiple python versions via docker - this python just runs our build scripts
+  - "3.6"
 notifications:
   email: false
 env:

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euxo pipefail
+set -euo pipefail
 
 # Compile with Python 3.5+
 # TODO: Update dynamically for > 3.6
