@@ -20,4 +20,4 @@ matrix:
 install:
 - docker pull $DOCKER_IMAGE
 script:
-- python Plugins/DeepDrivePlugin/Source/DeepDrivePython/build/build.py --type linux_bdist
+- python -u Plugins/DeepDrivePlugin/Source/DeepDrivePython/build/build.py --type linux_bdist

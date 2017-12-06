@@ -28,7 +28,8 @@ def main(build_type):
     env = os.environ.copy()
     get_package_version_path = os.path.join(unreal_root, 'Packaging', 'get_package_version.py')
     env['DEEPDRIVE_VERSION'] = run_command('python ' + get_package_version_path)
-    env['DEEPDRIVE_BRANCH'] = env.get('TRAVIS_BRANCH') or run_command('git rev-parse --abbrev-ref HEAD')
+    env['DEEPDRIVE_BRANCH'] = (env.get('TRAVIS_BRANCH') or env.get('APPVEYOR_REPO_BRANCH') or
+                               run_command('git rev-parse --abbrev-ref HEAD'))
     ext_root = os.path.dirname(DIR)
     if build_type == 'dev':
         run_command('python -u setup.py install', env=env, cwd=ext_root, stream=True)
@@ -39,7 +40,7 @@ def main(build_type):
                 if env['DEEPDRIVE_VERSION'] in name and name.endswith(".whl"):
                     run_command('twine upload ' + os.path.join(ext_root, 'dist', name), env=env, cwd=ext_root,
                                 stream=True)
-    elif build_type == 'linux':
+    elif build_type == 'linux_bdist':
         env['PRE_CMD'] = env.get('PRE_CMD') or ''
         env['DOCKER_IMAGE'] = env.get('DOCKER_IMAGE') or 'quay.io/pypa/manylinux1_x86_64'
 
