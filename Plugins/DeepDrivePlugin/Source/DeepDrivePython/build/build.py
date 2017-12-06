@@ -16,6 +16,7 @@ def run_command(cmd, cwd=None, env=None, stream=False):
     if p.returncode != 0:
         if isinstance(err, bytes):
             err = ''.join(map(chr, err)).strip()
+        print(result)
         raise RuntimeError(cmd + ' finished with error ' + err)
     return result
 
