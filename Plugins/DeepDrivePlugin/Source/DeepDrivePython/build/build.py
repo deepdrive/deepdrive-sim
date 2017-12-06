@@ -1,14 +1,16 @@
 from __future__ import print_function
 
 import argparse
-from subprocess import Popen, PIPE
 import os
-import sys
+from subprocess import Popen, PIPE
+
 DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-def run_command(cmd, cwd=None, env=None, stream=False):
+def run_command(cmd, cwd=None, env=None):
     print('running %s' % cmd)
+    if not isinstance(cmd, list):
+        cmd = cmd.split()
     p = Popen(cmd.split(), stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd, env=env)
     result, err = p.communicate()
     if isinstance(result, bytes):
@@ -43,15 +45,15 @@ def main(build_type):
         env['DOCKER_IMAGE'] = env.get('DOCKER_IMAGE') or 'quay.io/pypa/manylinux1_x86_64'
 
         # Build in CentOS to get a portable binary
-        run_command('docker run --rm -e "DEEPDRIVE_SRC_DIR=/io" \
-            -e PYPI_USERNAME \
-            -e PYPI_PASSWORD \
-            -e DEEPDRIVE_BRANCH \
-            -e DEEPDRIVE_VERSION \
-            -v ${ROOT}/Plugins/DeepDrivePlugin/Source:/io \
-            ${DOCKER_IMAGE} \
-            ${PRE_CMD} \
-            /io/DeepDrivePython/build/build-linux-wheels.sh  ', env=env, cwd=os.path.dirname(DIR))
+        run_command(['docker', 'run', '--rm', '-e', '"DEEPDRIVE_SRC_DIR=/io"',
+                     '-e', 'PYPI_USERNAME',
+                     '-e', 'PYPI_PASSWORD',
+                     '-e', 'DEEPDRIVE_BRANCH',
+                     '-e', 'DEEPDRIVE_VERSION',
+                     '-v', '${ROOT}/Plugins/DeepDrivePlugin/Source:/io',
+                     env['DOCKER_IMAGE'],
+                     env['PRE_CMD'],
+                     '/io/DeepDrivePython/build/build-linux-wheels.sh'], env=env, cwd=os.path.dirname(DIR))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=None)
