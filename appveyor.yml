@@ -6,7 +6,7 @@ environment:
   PYPI_PASSWORD:
     secure: 84vzW3J+7QzFeJWztHo1xww5E8/oS1d4SpqeJ/2W2AA=
 install:
-  - "%PYTHON%\\python.exe -m pip install -r Plugins/DeepDrivePlugin/Source/DeepDrivePython/dev-requirements.txt"
+  - "%PYTHON%\\python.exe -m pip install -r Plugins\\DeepDrivePlugin\\Source\\DeepDrivePython\\dev-requirements.txt"
 
 build: off
 
@@ -25,7 +25,7 @@ after_test:
   # Again, you only need build.cmd if you're building C extensions for
   # 64-bit Python 3.3/3.4. And you need to use %PYTHON% to get the correct
   # interpreter
-  - %PYTHON%\\python.exe Plugins/DeepDrivePlugin/Source/DeepDrivePython/build/build.py --type win_dist"
+  - %PYTHON%\\python.exe Plugins\\DeepDrivePlugin\\Source\\DeepDrivePython\\build\\build.py --type win_bdist"
 
 artifacts:
   # bdist_wheel puts your built wheel in the dist directory
