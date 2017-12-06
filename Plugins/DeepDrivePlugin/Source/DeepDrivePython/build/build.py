@@ -19,7 +19,7 @@ def run_command(cmd, cwd=None, env=None):
         if isinstance(err, bytes):
             err = ''.join(map(chr, err)).strip()
         print(result)
-        raise RuntimeError(cmd + ' finished with error ' + err)
+        raise RuntimeError(' '.join(cmd) + ' finished with error ' + err)
     return result
 
 def main(build_type):
