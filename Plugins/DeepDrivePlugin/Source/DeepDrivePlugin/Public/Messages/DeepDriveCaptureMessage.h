@@ -15,8 +15,8 @@ struct DeepDriveCaptureCamera
 	double						aspect_ratio;
 
 
-	uint32						capture_width;
-	uint32						capture_height;
+	int32						capture_width;
+	int32						capture_height;
 	uint32						bytes_per_pixel;
 	uint32						bytes_per_depth_value;
 	uint32						depth_offset;					// byte offset of depth data relative to data

@@ -27,6 +27,7 @@ def main(build_type):
     env['DEEPDRIVE_VERSION'] = run_command('python ' + get_package_version_path)
     env['DEEPDRIVE_BRANCH'] = (env.get('TRAVIS_BRANCH') or env.get('APPVEYOR_REPO_BRANCH') or
                                run_command('git rev-parse --abbrev-ref HEAD'))
+    print('DEEPDRIVE_VERSION is %s' % env['DEEPDRIVE_VERSION'])
     ext_root = os.path.dirname(DIR)
     if build_type == 'dev':
         run_command('python -u setup.py install', env=env, cwd=ext_root, stream=True)
