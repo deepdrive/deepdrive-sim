@@ -49,7 +49,7 @@ def main(build_type):
                      '-e', 'PYPI_PASSWORD',
                      '-e', 'DEEPDRIVE_BRANCH',
                      '-e', 'DEEPDRIVE_VERSION',
-                     '-v', '${ROOT}/Plugins/DeepDrivePlugin/Source:/io',
+                     '-v', unreal_root + '/Plugins/DeepDrivePlugin/Source:/io',
                      env['DOCKER_IMAGE'],
                      env['PRE_CMD'],
                      '/io/DeepDrivePython/build/build-linux-wheels.sh'], env=env, cwd=os.path.dirname(DIR))
