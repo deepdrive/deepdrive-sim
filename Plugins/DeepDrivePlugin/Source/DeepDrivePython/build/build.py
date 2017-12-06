@@ -11,7 +11,7 @@ def run_command(cmd, cwd=None, env=None):
     print('running %s' % cmd)
     if not isinstance(cmd, list):
         cmd = cmd.split()
-    p = Popen(cmd.split(), stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd, env=env)
+    p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd, env=env)
     result, err = p.communicate()
     if isinstance(result, bytes):
         result = ''.join(map(chr, result)).strip()
@@ -32,14 +32,13 @@ def main(build_type):
     print('DEEPDRIVE_VERSION is %s' % env['DEEPDRIVE_VERSION'])
     ext_root = os.path.dirname(DIR)
     if build_type == 'dev':
-        run_command('python -u setup.py install', env=env, cwd=ext_root, stream=True)
+        run_command('python -u setup.py install', env=env, cwd=ext_root)
     elif build_type == 'win_bdist':
         print(run_command('python -u setup.py bdist_wheel', env=env, cwd=ext_root))
         if env['DEEPDRIVE_BRANCH'] == 'release':
             for name in os.listdir(os.path.join(ext_root, 'dist')):
                 if env['DEEPDRIVE_VERSION'] in name and name.endswith(".whl"):
-                    run_command('twine upload ' + os.path.join(ext_root, 'dist', name), env=env, cwd=ext_root,
-                                stream=True)
+                    run_command('twine upload ' + os.path.join(ext_root, 'dist', name), env=env, cwd=ext_root)
     elif build_type == 'linux_bdist':
         env['PRE_CMD'] = env.get('PRE_CMD') or ''
         env['DOCKER_IMAGE'] = env.get('DOCKER_IMAGE') or 'quay.io/pypa/manylinux1_x86_64'
