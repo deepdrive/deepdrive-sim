@@ -10,18 +10,14 @@ DIR = os.path.dirname(os.path.realpath(__file__))
 def run_command(cmd, cwd=None, env=None, stream=False):
     print('running %s' % cmd)
     p = Popen(cmd.split(), stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd, env=env)
-    if stream:
-        for c in iter(lambda: p.stdout.read(1), b''):
-            sys.stdout.write(''.join(map(chr, c)))
-    else:
-        result, err = p.communicate()
-        if isinstance(result, bytes):
-            result = ''.join(map(chr, result)).strip()
-        if p.returncode != 0:
-            if isinstance(err, bytes):
-                err = ''.join(map(chr, err)).strip()
-            raise RuntimeError(cmd + ' finished with error ' + ''.join(map(chr, err)).strip())
-        return result
+    result, err = p.communicate()
+    if isinstance(result, bytes):
+        result = ''.join(map(chr, result)).strip()
+    if p.returncode != 0:
+        if isinstance(err, bytes):
+            err = ''.join(map(chr, err)).strip()
+        raise RuntimeError(cmd + ' finished with error ' + ''.join(map(chr, err)).strip())
+    return result
 
 def main(build_type):
     unreal_root = run_command('git rev-parse --show-toplevel')
@@ -34,7 +30,7 @@ def main(build_type):
     if build_type == 'dev':
         run_command('python -u setup.py install', env=env, cwd=ext_root, stream=True)
     elif build_type == 'win_bdist':
-        run_command('python -u setup.py bdist_wheel', env=env, cwd=ext_root, stream=True)
+        print(run_command('python -u setup.py bdist_wheel', env=env, cwd=ext_root))
         if env['DEEPDRIVE_BRANCH'] == 'release':
             for name in os.listdir(os.path.join(ext_root, 'dist')):
                 if env['DEEPDRIVE_VERSION'] in name and name.endswith(".whl"):
@@ -53,7 +49,7 @@ def main(build_type):
             -v ${ROOT}/Plugins/DeepDrivePlugin/Source:/io \
             ${DOCKER_IMAGE} \
             ${PRE_CMD} \
-            /io/DeepDrivePython/build/build-linux-wheels.sh  ', env=env, cwd=os.path.dirname(DIR), stream=True)
+            /io/DeepDrivePython/build/build-linux-wheels.sh  ', env=env, cwd=os.path.dirname(DIR))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=None)
