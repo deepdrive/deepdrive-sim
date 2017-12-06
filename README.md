@@ -23,7 +23,8 @@ DeepDrive is best used by [one of our agents](https://github.com/deepdrive/deepd
 - Get Unreal v4.14 via the Epic Launcher -> Unreal Enngine tab -> Library
 - Install the Substance Plugin through the Marketplace in Epic Launcher
 
-Opening the project in Unreal will update the Substance textures to Windows-only versions. Once you see these files changed, you can run the following to avoid ever checking them in
+Opening the project in Unreal will update the Substance textures to Windows-only versions. 
+Once you see these files changed, you can run the following to avoid ever checking them in
 ```
 cd Content/TuningCars/Materials/Hangar/material/Substance
 git update-index --assume-unchanged $(git ls-files | tr '\n' ' ')
