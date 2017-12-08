@@ -1,4 +1,5 @@
-# DeepDrive [![Build Status](https://travis-ci.com/crizCraig/deepdrive-beta.svg?token=hcA6yn9X8yYZspyyCMpp&branch=release)](https://travis-ci.com/crizCraig/deepdrive-beta)
+# DeepDrive [![Build Status](https://travis-ci.com/crizCraig/deepdrive-beta.svg?token=hcA6yn9X8yYZspyyCMpp&branch=release)](https://travis-ci.com/crizCraig/deepdrive-beta) [![Build status](https://ci.appveyor.com/api/projects/status/s7jbcjbxlq3vetw5?svg=true)](https://ci.appveyor.com/project/crizCraig/deepdrive-beta)
+
 
 Unreal based simulator and Python interface for creating self-driving AI
 
