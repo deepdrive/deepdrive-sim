@@ -45,7 +45,7 @@ def main(build_type):
             for name in os.listdir(os.path.join(ext_root, 'dist')):
                 if env['DEEPDRIVE_VERSION'] in name and name.endswith(".whl"):
                     twine = os.path.join(scripts_dir, 'twine')
-                    run_command(twine + ' upload "' + os.path.join(ext_root, 'dist', name) + '"', env=env,
+                    run_command(twine + ' upload ' + os.path.join(ext_root, 'dist', name), env=env,
                                 cwd=ext_root)
     elif build_type == 'linux_bdist':
         env['PRE_CMD'] = env.get('PRE_CMD') or ''
