@@ -18,7 +18,9 @@ def git_commit_time_parse(t):
 def get_package_version():
     p = Popen(['git', 'log', '-1', '--format=%ci'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     out, err = p.communicate()
-    out = ''.join(map(chr, out)).strip()
+    if not isinstance(out, str):
+        out = ''.join(map(chr, out))
+    out = out.strip()
     if p.returncode != 0:
         raise RuntimeError('Could not get most recent commit')
     last_commit_time = git_commit_time_parse(out)
@@ -26,6 +28,7 @@ def get_package_version():
     with open(os.path.join(DIR, 'VERSION')) as f:
         version = '%s.%s' % (f.read(), last_commit_timestamp)
     return version
+
 
 if __name__ == '__main__':
     print(get_package_version())

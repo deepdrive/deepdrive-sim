@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+export DEEPDRIVE_SRC_DIR="$( dirname "$( dirname ${DIR})" )"
+echo DEEPDRIVE_SRC_DIR=${DEEPDRIVE_SRC_DIR}
+
 # Compile with Python 3.5+
 # TODO: Update dynamically for > 3.6
 py_versions=( "/opt/python/cp35-cp35m/bin" "/opt/python/cp36-cp36m/bin" )

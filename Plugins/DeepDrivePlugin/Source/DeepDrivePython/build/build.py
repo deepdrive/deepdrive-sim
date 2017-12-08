@@ -11,16 +11,20 @@ def run_command(cmd, cwd=None, env=None):
     print('running %s' % cmd)
     if not isinstance(cmd, list):
         cmd = cmd.split()
+    cmd = filter(None, cmd)  # filter out empty items
     p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd, env=env)
     result, err = p.communicate()
-    if isinstance(result, bytes):
-        result = ''.join(map(chr, result)).strip()
+    if not isinstance(result, str):
+        result = ''.join(map(chr, result))
+    result = result.strip()
+    print(result)
     if p.returncode != 0:
-        if isinstance(err, bytes):
-            err = ''.join(map(chr, err)).strip()
-        print(result)
+        if not isinstance(err, str):
+            err = ''.join(map(chr, err))
+        err = err.strip()
         raise RuntimeError(' '.join(cmd) + ' finished with error ' + err)
     return result
+
 
 def main(build_type):
     unreal_root = run_command('git rev-parse --show-toplevel')
@@ -53,6 +57,7 @@ def main(build_type):
                      env['DOCKER_IMAGE'],
                      env['PRE_CMD'],
                      '/io/DeepDrivePython/build/build-linux-wheels.sh'], env=env, cwd=os.path.dirname(DIR))
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=None)
