@@ -70,7 +70,7 @@ uint32 IP4ClientSocketImpl_Linux::receive(void *buffer, uint32 size)
 		if(receivedSize > 0)
 		{
 			res = static_cast<uint32> (receivedSize);
-			std::cout << "Received " << res << " bytes\n";
+			// std::cout << "Received " << res << " bytes\n";
 		}
 		else
 			std::cout << "Received nothing " << receivedSize << "\n";
@@ -94,7 +94,7 @@ uint32 IP4ClientSocketImpl_Linux::receive(void *buffer, uint32 size, uint32 time
 		if(receivedSize > 0)
 		{
 			res = static_cast<uint32> (receivedSize);
-			std::cout << "Received " << res << " bytes\n";
+			// std::cout << "Received " << res << " bytes\n";
 		}
 		else
 			std::cout << "Received nothing " << receivedSize << "\n";

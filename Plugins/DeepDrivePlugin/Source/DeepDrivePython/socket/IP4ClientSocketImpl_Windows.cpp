@@ -63,7 +63,7 @@ uint32 IP4ClientSocketImpl_Windows::send(const void *data, uint32 bytesToSend)
 		if(res >= 0)
 		{
 			bytesSend = static_cast<uint32> (res);
-			std::cout << "Sent " << bytesSend << " bytes\n";
+			// std::cout << "Sent " << bytesSend << " bytes\n";
 		}
 		else
 			std::cout << "Send failed. Error Code : " << WSAGetLastError() << "\n";
@@ -81,7 +81,7 @@ uint32 IP4ClientSocketImpl_Windows::receive(void *buffer, uint32 size)
 		if(receivedSize > 0)
 		{
 			res = static_cast<uint32> (receivedSize);
-			std::cout << "Received " << res << " bytes\n";
+			// std::cout << "Received " << res << " bytes\n";
 		}
 		else
 			std::cout << "Received nothing " << receivedSize << "\n";
@@ -109,7 +109,7 @@ uint32 IP4ClientSocketImpl_Windows::receive(void *buffer, uint32 size, uint32 ti
 		if(receivedSize > 0)
 		{
 			res = static_cast<uint32> (receivedSize);
-			std::cout << "Received " << res << " bytes\n";
+			// std::cout << "Received " << res << " bytes\n";
 		}
 		else
 			std::cout << "Received nothing " << receivedSize << "\n";

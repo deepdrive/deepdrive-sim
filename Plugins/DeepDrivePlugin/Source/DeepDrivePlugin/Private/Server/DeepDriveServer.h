@@ -83,6 +83,7 @@ private:
 
 	void handleRequestAgentControl(const deepdrive::server::MessageHeader &message);
 	void handleReleaseAgentControl(const deepdrive::server::MessageHeader &message);
+	void resetAgent(const deepdrive::server::MessageHeader &message);
 
 	void setAgentControlValues(const deepdrive::server::MessageHeader &message);
 

@@ -50,6 +50,17 @@ struct ReleaseAgentControlResponse :	public MessageHeader
 };
 
 
+struct ResetAgentRequest :	public MessageHeader
+{
+	ResetAgentRequest(uint32 clientId)
+		:	MessageHeader(MessageId::ResetAgentRequest, sizeof(ResetAgentRequest))
+		,	client_id(clientId)
+	{	}
+
+	uint32		client_id;
+};
+
+
 struct SetAgentControlValuesRequest :	public MessageHeader
 {
 	SetAgentControlValuesRequest(uint32 c = 0, float s = 0.0f, float t = 0.0f, float b = 0.0f, uint32 h = 0)

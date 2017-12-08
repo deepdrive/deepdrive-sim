@@ -131,11 +131,16 @@ void DeepDriveClient::releaseAgentControl()
 		std::cout << "Waiting for ReleaseAgentControlResponse, time out\n";
 }
 
+void DeepDriveClient::resetAgent()
+{
+	deepdrive::server::ResetAgentRequest req(m_ClientId);
+	m_Socket.send(&req, sizeof(req));
+
+	std::cout << "ResetAgentRequest sent\n";
+}
 
 void DeepDriveClient::setControlValues(float steering, float throttle, float brake, uint32 handbrake)
 {
 	deepdrive::server::SetAgentControlValuesRequest req(m_ClientId, steering, throttle, brake, handbrake);
 	m_Socket.send(&req, sizeof(req));
-
-	std::cout << "SetAgentControlValueRequest sent\n";
 }
