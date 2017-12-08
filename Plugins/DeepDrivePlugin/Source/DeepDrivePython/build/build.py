@@ -40,8 +40,8 @@ def main(build_type):
     elif build_type == 'win_bdist':
         print(run_command('python -u setup.py bdist_wheel', env=env, cwd=ext_root))
         if env['DEEPDRIVE_BRANCH'] == 'release':
-            scripts_dir = os.path.join(os.listdir(env['PYTHON']), 'Scripts')
-            print(list(scripts_dir))
+            scripts_dir = os.path.join(env['PYTHON'], 'Scripts')
+            print('DEBUG scripts dir %s' % list(os.listdir(scripts_dir)))
             for name in os.listdir(os.path.join(ext_root, 'dist')):
                 if env['DEEPDRIVE_VERSION'] in name and name.endswith(".whl"):
                     twine = os.path.join(scripts_dir, 'twine')
