@@ -42,7 +42,7 @@ def main(build_type):
         if env['DEEPDRIVE_BRANCH'] == 'release':
             for name in os.listdir(os.path.join(ext_root, 'dist')):
                 if env['DEEPDRIVE_VERSION'] in name and name.endswith(".whl"):
-                    run_command('twine upload ' + os.path.join(ext_root, 'dist', name), env=env, cwd=ext_root)
+                    run_command('twine upload "' + os.path.join(ext_root, 'dist', name) + '"', env=env, cwd=ext_root)
     elif build_type == 'linux_bdist':
         env['PRE_CMD'] = env.get('PRE_CMD') or ''
         env['DOCKER_IMAGE'] = env.get('DOCKER_IMAGE') or 'quay.io/pypa/manylinux1_x86_64'
