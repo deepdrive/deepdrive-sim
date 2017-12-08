@@ -58,20 +58,23 @@ Open deepdrive uproject file - choose other -> Skip Conversion
 
 **Building the Python Extension**
 
-Linux
+Locally
 ```
-cd Plugins/DeepDrivePlugin/Source/DeepDrivePython
-python build/build.py --type linux_bdist
-```
-
-Windows
-```
-cd Plugins/DeepDrivePlugin/Source/DeepDrivePython
-python build\build.py --type dev
+python build/build.py --type dev
 ```
 
-**How to change the field of view**
-Content->Tuning Cars->Blueprint->AliceGT->
+Linux wheel
+```
+cd Plugins/DeepDrivePlugin/Source/DeepDrivePython
+sudo -E python build/build.py --type linux_bdist
+```
+
+Windows wheel
+```
+cd Plugins/DeepDrivePlugin/Source/DeepDrivePython
+python build\build.py --type win_bdist
+```
+
 
 **How to change the shared memory names (mostly useful for debugging)**
 

@@ -46,6 +46,7 @@ def main(build_type):
     elif build_type == 'linux_bdist':
         env['PRE_CMD'] = env.get('PRE_CMD') or ''
         env['DOCKER_IMAGE'] = env.get('DOCKER_IMAGE') or 'quay.io/pypa/manylinux1_x86_64'
+        print('PYPY_USERNAME is %s' % env['PYPI_USERNAME'])
 
         # Build in CentOS to get a portable binary
         run_command(['docker', 'run', '--rm', '-e', '"DEEPDRIVE_SRC_DIR=/io"',
