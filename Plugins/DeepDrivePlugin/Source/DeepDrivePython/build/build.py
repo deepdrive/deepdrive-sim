@@ -35,6 +35,7 @@ def main(build_type):
                                run_command('git rev-parse --abbrev-ref HEAD'))
     print('DEEPDRIVE_VERSION is %s' % env['DEEPDRIVE_VERSION'])
     ext_root = os.path.dirname(DIR)
+    print('PYPY_USERNAME is %s' % env.get('PYPI_USERNAME'))
     if build_type == 'dev':
         run_command('python -u setup.py install', env=env, cwd=ext_root)
     elif build_type == 'win_bdist':
@@ -45,12 +46,11 @@ def main(build_type):
             for name in os.listdir(os.path.join(ext_root, 'dist')):
                 if env['DEEPDRIVE_VERSION'] in name and name.endswith(".whl"):
                     twine = os.path.join(scripts_dir, 'twine')
-                    run_command(twine + ' upload ' + os.path.join(ext_root, 'dist', name), env=env,
-                                cwd=ext_root)
+                    run_command([twine, 'upload', os.path.join(ext_root, 'dist', name), '-u', env['PYPI_USERNAME'],
+                                 '-p', env['PYPI_PASSWORD']], env=env, cwd=ext_root)
     elif build_type == 'linux_bdist':
         env['PRE_CMD'] = env.get('PRE_CMD') or ''
         env['DOCKER_IMAGE'] = env.get('DOCKER_IMAGE') or 'quay.io/pypa/manylinux1_x86_64'
-        print('PYPY_USERNAME is %s' % env['PYPI_USERNAME'])
 
         # Build in CentOS to get a portable binary
         run_command(['docker', 'run', '--rm', '-e', '"DEEPDRIVE_SRC_DIR=/io"',
