@@ -1,5 +1,5 @@
 
-#include "deepdrive_Client/DeepDriveClient.hpp"
+#include "deepdrive_client/DeepDriveClient.hpp"
 
 #include "Public/Server/Messages/DeepDriveServerConnectionMessages.h"
 #include "Public/Server/Messages/DeepDriveServerConfigurationMessages.h"
