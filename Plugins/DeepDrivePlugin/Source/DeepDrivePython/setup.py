@@ -57,7 +57,7 @@ deepdrive_control_module = Extension	(	'deepdrive_control'
 
 setup	(   name='deepdrive'
         ,   version=os.environ['DEEPDRIVE_VERSION']
-        ,   url='https://github.com/deepdrive/deepdrive-unreal'
+        ,   url='https://github.com/deepdrive/deepdrive-sim'
         ,   author='deepdrive.io'
         ,   author_email='developers@deepdrive.io'
         ,   license='MIT'
