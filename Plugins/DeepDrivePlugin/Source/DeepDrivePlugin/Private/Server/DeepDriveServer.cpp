@@ -44,6 +44,7 @@ DeepDriveServer::DeepDriveServer()
 	m_MessageHandlers[deepdrive::server::MessageId::RequestAgentControlRequest] = std::bind(&DeepDriveServer::handleRequestAgentControl, this, std::placeholders::_1);
 	m_MessageHandlers[deepdrive::server::MessageId::ReleaseAgentControlRequest] = std::bind(&DeepDriveServer::handleReleaseAgentControl, this, std::placeholders::_1);
 	m_MessageHandlers[deepdrive::server::MessageId::SetAgentControlValuesRequest] = std::bind(&DeepDriveServer::setAgentControlValues, this, std::placeholders::_1);
+	m_MessageHandlers[deepdrive::server::MessageId::ResetAgentRequest] = std::bind(&DeepDriveServer::resetAgent, this, std::placeholders::_1);
 }
 
 DeepDriveServer::~DeepDriveServer()
@@ -183,11 +184,23 @@ void DeepDriveServer::handleReleaseAgentControl(const deepdrive::server::Message
 	}
 }
 
+void DeepDriveServer::resetAgent(const deepdrive::server::MessageHeader &message)
+{
+	const deepdrive::server::ResetAgentRequest &req = static_cast<const deepdrive::server::ResetAgentRequest&> (message);
+	DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
+	if (client)
+	{
+		m_Proxy->ResetAgent();
+		UE_LOG(LogDeepDriveServer, Log, TEXT("Agent reset %d"), req.client_id);
+	}
+}
+
+
 void DeepDriveServer::setAgentControlValues(const deepdrive::server::MessageHeader &message)
 {
 	const deepdrive::server::SetAgentControlValuesRequest &req = static_cast<const deepdrive::server::SetAgentControlValuesRequest&> (message);
 	m_Proxy->SetAgentControlValues(req.steering, req.throttle, req.brake, req.handbrake != 0 ? true : false);
-	UE_LOG(LogDeepDriveServer, Log, TEXT("Control values received from %d"), req.client_id);
+	// UE_LOG(LogDeepDriveServer, Log, TEXT("Control values received from %d"), req.client_id);
 }
 
 void DeepDriveServer::addIncomingConnection(FSocket *socket, TSharedRef<FInternetAddr> remoteAddr)

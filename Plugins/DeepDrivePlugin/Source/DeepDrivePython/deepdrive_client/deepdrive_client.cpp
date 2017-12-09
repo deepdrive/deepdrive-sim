@@ -80,7 +80,7 @@ static PyObject* deepdrive_client_close(PyObject *self, PyObject *args)
 {
 	uint32 res = 0;
 
-	uint32 clientId = 19768;
+	uint32 clientId = 0;
 	int32 ok = PyArg_ParseTuple(args, "i", &clientId);
 
 	if(ok && clientId > 0)
@@ -218,8 +218,24 @@ static PyObject* deepdrive_client_release_agent_control(PyObject *self, PyObject
 */
 static PyObject* deepdrive_client_reset_agent(PyObject *self, PyObject *args)
 {
-	uint32 res = 0;
-	return Py_BuildValue("i", res);
+	uint32 clientId = 0;
+	int32 ok = PyArg_ParseTuple(args, "i", &clientId);
+
+	if(ok && clientId > 0)
+	{
+		ClientMap::iterator cIt = g_Clients.find(clientId);
+		if(cIt != g_Clients.end())
+		{
+			DeepDriveClient *client = cIt->second;
+			if(client)
+			{
+				client->resetAgent();
+			}
+		}
+	}
+
+
+	return Py_BuildValue("");
 }
 
 
@@ -246,8 +262,6 @@ static PyObject* deepdrive_client_set_control_values(PyObject *self, PyObject *a
 
 	if(ok)
 	{
-		std::cout << "Set control values for client " << clientId << " steering " << steering << " throttle " << throttle << " brake " << brake << "\n";
-
 		DeepDriveClient *client = getClient(clientId);
 		if(client)
 		{
@@ -271,7 +285,7 @@ static PyObject* deepdrive_client_set_control_values(PyObject *self, PyObject *a
 */
 static PyObject* deepdrive_client_get_shared_memory(PyObject *self, PyObject *args)
 {
-	uint32 clientId = 1;
+	uint32 clientId = 0;
 	int32 ok = PyArg_ParseTuple(args, "i", &clientId);
 
 	if(ok && clientId > 0)
@@ -298,6 +312,7 @@ static PyMethodDef DeepDriveClientMethods[] =	{	{"create", deepdrive_client_crea
 												,	{"get_shared_memory", deepdrive_client_get_shared_memory, METH_VARARGS, "Get shared memory name and size for client"}
 												,	{"request_agent_control", deepdrive_client_request_agent_control, METH_VARARGS, "Request control over agent"}
 												,	{"release_agent_control", deepdrive_client_release_agent_control, METH_VARARGS, "Release control over agent"}
+												,	{"reset_agent", deepdrive_client_reset_agent, METH_VARARGS, "Reset the agent"}
 												,	{"set_control_values", (PyCFunction) deepdrive_client_set_control_values, METH_VARARGS | METH_KEYWORDS, "Send control value set to server"}
 												,	{NULL,     NULL,             0,            NULL}        /* Sentinel */
 												};
@@ -316,7 +331,7 @@ PyMODINIT_FUNC PyInit_deepdrive_client(void)
 	// if (PyType_Ready(&PyDeepDriveClientRegisterClientRequestType) < 0)
 	//	return 0;
 
-	std::cout << ">>>>>>>>>>>< PyInit_deepdrive_client <<<<<<<<<<<<<<<<<\n";
+	std::cout << "######>>> PyInit_deepdrive_client <<<######\n";
 
 	import_array();
 

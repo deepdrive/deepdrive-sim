@@ -7,6 +7,10 @@ from datetime import datetime
 
 SRC_DIR = os.environ.get('DEEPDRIVE_SRC_DIR', '..')
 
+print('###################################')
+print(SRC_DIR + '/DeepDrivePlugin/Private/SharedMemory/SharedMemory.cpp')
+print(os.environ['DEEPDRIVE_VERSION'])
+print('###################################')
 
 sources_capture =	[	SRC_DIR + '/DeepDrivePlugin/Private/SharedMemory/SharedMemory.cpp'
                     ,	'DeepDriveSharedMemoryClient.cpp'
@@ -20,7 +24,18 @@ sources_control =	[	SRC_DIR + '/DeepDrivePlugin/Private/SharedMemory/SharedMemor
                     ,	'NumPyUtils.cpp'
                     ]
 
-includes =	[	np.get_include()
+
+sources_client =    [   'deepdrive_client/deepdrive_client.cpp'
+                    ,   'deepdrive_client/DeepDriveClient.cpp'
+                    ,   'socket/IP4Address.cpp'
+                    ,   'socket/IP4ClientSocket.cpp'
+                    ,   'NumPyUtils.cpp'
+                    ]
+
+
+
+includes =	[	'./'
+            ,   np.get_include()
             ,	'include/Unreal'
             ,	SRC_DIR + '/DeepDrivePlugin'
             ]
@@ -32,6 +47,7 @@ if platform == "linux" or platform == "linux2":
     macros.append(('DEEPDRIVE_PLATFORM_LINUX', None))
     sources_capture.append(SRC_DIR + '/DeepDrivePlugin/Private/SharedMemory/SharedMemoryImpl_Linux.cpp')
     sources_control.append(SRC_DIR + '/DeepDrivePlugin/Private/SharedMemory/SharedMemoryImpl_Linux.cpp')
+    sources_client.append('socket/IP4ClientSocketImpl_Linux.cpp')
     compiler_args.append('-std=c++11')
 elif platform == "darwin":
     # MacOs
@@ -41,6 +57,7 @@ elif platform == "win32":
     macros.append(('DEEPDRIVE_PLATFORM_WINDOWS', None))
     sources_capture.append(SRC_DIR + '/DeepDrivePlugin/Private/SharedMemory/SharedMemoryImpl_Windows.cpp')
     sources_control.append(SRC_DIR + '/DeepDrivePlugin/Private/SharedMemory/SharedMemoryImpl_Windows.cpp')
+    sources_client.append('socket/IP4ClientSocketImpl_Windows.cpp')
     print('Detected Windows platform')
 
 deepdrive_capture_module = Extension	(	'deepdrive'
@@ -55,6 +72,12 @@ deepdrive_control_module = Extension	(	'deepdrive_control'
                                         ,	define_macros=macros
                                         )
 
+deepdrive_client_module = Extension     (   'deepdrive_client'
+                                        ,   sources = sources_client
+                                        ,   extra_compile_args=compiler_args
+                                        ,   define_macros=macros
+                                        )
+
 setup	(   name='deepdrive'
         ,   version=os.environ['DEEPDRIVE_VERSION']
         ,   url='https://github.com/deepdrive/deepdrive-sim'
@@ -62,7 +85,7 @@ setup	(   name='deepdrive'
         ,   author_email='developers@deepdrive.io'
         ,   license='MIT'
         ,   description='Python interface to vehicle simulation running in Unreal'
-        ,   ext_modules=[deepdrive_capture_module, deepdrive_control_module]
+        ,   ext_modules=[deepdrive_capture_module, deepdrive_control_module, deepdrive_client_module]
         ,   include_dirs=includes
         ,   install_requires=['numpy']
         )

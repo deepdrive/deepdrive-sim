@@ -25,7 +25,8 @@ public:
 
 	bool requestAgentControl();
 	void releaseAgentControl();
-
+	void resetAgent();
+	
 	const char* getSharedMemoryName() const;
 	uint32 getSharedMemorySize() const;
 

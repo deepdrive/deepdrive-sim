@@ -45,6 +45,7 @@ bool DeepDriveClientConnection::Init()
 	m_MessageHandlers[deepdrive::server::MessageId::RequestAgentControlRequest] = forward2Server;
 	m_MessageHandlers[deepdrive::server::MessageId::ReleaseAgentControlRequest] = forward2Server;
 	m_MessageHandlers[deepdrive::server::MessageId::SetAgentControlValuesRequest] = forward2Server;
+	m_MessageHandlers[deepdrive::server::MessageId::ResetAgentRequest] = forward2Server;
 
 
 	m_MessageAssembler.m_HandleMessage.BindRaw(this, &DeepDriveClientConnection::handleClientRequest);
@@ -66,7 +67,7 @@ uint32 DeepDriveClientConnection::Run()
 					int32 bytesRead = 0;
 					if (m_Socket->Recv(m_ReceiveBuffer, m_curReceiveBufferSize, bytesRead, ESocketReceiveFlags::None))
 					{
-						UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] Received %d bytes"), m_ClientId, bytesRead);
+						// UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] Received %d bytes"), m_ClientId, bytesRead);
 						m_MessageAssembler.add(m_ReceiveBuffer, bytesRead);
 
 						sleepTime = 0.005f;
@@ -83,7 +84,7 @@ uint32 DeepDriveClientConnection::Run()
 		{
 			int32 bytesSent = 0;
 			m_Socket->Send(reinterpret_cast<uint8*> (response), response->message_size, bytesSent);
-			UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] %d bytes sent back"), m_ClientId, bytesSent);
+			// UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] %d bytes sent back"), m_ClientId, bytesSent);
 
 			FMemory::Free(response);
 		}
