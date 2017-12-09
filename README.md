@@ -61,6 +61,7 @@ Open deepdrive uproject file - choose other -> Skip Conversion
 
 Locally
 ```
+cd Plugins/DeepDrivePlugin/Source/DeepDrivePython
 python build/build.py --type dev
 ```
 
