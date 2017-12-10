@@ -182,6 +182,10 @@ void DeepDriveServer::handleReleaseAgentControl(const deepdrive::server::Message
 		UE_LOG(LogDeepDriveServer, Log, TEXT("Control over agent released %d"), req.client_id);
 		client->enqueueResponse(new deepdrive::server::ReleaseAgentControlResponse(true));
 	}
+	else
+	{
+		UE_LOG(LogDeepDriveServer, Log, TEXT("Ignoring release control request, no clients connected"));
+	}
 }
 
 void DeepDriveServer::resetAgent(const deepdrive::server::MessageHeader &message)
@@ -192,6 +196,9 @@ void DeepDriveServer::resetAgent(const deepdrive::server::MessageHeader &message
 	{
 		m_Proxy->ResetAgent();
 		UE_LOG(LogDeepDriveServer, Log, TEXT("Agent reset %d"), req.client_id);
+	}
+	else{
+		UE_LOG(LogDeepDriveServer, Log, TEXT("No client, ignoring reset"));
 	}
 }
 

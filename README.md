@@ -87,5 +87,3 @@ python build\build.py --type win_bdist
 
 **Push deepdrive PyPi module**
 `git push origin master && git push origin master:release`
-
-

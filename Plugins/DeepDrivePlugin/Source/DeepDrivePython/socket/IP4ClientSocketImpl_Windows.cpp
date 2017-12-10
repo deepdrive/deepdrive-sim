@@ -46,7 +46,7 @@ bool IP4ClientSocketImpl_Windows::connect(const IP4Address &ip4Address)
 			std::cout << "Connected\n";
 		}
 		else
-			std::cout << "Connectinbg failed. Error Code : " << WSAGetLastError() << "\n";
+			std::cout << "Connecting failed. Error Code : " << WSAGetLastError() << "\n";
 
 	}
 	else
