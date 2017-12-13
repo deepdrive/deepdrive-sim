@@ -37,6 +37,7 @@ enum class MessageId	:	uint32
 	RequestAgentControlResponse,
 	SetAgentControlValuesRequest,
 	ResetAgentRequest,
+	ResetAgentResponse,
 	ReleaseAgentControlRequest,
 	ReleaseAgentControlResponse
 };

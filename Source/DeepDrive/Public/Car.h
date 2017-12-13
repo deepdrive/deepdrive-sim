@@ -123,6 +123,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Car physics data")
 	bool GetShouldReset() const;
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Car physics data")
+	void ResetAgentFinished();
+
 	UFUNCTION(BlueprintCallable, Category = "Car physics data")
 	void SetIsResetting(bool NewbIsResetting);
 

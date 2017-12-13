@@ -17,9 +17,9 @@ using namespace deepdrive::server;
 
 DEFINE_LOG_CATEGORY(LogDeepDriveClientConnection);
 
-DeepDriveClientConnection::DeepDriveClientConnection(FSocket *socket, uint32 clientId)
+DeepDriveClientConnection::DeepDriveClientConnection(FSocket *socket)
 	:	m_Socket(socket)
-	,	m_ClientId(clientId)
+	,	m_ClientId()
 	,	m_isStopped(false)
 	,	m_ReceiveBuffer(0)
 	,	m_curReceiveBufferSize(0)
@@ -32,6 +32,7 @@ DeepDriveClientConnection::DeepDriveClientConnection(FSocket *socket, uint32 cli
 
 DeepDriveClientConnection::~DeepDriveClientConnection()
 {
+	UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] DeepDriveClientConnection::~DeepDriveClientConnection"), m_ClientId);
 }
 
 
@@ -85,11 +86,12 @@ uint32 DeepDriveClientConnection::Run()
 			int32 bytesSent = 0;
 			m_Socket->Send(reinterpret_cast<uint8*> (response), response->message_size, bytesSent);
 			// UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] %d bytes sent back"), m_ClientId, bytesSent);
-
+			
 			FMemory::Free(response);
 		}
 
-		FPlatformProcess::Sleep(sleepTime);
+		if(m_isStopped == false)
+			FPlatformProcess::Sleep(sleepTime);
 
 	}
 
@@ -99,11 +101,12 @@ uint32 DeepDriveClientConnection::Run()
 
 void DeepDriveClientConnection::Stop()
 {
+	m_isStopped = true;
 }
 
-void DeepDriveClientConnection::terminate()
+void DeepDriveClientConnection::Exit()
 {
-	m_isStopped = true;
+	delete this;
 }
 
 void DeepDriveClientConnection::handleClientRequest(const deepdrive::server::MessageHeader &message)
@@ -111,16 +114,23 @@ void DeepDriveClientConnection::handleClientRequest(const deepdrive::server::Mes
 	MessageHandlers::iterator fIt = m_MessageHandlers.find(message.message_id);
 	if (fIt != m_MessageHandlers.end())
 		fIt->second(message, m_isMaster);
+	else
+		UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] Unknown message recieved type %d size %d"), m_ClientId, static_cast<uint32> (message.message_id), message.message_size);
+
 }
 
 void DeepDriveClientConnection::registerClient(const deepdrive::server::MessageHeader &message, bool isMaster)
 {
 	const RegisterClientRequest &regClient = static_cast<const RegisterClientRequest &> (message);
-	UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] Client wants to register reqMaster %c"), m_ClientId, regClient.request_master_role ? 'T' : 'F');
+
+	m_isMaster = regClient.request_master_role > 0 ? true : false;
+	m_ClientId = DeepDriveServer::GetInstance().registerClient(this, m_isMaster);
+
+	UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] Client wants to register reqMaster %c isMaster %c"), m_ClientId, regClient.request_master_role ? 'T' : 'F', m_isMaster ? 'T' : 'F');
 
 	RegisterClientResponse response;
 	response.client_id = m_ClientId;
-	response.granted_master_role = 1;
+	response.granted_master_role = m_isMaster ? 1 : 0;
 
 	response.server_protocol_version = 1;
 
@@ -141,19 +151,20 @@ void DeepDriveClientConnection::registerClient(const deepdrive::server::MessageH
 	response.inactivity_timeout_ms = 1000;
 	int32 bytesSent = 0;
 	m_Socket->Send(reinterpret_cast<uint8*> (&response), sizeof(response), bytesSent);
-	UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] %d bytes sent back"), m_ClientId, bytesSent);
+	// UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] %d bytes sent back"), m_ClientId, bytesSent);
 
 	m_isMaster = true;
 }
 
 void DeepDriveClientConnection::unregisterClient(const deepdrive::server::MessageHeader &message, bool isMaster)
 {
+	DeepDriveServer::GetInstance().unregisterClient(m_ClientId);
+
 	const RegisterClientRequest &regClient = static_cast<const RegisterClientRequest &> (message);
 	UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] Client wants to unregister isMaster %c"), m_ClientId, m_isMaster ? 'T' : 'F');
 	UnregisterClientResponse response;
 	int32 bytesSent = 0;
 	m_Socket->Send(reinterpret_cast<uint8*> (&response), sizeof(response), bytesSent);
-	UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] %d bytes sent back"), m_ClientId, bytesSent);
 }
 
 void DeepDriveClientConnection::shutdown()
@@ -184,5 +195,7 @@ bool DeepDriveClientConnection::resizeReceiveBuffer(uint32 minSize)
 void DeepDriveClientConnection::enqueueResponse(deepdrive::server::MessageHeader *message)
 {
 	if (message)
+	{
 		m_ResponseQueue.Enqueue(message);
+	}
 }

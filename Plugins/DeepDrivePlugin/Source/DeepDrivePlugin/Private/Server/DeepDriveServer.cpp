@@ -36,7 +36,6 @@ void DeepDriveServer::Destroy()
 
 DeepDriveServer::DeepDriveServer()
 {
-
 	UE_LOG(LogDeepDriveServer, Log, TEXT("DeepDriveServer created") );
 
 	m_MessageHandlers[deepdrive::server::MessageId::RegisterCaptureCameraRequest] = std::bind(&DeepDriveServer::handleRegisterCamera, this, std::placeholders::_1);
@@ -103,11 +102,44 @@ void DeepDriveServer::UnregisterProxy(ADeepDriveServerProxy &proxy)
 		for (auto &clientData : m_Clients)
 		{
 			if (clientData.Value.connection)
-				clientData.Value.connection->terminate();
+				clientData.Value.connection->Stop();
 		}
 	}
 }
 
+uint32 DeepDriveServer::registerClient(DeepDriveClientConnection *client, bool &isMaster)
+{
+	FScopeLock lock(&m_ClientMutex);
+	const uint32 clientId = m_nextClientId++;
+	m_Clients.Add(clientId, SClient(clientId, client));
+
+	if (isMaster)
+	{
+		if (m_MasterClientId == 0)
+			m_MasterClientId = clientId;
+		else
+			isMaster = false;
+	}
+
+	return clientId;
+}
+
+void DeepDriveServer::unregisterClient(uint32 clientId)
+{
+	FScopeLock lock(&m_ClientMutex);
+
+	if (m_Clients.Find(clientId))
+	{
+		DeepDriveClientConnection *client = m_Clients[clientId].connection;
+		m_Clients.Remove(clientId);
+		client->Stop();
+
+		if (m_MasterClientId == clientId)
+		{
+			m_MasterClientId = 0;
+		}
+	}
+}
 
 void DeepDriveServer::update(float DeltaSeconds)
 {
@@ -116,12 +148,8 @@ void DeepDriveServer::update(float DeltaSeconds)
 		&&	incoming != 0
 		)
 	{
-		const uint32 clientId = m_nextClientId++;
-		m_Clients.Add(clientId, SClient(incoming->socket, clientId, new DeepDriveClientConnection(incoming->socket, clientId)));
-		if (m_MasterClientId == 0)
-			m_MasterClientId = clientId;
-
-		UE_LOG(LogDeepDriveServer, Log, TEXT("Client connected: %s is master %c"), *(incoming->remote_address->ToString(true)), m_MasterClientId == clientId ? 'T' : 'F' );
+		UE_LOG(LogDeepDriveServer, Log, TEXT("Incoming client connection from %s"), *(incoming->remote_address->ToString(true)));
+		DeepDriveClientConnection *client = new DeepDriveClientConnection(incoming->socket);
 	}
 
 	deepdrive::server::MessageHeader *message = 0;
@@ -179,7 +207,6 @@ void DeepDriveServer::handleReleaseAgentControl(const deepdrive::server::Message
 	if (client)
 	{
 		m_Proxy->ReleaseAgentControl();
-		UE_LOG(LogDeepDriveServer, Log, TEXT("Control over agent released %d"), req.client_id);
 		client->enqueueResponse(new deepdrive::server::ReleaseAgentControlResponse(true));
 	}
 	else
@@ -199,6 +226,20 @@ void DeepDriveServer::resetAgent(const deepdrive::server::MessageHeader &message
 	}
 	else{
 		UE_LOG(LogDeepDriveServer, Log, TEXT("No client, ignoring reset"));
+	}
+}
+
+void DeepDriveServer::onAgentReset(bool success)
+{
+	DeepDriveClientConnection *client = m_Clients.Find(m_MasterClientId)->connection;
+	if (client && client->isMaster())
+	{
+		client->enqueueResponse(new deepdrive::server::ResetAgentResponse(success));
+		UE_LOG(LogDeepDriveServer, Log, TEXT("[%d] Agent reset success %c"), m_MasterClientId, success ? 'T' : 'F');
+	}
+	else
+	{
+		UE_LOG(LogDeepDriveServer, Log, TEXT("onResetAgent: No master client found for %d"), m_MasterClientId);
 	}
 }
 

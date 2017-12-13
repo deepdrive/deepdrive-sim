@@ -47,6 +47,7 @@ void ACar::Tick(float DeltaTime)
 		DistanceToCenterOfLane = 0.f;
 		LapNumber = 0;
 		bShouldResetPosition = true;
+		ResetAgentFinished();
 	}
 	bPreviousShouldReset = bShouldReset;
 

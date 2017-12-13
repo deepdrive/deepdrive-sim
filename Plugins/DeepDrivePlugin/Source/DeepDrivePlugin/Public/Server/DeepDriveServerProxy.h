@@ -47,6 +47,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Control")
 	void ResetAgent();
 
+	UFUNCTION(BlueprintCallable, Category = "Control")
+	void AgentReset(bool Success);
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "Control")
 	void SetAgentControlValues(float steering, float throttle, float brake, bool handbrake);
 

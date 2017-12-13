@@ -77,3 +77,11 @@ void ADeepDriveServerProxy::Tick( float DeltaTime )
 	}
 
 }
+
+void ADeepDriveServerProxy::AgentReset(bool Success)
+{
+	if (m_isActive)
+	{
+		DeepDriveServer::GetInstance().onAgentReset(Success);
+	}
+}

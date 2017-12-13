@@ -37,13 +37,11 @@ class DeepDriveServer
 
 	struct SClient
 	{
-		SClient(FSocket *s = 0, uint32 cId = 0, DeepDriveClientConnection *c = 0)
-			:	socket(s)
-			,	client_id(cId)
+		SClient(uint32 cId = 0, DeepDriveClientConnection *c = 0)
+			:	client_id(cId)
 			,	connection(c)
 		{	}
 
-		FSocket			*socket;
 		uint32			client_id;
 		DeepDriveClientConnection		*connection;
 	};
@@ -64,11 +62,17 @@ public:
 
 	void UnregisterProxy(ADeepDriveServerProxy &proxy);
 
+	uint32 registerClient(DeepDriveClientConnection *client, bool &isMaster);
+
+	void unregisterClient(uint32 clientId);
+
 	void update(float DeltaSeconds);
 
 	void addIncomingConnection(FSocket *socket, TSharedRef<FInternetAddr> remoteAddr);
 
 	void enqueueMessage(deepdrive::server::MessageHeader *message);
+
+	void onAgentReset(bool success);
 
 private:
 
@@ -99,6 +103,9 @@ private:
 	TMap<uint32, SClient>			m_Clients;
 	uint32							m_nextClientId = 1;
 	uint32							m_MasterClientId = 0;
+	FCriticalSection				m_ClientMutex;
+
+	TArray<DeepDriveClientConnection*>	m_ClientConnections;
 
 	static DeepDriveServer			*theInstance;
 };

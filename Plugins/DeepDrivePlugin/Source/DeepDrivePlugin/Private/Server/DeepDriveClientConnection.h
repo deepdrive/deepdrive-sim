@@ -32,17 +32,18 @@ class DeepDriveClientConnection	:	public FRunnable
 
 public:
 
-	DeepDriveClientConnection(FSocket *socket, uint32 clientId);
+	DeepDriveClientConnection(FSocket *socket);
 
 	~DeepDriveClientConnection();
 
 	virtual bool Init();
 	virtual uint32 Run();
 	virtual void Stop();
-
-	void terminate();
+	virtual void Exit();
 
 	void enqueueResponse(deepdrive::server::MessageHeader *message);
+
+	bool isMaster() const;
 
 private:
 
@@ -75,3 +76,9 @@ private:
 	MessageHandlers						m_MessageHandlers;
 
 };
+
+
+inline bool DeepDriveClientConnection::isMaster() const
+{
+	return m_isMaster;
+}

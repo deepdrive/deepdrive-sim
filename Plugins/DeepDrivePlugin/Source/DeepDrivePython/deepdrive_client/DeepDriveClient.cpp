@@ -135,8 +135,15 @@ void DeepDriveClient::resetAgent()
 {
 	deepdrive::server::ResetAgentRequest req(m_ClientId);
 	m_Socket.send(&req, sizeof(req));
+	std::cout << "ResetAgentRequest sent " << m_ClientId << "\n";
 
-	std::cout << "ResetAgentRequest sent\n";
+	deepdrive::server::ResetAgentResponse response;
+	if(m_Socket.receive(&response, sizeof(response), 2500))
+	{
+		std::cout << "ResetAgentResponse received " << m_ClientId << "\n";
+	}
+	else
+		std::cout << "Waiting for ResetAgentResponse, time out\n";
 }
 
 void DeepDriveClient::setControlValues(float steering, float throttle, float brake, uint32 handbrake)
