@@ -20,6 +20,9 @@ void DeepDriveMessageAssembler::add(const uint8 *data, uint32 numBytes)
 	{
 		FMemory::BigBlockMemcpy(m_MessageBuffer + m_curWritePos, data, numBytes);
 		m_curWritePos += numBytes;
+
+		(void) new (m_MessageBuffer + m_curWritePos) deepdrive::server::MessageHeader(deepdrive::server::MessageId::Undefined, 0);
+
 		checkForMessage();
 	}
 }
@@ -30,11 +33,12 @@ void DeepDriveMessageAssembler::checkForMessage()
 
 	uint32 readPos = 0;
 
-	while (readPos + msg->message_size <= m_curWritePos)
+	while (msg->message_size && readPos + msg->message_size <= m_curWritePos)
 	{
 		m_HandleMessage.Execute(*(msg));
 
 		readPos += msg->message_size;
+		msg = reinterpret_cast<deepdrive::server::MessageHeader*> (m_MessageBuffer + readPos);
 	}
 
 	if (readPos > 0)
@@ -49,7 +53,7 @@ bool DeepDriveMessageAssembler::resize(uint32 numBytes)
 	uint32 newSize = m_curWritePos + numBytes;
 	if (newSize > m_curBufferSize)
 	{
-		m_MessageBuffer = reinterpret_cast<uint8*> (FMemory::Realloc(m_MessageBuffer, newSize));
+		m_MessageBuffer = reinterpret_cast<uint8*> (FMemory::Realloc(m_MessageBuffer, newSize + sizeof(deepdrive::server::MessageHeader)));	// leave head room for terminating header
 		m_curBufferSize = newSize;
 	}
 	return m_MessageBuffer != 0;
