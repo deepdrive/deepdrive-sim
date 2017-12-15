@@ -303,12 +303,16 @@ bool ACar::UpdateSplineProgress()
 	if (FVector::Dist(WaypointPosition, CurrentLocation) < CloseDistanceThreshold)
 	{
 		// We've gotten to the next waypoint along the spline
-		WaypointDistanceAlongSpline += WaypointStep; // TODO: Remove assumption here that we are travelling at speeds and framerates for this to make sense.
-		if (WaypointDistanceAlongSpline > Trajectory->Trajectory->GetSplineLength())
+		WaypointDistanceAlongSpline += WaypointStep; // TODO: Don't assume we are travelling at speeds and framerates for this to make sense.
+		auto SplineLength = Trajectory->Trajectory->GetSplineLength();
+		if (WaypointDistanceAlongSpline > SplineLength)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("resetting target point on spline after making full trip around track"));
+			UE_LOG(LogTemp, Warning, 
+				TEXT("resetting target point on spline after making full trip around track (waypoint distance: %f, spline length: %f"), 
+				WaypointDistanceAlongSpline, SplineLength);
 
 			WaypointDistanceAlongSpline = 0.f;
+			DistanceAlongRoute = 0.f;
 			LapNumber += 1;
 		}
 	}
@@ -397,6 +401,7 @@ void ACar::GetDistanceAlongRouteAtLocation(FVector CurrentLocation)
 	}
 	UE_LOG(LogTemp, VeryVerbose, TEXT("dist 1 meter %f"), DistanceAlongRoute);
 
+	// Narrow down search to get a more precise estimate
 	getDistanceAlongSplineAtLocationWithStep(CurrentLocation, 10, DistanceAlongRoute);
 	UE_LOG(LogTemp, VeryVerbose, TEXT("dist 100 cm %f"), DistanceAlongRoute);
 }

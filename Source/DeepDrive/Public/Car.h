@@ -168,7 +168,7 @@ public:
 	float WaypointStep;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-	float CloseDistanceThreshold;  // TODO: Figure out where this is changed (in blueprints?) to 1500 and cleanup the start progress to be closer to zero
+	float CloseDistanceThreshold;  // TODO: Don't set this in the AliceGT blueprint AI properties and this class to 1500 and cleanup the start progress to be closer to zero
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	float AIThrottle;
