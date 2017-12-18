@@ -15,7 +15,7 @@ UCaptureCameraComponent::UCaptureCameraComponent()
 	bWantsInitializeComponent = true;
 }
 
-void UCaptureCameraComponent::Initialize(UTextureRenderTarget2D *RenderTarget)
+void UCaptureCameraComponent::Initialize(UTextureRenderTarget2D *RenderTarget, float FoV)
 {
 	CameraId = DeepDriveCapture::GetInstance().RegisterCaptureComponent(this);
 
@@ -29,10 +29,11 @@ void UCaptureCameraComponent::Initialize(UTextureRenderTarget2D *RenderTarget)
 
 	if (m_SceneCapture)
 	{
+		SceneRenderTarget = RenderTarget;
 		m_SceneCapture->TextureTarget = RenderTarget;			
 		m_SceneCapture->CaptureSource = ESceneCaptureSource::SCS_SceneColorSceneDepth;
 
-		m_SceneCapture->HiddenActors.Add(GetOwner());
+		//m_SceneCapture->HiddenActors.Add(GetOwner());
 
 		if(IsCapturingActive)
 		{
@@ -48,6 +49,7 @@ void UCaptureCameraComponent::Initialize(UTextureRenderTarget2D *RenderTarget)
 		}
 
 		m_SceneCapture->AttachToComponent(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
+		m_SceneCapture->FOVAngle = FoV;
 	}
 
 	UE_LOG(DeepDriveCaptureComponent, Log, TEXT("UCaptureCameraComponent::InitializeComponent 0x%p camId %d"), m_SceneCapture, CameraId);
