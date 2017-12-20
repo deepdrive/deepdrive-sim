@@ -65,6 +65,16 @@ int32 DeepDriveCapture::RegisterCaptureComponent(UCaptureCameraComponent *captur
 	return id;
 }
 
+void DeepDriveCapture::UnregisterCaptureComponent(int32 cameraId)
+{
+	if (m_CaptureComponentMap.Contains(cameraId))
+	{
+		UE_LOG(LogDeepDriveCapture, Log, TEXT("Unregisterws CaptureCameraComponent with id %d"), cameraId);
+		m_CaptureComponentMap.Remove(cameraId);
+	}
+
+}
+
 void DeepDriveCapture::HandleCaptureResult()
 {
 	processFinishedJobs();

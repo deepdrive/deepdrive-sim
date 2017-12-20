@@ -40,6 +40,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "CaptureCamera")
 	void Initialize(UTextureRenderTarget2D *RenderTarget, float FoV);
 
+	UFUNCTION(BlueprintCallable, Category = "CaptureCamera")
+	void Remove();
 
 	UFUNCTION(BlueprintCallable, Category="Capturing")
 	void ActivateCapturing();

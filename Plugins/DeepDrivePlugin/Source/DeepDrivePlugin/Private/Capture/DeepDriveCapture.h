@@ -50,6 +50,8 @@ public:
 	void UnregisterProxy(ADeepDriveCaptureProxy &proxy);
 
 	int32 RegisterCaptureComponent(UCaptureCameraComponent *captureComponent);
+	
+	void UnregisterCaptureComponent(int32 cameraId);
 
 	void HandleCaptureResult();
 

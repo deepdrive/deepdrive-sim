@@ -35,6 +35,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Server)
 	int32		Port = 9876;
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Connection")
+	void RegisterClient(int32 ClientId, bool IsMaster);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Connection")
+	void UnregisterClient(int32 ClientId, bool IsMaster);
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "CameraConfiguration")
 	int32 RegisterCamera(float FieldOfView, int32 CaptureWidth, int32 CaptureHeight, FVector RelativePosition, FVector RelativeRotation);
 
