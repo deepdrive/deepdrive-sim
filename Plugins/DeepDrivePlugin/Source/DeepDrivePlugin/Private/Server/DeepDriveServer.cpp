@@ -121,11 +121,17 @@ uint32 DeepDriveServer::registerClient(DeepDriveClientConnection *client, bool &
 			isMaster = false;
 	}
 
+	if (m_Proxy)
+		m_Proxy->RegisterClient(clientId, isMaster);
+
 	return clientId;
 }
 
 void DeepDriveServer::unregisterClient(uint32 clientId)
 {
+	if (m_Proxy)
+		m_Proxy->UnregisterClient(clientId, m_MasterClientId == clientId);
+
 	FScopeLock lock(&m_ClientMutex);
 
 	if (m_Clients.Find(clientId))

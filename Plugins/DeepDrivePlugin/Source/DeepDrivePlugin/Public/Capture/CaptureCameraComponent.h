@@ -37,9 +37,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CaptureCamera")
 	UTextureRenderTarget2D	*SceneRenderTarget;
 
-	UFUNCTION(BlueprintCallable, Category = "Capturing")
-	void Initialize(UTextureRenderTarget2D *RenderTarget);
+	UFUNCTION(BlueprintCallable, Category = "CaptureCamera")
+	void Initialize(UTextureRenderTarget2D *RenderTarget, float FoV);
 
+	UFUNCTION(BlueprintCallable, Category = "CaptureCamera")
+	void Remove();
 
 	UFUNCTION(BlueprintCallable, Category="Capturing")
 	void ActivateCapturing();

@@ -25,7 +25,7 @@ class FSocket;
  */
 class DeepDriveClientConnection	:	public FRunnable
 {
-	typedef TQueue<deepdrive::server::MessageHeader*>	MessageQueue;
+	typedef TQueue<deepdrive::server::MessageHeader*, EQueueMode::Mpsc>	MessageQueue;
 
 	typedef std::function< void(const deepdrive::server::MessageHeader&, bool) > HandleMessageFuncPtr;
 	typedef std::map<deepdrive::server::MessageId, HandleMessageFuncPtr>	MessageHandlers;
