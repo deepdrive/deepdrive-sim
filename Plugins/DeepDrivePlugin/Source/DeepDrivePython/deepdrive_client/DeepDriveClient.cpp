@@ -19,7 +19,7 @@ DeepDriveClient::~DeepDriveClient()
 
 }
 
-uint32 DeepDriveClient::registerClient()
+deepdrive::server::RegisterClientResponse DeepDriveClient::registerClient()
 {
 	uint32 clientId = 0;
 
@@ -44,12 +44,13 @@ uint32 DeepDriveClient::registerClient()
 
 		m_InactivityTimeout = response.inactivity_timeout_ms;
 
-		std::cout << "RegisterClientResponse received " << m_ClientId << " " << m_MaxSupportedCameras << " " << m_MaxCaptureResolution << "\n";
+		std::cout << "RegisterClientResponse received client id " << m_ClientId << " max cams "
+		 	<< m_MaxSupportedCameras << " capture res " << m_MaxCaptureResolution <<  " protocol version " << m_ServerProtocolVersion << "\n";
 	}
 	else
 		std::cout << "Waiting for RegisterClientResponse, time out\n";
 
-	return clientId;
+	return response;
 }
 
 bool DeepDriveClient::isConnected() const

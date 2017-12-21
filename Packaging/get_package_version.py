@@ -16,6 +16,7 @@ def git_commit_time_parse(t):
 
 
 def get_package_version():
+    # %ci gives the committer date which guarantees HEAD is most recent
     p = Popen(['git', 'log', '-1', '--format=%ci'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
     out, err = p.communicate()
     if not isinstance(out, str):
@@ -25,8 +26,10 @@ def get_package_version():
         raise RuntimeError('Could not get most recent commit')
     last_commit_time = git_commit_time_parse(out)
     last_commit_timestamp = last_commit_time.strftime('%Y%m%d%H%M%S')
-    with open(os.path.join(DIR, 'VERSION')) as f:
-        version = '%s.%s' % (f.read(), last_commit_timestamp)
+    with open(os.path.join(DIR, 'MAJOR_MINOR_VERSION')) as fr:
+        version = '%s.%s' % (fr.read(), last_commit_timestamp)
+    with open(os.path.join(DIR, 'VERSION'), 'w') as fw:
+        fw.write(version)
     return version
 
 

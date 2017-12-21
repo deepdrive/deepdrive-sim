@@ -1,9 +1,8 @@
 from __future__ import print_function
 import os
-from setuptools import setup, Extension, find_packages
+from setuptools import setup, Extension
 from sys import platform
 import numpy as np
-from datetime import datetime
 
 SRC_DIR = os.environ.get('DEEPDRIVE_SRC_DIR', '..')
 
@@ -89,6 +88,3 @@ setup	(   name='deepdrive'
         ,   include_dirs=includes
         ,   install_requires=['numpy']
         )
-
-
-print(np.get_include())

@@ -6,6 +6,9 @@
 #include "socket/IP4Address.hpp"
 #include "socket/IP4ClientSocket.hpp"
 
+#include "Public/Server/Messages/DeepDriveServerConnectionMessages.h"
+
+
 class DeepDriveClient
 {
 
@@ -15,7 +18,7 @@ public:
 
 	~DeepDriveClient();
 
-	uint32 registerClient();
+	deepdrive::server::RegisterClientResponse registerClient();
 
 	void close();
 
@@ -32,14 +35,10 @@ public:
 
 	void setControlValues(float steering, float throttle, float brake, uint32 handbrake);
 
-private:
-
-	IP4ClientSocket					m_Socket;
-
 	uint32							m_ClientId = 0;
 	bool							m_isMaster = false;
 
-	uint32							m_ServerProtocolVersion = 0;
+	std::string						m_ServerProtocolVersion;
 
 	std::string						m_SharedMemoryName;
 	uint32							m_SharedMemorySize = 0;
@@ -48,6 +47,10 @@ private:
 	uint16							m_MaxCaptureResolution = 0;
 
 	uint32							m_InactivityTimeout = 0;
+
+private:
+
+	IP4ClientSocket					m_Socket;
 
 };
 

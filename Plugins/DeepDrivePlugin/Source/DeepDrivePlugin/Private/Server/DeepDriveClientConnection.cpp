@@ -132,7 +132,8 @@ void DeepDriveClientConnection::registerClient(const deepdrive::server::MessageH
 	response.client_id = m_ClientId;
 	response.granted_master_role = m_isMaster ? 1 : 0;
 
-	response.server_protocol_version = 1;
+	const FString &serverProtocolString = "2.0.123";;
+	strncpy(response.server_protocol_version, TCHAR_TO_ANSI(*serverProtocolString), RegisterClientResponse::ServerProtocolStringSize - 1);
 
 	USharedMemCaptureSinkComponent *sharedMemSink = DeepDriveCapture::GetInstance().getSharedMemorySink();
 	if (sharedMemSink)

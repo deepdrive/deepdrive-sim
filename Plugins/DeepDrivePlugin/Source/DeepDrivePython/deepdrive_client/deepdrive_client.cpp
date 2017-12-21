@@ -33,7 +33,10 @@ static DeepDriveClient* getClient(uint32 clientId)
 */
 static PyObject* deepdrive_client_create(PyObject *self, PyObject *args)
 {
-	uint32 res = 0;
+	deepdrive::server::RegisterClientResponse res;
+
+	uint32 clientId = 0;
+	PyObject *ret = PyDict_New();
 
 	const char *ipStr;
 	uint32 port = 19768;
@@ -53,11 +56,27 @@ static PyObject* deepdrive_client_create(PyObject *self, PyObject *args)
 				)
 			{
 				std::cout << "Successfully connected to " << ip4Address.toStr(true) << "\n";
-				const uint32 clientId = client->registerClient();
+				const deepdrive::server::RegisterClientResponse res = client->registerClient();
+				clientId = res.client_id;
+				std::cout << "Client id is " << std::to_string(clientId) << "\n";
+				PyDict_SetItem(ret, PyUnicode_FromString("client_id"), PyLong_FromUnsignedLong(clientId));
 				if(clientId)
 				{
 					g_Clients[clientId] = client;
-					res = clientId;
+					PyDict_SetItem(ret, PyUnicode_FromString("granted_master_role"),
+						PyLong_FromUnsignedLong(client->m_isMaster));
+			    	PyDict_SetItem(ret, PyUnicode_FromString("shared_memory_size"),
+			    		PyLong_FromUnsignedLong(client->m_SharedMemorySize));
+			    	PyDict_SetItem(ret, PyUnicode_FromString("max_supported_cameras"),
+			    		PyLong_FromUnsignedLong(client->m_MaxSupportedCameras));
+					PyDict_SetItem(ret, PyUnicode_FromString("max_capture_resolution"),
+						PyLong_FromUnsignedLong(client->m_MaxCaptureResolution));
+			    	PyDict_SetItem(ret, PyUnicode_FromString("inactivity_timeout_ms"),
+			    	 	PyLong_FromUnsignedLong(client->m_InactivityTimeout));
+			    	PyDict_SetItem(ret, PyUnicode_FromString("shared_memory_name"),
+			    		PyUnicode_FromString(client->m_SharedMemoryName.c_str()));
+			    	PyDict_SetItem(ret, PyUnicode_FromString("server_protocol_version"),
+			    		PyUnicode_FromString(client->m_ServerProtocolVersion.c_str()));
 				}
 			}
 			else
@@ -69,7 +88,9 @@ static PyObject* deepdrive_client_create(PyObject *self, PyObject *args)
 	else
 		std::cout << "Wrong arguments\n";
 
-	return Py_BuildValue("i", res);
+
+
+	return ret;
 }
 
 /*	Close an existing client

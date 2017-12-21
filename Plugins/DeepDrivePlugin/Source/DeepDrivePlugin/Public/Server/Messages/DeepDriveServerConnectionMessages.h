@@ -26,6 +26,10 @@ struct RegisterClientResponse	:	public MessageHeader
 	{
 		SharedMemNameSize = 128
 	};
+	enum
+	{
+		ServerProtocolStringSize = 128
+	};
 
 	RegisterClientResponse()
 		:	MessageHeader(MessageId::RegisterClientResponse, sizeof(RegisterClientResponse))
@@ -34,7 +38,7 @@ struct RegisterClientResponse	:	public MessageHeader
 	uint32				client_id;
 	uint32				granted_master_role;
 
-	uint32				server_protocol_version;
+	char				server_protocol_version[ServerProtocolStringSize];
 
 	char				shared_memory_name[SharedMemNameSize];
 	uint32				shared_memory_size;
