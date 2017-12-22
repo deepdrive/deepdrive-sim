@@ -8,7 +8,7 @@ public class DeepDriveTarget : TargetRules
 	public DeepDriveTarget(TargetInfo Target)
 	{
 		Type = TargetType.Game;
-	}
+    }
 
 	//
 	// TargetRules interface.

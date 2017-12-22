@@ -12,6 +12,7 @@
 #include "Private/Server/DeepDriveServer.h"
 
 #include "Private/Capture/DeepDriveCapture.h"
+#include <filesystem>
 
 using namespace deepdrive::server;
 
@@ -132,8 +133,12 @@ void DeepDriveClientConnection::registerClient(const deepdrive::server::MessageH
 	response.client_id = m_ClientId;
 	response.granted_master_role = m_isMaster ? 1 : 0;
 
-	const FString &serverProtocolString = "2.0.123";;
-	strncpy(response.server_protocol_version, TCHAR_TO_ANSI(*serverProtocolString), RegisterClientResponse::ServerProtocolStringSize - 1);
+	const FString contentPath = FPaths::ConvertRelativePathToFull(FPaths::GameContentDir());
+	const FString versionPath = FPaths::Combine(contentPath, "Data", "VERSION");
+	FString buildTimeStamp;
+	FFileHelper::LoadFileToString(buildTimeStamp, *versionPath);
+
+	strncpy(response.server_protocol_version, TCHAR_TO_ANSI(*buildTimeStamp), RegisterClientResponse::ServerProtocolStringSize - 1);
 
 	USharedMemCaptureSinkComponent *sharedMemSink = DeepDriveCapture::GetInstance().getSharedMemorySink();
 	if (sharedMemSink)
