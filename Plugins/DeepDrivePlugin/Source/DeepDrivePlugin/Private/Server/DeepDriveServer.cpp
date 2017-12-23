@@ -77,7 +77,7 @@ bool DeepDriveServer::RegisterProxy(ADeepDriveServerProxy &proxy)
 		}
 
 	}
-
+		
 	if	(	isValid
 		&&	proxy.Port >= 1 && proxy.Port <= 65535
 		)
@@ -104,6 +104,8 @@ void DeepDriveServer::UnregisterProxy(ADeepDriveServerProxy &proxy)
 			if (clientData.Value.connection)
 				clientData.Value.connection->Stop();
 		}
+		m_Clients.Empty();
+		m_MasterClientId = 0;
 	}
 }
 
