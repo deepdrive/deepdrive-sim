@@ -156,7 +156,7 @@ void DeepDriveServer::update(float DeltaSeconds)
 		&&	incoming != 0
 		)
 	{
-		UE_LOG(LogDeepDriveServer, Log, TEXT("Incoming client connection from %s"), *(incoming->remote_address->ToString(true)));
+		UE_LOG(LogDeepDriveServer, Log, TEXT("Incoming client connection asdf from %s"), *(incoming->remote_address->ToString(true)));
 		DeepDriveClientConnection *client = new DeepDriveClientConnection(incoming->socket);
 	}
 

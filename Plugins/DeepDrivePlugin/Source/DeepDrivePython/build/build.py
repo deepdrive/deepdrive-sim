@@ -3,6 +3,7 @@ from __future__ import print_function
 import argparse
 import os
 from subprocess import Popen, PIPE
+from pathlib import Path
 
 DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -27,12 +28,13 @@ def run_command(cmd, cwd=None, env=None):
 
 
 def main(build_type):
-    unreal_root = run_command('git rev-parse --show-toplevel')
+    unreal_root = str(Path(DIR).parent.parent.parent.parent.parent)
+    print('Unreal root %s' % unreal_root)
     env = os.environ.copy()
     get_package_version_path = os.path.join(unreal_root, 'Packaging', 'get_package_version.py')
     env['DEEPDRIVE_VERSION'] = run_command('python ' + get_package_version_path)
     env['DEEPDRIVE_BRANCH'] = (env.get('TRAVIS_BRANCH') or env.get('APPVEYOR_REPO_BRANCH') or
-                               run_command('git rev-parse --abbrev-ref HEAD'))
+                               run_command(['git', '-C', unreal_root, 'rev-parse', '--abbrev-ref', 'HEAD']))
     print('DEEPDRIVE_VERSION is %s' % env['DEEPDRIVE_VERSION'])
     ext_root = os.path.dirname(DIR)
     print('PYPY_USERNAME is %s' % env.get('PYPI_USERNAME'))

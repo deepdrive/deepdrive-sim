@@ -6,6 +6,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Reflection;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+
 
 public class DeepDrivePlugin : ModuleRules
 {
@@ -79,5 +82,46 @@ public class DeepDrivePlugin : ModuleRules
 		string majorMinorVersion = System.IO.File.ReadAllText(Path.Combine(contentDataDir, "MAJOR_MINOR_VERSION"));
         Console.WriteLine("Writing VERSION to " + contentDataDir);
         File.WriteAllText(Path.Combine(contentDataDir, "VERSION"), majorMinorVersion + "." + buildTimestamp);
+
+        var envHome = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "HOMEPATH" : "HOME";
+        var userHome = Environment.GetEnvironmentVariable(envHome);
+        Console.WriteLine("userHome " + userHome);
+        var pythonBinConfig = Path.Combine(userHome, ".deepdrive", "python_bin");
+        Console.WriteLine("pythonBinConfig " + pythonBinConfig);
+
+        if( ! File.Exists(pythonBinConfig))
+        {
+            Console.WriteLine("Did not find python binary used to import deepdrive last, so not building the extension");
+        } else
+        {
+            Console.WriteLine("Building extension ...");
+
+            var pythonBin = System.IO.File.ReadAllText(pythonBinConfig);
+            Console.WriteLine("pythonBin " + pythonBin);
+
+            //var buildExtensionCommand = "\"" + pythonBin + "\" \"" + Path.Combine(rootDir, "Plugins", "DeepDrivePlugin", "Source", "DeepDrivePython", "build", "build.py") + "\" --type dev";
+            //Console.WriteLine("Building extension with " + buildExtensionCommand);
+
+            var buildExtensionArguments = "\"" + Path.Combine(rootDir, "Plugins", "DeepDrivePlugin", "Source", "DeepDrivePython", "build", "build.py") + "\" --type dev";
+            Console.WriteLine("Build extension script " + buildExtensionArguments);
+            System.Diagnostics.Process pProcess = new System.Diagnostics.Process();
+            pProcess.StartInfo.FileName = pythonBin;
+            pProcess.StartInfo.Arguments = buildExtensionArguments;
+            pProcess.StartInfo.UseShellExecute = false;
+            pProcess.StartInfo.RedirectStandardOutput = true;
+            pProcess.StartInfo.RedirectStandardError = true;
+            //Optional
+            //pProcess.StartInfo.WorkingDirectory = strWorkingDirectory;
+            pProcess.Start();
+            string strOutput = pProcess.StandardOutput.ReadToEnd();
+            string strErr = pProcess.StandardError.ReadToEnd();
+
+            Console.WriteLine(strOutput);
+            Console.WriteLine(strErr);
+
+            //Wait for process to finish
+            pProcess.WaitForExit();
+        }
+
     }
 }
