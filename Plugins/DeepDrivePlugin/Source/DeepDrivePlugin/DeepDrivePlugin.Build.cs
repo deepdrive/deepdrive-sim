@@ -110,6 +110,10 @@ public class DeepDrivePlugin : ModuleRules
             pProcess.StartInfo.UseShellExecute = false;
             pProcess.StartInfo.RedirectStandardOutput = true;
             pProcess.StartInfo.RedirectStandardError = true;
+
+
+
+
             //Optional
             //pProcess.StartInfo.WorkingDirectory = strWorkingDirectory;
             pProcess.Start();
@@ -119,9 +123,13 @@ public class DeepDrivePlugin : ModuleRules
             Console.WriteLine(strOutput);
             Console.WriteLine(strErr);
 
-            //Wait for process to finish
+            //Wait for process to finish lkjh
             pProcess.WaitForExit();
-        }
 
+            if(pProcess.ExitCode != 0)
+            {
+                throw new Exception("Could not build extension. Aborting build");
+            }
+        }
     }
 }

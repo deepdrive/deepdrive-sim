@@ -5,6 +5,8 @@ import os
 from subprocess import Popen, PIPE
 from pathlib import Path
 
+import config
+
 DIR = os.path.dirname(os.path.realpath(__file__))
 
 
@@ -39,7 +41,14 @@ def main(build_type):
     ext_root = os.path.dirname(DIR)
     print('PYPY_USERNAME is %s' % env.get('PYPI_USERNAME'))
     if build_type == 'dev':
-        run_command('python -u setup.py install', env=env, cwd=ext_root)
+        run_command('python -m pip uninstall --yes ' + config.PACKAGE_NAME, env=env, cwd=ext_root)
+        run_command('pip uninstall --yes ' + config.PACKAGE_NAME, env=env, cwd=ext_root)
+        try:
+            run_command('python -m pip install -e . --upgrade --force-reinstall --ignore-installed --no-deps',
+                    env=env, cwd=ext_root)
+        except Exception as e:
+            raise Exception('Error building, is the module imported into a live python process?', e)
+
     elif build_type == 'win_bdist':
         print(run_command('python -u setup.py bdist_wheel', env=env, cwd=ext_root))
         if env['DEEPDRIVE_BRANCH'] == 'release':

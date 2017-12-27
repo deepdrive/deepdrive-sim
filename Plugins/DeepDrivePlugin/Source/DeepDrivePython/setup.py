@@ -3,6 +3,7 @@ import os
 from setuptools import setup, Extension
 from sys import platform
 import numpy as np
+from build import config
 
 SRC_DIR = os.environ.get('DEEPDRIVE_SRC_DIR', '..')
 
@@ -77,7 +78,7 @@ deepdrive_client_module = Extension     (   'deepdrive_client'
                                         ,   define_macros=macros
                                         )
 
-setup	(   name='deepdrive'
+setup	(   name=config.PACKAGE_NAME
         ,   version=os.environ['DEEPDRIVE_VERSION']
         ,   url='https://github.com/deepdrive/deepdrive-sim'
         ,   author='deepdrive.io'
