@@ -1,12 +1,12 @@
-# DeepDrive [![Build Status](https://travis-ci.com/crizCraig/deepdrive-beta.svg?token=hcA6yn9X8yYZspyyCMpp&branch=release)](https://travis-ci.com/crizCraig/deepdrive-beta) [![Build status](https://ci.appveyor.com/api/projects/status/s7jbcjbxlq3vetw5?svg=true)](https://ci.appveyor.com/project/crizCraig/deepdrive-beta)
+# Deepdrive sim [![Build Status](https://travis-ci.com/crizCraig/deepdrive-beta.svg?token=hcA6yn9X8yYZspyyCMpp&branch=release)](https://travis-ci.com/crizCraig/deepdrive-beta) [![Build status](https://ci.appveyor.com/api/projects/status/s7jbcjbxlq3vetw5?svg=true)](https://ci.appveyor.com/project/crizCraig/deepdrive-beta)
 
 
-Unreal based simulator and Python interface for creating self-driving AI
+Unreal based simulator and Python interface to Deepdrive
 
 
 ## Usage
 
-DeepDrive is best used by [one of our agents](https://github.com/deepdrive/deepdrive-agents)
+Checkout our [main repo](https://github.com/deepdrive/deepdrive)
 
 ## Development
 
@@ -30,7 +30,7 @@ git update-index --assume-unchanged $(git ls-files | tr '\n' ' ')
 
 ### Linux
 
-The Unreal Editor in Linux works, but not as well as in Windows. So it's easiest to do most work in Windows, then test / bug fix issues in Linux.
+The Unreal Editor in Linux works, but not as well as in Windows. So it's easiest to do most development in Windows, then test / bug fix issues in Linux.
 
 - Clone the Allegorithmic version of Unreal with the Substance plugin <kbd>4.14.0.17</kbd>:
 ```
