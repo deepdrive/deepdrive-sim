@@ -12,13 +12,6 @@ DeepDrive is best used by [one of our agents](https://github.com/deepdrive/deepd
 
 - [Associate your GitHub username with your Unreal account](https://www.unrealengine.com/en-US/ue4-on-github)
 
-- Clone the Allegorithmic version of Unreal with the Substance plugin <kbd>4.14.0.17</kbd>:
-```
-    git clone git@github.com:Allegorithmic/UnrealEngine --branch 4.14.0.17
-    # or if you are using https: 
-    # git clone https://github.com/Allegorithmic/UnrealEngine --branch 4.14.0.17
-```
-
 ### Windows
 
 - Get Unreal v4.14 via the Epic Launcher -> Unreal Enngine tab -> Library
@@ -38,6 +31,13 @@ git update-index --assume-unchanged $(git ls-files | tr '\n' ' ')
 ### Linux
 
 The Unreal Editor in Linux works, but not as well as in Windows. So it's easiest to do most work in Windows, then test / bug fix issues in Linux.
+
+- Clone the Allegorithmic version of Unreal with the Substance plugin <kbd>4.14.0.17</kbd>:
+```
+    git clone git@github.com:Allegorithmic/UnrealEngine --branch 4.14.0.17
+    # or if you are using https: 
+    # git clone https://github.com/Allegorithmic/UnrealEngine --branch 4.14.0.17
+```
 
 Build Unreal
 
