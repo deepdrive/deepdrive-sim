@@ -51,7 +51,7 @@ cd UnrealEngine
 make  # Takes about an hour
 ```
 
-More details on building Unreal [here](https://wiki.unrealengine.com/Building_On_Linux) - though the above commands should be sufficient.ea
+More details on building Unreal [here](https://wiki.unrealengine.com/Building_On_Linux) - though the above commands should be sufficient.
 
 Run 
 ```
