@@ -30,7 +30,7 @@ git update-index --assume-unchanged $(git ls-files | tr '\n' ' ')
 
 ### Linux
 
-The Unreal Editor in Linux works, but not as well as in Windows. So it's easiest to do most development in Windows, then test / bug fix issues in Linux.
+The Unreal Editor in Linux works, but not as well as in Windows, so it's easiest to do most development in Windows, then test / bug fix issues in Linux.
 
 - Clone the Allegorithmic version of Unreal with the Substance plugin <kbd>4.14.0.17</kbd>:
 ```
