@@ -28,6 +28,9 @@ git update-index --assume-unchanged $(git ls-files | tr '\n' ' ')
 
 ***On Windows, Right click the DeepDrive project and set as Startup Project, debug...***
 
+***Run game full speed when the window is not focused***
+```Uncheck Edit->Editor Preferences->Use Less CPU when in Background```
+
 ### Linux
 
 The Unreal Editor in Linux works, but not as well as in Windows, so it's easiest to do most development in Windows, then test / bug fix issues in Linux.
@@ -48,7 +51,7 @@ cd UnrealEngine
 make  # Takes about an hour
 ```
 
-More details on building Unreal [here](https://wiki.unrealengine.com/Building_On_Linux) - though the above commands should be sufficient.
+More details on building Unreal [here](https://wiki.unrealengine.com/Building_On_Linux) - though the above commands should be sufficient.ea
 
 Run 
 ```
@@ -57,33 +60,14 @@ Run
 
 Open deepdrive uproject file - choose other -> Skip Conversion
 
-**Building the Python Extension**
+## Building the Python Extension
 
-Locally
 ```
 cd Plugins/DeepDrivePlugin/Source/DeepDrivePython
 python build/build.py --type dev
 ```
-
-Linux wheel
-```
-cd Plugins/DeepDrivePlugin/Source/DeepDrivePython
-sudo -E python build/build.py --type linux_bdist
-```
-
-Windows wheel
-```
-cd Plugins/DeepDrivePlugin/Source/DeepDrivePython
-python build\build.py --type win_bdist
-```
+This will also happen automatically when building the Unreal project.
 
 
-**How to change the shared memory names (mostly useful for debugging)**
-
-**Development**
-
-***Run game full speed when the window is not focused***
-```Uncheck Edit->Editor Preferences->Use Less CPU when in Background```
-
-**Push deepdrive PyPi module**
+## Push PyPi module
 `git push origin master && git push origin master:release`
