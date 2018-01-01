@@ -46,9 +46,7 @@ Build Unreal
 
 ```
 cd UnrealEngine
-./Setup.sh
-./GenerateProjectFiles.sh
-make  # Takes about an hour
+./Setup.sh && ./GenerateProjectFiles.sh && make  # Takes about an hour
 ```
 
 More details on building Unreal [here](https://wiki.unrealengine.com/Building_On_Linux) - though the above commands should be sufficient.
