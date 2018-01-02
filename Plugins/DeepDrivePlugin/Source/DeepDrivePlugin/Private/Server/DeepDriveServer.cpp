@@ -239,15 +239,18 @@ void DeepDriveServer::resetAgent(const deepdrive::server::MessageHeader &message
 
 void DeepDriveServer::onAgentReset(bool success)
 {
-	DeepDriveClientConnection *client = m_Clients.Find(m_MasterClientId)->connection;
-	if (client && client->isMaster())
+	if (m_MasterClientId)
 	{
-		client->enqueueResponse(new deepdrive::server::ResetAgentResponse(success));
-		UE_LOG(LogDeepDriveServer, Log, TEXT("[%d] Agent reset success %c"), m_MasterClientId, success ? 'T' : 'F');
-	}
-	else
-	{
-		UE_LOG(LogDeepDriveServer, Log, TEXT("onResetAgent: No master client found for %d"), m_MasterClientId);
+		DeepDriveClientConnection *client = m_Clients.Find(m_MasterClientId)->connection;
+		if (client && client->isMaster())
+		{
+			client->enqueueResponse(new deepdrive::server::ResetAgentResponse(success));
+			UE_LOG(LogDeepDriveServer, Log, TEXT("[%d] Agent reset success %c"), m_MasterClientId, success ? 'T' : 'F');
+		}
+		else
+		{
+			UE_LOG(LogDeepDriveServer, Log, TEXT("onResetAgent: No master client found for %d"), m_MasterClientId);
+		}
 	}
 }
 
