@@ -12,7 +12,6 @@
 #include "Private/Server/DeepDriveServer.h"
 
 #include "Private/Capture/DeepDriveCapture.h"
-#include <filesystem>
 
 using namespace deepdrive::server;
 
