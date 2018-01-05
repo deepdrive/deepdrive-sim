@@ -4,7 +4,7 @@
 
 #include "deepdrive_client/DeepDriveClient.hpp"
 
-#include "NumPyUtils.h"
+#include "common/NumPyUtils.h"
 
 #include "numpy/arrayobject.h"
 
@@ -352,7 +352,7 @@ PyMODINIT_FUNC PyInit_deepdrive_client(void)
 	// if (PyType_Ready(&PyDeepDriveClientRegisterClientRequestType) < 0)
 	//	return 0;
 
-	std::cout << "######>>> PyInit_deepdrive_client <<<######\n";
+	std::cout << "###### > > > PyInit_deepdrive_client < < < ######\n";
 
 	import_array();
 

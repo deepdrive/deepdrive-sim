@@ -4,7 +4,7 @@
 #include "Python.h"
 #include "structmember.h"
 
-#include "NumPyUtils.h"
+#include "common/NumPyUtils.h"
 
 #include <iostream>
 

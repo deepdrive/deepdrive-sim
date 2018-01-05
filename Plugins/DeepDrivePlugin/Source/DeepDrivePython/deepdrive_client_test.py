@@ -2,19 +2,20 @@ import socket
 import sys
 import time
 
-import deepdrive
+import deepdrive_capture
 import deepdrive_client
 
-clientId = deepdrive_client.create('127.0.0.1', 9876)
+client = deepdrive_client.create('127.0.0.1', 9876)
 
 def cleanUp(clientId):
 	deepdrive_client.release_agent_control(clientId)
-	deepdrive.close()
+	deepdrive_capture.close()
 	deepdrive_client.close(clientId)
 	clientId = 0
 
 
-if clientId > 0:
+if client != None:
+	clientId = client['client_id']
 	print('Connected ...', clientId)
 
 	sharedMem = deepdrive_client.get_shared_memory(clientId)
@@ -22,7 +23,7 @@ if clientId > 0:
 
 	deepdrive_client.register_camera(clientId, 60, 1024, 1024, [1.0,2,3])
 
-	connected = deepdrive.reset(sharedMem[0], sharedMem[1])
+	connected = deepdrive_capture.reset(sharedMem[0], sharedMem[1])
 	if connected:
 		print('Capture connected')
 		print('------------------------')
@@ -36,7 +37,7 @@ if clientId > 0:
 				print(reqCounter, ': Control acquired', ctrlAcquired)
 				counter = 3000
 				while counter > 0:
-					snapshot = deepdrive.step()
+					snapshot = deepdrive_capture.step()
 					if snapshot:
 					#	print(snapshot.capture_timestamp, snapshot.sequence_number, snapshot.speed, snapshot.is_game_driving, snapshot.camera_count, len(snapshot.cameras) )
 					#	for c in snapshot.cameras:

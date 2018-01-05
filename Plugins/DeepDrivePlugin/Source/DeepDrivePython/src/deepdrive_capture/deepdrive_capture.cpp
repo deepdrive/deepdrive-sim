@@ -85,7 +85,7 @@ static PyMethodDef DeepDriveMethods[] =	{	{"reset", deepdrive_reset, METH_VARARG
 										,	{NULL,     NULL,             0,            NULL}        /* Sentinel */
 										};
 
-static struct PyModuleDef deepdrive_module = {
+static struct PyModuleDef deepdrive_capture_module = {
 		PyModuleDef_HEAD_INIT,
 		"deepdrive",   /* name of module */
 		NULL,          /* module documentation, may be NULL */
@@ -94,7 +94,7 @@ static struct PyModuleDef deepdrive_module = {
 		DeepDriveMethods
 };
 
-PyMODINIT_FUNC PyInit_deepdrive(void)
+PyMODINIT_FUNC PyInit_deepdrive_capture(void)
 {
 	if (PyType_Ready(&PyCaptureCameraType) < 0)
 		return 0;
@@ -102,10 +102,10 @@ PyMODINIT_FUNC PyInit_deepdrive(void)
 	if (PyType_Ready(&PyCaptureSnapshotType) < 0)
 		return 0;
 
-	PyObject *m  = PyModule_Create(&deepdrive_module);
+	PyObject *m  = PyModule_Create(&deepdrive_capture_module);
 	if (m)
 	{
-		DeepDriveError = PyErr_NewException("deepdrive.error", NULL, NULL);
+		DeepDriveError = PyErr_NewException("deepdrive_capture.error", NULL, NULL);
 		Py_INCREF(DeepDriveError);
 		PyModule_AddObject(m, "error", DeepDriveError);
 
