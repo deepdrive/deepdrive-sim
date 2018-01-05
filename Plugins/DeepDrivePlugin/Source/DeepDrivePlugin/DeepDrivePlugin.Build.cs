@@ -69,20 +69,23 @@ public class DeepDrivePlugin : ModuleRules
 
         Definitions.Add("DEEPDRIVE_WITH_UE4_LOGGING");
 
-
-		// TODO: Put this in Plugin Content directory
-        string buildTimestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
-        Console.WriteLine("Build timestamp " + buildTimestamp);
         string rootDir = System.IO.Directory.GetParent(
-                                     System.IO.Directory.GetParent(
-                                     System.IO.Directory.GetParent(
+                                        System.IO.Directory.GetParent(
+                                        System.IO.Directory.GetParent(
                                         System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
-                                     .FullName).FullName).FullName;
-        string contentDataDir = Path.Combine(rootDir, "Content", "Data");
-		string majorMinorVersion = System.IO.File.ReadAllText(Path.Combine(contentDataDir, "MAJOR_MINOR_VERSION"));
-        Console.WriteLine("Writing VERSION to " + contentDataDir);
-        File.WriteAllText(Path.Combine(contentDataDir, "VERSION"), majorMinorVersion + "." + buildTimestamp);
+                                        .FullName).FullName).FullName;
 
+        // Write VERSION file -------------------------------------
+        //		// TODO: Put this in Plugin Content directory
+        //        string buildTimestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+        //        Console.WriteLine("Build timestamp " + buildTimestamp);
+
+        //        string contentDataDir = Path.Combine(rootDir, "Content", "Data");
+        //		string majorMinorVersion = System.IO.File.ReadAllText(Path.Combine(contentDataDir, "MAJOR_MINOR_VERSION"));
+        //        Console.WriteLine("Writing VERSION to " + contentDataDir);
+        //        File.WriteAllText(Path.Combine(contentDataDir, "VERSION"), majorMinorVersion + "." + buildTimestamp);
+
+        // Build Python extension -------------------------------------------------------------------------------
         var envHome = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "HOMEPATH" : "HOME";
         var userHome = Environment.GetEnvironmentVariable(envHome);
         Console.WriteLine("userHome " + userHome);
@@ -99,10 +102,9 @@ public class DeepDrivePlugin : ModuleRules
             var pythonBin = System.IO.File.ReadAllText(pythonBinConfig);
             Console.WriteLine("pythonBin " + pythonBin);
 
-            //var buildExtensionCommand = "\"" + pythonBin + "\" \"" + Path.Combine(rootDir, "Plugins", "DeepDrivePlugin", "Source", "DeepDrivePython", "build", "build.py") + "\" --type dev";
-            //Console.WriteLine("Building extension with " + buildExtensionCommand);
-
-            var buildExtensionArguments = "\"" + Path.Combine(rootDir, "Plugins", "DeepDrivePlugin", "Source", "DeepDrivePython", "build", "build.py") + "\" --type dev";
+            var buildExtensionArguments = "\"" + Path.Combine(
+            		rootDir, "Plugins", "DeepDrivePlugin", "Source", "DeepDrivePython", "build", "build.py") +
+            	"\" --type dev";
             Console.WriteLine("Build extension script " + buildExtensionArguments);
             System.Diagnostics.Process pProcess = new System.Diagnostics.Process();
             pProcess.StartInfo.FileName = pythonBin;
@@ -111,11 +113,6 @@ public class DeepDrivePlugin : ModuleRules
             pProcess.StartInfo.RedirectStandardOutput = true;
             pProcess.StartInfo.RedirectStandardError = true;
 
-
-
-
-            //Optional
-            //pProcess.StartInfo.WorkingDirectory = strWorkingDirectory;
             pProcess.Start();
             string strOutput = pProcess.StandardOutput.ReadToEnd();
             string strErr = pProcess.StandardError.ReadToEnd();
@@ -123,7 +120,6 @@ public class DeepDrivePlugin : ModuleRules
             Console.WriteLine(strOutput);
             Console.WriteLine(strErr);
 
-            //Wait for process to finish lkjh
             pProcess.WaitForExit();
 
             if(pProcess.ExitCode != 0)
