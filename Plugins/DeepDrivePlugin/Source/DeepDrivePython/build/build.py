@@ -42,7 +42,6 @@ def main(build_type):
     print('PYPY_USERNAME is %s' % env.get('PYPI_USERNAME'))
     if build_type == 'dev':
         run_command('python -m pip uninstall --yes ' + config.PACKAGE_NAME, env=env, cwd=ext_root)
-        run_command('pip uninstall --yes ' + config.PACKAGE_NAME, env=env, cwd=ext_root)
         try:
             run_command('python -m pip install -e . --upgrade --force-reinstall --ignore-installed --no-deps',
                     env=env, cwd=ext_root)
