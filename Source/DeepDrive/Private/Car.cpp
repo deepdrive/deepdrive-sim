@@ -69,7 +69,7 @@ void ACar::Tick(float DeltaTime)
 
 	if(UpdateSplineProgress())
 	{
-		if (bIsGameDriving && !IsInputEnabled)
+		if (bIsGameDriving && ! IsInputEnabled)
 		{
 			MoveAlongSpline();
 		}
