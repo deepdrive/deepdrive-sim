@@ -69,3 +69,7 @@ This will also happen automatically when building the Unreal project.
 
 ## Push PyPi module
 `git push origin master && git push origin master:release`
+
+## Setting key binds
+
+Unreal->Project Settings->Input->Action Mappings OR in Blueprints->Find (uncheck Find in Current Blueprint Only) and search for the input key, i.e. J.
