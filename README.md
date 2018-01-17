@@ -74,6 +74,12 @@ This will also happen automatically when building the Unreal project.
 
 Unreal->Project Settings->Input->Action Mappings OR in Blueprints->Find (uncheck Find in Current Blueprint Only) and search for the input key, i.e. J.
 
+## Commit your VERSION file
+
+Until Unreal binary uploads are automated, the server and client version will not match unless the VERSION file changes 
+are pushed. This because the client version is determined by latest git timestamp and the server version is determined
+by the VERSION file. The VERSION file will automatically update when you build, so all that's needed is to push it.
+
 ## Clean builds
 
 You'll often want to run `clean.sh` or `clean.bat` after pulling in changes, especially to the plugin as Unreal will spuriously cache old binaries.
