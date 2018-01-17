@@ -16,6 +16,11 @@ Checkout our [main repo](https://github.com/deepdrive/deepdrive)
 
 - Get Unreal v4.14 via the Epic Launcher -> Unreal Enngine tab -> Library
 - Install the Substance Plugin through the Marketplace in Epic Launcher
+- Refresh / Create Visual Studio project***
+- On Windows, Right click the DeepDrive project and set as Startup Project, debug...***
+
+- Run game full speed when the window is not focused***
+  - Uncheck Edit->Editor Preferences->Use Less CPU when in Background
 
 Opening the project in Unreal will update the Substance textures to Windows-only versions. 
 Once you see these files changed, you can run the following to avoid ever checking them in
@@ -24,12 +29,7 @@ cd Content/TuningCars/Materials/Hangar/material/Substance
 git update-index --assume-unchanged $(git ls-files | tr '\n' ' ')
 ```
 
-***Refresh / Create Visual Studio project***
 
-***On Windows, Right click the DeepDrive project and set as Startup Project, debug...***
-
-***Run game full speed when the window is not focused***
-```Uncheck Edit->Editor Preferences->Use Less CPU when in Background```
 
 ### Linux
 
