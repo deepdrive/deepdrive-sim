@@ -38,7 +38,7 @@ The Unreal Editor in Linux works, but not as well as in Windows, so it's easiest
 - Clone the Allegorithmic version of Unreal with the Substance plugin <kbd>4.14.0.17</kbd>:
 ```
 git clone git@github.com:Allegorithmic/UnrealEngine --branch 4.14.0.17
-# or if you are using https: 
+# or if you are using http: 
 # git clone https://github.com/Allegorithmic/UnrealEngine --branch 4.14.0.17
 ```
 
