@@ -73,3 +73,7 @@ This will also happen automatically when building the Unreal project.
 ## Setting key binds
 
 Unreal->Project Settings->Input->Action Mappings OR in Blueprints->Find (uncheck Find in Current Blueprint Only) and search for the input key, i.e. J.
+
+## Clean builds
+
+You'll often want to run `clean.sh` or `clean.bat` after pulling in changes, especially to the plugin as Unreal will spuriously cache old binaries.
