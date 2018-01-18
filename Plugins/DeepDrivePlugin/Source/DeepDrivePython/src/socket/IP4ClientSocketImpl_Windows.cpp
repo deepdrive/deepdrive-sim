@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include "common/ClientErrorCode.hpp"
+
 #include "socket/IP4ClientSocketImpl_Windows.hpp"
 #include "socket/IP4Address.hpp"
 
@@ -54,33 +56,43 @@ bool IP4ClientSocketImpl_Windows::connect(const IP4Address &ip4Address)
 	return false;
 }
 
-uint32 IP4ClientSocketImpl_Windows::send(const void *data, uint32 bytesToSend)
+int32 IP4ClientSocketImpl_Windows::send(const void *data, uint32 bytesToSend)
 {
-	uint32 bytesSend = 0;
+	int32 res = ClientErrorCode::NOT_CONNECTED;
 	if(m_isConnected)
 	{
-		int32 res = ::send(m_Socket, reinterpret_cast<const char*> (data), bytesToSend, 0);
-		if(res >= 0)
+		res = ::send(m_Socket, reinterpret_cast<const char*> (data), bytesToSend, 0);
+		if(res < 0)
 		{
-			bytesSend = static_cast<uint32> (res);
-			// std::cout << "Sent " << bytesSend << " bytes\n";
+			int32 errorCode = WSAGetLastError();
+			if	(	errorCode == WSAECONNABORTED
+				||	errorCode == WSAECONNRESET
+				||	errorCode == WSAETIMEDOUT
+				||	errorCode == WSAENETDOWN
+				)
+			{
+				// no valid connection anymore
+				std::cout << "Connection lost\n";
+				close();
+				res = ClientErrorCode::CONNECTION_LOST;
+			}
+			else
+				std::cout << "Send failed. Error Code : " << errorCode << "\n";
 		}
-		else
-			std::cout << "Send failed. Error Code : " << WSAGetLastError() << "\n";
 	}
-	return bytesSend;
+	return res;
 }
 
-uint32 IP4ClientSocketImpl_Windows::receive(void *buffer, uint32 size)
+int32 IP4ClientSocketImpl_Windows::receive(void *buffer, uint32 size)
 {
-	uint32 res = 0;
+	int32 res = 0;
 	if(m_isConnected)
 	{
 		int32 receivedSize = ::recv(m_Socket, reinterpret_cast<char*> (buffer), size , 0);
 
 		if(receivedSize > 0)
 		{
-			res = static_cast<uint32> (receivedSize);
+			res = receivedSize;
 			// std::cout << "Received " << res << " bytes\n";
 		}
 		else
@@ -89,9 +101,9 @@ uint32 IP4ClientSocketImpl_Windows::receive(void *buffer, uint32 size)
 	return res;
 }
 
-uint32 IP4ClientSocketImpl_Windows::receive(void *buffer, uint32 size, uint32 timeOutMS)
+int32 IP4ClientSocketImpl_Windows::receive(void *buffer, uint32 size, uint32 timeOutMS)
 {
-	uint32 res = 0;
+	int32 res = 0;
 
 	fd_set readFds;
 	readFds.fd_count = 1;
@@ -108,7 +120,7 @@ uint32 IP4ClientSocketImpl_Windows::receive(void *buffer, uint32 size, uint32 ti
 
 		if(receivedSize > 0)
 		{
-			res = static_cast<uint32> (receivedSize);
+			res = receivedSize;
 			// std::cout << "Received " << res << " bytes\n";
 		}
 		else
@@ -127,6 +139,7 @@ void IP4ClientSocketImpl_Windows::close()
 	{
 		closesocket(m_Socket);
 		m_Socket = INVALID_SOCKET;
+		m_isConnected = false;
 		std::cout << "Socket closed\n";
 	}
 	WSACleanup();

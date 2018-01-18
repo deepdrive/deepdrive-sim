@@ -17,7 +17,7 @@ public:
 
 	bool connect(const IP4Address &ip4Address);
 
-	uint32 send(const void *data, uint32 bytesToSend);
+	int32 send(const void *data, uint32 bytesToSend);
 
 	uint32 receive(void *buffer, uint32 size);
 

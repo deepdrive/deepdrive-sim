@@ -62,21 +62,10 @@ public class DeepDrivePlugin : ModuleRules
 			);
 
 
-        var envHome = "HOME";
 		if ((Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32))
-        {
-            Definitions.Add("DEEPDRIVE_PLATFORM_WINDOWS=1");
-            envHome = "HOMEPATH";
-        }
-        else if ((Target.Platform == UnrealTargetPlatform.Linux))
-        {
-            Definitions.Add("DEEPDRIVE_PLATFORM_LINUX=1");
-            envHome = "HOME";
-        }
-        else
-        {
-            throw new Exception("Platform not supported");
-        }
+			Definitions.Add("DEEPDRIVE_PLATFORM_WINDOWS=1");
+		else if ((Target.Platform == UnrealTargetPlatform.Linux))
+			Definitions.Add("DEEPDRIVE_PLATFORM_LINUX=1");
 
         Definitions.Add("DEEPDRIVE_WITH_UE4_LOGGING");
 
@@ -97,6 +86,7 @@ public class DeepDrivePlugin : ModuleRules
         //        File.WriteAllText(Path.Combine(contentDataDir, "VERSION"), majorMinorVersion + "." + buildTimestamp);
 
         // Build Python extension -------------------------------------------------------------------------------
+        var envHome = (Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32) ?  "HOMEPATH" : "HOME";
 
         var userHome = Environment.GetEnvironmentVariable(envHome);
         Console.WriteLine("userHome " + userHome);

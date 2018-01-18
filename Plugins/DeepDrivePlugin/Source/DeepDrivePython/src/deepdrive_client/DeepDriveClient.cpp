@@ -1,5 +1,6 @@
 
 #include "deepdrive_client/DeepDriveClient.hpp"
+#include "common/ClientErrorCode.hpp"
 
 #include "Public/Server/Messages/DeepDriveServerConnectionMessages.h"
 #include "Public/Server/Messages/DeepDriveServerConfigurationMessages.h"
@@ -73,82 +74,102 @@ void DeepDriveClient::close()
 }
 
 
-uint32 DeepDriveClient::registerCamera(float hFoV, uint16 captureWidth, uint16 captureHeight, float relPos[3], float relRot[3])
+int32 DeepDriveClient::registerCamera(float hFoV, uint16 captureWidth, uint16 captureHeight, float relPos[3], float relRot[3])
 {
-	uint32 camId = 0;
 	deepdrive::server::RegisterCaptureCameraRequest req(m_ClientId, hFoV, captureWidth, captureHeight);
 	req.relative_position[0] = relPos[0];	req.relative_position[1] = relPos[1];	req.relative_position[2] = relPos[2];
 	req.relative_rotation[0] = relRot[0];	req.relative_rotation[1] = relRot[1];	req.relative_rotation[2] = relRot[2];
 
-	m_Socket.send(&req, sizeof(req));
-
-	std::cout << "RegisterCaptureCameraRequest sent\n";
-
-	deepdrive::server::RegisterCaptureCameraResponse response;
-	if(m_Socket.receive(&response, sizeof(response), 1000))
+	int32 res = m_Socket.send(&req, sizeof(req));
+	if(res >= 0)
 	{
-		camId = response.camera_id;
-		std::cout << "RegisterCaptureCameraResponse received " << m_ClientId << " " << camId << "\n";
-	}
-	else
-		std::cout << "Waiting for RegisterCaptureCameraResponse, time out\n";
+		std::cout << "RegisterCaptureCameraRequest sent\n";
 
-	return camId;
+		deepdrive::server::RegisterCaptureCameraResponse response;
+		if(m_Socket.receive(&response, sizeof(response), 1000))
+		{
+			res = static_cast<int32> (response.camera_id);
+			std::cout << "RegisterCaptureCameraResponse received " << m_ClientId << " " << res << "\n";
+		}
+		else
+			std::cout << "Waiting for RegisterCaptureCameraResponse, time out\n";
+	}
+
+	return res;
 }
 
-bool DeepDriveClient::requestAgentControl()
+int32 DeepDriveClient::requestAgentControl()
 {
-	bool ctrlGranted = false;
+	int32 res = ClientErrorCode::NOT_CONNECTED;
 	deepdrive::server::RequestAgentControlRequest req(m_ClientId);
-	m_Socket.send(&req, sizeof(req));
-
-	std::cout << "RequestAgentControlRequest sent\n";
-
-	deepdrive::server::RequestAgentControlResponse response;
-	if(m_Socket.receive(&response, sizeof(response), 1000))
+	res = m_Socket.send(&req, sizeof(req));
+	if(res >= 0)
 	{
-		ctrlGranted = response.control_granted;
-		std::cout << "RequestAgentControlResponse received " << m_ClientId << " " << ctrlGranted << "\n";
-	}
-	else
-		std::cout << "Waiting for RequestAgentControlResponse, time out\n";
+		std::cout << "RequestAgentControlRequest sent\n";
 
-	return ctrlGranted;
+		deepdrive::server::RequestAgentControlResponse response;
+		if(m_Socket.receive(&response, sizeof(response), 1000))
+		{
+			res = response.control_granted ? 1 : 0;
+			std::cout << "RequestAgentControlResponse received " << m_ClientId << " " << response.control_granted << "\n";
+		}
+		else
+			std::cout << "Waiting for RequestAgentControlResponse, time out\n";
+	}
+
+	return res;
 }
 
-void DeepDriveClient::releaseAgentControl()
+int32 DeepDriveClient::releaseAgentControl()
 {
+	int32 res = ClientErrorCode::NOT_CONNECTED;
 	deepdrive::server::ReleaseAgentControlRequest req(m_ClientId);
-	m_Socket.send(&req, sizeof(req));
-
-	std::cout << "ReleaseAgentControlRequest sent\n";
-
-	deepdrive::server::ReleaseAgentControlResponse response;
-	if(m_Socket.receive(&response, sizeof(response), 1000))
+	res = m_Socket.send(&req, sizeof(req));
+	if(res >= 0)
 	{
-		std::cout << "ReleaseAgentControlResponse received " << m_ClientId << "\n";
+		std::cout << "ReleaseAgentControlRequest sent\n";
+
+		deepdrive::server::ReleaseAgentControlResponse response;
+		if(m_Socket.receive(&response, sizeof(response), 1000))
+		{
+			std::cout << "ReleaseAgentControlResponse received " << m_ClientId << "\n";
+		}
+		else
+			std::cout << "Waiting for ReleaseAgentControlResponse, time out\n";
 	}
-	else
-		std::cout << "Waiting for ReleaseAgentControlResponse, time out\n";
+
+	return res;
 }
 
-void DeepDriveClient::resetAgent()
+int32 DeepDriveClient::resetAgent()
 {
+	int32 res = ClientErrorCode::NOT_CONNECTED;
+
 	deepdrive::server::ResetAgentRequest req(m_ClientId);
-	m_Socket.send(&req, sizeof(req));
-	std::cout << "ResetAgentRequest sent " << m_ClientId << "\n";
-
-	deepdrive::server::ResetAgentResponse response;
-	if(m_Socket.receive(&response, sizeof(response), 2500))
+	res = m_Socket.send(&req, sizeof(req));
+	if(res >= 0)
 	{
-		std::cout << "ResetAgentResponse received " << m_ClientId << "\n";
+		std::cout << "ResetAgentRequest sent " << m_ClientId << "\n";
+
+		deepdrive::server::ResetAgentResponse response;
+		if(m_Socket.receive(&response, sizeof(response), 2500))
+		{
+			std::cout << "ResetAgentResponse received " << m_ClientId << "\n";
+		}
+		else
+			std::cout << "Waiting for ResetAgentResponse, time out\n";
 	}
-	else
-		std::cout << "Waiting for ResetAgentResponse, time out\n";
+
+	return res;
 }
 
-void DeepDriveClient::setControlValues(float steering, float throttle, float brake, uint32 handbrake)
+int32 DeepDriveClient::setControlValues(float steering, float throttle, float brake, uint32 handbrake)
 {
-	deepdrive::server::SetAgentControlValuesRequest req(m_ClientId, steering, throttle, brake, handbrake);
-	m_Socket.send(&req, sizeof(req));
+	int32 res = ClientErrorCode::NOT_CONNECTED;
+	if(m_Socket.isConnected())
+	{
+		deepdrive::server::SetAgentControlValuesRequest req(m_ClientId, steering, throttle, brake, handbrake);
+		res = m_Socket.send(&req, sizeof(req));
+	}	
+	return res;
 }

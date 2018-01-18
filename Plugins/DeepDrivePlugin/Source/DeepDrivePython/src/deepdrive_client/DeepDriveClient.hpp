@@ -24,16 +24,16 @@ public:
 
 	bool isConnected() const;
 
-	uint32 registerCamera(float hFoV, uint16 captureWidth, uint16 captureHeight, float relPos[3], float relRot[3]);
+	int32 registerCamera(float hFoV, uint16 captureWidth, uint16 captureHeight, float relPos[3], float relRot[3]);
 
-	bool requestAgentControl();
-	void releaseAgentControl();
-	void resetAgent();
+	int32 requestAgentControl();
+	int32 releaseAgentControl();
+	int32 resetAgent();
 	
 	const char* getSharedMemoryName() const;
 	uint32 getSharedMemorySize() const;
 
-	void setControlValues(float steering, float throttle, float brake, uint32 handbrake);
+	int32 setControlValues(float steering, float throttle, float brake, uint32 handbrake);
 
 	uint32							m_ClientId = 0;
 	bool							m_isMaster = false;
