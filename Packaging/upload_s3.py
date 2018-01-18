@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import os
+import platform
 import shutil
 import sys
 import tempfile
@@ -14,7 +15,7 @@ DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 def main():
-    out_filename = 'deepdrive-sim-windows-%s' % get_package_version()
+    out_filename = 'deepdrive-sim-%s-%s' % (platform.system().lower(), get_package_version())
     out_path = os.path.join(tempfile.gettempdir(), out_filename)
     in_path = os.path.join(os.path.expanduser('~'), 'Deepdrive', 'sim')
     print('Zipping %s to %s.zip...' % (in_path, out_path))

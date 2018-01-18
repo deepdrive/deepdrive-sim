@@ -6,6 +6,7 @@ from subprocess import Popen, PIPE
 from pathlib import Path
 
 import config
+import sys
 
 DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -33,23 +34,24 @@ def main(build_type):
     unreal_root = str(Path(DIR).parent.parent.parent.parent.parent)
     print('Unreal root %s' % unreal_root)
     env = os.environ.copy()
+    py = sys.executable
     get_package_version_path = os.path.join(unreal_root, 'Packaging', 'get_package_version.py')
-    env['DEEPDRIVE_VERSION'] = run_command('python ' + get_package_version_path)
+    env['DEEPDRIVE_VERSION'] = run_command('%s %s' % (py, get_package_version_path))
     env['DEEPDRIVE_BRANCH'] = (env.get('TRAVIS_BRANCH') or env.get('APPVEYOR_REPO_BRANCH') or
                                run_command(['git', '-C', unreal_root, 'rev-parse', '--abbrev-ref', 'HEAD']))
     print('DEEPDRIVE_VERSION is %s' % env['DEEPDRIVE_VERSION'])
     ext_root = os.path.dirname(DIR)
     print('PYPY_USERNAME is %s' % env.get('PYPI_USERNAME'))
     if build_type == 'dev':
-        run_command('python -m pip uninstall --yes ' + config.PACKAGE_NAME, env=env, cwd=ext_root)
+        run_command('%s -m pip uninstall --yes '    % py + config.PACKAGE_NAME, env=env, cwd=ext_root)
         try:
-            run_command('python -m pip install -e . --upgrade --force-reinstall --ignore-installed --no-deps',
+            run_command('%s -m pip install -e . --upgrade --force-reinstall --ignore-installed --no-deps' % py,
                     env=env, cwd=ext_root)
         except Exception as e:
             raise Exception('Error building, is the module imported into a live python process?', e)
 
     elif build_type == 'win_bdist':
-        print(run_command('python -u setup.py bdist_wheel', env=env, cwd=ext_root))
+        print(run_command('%s -u setup.py bdist_wheel' % py, env=env, cwd=ext_root))
         if env['DEEPDRIVE_BRANCH'] == 'release':
             scripts_dir = os.path.join(env['PYTHON'], 'Scripts')
             print('DEBUG scripts dir %s' % list(os.listdir(scripts_dir)))
