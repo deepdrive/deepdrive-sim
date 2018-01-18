@@ -79,6 +79,7 @@ Unreal->Project Settings->Input->Action Mappings OR in Blueprints->Find (uncheck
 Until Unreal binary uploads are automated, the server and client version will not match unless the VERSION file changes 
 are pushed. This because the client version is determined by latest git timestamp and the server version is determined
 by the VERSION file. The VERSION file will automatically update when you build, so all that's needed is to push it.
+The only time you shouldn't push your VERSION file is when you are just packaging and uploading the sim.
 
 ## Clean builds
 
