@@ -153,7 +153,7 @@ void DeepDriveClientConnection::registerClient(const deepdrive::server::MessageH
 
 	response.max_supported_cameras = 8;
 	response.max_capture_resolution = 2048;
-	response.inactivity_timeout_ms = 4000;
+	response.inactivity_timeout_ms = 20000;
 	int32 bytesSent = 0;
 	m_Socket->Send(reinterpret_cast<uint8*> (&response), sizeof(response), bytesSent);
 	// UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] %d bytes sent back"), m_ClientId, bytesSent);
