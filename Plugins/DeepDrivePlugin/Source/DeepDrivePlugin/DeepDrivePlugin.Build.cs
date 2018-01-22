@@ -62,21 +62,10 @@ public class DeepDrivePlugin : ModuleRules
 			);
 
 
-        var envHome = "HOME";
 		if ((Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32))
-		{
 			Definitions.Add("DEEPDRIVE_PLATFORM_WINDOWS=1");
-			envHome = "HOMEPATH";
-		}
 		else if ((Target.Platform == UnrealTargetPlatform.Linux))
-		{
 			Definitions.Add("DEEPDRIVE_PLATFORM_LINUX=1");
-			envHome = "HOME";
-		}
-		else
-		{
-		    throw new Exception("OS not supported");
-		}
 
         Definitions.Add("DEEPDRIVE_WITH_UE4_LOGGING");
 
@@ -86,8 +75,18 @@ public class DeepDrivePlugin : ModuleRules
                                         System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
                                         .FullName).FullName).FullName;
 
+        // Write VERSION file -------------------------------------
+        //		// TODO: Put this in Plugin Content directory
+        //        string buildTimestamp = DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+        //        Console.WriteLine("Build timestamp " + buildTimestamp);
+
+        //        string contentDataDir = Path.Combine(rootDir, "Content", "Data");
+        //		string majorMinorVersion = System.IO.File.ReadAllText(Path.Combine(contentDataDir, "MAJOR_MINOR_VERSION"));
+        //        Console.WriteLine("Writing VERSION to " + contentDataDir);
+        //        File.WriteAllText(Path.Combine(contentDataDir, "VERSION"), majorMinorVersion + "." + buildTimestamp);
 
         // Build Python extension -------------------------------------------------------------------------------
+        var envHome = (Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32) ?  "HOMEPATH" : "HOME";
 
         var userHome = Environment.GetEnvironmentVariable(envHome);
         Console.WriteLine("userHome " + userHome);

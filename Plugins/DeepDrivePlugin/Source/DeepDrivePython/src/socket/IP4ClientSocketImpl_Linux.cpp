@@ -48,28 +48,28 @@ bool IP4ClientSocketImpl_Linux::connect(const IP4Address &ip4Address)
 	return m_isConnected;
 }
 
-uint32 IP4ClientSocketImpl_Linux::send(const void *data, uint32 bytesToSend)
+int32 IP4ClientSocketImpl_Linux::send(const void *data, uint32 bytesToSend)
 {
-	uint32 bytesSend = 0;
+	int32 bytesSend = 0;
 	if(m_isConnected)
 	{
 		ssize_t res = ::write(m_SocketHandle, data, bytesToSend);
 		if(res >= 0)
-			bytesSend = static_cast<uint32> (res);
+			bytesSend = res;
 	}
 	return bytesSend;
 }
 
-uint32 IP4ClientSocketImpl_Linux::receive(void *buffer, uint32 size)
+int32 IP4ClientSocketImpl_Linux::receive(void *buffer, uint32 size)
 {
-	uint32 res = 0;
+	int32 res = 0;
 	if(m_isConnected)
 	{
 		int32 receivedSize = ::recv(m_SocketHandle, reinterpret_cast<char*> (buffer), size , 0);
 
 		if(receivedSize > 0)
 		{
-			res = static_cast<uint32> (receivedSize);
+			res = receivedSize;
 			// std::cout << "Received " << res << " bytes\n";
 		}
 		else
@@ -78,9 +78,9 @@ uint32 IP4ClientSocketImpl_Linux::receive(void *buffer, uint32 size)
 	return res;
 }
 
-uint32 IP4ClientSocketImpl_Linux::receive(void *buffer, uint32 size, uint32 timeOutMS)
+int32 IP4ClientSocketImpl_Linux::receive(void *buffer, uint32 size, uint32 timeOutMS)
 {
-	uint32 res = 0;
+	int32 res = 0;
 
 	pollfd pollInOut;
 	pollInOut.fd = m_SocketHandle;
@@ -93,7 +93,7 @@ uint32 IP4ClientSocketImpl_Linux::receive(void *buffer, uint32 size, uint32 time
 
 		if(receivedSize > 0)
 		{
-			res = static_cast<uint32> (receivedSize);
+			res = receivedSize;
 			// std::cout << "Received " << res << " bytes\n";
 		}
 		else

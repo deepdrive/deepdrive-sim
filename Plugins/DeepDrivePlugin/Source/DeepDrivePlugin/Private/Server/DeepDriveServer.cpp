@@ -85,6 +85,8 @@ bool DeepDriveServer::RegisterProxy(ADeepDriveServerProxy &proxy)
 		m_Proxy = &proxy;
 		m_ConnectionListener = new DeepDriveConnectionListener(ipAddress[0], ipAddress[1], ipAddress[2], ipAddress[3], proxy.Port);
 
+		m_MessageQueue.Empty();
+
 		registered = true;
 	}
 
@@ -210,16 +212,19 @@ void DeepDriveServer::handleRequestAgentControl(const deepdrive::server::Message
 
 void DeepDriveServer::handleReleaseAgentControl(const deepdrive::server::MessageHeader &message)
 {
-	const deepdrive::server::ReleaseAgentControlRequest &req = static_cast<const deepdrive::server::ReleaseAgentControlRequest&> (message);
-	DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
-	if (client)
+	if (m_Clients.Num() > 0)
 	{
-		m_Proxy->ReleaseAgentControl();
-		client->enqueueResponse(new deepdrive::server::ReleaseAgentControlResponse(true));
-	}
-	else
-	{
-		UE_LOG(LogDeepDriveServer, Log, TEXT("Ignoring release control request, no clients connected"));
+		const deepdrive::server::ReleaseAgentControlRequest &req = static_cast<const deepdrive::server::ReleaseAgentControlRequest&> (message);
+		DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
+		if (client)
+		{
+			m_Proxy->ReleaseAgentControl();
+			client->enqueueResponse(new deepdrive::server::ReleaseAgentControlResponse(true));
+		}
+		else
+		{
+			UE_LOG(LogDeepDriveServer, Log, TEXT("Ignoring release control request, no clients connected"));
+		}
 	}
 }
 

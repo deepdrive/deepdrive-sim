@@ -1,6 +1,7 @@
 
 #include "DeepDrivePluginPrivatePCH.h"
 
+#include "common/ClientErrorCode.hpp"
 #include "socket/IP4ClientSocket.hpp"
 
 #include <chrono>
@@ -39,12 +40,12 @@ IP4ClientSocket::~IP4ClientSocket()
 
 bool IP4ClientSocket::connect(const IP4Address &ip4Address)
 {
-	return m_ClientSocketImpl ? m_ClientSocketImpl->connect(ip4Address) : false;
+	return m_ClientSocketImpl && !m_ClientSocketImpl->isConnected() ? m_ClientSocketImpl->connect(ip4Address) : false;
 }
 
-uint32 IP4ClientSocket::send(const void *data, uint32 bytesToSend)
+int32 IP4ClientSocket::send(const void *data, uint32 bytesToSend)
 {
-	return m_ClientSocketImpl ? m_ClientSocketImpl->send(data, bytesToSend) : 0;
+	return m_ClientSocketImpl ? m_ClientSocketImpl->send(data, bytesToSend) : ClientErrorCode::NOT_CONNECTED;
 }
 
 uint32 IP4ClientSocket::receive(void *buffer, uint32 size)
