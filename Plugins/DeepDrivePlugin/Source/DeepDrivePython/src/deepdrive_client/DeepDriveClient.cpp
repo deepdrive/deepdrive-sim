@@ -102,13 +102,13 @@ bool DeepDriveClient::requestAgentControl()
 	deepdrive::server::RequestAgentControlRequest req(m_ClientId);
 	m_Socket.send(&req, sizeof(req));
 
-	std::cout << "RequestAgentControlRequest sent\n";
+//	std::cout << "RequestAgentControlRequest sent\n";
 
 	deepdrive::server::RequestAgentControlResponse response;
 	if(m_Socket.receive(&response, sizeof(response), 1000))
 	{
 		ctrlGranted = response.control_granted;
-		std::cout << "RequestAgentControlResponse received " << m_ClientId << " " << ctrlGranted << "\n";
+//		std::cout << "RequestAgentControlResponse received " << m_ClientId << " " << ctrlGranted << "\n";
 	}
 	else
 		std::cout << "Waiting for RequestAgentControlResponse, time out\n";
@@ -121,12 +121,12 @@ void DeepDriveClient::releaseAgentControl()
 	deepdrive::server::ReleaseAgentControlRequest req(m_ClientId);
 	m_Socket.send(&req, sizeof(req));
 
-	std::cout << "ReleaseAgentControlRequest sent\n";
+//	std::cout << "ReleaseAgentControlRequest sent\n";
 
 	deepdrive::server::ReleaseAgentControlResponse response;
 	if(m_Socket.receive(&response, sizeof(response), 1000))
 	{
-		std::cout << "ReleaseAgentControlResponse received " << m_ClientId << "\n";
+//		std::cout << "ReleaseAgentControlResponse received " << m_ClientId << "\n";
 	}
 	else
 		std::cout << "Waiting for ReleaseAgentControlResponse, time out\n";
