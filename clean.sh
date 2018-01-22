@@ -3,11 +3,14 @@
 set -e
 set -v
 
-echo Cleaning derivative data
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-rm -rf DerivedDataCache
-rm -rf Saved
-rm -rf Intermediate
-rm -rf Binaries
-rm -rf Plugins/DeepDrivePlugin/Binaries
-rm -rf Plugins/DeepDrivePlugin/Intermediate
+
+echo Cleaning derivative data from ${DIR}
+
+rm -rf ${DIR}/DerivedDataCache
+rm -rf ${DIR}/Saved
+rm -rf ${DIR}/Intermediate
+rm -rf ${DIR}/Binaries
+rm -rf ${DIR}/Plugins/DeepDrivePlugin/Binaries
+rm -rf ${DIR}/Plugins/DeepDrivePlugin/Intermediate
