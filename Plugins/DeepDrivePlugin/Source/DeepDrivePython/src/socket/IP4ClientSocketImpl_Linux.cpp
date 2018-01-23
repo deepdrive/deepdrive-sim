@@ -1,4 +1,6 @@
 
+#include "common/ClientErrorCode.hpp"
+
 #include "socket/IP4ClientSocketImpl_Linux.hpp"
 #include "socket/IP4Address.hpp"
 
@@ -50,14 +52,24 @@ bool IP4ClientSocketImpl_Linux::connect(const IP4Address &ip4Address)
 
 int32 IP4ClientSocketImpl_Linux::send(const void *data, uint32 bytesToSend)
 {
-	int32 bytesSend = 0;
+	int32 res = ClientErrorCode::NOT_CONNECTED;
 	if(m_isConnected)
 	{
-		ssize_t res = ::write(m_SocketHandle, data, bytesToSend);
-		if(res >= 0)
-			bytesSend = res;
+		ssize_t bytesSent = ::write(m_SocketHandle, data, bytesToSend);
+		if(bytesSent < 0)
+		{
+			if(errno == EPIPE)
+			{
+				// no valid connection anymore
+				std::cout << "Connection lost\n";
+				close();
+				res = ClientErrorCode::CONNECTION_LOST;
+			}
+		}
+		else
+			res = static_cast<int32> (bytesSent);
 	}
-	return bytesSend;
+	return res;
 }
 
 int32 IP4ClientSocketImpl_Linux::receive(void *buffer, uint32 size)
@@ -112,6 +124,7 @@ void IP4ClientSocketImpl_Linux::close()
 		::close(m_SocketHandle);
 		m_SocketHandle = 0;
 		m_isConnected = false;
+		std::cout << "Socket closed\n";
 	}
 }
 
