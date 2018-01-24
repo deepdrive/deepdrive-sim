@@ -10,7 +10,6 @@ CaptureBuffer::CaptureBuffer(CaptureBufferPool &captureBufferPool, EPixelFormat 
 	,	m_Height(height)
 	,	m_Stride(stride)
 {
-
 }
 
 void CaptureBuffer::initialize(EPixelFormat pixelFormat, uint32 width, uint32 height, uint32 stride)

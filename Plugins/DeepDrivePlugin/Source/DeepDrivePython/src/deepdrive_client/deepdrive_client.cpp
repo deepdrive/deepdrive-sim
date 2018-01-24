@@ -382,7 +382,6 @@ static PyObject* deepdrive_client_set_control_values(PyObject *self, PyObject *a
 	return Py_BuildValue("");
 }
 
-
 /*	Send control values to server
  *
  *	@param	uint32		Client Id
