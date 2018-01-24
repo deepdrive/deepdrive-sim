@@ -5,13 +5,13 @@ import time
 import deepdrive_capture
 import deepdrive_client
 
-client = deepdrive_client.create('127.0.0.1', 9876)
-
 def cleanUp(clientId):
 	deepdrive_client.release_agent_control(clientId)
 	deepdrive_capture.close()
 	deepdrive_client.close(clientId)
-	clientId = 0
+
+
+client = deepdrive_client.create('127.0.0.1', 9876)
 
 
 if client != None:
@@ -25,11 +25,11 @@ if client != None:
 
 	deepdrive_client.register_camera(clientId, 60, 512, 256, [0.0, 0.0, 200.0], [0.0, 0.0, 60.0])
 	deepdrive_client.register_camera(clientId, 60, 512, 256, [0.0, 0.0, 200.0], [0.0, 0.0, -60.0])
-	deepdrive_client.register_camera(clientId, 60, 512, 256, [0.0, 0.0, 200.0], [0.0, 0.0, 120.0])
-	deepdrive_client.register_camera(clientId, 60, 512, 256, [0.0, 0.0, 200.0], [0.0, 0.0, -120.0])
-	deepdrive_client.register_camera(clientId, 60, 512, 256, [0.0, 0.0, 200.0], [0.0, 0.0, 180.0])
-	deepdrive_client.register_camera(clientId, 60, 512, 256, [0.0, 0.0, 200.0], [0.0, 0.0, -60.0])
-	deepdrive_client.register_camera(clientId, 60, 512, 256, [0.0, 0.0, 200.0], [0.0, 0.0, -60.0])
+	#deepdrive_client.register_camera(clientId, 60, 512, 256, [0.0, 0.0, 200.0], [0.0, 0.0, 120.0])
+	#deepdrive_client.register_camera(clientId, 60, 512, 256, [0.0, 0.0, 200.0], [0.0, 0.0, -120.0])
+	#deepdrive_client.register_camera(clientId, 60, 512, 256, [0.0, 0.0, 200.0], [0.0, 0.0, 180.0])
+	#deepdrive_client.register_camera(clientId, 60, 512, 256, [0.0, 0.0, 200.0], [0.0, 0.0, -60.0])
+	#deepdrive_client.register_camera(clientId, 60, 512, 256, [0.0, 0.0, 200.0], [0.0, 0.0, -60.0])
 
 	connected = deepdrive_capture.reset(sharedMem[0], sharedMem[1])
 	if connected:
@@ -73,9 +73,5 @@ if client != None:
 
 		except deepdrive_client.connection_lost:
 			print('>>>> Connection lost')
-			clientId = 0
 
-
-if clientId > 0:
-	deepdrive_client.close(clientId)
 

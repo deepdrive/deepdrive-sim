@@ -185,28 +185,34 @@ void DeepDriveServer::handleMessage(const deepdrive::server::MessageHeader &mess
 
 void DeepDriveServer::handleRegisterCamera(const deepdrive::server::MessageHeader &message)
 {
-	const deepdrive::server::RegisterCaptureCameraRequest &req = static_cast<const deepdrive::server::RegisterCaptureCameraRequest&> (message);
-	DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
-	if (client)
+	if(m_Clients.Num() > 0)
 	{
-		FVector relPos(req.relative_position[0], req.relative_position[1], req.relative_position[2]);
-		FVector relRot(req.relative_rotation[0], req.relative_rotation[1], req.relative_rotation[2]);
-		int32 cameraId = m_Proxy->RegisterCamera(req.horizontal_field_of_view, req.capture_width, req.capture_height, relPos, relRot);
+		const deepdrive::server::RegisterCaptureCameraRequest &req = static_cast<const deepdrive::server::RegisterCaptureCameraRequest&> (message);
+		DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
+		if (client)
+		{
+			FVector relPos(req.relative_position[0], req.relative_position[1], req.relative_position[2]);
+			FVector relRot(req.relative_rotation[0], req.relative_rotation[1], req.relative_rotation[2]);
+			int32 cameraId = m_Proxy->RegisterCamera(req.horizontal_field_of_view, req.capture_width, req.capture_height, relPos, relRot);
 
-		UE_LOG(LogDeepDriveServer, Log, TEXT("Camera registered %d %d"), req.client_id, cameraId);
-		client->enqueueResponse(new deepdrive::server::RegisterCaptureCameraResponse(cameraId));
+			UE_LOG(LogDeepDriveServer, Log, TEXT("Camera registered %d %d"), req.client_id, cameraId);
+			client->enqueueResponse(new deepdrive::server::RegisterCaptureCameraResponse(cameraId));
+		}
 	}
 }
 
 void DeepDriveServer::handleRequestAgentControl(const deepdrive::server::MessageHeader &message)
 {
-	const deepdrive::server::RequestAgentControlRequest &req = static_cast<const deepdrive::server::RequestAgentControlRequest&> (message);
-	DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
-	if (client)
+	if(m_Clients.Num() > 0)
 	{
-		bool ctrlGranted = m_Proxy->RequestAgentControl();
-		UE_LOG(LogDeepDriveServer, Log, TEXT("Control over agent granted %d %c"), req.client_id, ctrlGranted ? 'T' : 'F');
-		client->enqueueResponse(new deepdrive::server::RequestAgentControlResponse(ctrlGranted));
+		const deepdrive::server::RequestAgentControlRequest &req = static_cast<const deepdrive::server::RequestAgentControlRequest&> (message);
+		DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
+		if (client)
+		{
+			bool ctrlGranted = m_Proxy->RequestAgentControl();
+			UE_LOG(LogDeepDriveServer, Log, TEXT("Control over agent granted %d %c"), req.client_id, ctrlGranted ? 'T' : 'F');
+			client->enqueueResponse(new deepdrive::server::RequestAgentControlResponse(ctrlGranted));
+		}
 	}
 }
 
@@ -230,15 +236,18 @@ void DeepDriveServer::handleReleaseAgentControl(const deepdrive::server::Message
 
 void DeepDriveServer::resetAgent(const deepdrive::server::MessageHeader &message)
 {
-	const deepdrive::server::ResetAgentRequest &req = static_cast<const deepdrive::server::ResetAgentRequest&> (message);
-	DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
-	if (client)
+	if(m_Clients.Num() > 0)
 	{
-		m_Proxy->ResetAgent();
-		UE_LOG(LogDeepDriveServer, Log, TEXT("Agent reset %d"), req.client_id);
-	}
-	else{
-		UE_LOG(LogDeepDriveServer, Log, TEXT("No client, ignoring reset"));
+		const deepdrive::server::ResetAgentRequest &req = static_cast<const deepdrive::server::ResetAgentRequest&> (message);
+		DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
+		if (client)
+		{
+			m_Proxy->ResetAgent();
+			UE_LOG(LogDeepDriveServer, Log, TEXT("Agent reset %d"), req.client_id);
+		}
+		else{
+			UE_LOG(LogDeepDriveServer, Log, TEXT("No client, ignoring reset"));
+		}
 	}
 }
 
