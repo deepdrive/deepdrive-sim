@@ -16,10 +16,10 @@ Checkout our [main repo](https://github.com/deepdrive/deepdrive)
 
 - Get Unreal v4.14 via the Epic Launcher -> Unreal Enngine tab -> Library
 - Install the Substance Plugin through the Marketplace in Epic Launcher
-- Refresh / Create Visual Studio project***
-- On Windows, Right click the DeepDrive project and set as Startup Project, debug...***
+- Refresh / Create Visual Studio project
+- On Windows, Right click the DeepDrive project and set as Startup Project, debug...
 
-- Run game full speed when the window is not focused***
+- Run game full speed when the window is not focused
   - Uncheck Edit->Editor Preferences->Use Less CPU when in Background
 
 Opening the project in Unreal will update the Substance textures to Windows-only versions. 
