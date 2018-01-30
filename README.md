@@ -17,6 +17,7 @@ Checkout our [main repo](https://github.com/deepdrive/deepdrive)
 - Use Visual Studio 2015 with the [C++ build tools](https://stackoverflow.com/a/31955339)
 - Get Unreal v4.14 via the Epic Launcher -> Unreal Enngine tab -> Library
 - Install the Substance Plugin through the Marketplace in Epic Launcher
+- Make sure rc.exe is in your PATH, if not follow [these](https://stackoverflow.com/a/14373113/134077) instructions but for Visual Studio 14.0 and x64 instead of Visual Studio 11, x86.
 - Open Unreal and use it to open DeepDrive.uproject - if there are errors, check `Saved/Logs` for details
 - Refresh / Create Visual Studio project
 - On Windows, Right click the DeepDrive project and set as Startup Project, debug...
