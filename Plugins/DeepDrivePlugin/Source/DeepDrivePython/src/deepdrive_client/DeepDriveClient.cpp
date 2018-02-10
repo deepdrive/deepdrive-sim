@@ -74,9 +74,9 @@ void DeepDriveClient::close()
 }
 
 
-int32 DeepDriveClient::registerCamera(float hFoV, uint16 captureWidth, uint16 captureHeight, float relPos[3], float relRot[3])
+int32 DeepDriveClient::registerCamera(float hFoV, uint16 captureWidth, uint16 captureHeight, float relPos[3], float relRot[3], const char *label)
 {
-	deepdrive::server::RegisterCaptureCameraRequest req(m_ClientId, hFoV, captureWidth, captureHeight);
+	deepdrive::server::RegisterCaptureCameraRequest req(m_ClientId, hFoV, captureWidth, captureHeight, label);
 	req.relative_position[0] = relPos[0];	req.relative_position[1] = relPos[1];	req.relative_position[2] = relPos[2];
 	req.relative_rotation[0] = relRot[0];	req.relative_rotation[1] = relRot[1];	req.relative_rotation[2] = relRot[2];
 

@@ -152,6 +152,7 @@ static PyObject* deepdrive_client_keep_alive(PyObject *self, PyObject *args)
  *	@param	number		Height
  *	@param	vector		Relative position
  *	@param	vector		Relative rotation
+ *	@param	string		Label of camera
  *
  *	@return	uint32		Camera Id or 0 when not successful
 */
@@ -167,12 +168,14 @@ static PyObject* deepdrive_client_register_camera(PyObject *self, PyObject *args
 	PyObject *relPosPtr = 0;
 	PyObject *relRotPtr = 0;
 
-	char *keyWordList[] = {"client_id", "field_of_view", "capture_width", "capture_height", "relative_position", "relative_rotation", NULL};
-	int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "I|fIIOO", keyWordList, &clientId, &hFoV, &captureWidth, &captureHeight, &relPosPtr, &relRotPtr);
+	const char *label = 0;
+
+	char *keyWordList[] = {"client_id", "field_of_view", "capture_width", "capture_height", "relative_position", "relative_rotation", "label", NULL};
+	int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "I|fIIOOs", keyWordList, &clientId, &hFoV, &captureWidth, &captureHeight, &relPosPtr, &relRotPtr, &label);
 
 	if(ok)
 	{
-		std::cout << "Register camera for client " << clientId << " " << captureWidth << "x" << captureHeight << " FoV " << hFoV << "\n";
+		std::cout << "Register camera for client " << clientId << " " << captureWidth << "x" << captureHeight << " FoV " << hFoV << " label " << (label ? label : "UNKNOWN") << "\n";
 
 		float relPos[3] = {0.0f, 0.0f, 0.0f};
 		float relRot[3] = {0.0f, 0.0f, 0.0f};
@@ -183,7 +186,7 @@ static PyObject* deepdrive_client_register_camera(PyObject *self, PyObject *args
 			DeepDriveClient *client = getClient(clientId);
 			if(client)
 			{
-				res = client->registerCamera(hFoV, captureWidth, captureHeight, relPos, relRot);
+				res = client->registerCamera(hFoV, captureWidth, captureHeight, relPos, relRot, label);
 				if(res < 0)
 				{	
 					if(res == ClientErrorCode::CONNECTION_LOST)

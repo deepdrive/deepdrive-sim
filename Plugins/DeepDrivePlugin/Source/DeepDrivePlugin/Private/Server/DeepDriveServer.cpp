@@ -193,7 +193,7 @@ void DeepDriveServer::handleRegisterCamera(const deepdrive::server::MessageHeade
 		{
 			FVector relPos(req.relative_position[0], req.relative_position[1], req.relative_position[2]);
 			FVector relRot(req.relative_rotation[0], req.relative_rotation[1], req.relative_rotation[2]);
-			int32 cameraId = m_Proxy->RegisterCamera(req.horizontal_field_of_view, req.capture_width, req.capture_height, relPos, relRot);
+			int32 cameraId = m_Proxy->RegisterCamera(req.horizontal_field_of_view, req.capture_width, req.capture_height, relPos, relRot, req.camera_label);
 
 			UE_LOG(LogDeepDriveServer, Log, TEXT("Camera registered %d %d"), req.client_id, cameraId);
 			client->enqueueResponse(new deepdrive::server::RegisterCaptureCameraResponse(cameraId));

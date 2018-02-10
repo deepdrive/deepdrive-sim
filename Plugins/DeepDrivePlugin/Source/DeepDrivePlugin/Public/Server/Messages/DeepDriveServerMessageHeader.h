@@ -8,6 +8,11 @@ namespace deepdrive { namespace server {
 
 struct MessageHeader
 {
+	enum
+	{
+		StringSize	= 128
+	};
+
 	MessageHeader(MessageId id, uint32 size)
 		:	message_id(id)
 		,	message_size(size)

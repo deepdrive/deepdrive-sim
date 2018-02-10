@@ -42,7 +42,7 @@ public:
 	void UnregisterClient(int32 ClientId, bool IsMaster);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "CameraConfiguration")
-	int32 RegisterCamera(float FieldOfView, int32 CaptureWidth, int32 CaptureHeight, FVector RelativePosition, FVector RelativeRotation);
+	int32 RegisterCamera(float FieldOfView, int32 CaptureWidth, int32 CaptureHeight, FVector RelativePosition, FVector RelativeRotation, const FString &Label);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Control")
 	bool RequestAgentControl();

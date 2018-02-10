@@ -24,7 +24,7 @@ public:
 
 	bool isConnected() const;
 
-	int32 registerCamera(float hFoV, uint16 captureWidth, uint16 captureHeight, float relPos[3], float relRot[3]);
+	int32 registerCamera(float hFoV, uint16 captureWidth, uint16 captureHeight, float relPos[3], float relRot[3], const char *label);
 
 	int32 requestAgentControl();
 	int32 releaseAgentControl();
