@@ -17,6 +17,7 @@ typedef std::map<uint32, DeepDriveClient*>		ClientMap;
 static PyObject *DeepDriveClientError;
 static PyObject *ConnectionLostError;
 static PyObject *NotConnectedError;
+static PyObject *TimeOutError;
 static PyObject *ClientDoesntExistError;
 
 static ClientMap g_Clients;
@@ -60,27 +61,41 @@ static PyObject* deepdrive_client_create(PyObject *self, PyObject *args)
 				)
 			{
 				std::cout << "Successfully connected to " << ip4Address.toStr(true) << "\n";
-				const deepdrive::server::RegisterClientResponse res = client->registerClient();
-				clientId = res.client_id;
-				std::cout << "Client id is " << std::to_string(clientId) << "\n";
-				PyDict_SetItem(ret, PyUnicode_FromString("client_id"), PyLong_FromUnsignedLong(clientId));
-				if(clientId)
+				deepdrive::server::RegisterClientResponse registerClientResponse;
+				const int32 res = client->registerClient(registerClientResponse);
+				if(res >= 0)
 				{
-					g_Clients[clientId] = client;
-					PyDict_SetItem(ret, PyUnicode_FromString("granted_master_role"),
-						PyLong_FromUnsignedLong(client->m_isMaster));
-			    	PyDict_SetItem(ret, PyUnicode_FromString("shared_memory_size"),
-			    		PyLong_FromUnsignedLong(client->m_SharedMemorySize));
-			    	PyDict_SetItem(ret, PyUnicode_FromString("max_supported_cameras"),
-			    		PyLong_FromUnsignedLong(client->m_MaxSupportedCameras));
-					PyDict_SetItem(ret, PyUnicode_FromString("max_capture_resolution"),
-						PyLong_FromUnsignedLong(client->m_MaxCaptureResolution));
-			    	PyDict_SetItem(ret, PyUnicode_FromString("inactivity_timeout_ms"),
-			    	 	PyLong_FromUnsignedLong(client->m_InactivityTimeout));
-			    	PyDict_SetItem(ret, PyUnicode_FromString("shared_memory_name"),
-			    		PyUnicode_FromString(client->m_SharedMemoryName.c_str()));
-			    	PyDict_SetItem(ret, PyUnicode_FromString("server_protocol_version"),
-			    		PyUnicode_FromString(client->m_ServerProtocolVersion.c_str()));
+					clientId = registerClientResponse.client_id;
+					std::cout << "Client id is " << std::to_string(clientId) << "\n";
+					PyDict_SetItem(ret, PyUnicode_FromString("client_id"), PyLong_FromUnsignedLong(clientId));
+					if(clientId)
+					{
+						g_Clients[clientId] = client;
+						PyDict_SetItem(ret, PyUnicode_FromString("granted_master_role"),
+							PyLong_FromUnsignedLong(client->m_isMaster));
+						PyDict_SetItem(ret, PyUnicode_FromString("shared_memory_size"),
+							PyLong_FromUnsignedLong(client->m_SharedMemorySize));
+						PyDict_SetItem(ret, PyUnicode_FromString("max_supported_cameras"),
+							PyLong_FromUnsignedLong(client->m_MaxSupportedCameras));
+						PyDict_SetItem(ret, PyUnicode_FromString("max_capture_resolution"),
+							PyLong_FromUnsignedLong(client->m_MaxCaptureResolution));
+						PyDict_SetItem(ret, PyUnicode_FromString("inactivity_timeout_ms"),
+						 	PyLong_FromUnsignedLong(client->m_InactivityTimeout));
+						PyDict_SetItem(ret, PyUnicode_FromString("shared_memory_name"),
+							PyUnicode_FromString(client->m_SharedMemoryName.c_str()));
+						PyDict_SetItem(ret, PyUnicode_FromString("server_protocol_version"),
+							PyUnicode_FromString(client->m_ServerProtocolVersion.c_str()));
+					}
+				}
+				else if(res == ClientErrorCode::CONNECTION_LOST)
+				{
+					PyErr_SetString(ClientDoesntExistError, "Client doesn't exist");
+					return 0;
+				}
+				else if(res == ClientErrorCode::TIME_OUT)
+				{
+					PyErr_SetString(TimeOutError, "Network time out");
+					return 0;
 				}
 			}
 			else
@@ -91,8 +106,6 @@ static PyObject* deepdrive_client_create(PyObject *self, PyObject *args)
 	}
 	else
 		std::cout << "Wrong arguments\n";
-
-
 
 	return ret;
 }
@@ -439,7 +452,7 @@ PyMODINIT_FUNC PyInit_deepdrive_client(void)
 	// if (PyType_Ready(&PyDeepDriveClientRegisterClientRequestType) < 0)
 	//	return 0;
 
-	std::cout << "###### ><> > PyInit_deepdrive_client < <>< ######\n";
+	std::cout << "###### ><> >< PyInit_deepdrive_client >< <>< ######\n";
 
 	import_array();
 
@@ -457,6 +470,10 @@ PyMODINIT_FUNC PyInit_deepdrive_client(void)
 		NotConnectedError = PyErr_NewException("deepdrive_client.not_connected", NULL, NULL);
 		Py_INCREF(NotConnectedError);
 		PyModule_AddObject(m, "not_connected", NotConnectedError);
+
+		TimeOutError = PyErr_NewException("deepdrive_client.time_out", NULL, NULL);
+		Py_INCREF(TimeOutError);
+		PyModule_AddObject(m, "time_out", TimeOutError);
 
 		ClientDoesntExistError = PyErr_NewException("deepdrive_client.client_doesnt_exist", NULL, NULL);
 		Py_INCREF(ClientDoesntExistError);

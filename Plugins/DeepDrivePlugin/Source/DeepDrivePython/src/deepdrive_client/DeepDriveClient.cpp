@@ -20,38 +20,44 @@ DeepDriveClient::~DeepDriveClient()
 
 }
 
-deepdrive::server::RegisterClientResponse DeepDriveClient::registerClient()
+int32 DeepDriveClient::registerClient(deepdrive::server::RegisterClientResponse &response)
 {
 	uint32 clientId = 0;
 
 	deepdrive::server::RegisterClientRequest req(true);
-	m_Socket.send(&req, sizeof(req));
+	int32 res = m_Socket.send(&req, sizeof(req));
 
-	std::cout << "RegisterClientRequest sent\n";
-
-	deepdrive::server::RegisterClientResponse response;
-	if(m_Socket.receive(&response, sizeof(response), 2000))
+	if(res >= 0)
 	{
-		clientId = m_ClientId = response.client_id;
-		m_isMaster = response.granted_master_role;
+		std::cout << "RegisterClientRequest sent\n";
 
-		m_ServerProtocolVersion = response.server_protocol_version;
+		if(m_Socket.receive(&response, sizeof(response), 2000))
+		{
+			res = ClientErrorCode::NO_ERROR;
+			clientId = m_ClientId = response.client_id;
+			m_isMaster = response.granted_master_role;
 
-		m_SharedMemoryName = std::string(response.shared_memory_name);
-		m_SharedMemorySize = response.shared_memory_size;
+			m_ServerProtocolVersion = response.server_protocol_version;
 
-		m_MaxSupportedCameras = response.max_supported_cameras;
-		m_MaxCaptureResolution = response.max_capture_resolution;
+			m_SharedMemoryName = std::string(response.shared_memory_name);
+			m_SharedMemorySize = response.shared_memory_size;
 
-		m_InactivityTimeout = response.inactivity_timeout_ms;
+			m_MaxSupportedCameras = response.max_supported_cameras;
+			m_MaxCaptureResolution = response.max_capture_resolution;
 
-		std::cout << "RegisterClientResponse received client id " << m_ClientId << " max cams "
-		 	<< m_MaxSupportedCameras << " capture res " << m_MaxCaptureResolution <<  " protocol version " << m_ServerProtocolVersion << "\n";
+			m_InactivityTimeout = response.inactivity_timeout_ms;
+
+			std::cout << "RegisterClientResponse received client id " << m_ClientId << " max cams "
+			 	<< m_MaxSupportedCameras << " capture res " << m_MaxCaptureResolution <<  " protocol version " << m_ServerProtocolVersion << "\n";
+		}
+		else
+		{
+			std::cout << "Waiting for RegisterClientResponse, time out\n";
+			res  = ClientErrorCode::TIME_OUT;
+		}
 	}
-	else
-		std::cout << "Waiting for RegisterClientResponse, time out\n";
 
-	return response;
+	return res;
 }
 
 bool DeepDriveClient::isConnected() const
