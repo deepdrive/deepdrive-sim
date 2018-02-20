@@ -158,7 +158,7 @@ void DeepDriveServer::update(float DeltaSeconds)
 		&&	incoming != 0
 		)
 	{
-		UE_LOG(LogDeepDriveServer, Log, TEXT("Incoming client connection asdf from %s"), *(incoming->remote_address->ToString(true)));
+		UE_LOG(LogDeepDriveServer, Log, TEXT("Incoming client connection from %s"), *(incoming->remote_address->ToString(true)));
 		DeepDriveClientConnection *client = new DeepDriveClientConnection(incoming->socket);
 	}
 
@@ -282,22 +282,32 @@ void DeepDriveServer::resetAgent(const deepdrive::server::MessageHeader &message
 			UE_LOG(LogDeepDriveServer, Log, TEXT("No client, ignoring reset"));
 		}
 	}
+	else
+	{
+		UE_LOG(LogDeepDriveServer, Log, TEXT("No clients , ignoring reset"));
+	}
 }
 
 void DeepDriveServer::onAgentReset(bool success)
 {
-	DeepDriveClientConnection *client = m_Clients.Find(m_MasterClientId)->connection;
-	if (client)
+	if (m_Clients.Num() > 0)
 	{
-		client->enqueueResponse(new deepdrive::server::ResetAgentResponse(success));
-		UE_LOG(LogDeepDriveServer, Log, TEXT("[%d] Agent reset success %c"), m_MasterClientId, success ? 'T' : 'F');
+		DeepDriveClientConnection *client = m_Clients.Find(m_MasterClientId)->connection;
+		if (client)
+		{
+			client->enqueueResponse(new deepdrive::server::ResetAgentResponse(success));
+			UE_LOG(LogDeepDriveServer, Log, TEXT("[%d] Agent reset success %c"), m_MasterClientId, success ? 'T' : 'F');
+		}
+		else
+		{
+			UE_LOG(LogDeepDriveServer, Log, TEXT("onResetAgent: No master client found for %d"), m_MasterClientId);
+		}
 	}
 	else
 	{
-		UE_LOG(LogDeepDriveServer, Log, TEXT("onResetAgent: No master client found for %d"), m_MasterClientId);
+		UE_LOG(LogDeepDriveServer, Log, TEXT("No clients , ignoring reset"));
 	}
 }
-
 
 void DeepDriveServer::setAgentControlValues(const deepdrive::server::MessageHeader &message)
 {
