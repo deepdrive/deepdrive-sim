@@ -158,6 +158,8 @@ void DeepDriveClientConnection::registerClient(const deepdrive::server::MessageH
 	m_Socket->Send(reinterpret_cast<uint8*> (&response), sizeof(response), bytesSent);
 	// UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] %d bytes sent back"), m_ClientId, bytesSent);
 	m_isMaster = true;
+
+	UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] Client registered."), m_ClientId);
 }
 
 void DeepDriveClientConnection::unregisterClient(const deepdrive::server::MessageHeader &message, bool isMaster)

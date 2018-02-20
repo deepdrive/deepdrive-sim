@@ -31,11 +31,13 @@ int32 DeepDriveClient::registerClient(deepdrive::server::RegisterClientResponse 
 	{
 		std::cout << "RegisterClientRequest sent\n";
 
-		if(m_Socket.receive(&response, sizeof(response), 2000))
+		res = m_Socket.receive(&response, sizeof(response));
+
+		if(res > 0)
 		{
 			res = ClientErrorCode::NO_ERROR;
 			clientId = m_ClientId = response.client_id;
-			m_isMaster = response.granted_master_role;
+			m_isMaster = response.granted_master_role > 0 ? true : false;
 
 			m_ServerProtocolVersion = response.server_protocol_version;
 
@@ -49,11 +51,6 @@ int32 DeepDriveClient::registerClient(deepdrive::server::RegisterClientResponse 
 
 			std::cout << "RegisterClientResponse received client id " << m_ClientId << " max cams "
 			 	<< m_MaxSupportedCameras << " capture res " << m_MaxCaptureResolution <<  " protocol version " << m_ServerProtocolVersion << "\n";
-		}
-		else
-		{
-			std::cout << "Waiting for RegisterClientResponse, time out\n";
-			res  = ClientErrorCode::TIME_OUT;
 		}
 	}
 

@@ -5,8 +5,9 @@ enum
 ClientErrorCode
 {
 	NO_ERROR				= 0,
-	NOT_CONNECTED			= -1,
-	CONNECTION_LOST			= -2,
-	TIME_OUT				= -3
+	UNKNOWN_ERROR			= -1,
+	NOT_CONNECTED			= -2,
+	CONNECTION_LOST			= -3,
+	TIME_OUT				= -4
 };
 

@@ -19,6 +19,7 @@ static PyObject *ConnectionLostError;
 static PyObject *NotConnectedError;
 static PyObject *TimeOutError;
 static PyObject *ClientDoesntExistError;
+static PyObject *UnknownError;
 
 static ClientMap g_Clients;
 
@@ -27,6 +28,27 @@ static DeepDriveClient* getClient(uint32 clientId)
 	ClientMap::iterator cIt = g_Clients.find(clientId);
 	DeepDriveClient *client = cIt != g_Clients.end() ? cIt->second : 0;
 	return client;
+}
+
+static PyObject* handleError(int32 errorCode)
+{
+	if(errorCode == ClientErrorCode::NOT_CONNECTED)
+	{
+		PyErr_SetString(ClientDoesntExistError, "Client doesn't exist");
+	}
+	else if(errorCode == ClientErrorCode::CONNECTION_LOST)
+	{
+		PyErr_SetString(ConnectionLostError, "Connection to server lost");
+	}
+	else if(errorCode == ClientErrorCode::TIME_OUT)
+	{
+		PyErr_SetString(TimeOutError, "Network time out");
+	}
+	else if(errorCode == ClientErrorCode::UNKNOWN_ERROR)
+	{
+		PyErr_SetString(UnknownError, "Unknown network error");
+	}
+	return 0;
 }
 
 /*	Create a new client, tries to connect to specified DeepDriveServer
@@ -87,16 +109,8 @@ static PyObject* deepdrive_client_create(PyObject *self, PyObject *args)
 							PyUnicode_FromString(client->m_ServerProtocolVersion.c_str()));
 					}
 				}
-				else if(res == ClientErrorCode::CONNECTION_LOST)
-				{
-					PyErr_SetString(ClientDoesntExistError, "Client doesn't exist");
-					return 0;
-				}
-				else if(res == ClientErrorCode::TIME_OUT)
-				{
-					PyErr_SetString(TimeOutError, "Network time out");
-					return 0;
-				}
+				else
+					return handleError(res);
 			}
 			else
 				std::cout << "Couldn't connect to " << ip4Address.toStr(true) << "\n";
@@ -201,20 +215,7 @@ static PyObject* deepdrive_client_register_camera(PyObject *self, PyObject *args
 			{
 				res = client->registerCamera(hFoV, captureWidth, captureHeight, relPos, relRot, label);
 				if(res < 0)
-				{	
-					if(res == ClientErrorCode::CONNECTION_LOST)
-					{
-						PyErr_SetString(ConnectionLostError, "Connection to server lost");
-						return 0;
-					}
-					else if(res == ClientErrorCode::NOT_CONNECTED)
-					{
-						PyErr_SetString(NotConnectedError, "Not connected to server");
-						return 0;
-					}
-					else
-						res = 0;
-				}
+					return handleError(res);
 			}
 			else
 			{
@@ -249,20 +250,7 @@ static PyObject* deepdrive_client_request_agent_control(PyObject *self, PyObject
 		{
 			int32 res = client->requestAgentControl();
 			if(res < 0)
-			{
-				if(res == ClientErrorCode::CONNECTION_LOST)
-				{
-					PyErr_SetString(ConnectionLostError, "Connection to server lost");
-					return 0;
-				}
-				else if(res == ClientErrorCode::NOT_CONNECTED)
-				{
-					PyErr_SetString(NotConnectedError, "Not connected to server");
-					return 0;
-				}
-				else
-					res = 0;
-			}
+				return handleError(res);
 		}
 		else
 		{
@@ -291,16 +279,8 @@ static PyObject* deepdrive_client_release_agent_control(PyObject *self, PyObject
 		if(client)
 		{
 			const int32 res = client->releaseAgentControl();
-			if(res == ClientErrorCode::CONNECTION_LOST)
-			{
-				PyErr_SetString(ConnectionLostError, "Connection to server lost");
-				return 0;
-			}
-			else if(res == ClientErrorCode::NOT_CONNECTED)
-			{
-				PyErr_SetString(NotConnectedError, "Not connected to server");
-				return 0;
-			}
+			if(res < 0)
+				return handleError(res);
 		}
 		else
 		{
@@ -328,16 +308,8 @@ static PyObject* deepdrive_client_reset_agent(PyObject *self, PyObject *args)
 		if(client)
 		{
 			const int32 res = client->resetAgent();
-			if(res == ClientErrorCode::CONNECTION_LOST)
-			{
-				PyErr_SetString(ConnectionLostError, "Connection to server lost");
-				return 0;
-			}
-			else if(res == ClientErrorCode::NOT_CONNECTED)
-			{
-				PyErr_SetString(NotConnectedError, "Not connected to server");
-				return 0;
-			}
+			if(res < 0)
+				return handleError(res);
 		}
 		else
 		{
@@ -375,16 +347,8 @@ static PyObject* deepdrive_client_set_control_values(PyObject *self, PyObject *a
 		if(client)
 		{
 			const int32 res = client->setControlValues(steering, throttle, brake, handbrake);
-			if(res == ClientErrorCode::CONNECTION_LOST)
-			{
-				PyErr_SetString(ConnectionLostError, "Connection to server lost");
-				return 0;
-			}
-			else if(res == ClientErrorCode::NOT_CONNECTED)
-			{
-				PyErr_SetString(NotConnectedError, "Not connected to server");
-				return 0;
-			}
+			if(res < 0)
+				return handleError(res);
 		}
 		else
 		{
@@ -422,7 +386,6 @@ static PyObject* deepdrive_client_get_shared_memory(PyObject *self, PyObject *ar
 		}
 	}
 
-
 	return Py_BuildValue("");
 }
 
@@ -452,7 +415,7 @@ PyMODINIT_FUNC PyInit_deepdrive_client(void)
 	// if (PyType_Ready(&PyDeepDriveClientRegisterClientRequestType) < 0)
 	//	return 0;
 
-	std::cout << "###### ><> >< PyInit_deepdrive_client >< <>< ######\n";
+	std::cout << "###### ><> ><> PyInit_deepdrive_client <>< <>< ######\n";
 
 	import_array();
 
@@ -478,6 +441,10 @@ PyMODINIT_FUNC PyInit_deepdrive_client(void)
 		ClientDoesntExistError = PyErr_NewException("deepdrive_client.client_doesnt_exist", NULL, NULL);
 		Py_INCREF(ClientDoesntExistError);
 		PyModule_AddObject(m, "client_doesnt_exist", ClientDoesntExistError);
+
+		UnknownError = PyErr_NewException("deepdrive_client.unknown_error", NULL, NULL);
+		Py_INCREF(UnknownError);
+		PyModule_AddObject(m, "unknown_error", UnknownError);
 
 
 		// Py_INCREF(&PyDeepDriveClientRegisterClientRequestType);

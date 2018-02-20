@@ -77,7 +77,10 @@ int32 IP4ClientSocketImpl_Windows::send(const void *data, uint32 bytesToSend)
 				res = ClientErrorCode::CONNECTION_LOST;
 			}
 			else
+			{
 				std::cout << "Send failed. Error Code : " << errorCode << "\n";
+				res = ClientErrorCode::UNKNOWN_ERROR;
+			}
 		}
 	}
 	return res;
@@ -85,7 +88,7 @@ int32 IP4ClientSocketImpl_Windows::send(const void *data, uint32 bytesToSend)
 
 int32 IP4ClientSocketImpl_Windows::receive(void *buffer, uint32 size)
 {
-	int32 res = 0;
+	int32 res = ClientErrorCode::NOT_CONNECTED;
 	if(m_isConnected)
 	{
 		int32 receivedSize = ::recv(m_Socket, reinterpret_cast<char*> (buffer), size , 0);
@@ -93,17 +96,32 @@ int32 IP4ClientSocketImpl_Windows::receive(void *buffer, uint32 size)
 		if(receivedSize > 0)
 		{
 			res = receivedSize;
-			// std::cout << "Received " << res << " bytes\n";
 		}
 		else
-			std::cout << "Received nothing " << receivedSize << "\n";
+		{
+			int32 errorCode = WSAGetLastError();
+			if	(	receivedSize == 0
+				||	errorCode == WSAECONNABORTED
+				||	errorCode == WSAECONNRESET
+				||	errorCode == WSAETIMEDOUT
+				||	errorCode == WSAENETDOWN
+				)
+			{
+				// no valid connection anymore
+				std::cout << "Connection lost\n";
+				close();
+				res = ClientErrorCode::CONNECTION_LOST;
+			}
+			else
+				res = ClientErrorCode::UNKNOWN_ERROR;
+		}
 	}
 	return res;
 }
 
 int32 IP4ClientSocketImpl_Windows::receive(void *buffer, uint32 size, uint32 timeOutMS)
 {
-	int32 res = 0;
+	int32 res = ClientErrorCode::NOT_CONNECTED;
 
 	fd_set readFds;
 	readFds.fd_count = 1;
@@ -124,7 +142,23 @@ int32 IP4ClientSocketImpl_Windows::receive(void *buffer, uint32 size, uint32 tim
 			// std::cout << "Received " << res << " bytes\n";
 		}
 		else
-			std::cout << "Received nothing " << receivedSize << "\n";
+		{
+			int32 errorCode = WSAGetLastError();
+			if	(	receivedSize == 0
+				||	errorCode == WSAECONNABORTED
+				||	errorCode == WSAECONNRESET
+				||	errorCode == WSAETIMEDOUT
+				||	errorCode == WSAENETDOWN
+				)
+			{
+				// no valid connection anymore
+				std::cout << "Connection lost\n";
+				close();
+				res = ClientErrorCode::CONNECTION_LOST;
+			}
+			else
+				res = ClientErrorCode::UNKNOWN_ERROR;
+		}
 	}
 	else
 		std::cout << "Poll timed out\n";

@@ -65,6 +65,8 @@ int32 IP4ClientSocketImpl_Linux::send(const void *data, uint32 bytesToSend)
 				close();
 				res = ClientErrorCode::CONNECTION_LOST;
 			}
+			else
+				res = ClientErrorCode::UNKNOWN_ERROR;
 		}
 		else
 			res = static_cast<int32> (bytesSent);
@@ -74,7 +76,7 @@ int32 IP4ClientSocketImpl_Linux::send(const void *data, uint32 bytesToSend)
 
 int32 IP4ClientSocketImpl_Linux::receive(void *buffer, uint32 size)
 {
-	int32 res = 0;
+	int32 res = ClientErrorCode::NOT_CONNECTED;
 	if(m_isConnected)
 	{
 		int32 receivedSize = ::recv(m_SocketHandle, reinterpret_cast<char*> (buffer), size , 0);
@@ -85,14 +87,26 @@ int32 IP4ClientSocketImpl_Linux::receive(void *buffer, uint32 size)
 			// std::cout << "Received " << res << " bytes\n";
 		}
 		else
-			std::cout << "Received nothing " << receivedSize << "\n";
+		{
+			if	(	receivedSize == 0
+				||	errno == EPIPE
+				)
+			{
+				// no valid connection anymore
+				std::cout << "Connection lost\n";
+				close();
+				res = ClientErrorCode::CONNECTION_LOST;
+			}
+			else
+				res = ClientErrorCode::UNKNOWN_ERROR;
+		}
     }
 	return res;
 }
 
 int32 IP4ClientSocketImpl_Linux::receive(void *buffer, uint32 size, uint32 timeOutMS)
 {
-	int32 res = 0;
+	int32 res = ClientErrorCode::NOT_CONNECTED;
 
 	pollfd pollInOut;
 	pollInOut.fd = m_SocketHandle;
@@ -109,7 +123,19 @@ int32 IP4ClientSocketImpl_Linux::receive(void *buffer, uint32 size, uint32 timeO
 			// std::cout << "Received " << res << " bytes\n";
 		}
 		else
-			std::cout << "Received nothing " << receivedSize << "\n";
+		{
+			if	(	receivedSize == 0
+				||	errno == EPIPE
+				)
+			{
+				// no valid connection anymore
+				std::cout << "Connection lost\n";
+				close();
+				res = ClientErrorCode::CONNECTION_LOST;
+			}
+			else
+				res = ClientErrorCode::UNKNOWN_ERROR;
+		}
 	}
 	else
 		std::cout << "Poll timed out\n";
