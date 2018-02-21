@@ -57,7 +57,7 @@ uint32 DeepDriveClientConnection::Run()
 {
 	while (!m_isStopped)
 	{
-		float sleepTime = 0.025f;
+		float sleepTime = 0.01f;
 		uint32 pendingSize = 0;
 		if (m_Socket->HasPendingData(pendingSize))
 		{
@@ -68,10 +68,9 @@ uint32 DeepDriveClientConnection::Run()
 					int32 bytesRead = 0;
 					if (m_Socket->Recv(m_ReceiveBuffer, m_curReceiveBufferSize, bytesRead, ESocketReceiveFlags::None))
 					{
-						// UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] Received %d bytes"), m_ClientId, bytesRead);
+						// UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] Received %d bytes: %d"), m_ClientId, bytesRead, bytesRead > 4 ? *(reinterpret_cast<uint32*>(m_ReceiveBuffer)) : 0);
 						m_MessageAssembler.add(m_ReceiveBuffer, bytesRead);
-
-						sleepTime = 0.005f;
+						sleepTime = 0.0f;
 					}
 				}
 
@@ -88,9 +87,12 @@ uint32 DeepDriveClientConnection::Run()
 			// UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] %d bytes sent back"), m_ClientId, bytesSent);
 			
 			FMemory::Free(response);
+			sleepTime = 0.0f;
 		}
 
-		if(m_isStopped == false)
+		if	(	m_isStopped == false
+			&&	sleepTime > 0.0f
+			)
 			FPlatformProcess::Sleep(sleepTime);
 
 	}
@@ -115,7 +117,7 @@ void DeepDriveClientConnection::handleClientRequest(const deepdrive::server::Mes
 	if (fIt != m_MessageHandlers.end())
 		fIt->second(message, m_isMaster);
 	else
-		UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] Unknown message recieved type %d size %d"), m_ClientId, static_cast<uint32> (message.message_id), message.message_size);
+		UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] Unknown message received type %d size %d"), m_ClientId, static_cast<uint32> (message.message_id), message.message_size);
 
 }
 

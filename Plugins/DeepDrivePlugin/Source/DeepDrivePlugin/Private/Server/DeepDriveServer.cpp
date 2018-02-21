@@ -284,7 +284,7 @@ void DeepDriveServer::resetAgent(const deepdrive::server::MessageHeader &message
 	}
 	else
 	{
-		UE_LOG(LogDeepDriveServer, Log, TEXT("No clients , ignoring reset"));
+		UE_LOG(LogDeepDriveServer, Log, TEXT("No clients, ignoring reset"));
 	}
 }
 
