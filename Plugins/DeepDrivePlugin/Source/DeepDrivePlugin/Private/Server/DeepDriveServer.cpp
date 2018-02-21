@@ -260,8 +260,13 @@ void DeepDriveServer::handleReleaseAgentControl(const deepdrive::server::Message
 
 void DeepDriveServer::resetAgent(const deepdrive::server::MessageHeader &message)
 {
+	UE_LOG(LogDeepDriveServer, Log, TEXT("Inside reset agent"));
+
 	if(m_Clients.Num() > 0)
 	{
+		UE_LOG(LogDeepDriveServer, Log, TEXT("Reset agent with client num %d"), m_Clients.Num());
+
+
 		const deepdrive::server::ResetAgentRequest &req = static_cast<const deepdrive::server::ResetAgentRequest&> (message);
 		DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
 		if (client)
