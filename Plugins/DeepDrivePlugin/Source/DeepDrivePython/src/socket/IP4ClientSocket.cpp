@@ -62,10 +62,10 @@ bool IP4ClientSocket::receive(void *buffer, uint32 expectedSize, uint32 timeOutM
 	{
 		if(resizeReceiveBuffer(readChunkSize))
 		{
-			const uint32 bytesRead = m_ClientSocketImpl->receive(m_ReceiveBuffer + m_curWritePos, readChunkSize, timeOutMS);
-			if(bytesRead)
+			const int32 bytesRead = m_ClientSocketImpl->receive(m_ReceiveBuffer + m_curWritePos, readChunkSize, timeOutMS);
+			if(bytesRead > 0)
 			{
-				m_curWritePos += bytesRead;
+				m_curWritePos += static_cast<uint32> (bytesRead);
 				if(m_curWritePos >= expectedSize)
 				{
 					memcpy(buffer, m_ReceiveBuffer, expectedSize);
@@ -80,7 +80,9 @@ bool IP4ClientSocket::receive(void *buffer, uint32 expectedSize, uint32 timeOutM
 				}
 			}
 			else
+			{
 				break;
+			}
 		}
 	}
 	return messageComplete;

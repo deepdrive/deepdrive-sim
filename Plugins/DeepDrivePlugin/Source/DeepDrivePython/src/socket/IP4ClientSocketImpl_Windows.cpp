@@ -161,7 +161,10 @@ int32 IP4ClientSocketImpl_Windows::receive(void *buffer, uint32 size, uint32 tim
 		}
 	}
 	else
+	{
 		std::cout << "Poll timed out\n";
+		res = ClientErrorCode::TIME_OUT;
+	}
 
 	return res;
 }
