@@ -18,7 +18,7 @@ public:
 
 	~DeepDriveClient();
 
-	int32 DeepDriveClient::registerClient(deepdrive::server::RegisterClientResponse &response);
+	int32 registerClient(deepdrive::server::RegisterClientResponse &response);
 
 	void close();
 
