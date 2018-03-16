@@ -39,7 +39,14 @@ enum class MessageId	:	uint32
 	ResetAgentRequest,
 	ResetAgentResponse,
 	ReleaseAgentControlRequest,
-	ReleaseAgentControlResponse
+	ReleaseAgentControlResponse,
+	ActivateSynchronousSteppingRequest,
+	ActivateSynchronousSteppingResponse,
+	DeactivateSynchronousSteppingRequest,
+	DeactivateSynchronousSteppingResponse,
+	AdvanceSynchronousSteppingRequest,
+	AdvanceSynchronousSteppingResponse
+
 };
 	
 } }		//	namespaces

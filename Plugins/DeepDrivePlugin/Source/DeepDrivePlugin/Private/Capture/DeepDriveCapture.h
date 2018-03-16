@@ -13,6 +13,8 @@ class IDeepDriveCaptureProxy;
 struct SCaptureJob;
 class USharedMemCaptureSinkComponent;
 
+DECLARE_DELEGATE_OneParam(CaptureFinishedDelegate, int32 /*seqNr*/);
+
 class DeepDriveCapture
 {
 	struct SCaptureComponentData
@@ -60,6 +62,8 @@ public:
 
 	USharedMemCaptureSinkComponent* getSharedMemorySink();
 
+	void onNextCapture(CaptureFinishedDelegate &captureFinished);
+
 private:
 
 	DeepDriveCapture();
@@ -87,9 +91,13 @@ private:
 	TMap<EDeepDriveCameraType, SCycleTiming>		m_CycleTimings;
 	double							m_lastCaptureTS = 0.0;
 
+	CaptureFinishedDelegate			m_onCaptureFinished;
+
 	static float					m_TotalCaptureTime;
 	static float					m_CaptureCount;
 	static double					m_lastLoggingTimestamp;
 
 	static DeepDriveCapture			*theInstance;
 };
+
+

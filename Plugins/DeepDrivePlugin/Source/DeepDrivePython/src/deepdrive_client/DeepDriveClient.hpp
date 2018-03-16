@@ -29,11 +29,16 @@ public:
 	int32 requestAgentControl();
 	int32 releaseAgentControl();
 	int32 resetAgent();
-	
-	const char* getSharedMemoryName() const;
-	uint32 getSharedMemorySize() const;
 
 	int32 setControlValues(float steering, float throttle, float brake, uint32 handbrake);
+	
+	int32 activateSynchronousStepping();
+	int32 deactivateSynchronousStepping();
+
+	int32 advanceSynchronousStepping(float dT, float steering, float throttle, float brake, uint32 handbrake);
+
+	const char* getSharedMemoryName() const;
+	uint32 getSharedMemorySize() const;
 
 	uint32							m_ClientId = 0;
 	bool							m_isMaster = false;
