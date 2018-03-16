@@ -105,18 +105,21 @@ int32 DeepDriveClient::requestAgentControl()
 {
 	int32 res = ClientErrorCode::NOT_CONNECTED;
 	deepdrive::server::RequestAgentControlRequest req(m_ClientId);
-	res =m_Socket.send(&req, sizeof(req));if(res >= 0)
-{
-//	std::cout << "RequestAgentControlRequest sent\n";
+	res =m_Socket.send(&req, sizeof(req));
 
-	deepdrive::server::RequestAgentControlResponse response;
-	if(m_Socket.receive(&response, sizeof(response), 1000))
+	if(res >= 0)
 	{
-		res = response.control_granted? 1 : 0;
-//		std::cout << "RequestAgentControlResponse received " << m_ClientId << " " << response.control_granted << "\n";
+	//	std::cout << "RequestAgentControlRequest sent\n";
+
+		deepdrive::server::RequestAgentControlResponse response;
+		if(m_Socket.receive(&response, sizeof(response), 1000))
+		{
+			res = response.control_granted? 1 : 0;
+	//		std::cout << "RequestAgentControlResponse received " << m_ClientId << " " << response.control_granted << "\n";
+		}
+		else
+			std::cout << "Waiting for RequestAgentControlResponse, time out\n";
 	}
-	else
-		std::cout << "Waiting for RequestAgentControlResponse, time out\n";}
 
 	return res;
 }
@@ -125,18 +128,19 @@ int32 DeepDriveClient::releaseAgentControl()
 {
 	int32 res = ClientErrorCode::NOT_CONNECTED;
 	deepdrive::server::ReleaseAgentControlRequest req(m_ClientId);
-	res =m_Socket.send(&req, sizeof(req));if(res >= 0)
-{
-//	std::cout << "ReleaseAgentControlRequest sent\n";
-
-	deepdrive::server::ReleaseAgentControlResponse response;
-	if(m_Socket.receive(&response, sizeof(response), 1000))
+	res =m_Socket.send(&req, sizeof(req));
+	if(res >= 0)
 	{
-//		std::cout << "ReleaseAgentControlResponse received " << m_ClientId << "\n";
+	//	std::cout << "ReleaseAgentControlRequest sent\n";
+
+		deepdrive::server::ReleaseAgentControlResponse response;
+		if(m_Socket.receive(&response, sizeof(response), 1000))
+		{
+	//		std::cout << "ReleaseAgentControlResponse received " << m_ClientId << "\n";
+		}
+		else
+			std::cout << "Waiting for ReleaseAgentControlResponse, time out\n";
 	}
-	else
-		std::cout << "Waiting for ReleaseAgentControlResponse, time out\n";
-}
 
 	return res;
 }
@@ -173,3 +177,73 @@ int32 DeepDriveClient::setControlValues(float steering, float throttle, float br
 	}
 	return res;
 }
+
+int32 DeepDriveClient::activateSynchronousStepping()
+{
+	int32 res = ClientErrorCode::NOT_CONNECTED;
+	deepdrive::server::ActivateSynchronousSteppingRequest req(m_ClientId);
+	res = m_Socket.send(&req, sizeof(req));
+
+	if(res >= 0)
+	{
+	//	std::cout << "ActivateSynchronousSteppingRequest sent\n";
+
+		deepdrive::server::ActivateSynchronousSteppingResponse response;
+		if(m_Socket.receive(&response, sizeof(response), 1000))
+		{
+			res = response.synchronous_stepping_activated ? 1 : 0;
+			std::cout << "ActivateSynchronousSteppingResponse received " << m_ClientId << " " << response.synchronous_stepping_activated << "\n";
+		}
+		else
+			std::cout << "Waiting for ActivateSynchronousSteppingResponse, time out\n";
+	}
+
+	return res;
+}
+
+int32 DeepDriveClient::deactivateSynchronousStepping()
+{
+	int32 res = ClientErrorCode::NOT_CONNECTED;
+	deepdrive::server::DeactivateSynchronousSteppingRequest req(m_ClientId);
+	res = m_Socket.send(&req, sizeof(req));
+	if(res >= 0)
+	{
+	//	std::cout << "DeactivateSynchronousSteppingRequest sent\n";
+
+		deepdrive::server::DeactivateSynchronousSteppingResponse response;
+		if(m_Socket.receive(&response, sizeof(response), 1000))
+		{
+			std::cout << "DeactivateSynchronousSteppingResponse received " << m_ClientId << "\n";
+		}
+		else
+			std::cout << "Waiting for DeactivateSynchronousSteppingResponse, time out\n";
+	}
+
+	return res;
+}
+
+
+int32 DeepDriveClient::advanceSynchronousStepping(float dT, float steering, float throttle, float brake, uint32 handbrake)
+{
+	int32 res = ClientErrorCode::NOT_CONNECTED;
+	if(m_Socket.isConnected())
+	{
+		deepdrive::server::AdvanceSynchronousSteppingRequest req(m_ClientId, dT, steering, throttle, brake, handbrake);
+		res = m_Socket.send(&req, sizeof(req));
+		if(res >= 0)
+		{
+		//	std::cout << "DeactivateSynchronousSteppingRequest sent\n";
+
+			deepdrive::server::AdvanceSynchronousSteppingResponse response;
+			if(m_Socket.receive(&response, sizeof(response)))
+			{
+				res = response.sequence_number;
+		//		std::cout << "AdvanceSynchronousSteppingResponse received " << m_ClientId << "\n";
+			}
+			else
+				std::cout << "Waiting for AdvanceSynchronousSteppingResponse, time out\n";
+		}
+	}
+	return res;
+}
+

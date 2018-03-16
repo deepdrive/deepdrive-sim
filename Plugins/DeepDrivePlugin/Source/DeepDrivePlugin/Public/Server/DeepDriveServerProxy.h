@@ -59,8 +59,13 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Control")
 	void SetAgentControlValues(float steering, float throttle, float brake, bool handbrake);
 
+
+	void activateSynchronousStepping();
+	void deactivateSynchronousStepping();
+	void advanceSynchronousStepping(float steering, float throttle, float brake, bool handbrake);
+
 private:
 
-	bool									m_isActive = false;
+	bool			m_isActive = false;
 
 };

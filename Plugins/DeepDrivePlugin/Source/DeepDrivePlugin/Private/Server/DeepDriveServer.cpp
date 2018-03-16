@@ -5,6 +5,8 @@
 #include "Private/Server/DeepDriveConnectionListener.h"
 #include "Private/Server/DeepDriveClientConnection.h"
 
+#include "Private/Capture/DeepDriveCapture.h"
+
 #include "Public/Server/DeepDriveServerProxy.h"
 #include "Public/Server/Messages/DeepDriveServerConfigurationMessages.h"
 #include "Public/Server/Messages/DeepDriveServerControlMessages.h"
@@ -44,6 +46,10 @@ DeepDriveServer::DeepDriveServer()
 	m_MessageHandlers[deepdrive::server::MessageId::ReleaseAgentControlRequest] = std::bind(&DeepDriveServer::handleReleaseAgentControl, this, std::placeholders::_1);
 	m_MessageHandlers[deepdrive::server::MessageId::SetAgentControlValuesRequest] = std::bind(&DeepDriveServer::setAgentControlValues, this, std::placeholders::_1);
 	m_MessageHandlers[deepdrive::server::MessageId::ResetAgentRequest] = std::bind(&DeepDriveServer::resetAgent, this, std::placeholders::_1);
+
+	m_MessageHandlers[deepdrive::server::MessageId::ActivateSynchronousSteppingRequest] = std::bind(&DeepDriveServer::activateSynchronousStepping, this, std::placeholders::_1);
+	m_MessageHandlers[deepdrive::server::MessageId::DeactivateSynchronousSteppingRequest] = std::bind(&DeepDriveServer::deactivateSynchronousStepping, this, std::placeholders::_1);
+	m_MessageHandlers[deepdrive::server::MessageId::AdvanceSynchronousSteppingRequest] = std::bind(&DeepDriveServer::advanceSynchronousStepping, this, std::placeholders::_1);
 }
 
 DeepDriveServer::~DeepDriveServer()
@@ -86,6 +92,8 @@ bool DeepDriveServer::RegisterProxy(ADeepDriveServerProxy &proxy)
 		m_ConnectionListener = new DeepDriveConnectionListener(ipAddress[0], ipAddress[1], ipAddress[2], ipAddress[3], proxy.Port);
 
 		m_MessageQueue.Empty();
+		m_SteppingClient = 0;
+		m_State = Continous;
 
 		registered = true;
 	}
@@ -153,9 +161,34 @@ void DeepDriveServer::unregisterClient(uint32 clientId)
 
 void DeepDriveServer::update(float DeltaSeconds)
 {
+	switch (m_State)
+	{
+		case Continous:
+		case Stepping_Idle:
+			handleMessageQueues();
+			break;
+
+		case Stepping_Advance:
+			if (FPlatformTime::Seconds() >= m_AdvanceEndTime)
+			{
+				UGameplayStatics::SetGamePaused(m_Proxy->GetWorld(), true);
+				m_State = Stepping_WaitForCapture;
+				CaptureFinishedDelegate captureFinishedDelegate;
+				captureFinishedDelegate.BindRaw(this, &DeepDriveServer::onCaptureFinished);
+				DeepDriveCapture::GetInstance().onNextCapture(captureFinishedDelegate);
+			}
+			break;
+
+		case Stepping_WaitForCapture:
+			break;
+	}
+}
+
+void DeepDriveServer::handleMessageQueues()
+{
 	SIncomingConnection *incoming = 0;
-	if	(m_IncomingConnections.Dequeue(incoming)
-		&&	incoming != 0
+	if (m_IncomingConnections.Dequeue(incoming)
+		&& incoming != 0
 		)
 	{
 		UE_LOG(LogDeepDriveServer, Log, TEXT("Incoming client connection from %s"), *(incoming->remote_address->ToString(true)));
@@ -326,6 +359,79 @@ void DeepDriveServer::setAgentControlValues(const deepdrive::server::MessageHead
 			// UE_LOG(LogDeepDriveServer, Log, TEXT("Control values received from %d"), req.client_id);
 		}
 	}
+}
+
+void DeepDriveServer::activateSynchronousStepping(const deepdrive::server::MessageHeader &message)
+{
+	if (m_Clients.Num() > 0)
+	{
+		const deepdrive::server::ActivateSynchronousSteppingRequest &req = static_cast<const deepdrive::server::ActivateSynchronousSteppingRequest&> (message);
+		DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
+		if (client)
+		{
+			if(client->isMaster() && m_State == Continous)
+			{
+				m_State = Stepping_Idle;
+				m_Proxy->activateSynchronousStepping();
+
+				client->enqueueResponse(new deepdrive::server::ActivateSynchronousSteppingResponse(true));
+			}
+			else
+				client->enqueueResponse(new deepdrive::server::ActivateSynchronousSteppingResponse(false));
+		}
+	}
+}
+
+void DeepDriveServer::deactivateSynchronousStepping(const deepdrive::server::MessageHeader &message)
+{
+	if (m_Clients.Num() > 0)
+	{
+		const deepdrive::server::DeactivateSynchronousSteppingRequest &req = static_cast<const deepdrive::server::DeactivateSynchronousSteppingRequest&> (message);
+		DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
+		if (client)
+		{
+			if	(client->isMaster() && m_State == Stepping_Idle)
+			{
+				m_State = Continous;
+				m_Proxy->deactivateSynchronousStepping();
+				client->enqueueResponse(new deepdrive::server::DeactivateSynchronousSteppingResponse(true));
+			}
+			else
+				client->enqueueResponse(new deepdrive::server::DeactivateSynchronousSteppingResponse(false));
+		}
+	}
+}
+
+void DeepDriveServer::advanceSynchronousStepping(const deepdrive::server::MessageHeader &message)
+{
+	if (m_Clients.Num() > 0)
+	{
+		const deepdrive::server::AdvanceSynchronousSteppingRequest &req = static_cast<const deepdrive::server::AdvanceSynchronousSteppingRequest&> (message);
+		DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
+		if (client)
+		{
+			if(client->isMaster() && m_State == Stepping_Idle)
+			{
+				m_SteppingClient = client;
+				m_Proxy->advanceSynchronousStepping(req.steering, req.throttle, req.brake, req.handbrake != 0 ? true : false);
+
+				m_State = Stepping_Advance;
+				m_AdvanceEndTime = FPlatformTime::Seconds() + req.time_step;
+			}
+			else
+				client->enqueueResponse(new deepdrive::server::AdvanceSynchronousSteppingResponse(-1));
+		}
+	}
+}
+
+void DeepDriveServer::onCaptureFinished(int32 seqNr)
+{
+	UE_LOG(LogDeepDriveServer, Log, TEXT("DeepDriveServer::onCaptureFinished %d"), seqNr);
+
+	if (m_SteppingClient)
+		m_SteppingClient->enqueueResponse(new deepdrive::server::AdvanceSynchronousSteppingResponse(seqNr));
+	m_SteppingClient = 0;
+	m_State = Stepping_Idle;
 }
 
 void DeepDriveServer::addIncomingConnection(FSocket *socket, TSharedRef<FInternetAddr> remoteAddr)

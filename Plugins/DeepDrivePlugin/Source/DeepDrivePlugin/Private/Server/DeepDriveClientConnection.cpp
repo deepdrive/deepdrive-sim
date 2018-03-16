@@ -41,13 +41,20 @@ bool DeepDriveClientConnection::Init()
 	m_MessageHandlers[deepdrive::server::MessageId::RegisterClientRequest] = std::bind(&DeepDriveClientConnection::registerClient, this, std::placeholders::_1, std::placeholders::_2);
 	m_MessageHandlers[deepdrive::server::MessageId::UnregisterClientRequest] = std::bind(&DeepDriveClientConnection::unregisterClient, this, std::placeholders::_1, std::placeholders::_2);
 
-	std::function<void(const deepdrive::server::MessageHeader&, bool)> forward2Server = [](const deepdrive::server::MessageHeader &message, bool isMaster) { if (isMaster) DeepDriveServer::GetInstance().enqueueMessage(message.clone()); };
+	std::function<void(const deepdrive::server::MessageHeader&, bool)> forward2Server = [](const deepdrive::server::MessageHeader &message, bool isMaster)
+																						{
+																							if (isMaster)
+																								DeepDriveServer::GetInstance().enqueueMessage(message.clone());
+																						};
 	m_MessageHandlers[deepdrive::server::MessageId::RegisterCaptureCameraRequest] = forward2Server;
 	m_MessageHandlers[deepdrive::server::MessageId::RequestAgentControlRequest] = forward2Server;
 	m_MessageHandlers[deepdrive::server::MessageId::ReleaseAgentControlRequest] = forward2Server;
 	m_MessageHandlers[deepdrive::server::MessageId::SetAgentControlValuesRequest] = forward2Server;
 	m_MessageHandlers[deepdrive::server::MessageId::ResetAgentRequest] = forward2Server;
 
+	m_MessageHandlers[deepdrive::server::MessageId::ActivateSynchronousSteppingRequest] = forward2Server;
+	m_MessageHandlers[deepdrive::server::MessageId::DeactivateSynchronousSteppingRequest] = forward2Server;
+	m_MessageHandlers[deepdrive::server::MessageId::AdvanceSynchronousSteppingRequest] = forward2Server;
 
 	m_MessageAssembler.m_HandleMessage.BindRaw(this, &DeepDriveClientConnection::handleClientRequest);
 	return m_Socket != 0;

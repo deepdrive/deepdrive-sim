@@ -85,3 +85,23 @@ void ADeepDriveServerProxy::AgentReset(bool Success)
 		DeepDriveServer::GetInstance().onAgentReset(Success);
 	}
 }
+
+void ADeepDriveServerProxy::activateSynchronousStepping()
+{
+	SetTickableWhenPaused(true);
+	UGameplayStatics::SetGamePaused(GetWorld(), true);
+	UE_LOG(LogDeepDriveServerProxy, Log, TEXT("SynchronousStepping activated"));
+}
+
+void ADeepDriveServerProxy::deactivateSynchronousStepping()
+{
+	UGameplayStatics::SetGamePaused(GetWorld(), false);
+	SetTickableWhenPaused(false);
+	UE_LOG(LogDeepDriveServerProxy, Log, TEXT("SynchronousStepping deactivated"));
+}
+
+void ADeepDriveServerProxy::advanceSynchronousStepping(float steering, float throttle, float brake, bool handbrake)
+{
+	UGameplayStatics::SetGamePaused(GetWorld(), false);
+	SetAgentControlValues(steering, throttle, brake, handbrake != 0 ? true : false);
+}

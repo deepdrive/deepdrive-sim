@@ -140,6 +140,9 @@ void DeepDriveCapture::processFinishedJobs()
 				if (captureBuffer)
 					captureBuffer->release();
 			}
+
+			m_onCaptureFinished.ExecuteIfBound(job->sequence_number);
+			m_onCaptureFinished.Unbind();
 		}
 
 	}
@@ -281,4 +284,11 @@ USharedMemCaptureSinkComponent* DeepDriveCapture::getSharedMemorySink()
 	}
 
 	return sharedMemSink;
+}
+
+void DeepDriveCapture::onNextCapture(CaptureFinishedDelegate &captureFinished)
+{
+	if(m_Proxy)
+		m_Proxy->SetTickableWhenPaused(true);
+	m_onCaptureFinished = captureFinished;
 }

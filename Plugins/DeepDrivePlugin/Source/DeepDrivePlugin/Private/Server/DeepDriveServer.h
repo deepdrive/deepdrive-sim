@@ -81,6 +81,8 @@ private:
 
 	void initializeClient(uint32 clientId);
 
+	void handleMessageQueues();
+
 	void handleMessage(const deepdrive::server::MessageHeader &message);
 
 	void handleRegisterCamera(const deepdrive::server::MessageHeader &message);
@@ -90,6 +92,12 @@ private:
 	void resetAgent(const deepdrive::server::MessageHeader &message);
 
 	void setAgentControlValues(const deepdrive::server::MessageHeader &message);
+
+	void activateSynchronousStepping(const deepdrive::server::MessageHeader &message);
+	void deactivateSynchronousStepping(const deepdrive::server::MessageHeader &message);
+	void advanceSynchronousStepping(const deepdrive::server::MessageHeader &message);
+
+	void onCaptureFinished(int32 seqNr);
 
 	DeepDriveConnectionListener		*m_ConnectionListener = 0;
 
@@ -106,6 +114,21 @@ private:
 	FCriticalSection				m_ClientMutex;
 
 	TArray<DeepDriveClientConnection*>	m_ClientConnections;
+
+
+	enum State
+	{
+		Continous,
+		Stepping_Idle,
+		Stepping_Advance,
+		Stepping_WaitForCapture
+	};
+
+	State							m_State = Continous;
+
+	double							m_AdvanceEndTime;
+
+	DeepDriveClientConnection		*m_SteppingClient = 0;
 
 	static DeepDriveServer			*theInstance;
 };

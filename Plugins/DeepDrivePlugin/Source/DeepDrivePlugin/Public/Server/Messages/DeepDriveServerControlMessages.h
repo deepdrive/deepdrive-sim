@@ -91,5 +91,82 @@ struct SetAgentControlValuesRequest :	public MessageHeader
 };
 
 
+struct ActivateSynchronousSteppingRequest :	public MessageHeader
+{
+	ActivateSynchronousSteppingRequest(uint32 clientId)
+		:	MessageHeader(MessageId::ActivateSynchronousSteppingRequest, sizeof(ActivateSynchronousSteppingRequest))
+		,	client_id(clientId)
+	{	}
+
+	uint32		client_id;
+};
+
+struct ActivateSynchronousSteppingResponse :	public MessageHeader
+{
+	ActivateSynchronousSteppingResponse(bool activated = false)
+		:	MessageHeader(MessageId::ActivateSynchronousSteppingResponse, sizeof(ActivateSynchronousSteppingResponse))
+		,	synchronous_stepping_activated(activated ? 1 : 0)
+	{	}
+
+	uint32		synchronous_stepping_activated;
+
+};
+
+
+struct DeactivateSynchronousSteppingRequest :	public MessageHeader
+{
+	DeactivateSynchronousSteppingRequest(uint32 clientId)
+		:	MessageHeader(MessageId::DeactivateSynchronousSteppingRequest, sizeof(DeactivateSynchronousSteppingRequest))
+		,	client_id(clientId)
+	{	}
+
+	uint32		client_id;
+};
+
+struct DeactivateSynchronousSteppingResponse :	public MessageHeader
+{
+	DeactivateSynchronousSteppingResponse(bool deactivated = false)
+		:	MessageHeader(MessageId::DeactivateSynchronousSteppingResponse, sizeof(DeactivateSynchronousSteppingResponse))
+		,	synchronous_stepping_deactivated(deactivated ? 1 : 0)
+	{	}
+
+	uint32		synchronous_stepping_deactivated;
+
+};
+
+
+struct AdvanceSynchronousSteppingRequest :	public MessageHeader
+{
+	AdvanceSynchronousSteppingRequest(uint32 c = 0, float dt = 0.0f, float s = 0.0f, float t = 0.0f, float b = 0.0f, uint32 h = 0)
+		:	MessageHeader(MessageId::AdvanceSynchronousSteppingRequest, sizeof(AdvanceSynchronousSteppingRequest))
+		,	client_id(c)
+		,	time_step(dt)
+		,	steering(s)
+		,	throttle(t)
+		,	brake(b)
+		,	handbrake(h)
+	{	}
+
+	uint32		client_id;
+	float		time_step;
+	float		steering;
+	float		throttle;
+	float		brake;
+	uint32		handbrake;
+
+};
+
+
+struct AdvanceSynchronousSteppingResponse :	public MessageHeader
+{
+	AdvanceSynchronousSteppingResponse(int32 seqNr = 0)
+		:	MessageHeader(MessageId::AdvanceSynchronousSteppingResponse, sizeof(AdvanceSynchronousSteppingResponse))
+		,	sequence_number(seqNr)
+	{	}
+
+	int32		sequence_number;
+
+};
+
 
 } }	// namespaces
