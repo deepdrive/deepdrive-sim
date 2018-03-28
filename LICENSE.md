@@ -25,5 +25,6 @@ THE SOFTWARE.
 # TuningCars
 
 This work is derived from [TuningCars](https://www.unrealengine.com/marketplace/tuning-cars-kit) on the Unreal
-Marketplace. Free use, modification, and distribution have been granted by the developer for Deepdrive by 
-[this license](https://docs.google.com/document/d/1J3TjLqc1NbXHEeMoppAhcJmSn4q6lJje0Y6DRrh9uHw)
+Marketplace. Free use, modification, and distribution have been granted by the developer of TuningCars under
+[this license](https://docs.google.com/document/d/1J3TjLqc1NbXHEeMoppAhcJmSn4q6lJje0Y6DRrh9uHw) for use within
+the deepdrive/deepdrive-sim repo and its public forks.
