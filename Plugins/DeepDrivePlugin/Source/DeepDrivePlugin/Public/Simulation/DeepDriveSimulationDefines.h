@@ -7,10 +7,11 @@
 UENUM(BlueprintType)
 enum class EDeepDriveAgentControlMode : uint8
 {
-	DDACM_MANUAL		= 0	UMETA(DisplayName="Manual"),
-	DDACM_SPLINE		= 1	UMETA(DisplayName="Spline"),
-	DDACM_REMOTE_AI		= 2	UMETA(DisplayName="RemoteAI"),
-	DDACM_LOCAL_AI		= 3	UMETA(DisplayName="LocalAI")
+	DDACM_NONE			= 0	UMETA(DisplayName = "None"),
+	DDACM_MANUAL		= 1	UMETA(DisplayName = "Manual"),
+	DDACM_SPLINE		= 2	UMETA(DisplayName = "Spline"),
+	DDACM_REMOTE_AI		= 3	UMETA(DisplayName = "RemoteAI"),
+	DDACM_LOCAL_AI		= 4	UMETA(DisplayName = "LocalAI")
 };
 
 

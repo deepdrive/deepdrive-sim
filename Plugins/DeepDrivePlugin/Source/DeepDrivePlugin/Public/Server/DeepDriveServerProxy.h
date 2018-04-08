@@ -3,14 +3,16 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
-#include "Runtime/Sockets/Public/IPAddress.h"
+
+#include "Public/Server/IDeepDriveServerProxy.h"
 
 #include "DeepDriveServerProxy.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveServerProxy, Log, All);
 
 UCLASS()
-class DEEPDRIVEPLUGIN_API ADeepDriveServerProxy : public AActor
+class DEEPDRIVEPLUGIN_API ADeepDriveServerProxy	:	public AActor
+												//1,	public IDeepDriveServerProxy
 {
 	GENERATED_BODY()
 	

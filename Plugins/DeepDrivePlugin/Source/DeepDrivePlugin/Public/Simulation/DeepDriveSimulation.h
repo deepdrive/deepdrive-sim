@@ -9,6 +9,12 @@
 
 #include "DeepDriveSimulation.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveSimulation, Log, All);
+
+class ADeepDriveAgent;
+class ADeepDriveAgentControllerBase;
+
+
 UCLASS()
 class DEEPDRIVEPLUGIN_API ADeepDriveSimulation	:	public AActor
 												,	public IDeepDriveServerProxy
@@ -20,12 +26,16 @@ public:
 	ADeepDriveSimulation();
 
 	// Called when the game starts or when spawned
+	virtual void PreInitializeComponents() override;
+
+	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	
 	// Called every frame
 	virtual void Tick( float DeltaSeconds ) override;
 
-	
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
 	/**
 	*		IDeepDriveServerProxy methods
 	*/
@@ -44,6 +54,18 @@ public:
 
 	virtual void SetAgentControlValues(float steering, float throttle, float brake, bool handbrake);
 
+	virtual const FString& getIPAddress() const;
+
+	virtual uint16 getPort() const;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Server)
+	FString		IPAddress;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Server)
+	int32		Port = 9876;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
+	TSubclassOf<ADeepDriveAgent>	Agent;
 
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void MoveForward(float AxisValue);
@@ -66,6 +88,28 @@ public:
 
 private:
 
-	EDeepDriveAgentCameraType				m_curCameraType;
+	ADeepDriveAgent* spawnAgent(EDeepDriveAgentControlMode mode);
+
+	ADeepDriveAgentControllerBase* spawnController(EDeepDriveAgentControlMode mode);
+
+	bool									m_isActive = false;
+
+	ADeepDriveAgent							*m_curAgent = 0;
+	EDeepDriveAgentControlMode				m_curAgentMode = EDeepDriveAgentControlMode::DDACM_NONE;
+
+	ADeepDriveAgentControllerBase			*m_curAgentController = 0;
+
+	EDeepDriveAgentCameraType				m_curCameraType = EDeepDriveAgentCameraType::DDAC_CHASE_CAMERA;
 
 };
+
+
+inline const FString& ADeepDriveSimulation::getIPAddress() const
+{
+	return IPAddress;
+}
+
+inline uint16 ADeepDriveSimulation::getPort() const
+{
+	return static_cast<uint16> (Port);
+}

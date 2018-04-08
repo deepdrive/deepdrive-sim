@@ -19,6 +19,8 @@ class DEEPDRIVEPLUGIN_API ADeepDriveAgent : public AWheeledVehicle
 	
 public:
 
+	ADeepDriveAgent();
+
 	void RegisterCaptureCamera(float fieldOfView, int32 captureWidth, int32 captureHeight, FVector relativePosition, FVector relativeRotation, const FString &label);
 
 	void SetControlValues(float steering, float throttle, float brake, bool handbrake);
@@ -29,5 +31,22 @@ public:
 
 	void ActivateCamera(EDeepDriveAgentCameraType cameraType);
 
+protected:
+
+	UPROPERTY(EditDefaultsOnly, Category = Cameras)
+	UCameraComponent					*ChaseCamera = 0;
 	
+	UPROPERTY(EditDefaultsOnly, Category = Cameras)
+	UCameraComponent					*InteriorCamera = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category = Cameras)
+	USpringArmComponent					*OrbitCameraArm = 0;
+	
+	UPROPERTY(EditDefaultsOnly, Category = Cameras)
+	UCameraComponent					*OrbitCamera = 0;
+
+
+	float								m_curSteering = 0.0f;
+	float								m_curThrottle = 0.0f;
+
 };

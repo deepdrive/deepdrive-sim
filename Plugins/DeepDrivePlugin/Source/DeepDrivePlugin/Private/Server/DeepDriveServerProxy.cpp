@@ -18,6 +18,7 @@ ADeepDriveServerProxy::ADeepDriveServerProxy()
 void ADeepDriveServerProxy::PreInitializeComponents()
 {
 	Super::PreInitializeComponents();
+	return;
 
 	bool alreadyRegistered = false;
 	TArray<AActor*> proxies;
@@ -40,7 +41,7 @@ void ADeepDriveServerProxy::PreInitializeComponents()
 
 	if(!alreadyRegistered)
 	{
-		if(DeepDriveServer::GetInstance().RegisterProxy(*this))
+//		if(DeepDriveServer::GetInstance().RegisterProxy(*this))
 		{
 			m_isActive = true;
 			UE_LOG(LogDeepDriveServerProxy, Log, TEXT("Server Proxy [%s] registered"), *(GetFullName()));
@@ -60,7 +61,7 @@ void ADeepDriveServerProxy::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	if (m_isActive)
 	{
-		DeepDriveServer::GetInstance().UnregisterProxy(*this);
+//		DeepDriveServer::GetInstance().UnregisterProxy(*this);
 		m_isActive = false;
 		UE_LOG(LogDeepDriveServerProxy, Log, TEXT("Server Proxy [%s] unregistered"), *(GetFullName()));
 	}

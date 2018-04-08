@@ -12,6 +12,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveServer, Log, All);
 class DeepDriveConnectionListener;
 class DeepDriveClientConnection;
 class ADeepDriveServerProxy;
+class IDeepDriveServerProxy;
 
 class FSocket;
 
@@ -58,9 +59,9 @@ public:
 
 	static void Destroy();
 
-	bool RegisterProxy(ADeepDriveServerProxy &proxy);
+	bool RegisterProxy(IDeepDriveServerProxy &proxy);
 
-	void UnregisterProxy(ADeepDriveServerProxy &proxy);
+	void UnregisterProxy(IDeepDriveServerProxy &proxy);
 
 	uint32 registerClient(DeepDriveClientConnection *client, bool &isMaster);
 
@@ -93,7 +94,7 @@ private:
 
 	DeepDriveConnectionListener		*m_ConnectionListener = 0;
 
-	ADeepDriveServerProxy			*m_Proxy = 0;
+	IDeepDriveServerProxy			*m_Proxy = 0;
 
 	TQueue<SIncomingConnection*>	m_IncomingConnections;
 

@@ -5,6 +5,9 @@
 #include "GameFramework/Controller.h"
 #include "DeepDriveAgentControllerBase.generated.h"
 
+
+class ADeepDriveAgent;
+
 /**
  * 
  */
@@ -22,6 +25,9 @@ public:
 	virtual void UnPossess() override;
 
 
+	virtual void Activate();
+
+	virtual void Deactivate();
 
 	virtual void MoveForward(float axisValue);
 
@@ -30,4 +36,7 @@ public:
 	virtual void SetControlValues(float steering, float throttle, float brake, bool handbrake);
 	
 	
+protected:
+
+	ADeepDriveAgent							*m_Agent = 0;
 };

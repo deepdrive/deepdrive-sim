@@ -23,4 +23,7 @@ public:
 
 	virtual void SetAgentControlValues(float steering, float throttle, float brake, bool handbrake) = 0;
 
+	virtual const FString& getIPAddress() const = 0;
+
+	virtual uint16 getPort() const = 0;
 };

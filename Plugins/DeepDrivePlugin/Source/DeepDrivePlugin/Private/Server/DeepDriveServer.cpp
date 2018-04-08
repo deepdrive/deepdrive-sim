@@ -5,7 +5,7 @@
 #include "Private/Server/DeepDriveConnectionListener.h"
 #include "Private/Server/DeepDriveClientConnection.h"
 
-#include "Public/Server/DeepDriveServerProxy.h"
+#include "Public/Server/IDeepDriveServerProxy.h"
 #include "Public/Server/Messages/DeepDriveServerConfigurationMessages.h"
 #include "Public/Server/Messages/DeepDriveServerControlMessages.h"
 
@@ -50,9 +50,7 @@ DeepDriveServer::~DeepDriveServer()
 {
 }
 
-
-
-bool DeepDriveServer::RegisterProxy(ADeepDriveServerProxy &proxy)
+bool DeepDriveServer::RegisterProxy(IDeepDriveServerProxy &proxy)
 {
 	bool registered = false;
 
@@ -60,30 +58,30 @@ bool DeepDriveServer::RegisterProxy(ADeepDriveServerProxy &proxy)
 	int32 ipAddress[4];
 
 	TArray<FString> parts;
-	if(proxy.IPAddress.ParseIntoArray(parts, TEXT("."), 1) == 4)
+	if (proxy.getIPAddress().ParseIntoArray(parts, TEXT("."), 1) == 4)
 	{
 		ipAddress[0] = FCString::Atoi(*parts[0]);
 		ipAddress[1] = FCString::Atoi(*parts[1]);
 		ipAddress[2] = FCString::Atoi(*parts[2]);
 		ipAddress[3] = FCString::Atoi(*parts[3]);
 
-		if	(	ipAddress[0] >= 0 && ipAddress[0] <= 255
-			&&	ipAddress[1] >= 0 && ipAddress[1] <= 255
-			&&	ipAddress[2] >= 0 && ipAddress[2] <= 255
-			&&	ipAddress[3] >= 0 && ipAddress[3] <= 255
+		if (ipAddress[0] >= 0 && ipAddress[0] <= 255
+			&& ipAddress[1] >= 0 && ipAddress[1] <= 255
+			&& ipAddress[2] >= 0 && ipAddress[2] <= 255
+			&& ipAddress[3] >= 0 && ipAddress[3] <= 255
 			)
 		{
 			isValid = true;
 		}
 
 	}
-		
-	if	(	isValid
-		&&	proxy.Port >= 1 && proxy.Port <= 65535
+
+	if (isValid
+		&&	proxy.getPort() >= 1 && proxy.getPort() <= 65535
 		)
 	{
 		m_Proxy = &proxy;
-		m_ConnectionListener = new DeepDriveConnectionListener(ipAddress[0], ipAddress[1], ipAddress[2], ipAddress[3], proxy.Port);
+		m_ConnectionListener = new DeepDriveConnectionListener(ipAddress[0], ipAddress[1], ipAddress[2], ipAddress[3], proxy.getPort());
 
 		m_MessageQueue.Empty();
 
@@ -93,7 +91,7 @@ bool DeepDriveServer::RegisterProxy(ADeepDriveServerProxy &proxy)
 	return registered;
 }
 
-void DeepDriveServer::UnregisterProxy(ADeepDriveServerProxy &proxy)
+void DeepDriveServer::UnregisterProxy(IDeepDriveServerProxy &proxy)
 {
 	if (m_Proxy == &proxy)
 	{
@@ -196,7 +194,7 @@ void DeepDriveServer::handleRegisterCamera(const deepdrive::server::MessageHeade
 			{
 				FVector relPos(req.relative_position[0], req.relative_position[1], req.relative_position[2]);
 				FVector relRot(req.relative_rotation[0], req.relative_rotation[1], req.relative_rotation[2]);
-				cameraId = m_Proxy->RegisterCamera(req.horizontal_field_of_view, req.capture_width, req.capture_height, relPos, relRot, req.camera_label);
+				cameraId = m_Proxy->RegisterCaptureCamera(req.horizontal_field_of_view, req.capture_width, req.capture_height, relPos, relRot, req.camera_label);
 
 				UE_LOG(LogDeepDriveServer, Log, TEXT("Camera registered %d %d"), req.client_id, cameraId);
 			}

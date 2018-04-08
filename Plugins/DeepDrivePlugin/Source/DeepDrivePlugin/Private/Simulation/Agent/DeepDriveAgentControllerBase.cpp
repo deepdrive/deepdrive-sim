@@ -10,20 +10,31 @@ ADeepDriveAgentControllerBase::ADeepDriveAgentControllerBase()
 
 void ADeepDriveAgentControllerBase::Possess(APawn *pawn)
 {
-	ADeepDriveAgent *agent = Cast<ADeepDriveAgent> (pawn);
+	m_Agent = Cast<ADeepDriveAgent>(pawn);
 
-	if(agent)
+	if (m_Agent)
 	{
 		Super::Possess(pawn);
+		Activate();
 	}
 }
 
 void ADeepDriveAgentControllerBase::UnPossess()
 {
-
+	if (m_Agent)
+	{
+		Deactivate();
+		m_Agent = 0;
+	}
 }
 
+void ADeepDriveAgentControllerBase::Activate()
+{
+}
 
+void ADeepDriveAgentControllerBase::Deactivate()
+{
+}
 
 void ADeepDriveAgentControllerBase::MoveForward(float axisValue)
 {
