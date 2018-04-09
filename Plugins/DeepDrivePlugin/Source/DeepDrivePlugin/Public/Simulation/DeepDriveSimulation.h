@@ -67,6 +67,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
 	TSubclassOf<ADeepDriveAgent>	Agent;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
+	FTransform	SpawnTransform;
+
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void MoveForward(float AxisValue);
 
@@ -80,10 +83,10 @@ public:
 	void Turn(float AxisValue);
 
 	UFUNCTION(BlueprintCallable, Category = "Input")
-	void OnCameraSelect(EDeepDriveAgentCameraType CameraType);
+	void SelectCamera(EDeepDriveAgentCameraType CameraType);
 
 	UFUNCTION(BlueprintCallable, Category = "Input")
-	void OnSelectMode(EDeepDriveAgentControlMode Mode);
+	void SelectMode(EDeepDriveAgentControlMode Mode);
 	
 
 private:
@@ -95,11 +98,13 @@ private:
 	bool									m_isActive = false;
 
 	ADeepDriveAgent							*m_curAgent = 0;
-	EDeepDriveAgentControlMode				m_curAgentMode = EDeepDriveAgentControlMode::DDACM_NONE;
+	EDeepDriveAgentControlMode				m_curAgentMode = EDeepDriveAgentControlMode::NONE;
 
 	ADeepDriveAgentControllerBase			*m_curAgentController = 0;
 
-	EDeepDriveAgentCameraType				m_curCameraType = EDeepDriveAgentCameraType::DDAC_CHASE_CAMERA;
+	EDeepDriveAgentCameraType				m_curCameraType = EDeepDriveAgentCameraType::CHASE_CAMERA;
+	float									m_OrbitCameraPitch = 0.0f;
+	float									m_OrbitCameraYaw = 0.0f;
 
 };
 

@@ -58,7 +58,15 @@ void ADeepDriveSimulation::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	m_curAgent = spawnAgent(EDeepDriveAgentControlMode::DDACM_MANUAL);
+	m_curAgent = spawnAgent(EDeepDriveAgentControlMode::MANUAL);
+	if(m_curAgent)
+	{
+		m_curAgentController = Cast<ADeepDriveAgentControllerBase> (m_curAgent->GetController());
+
+		m_curCameraType = EDeepDriveAgentCameraType::CHASE_CAMERA;
+		m_curAgent->ActivateCamera(m_curCameraType);
+
+	}
 
 }
 
@@ -123,7 +131,11 @@ void ADeepDriveSimulation::SetAgentControlValues(float steering, float throttle,
 
 void ADeepDriveSimulation::MoveForward(float AxisValue)
 {
-	if (m_curAgentController)
+	if(m_curCameraType == EDeepDriveAgentCameraType::FREE_CAMERA)
+	{
+	
+	}
+	else if (m_curAgentController)
 	{
 		m_curAgentController->MoveForward(AxisValue);
 	}
@@ -131,7 +143,11 @@ void ADeepDriveSimulation::MoveForward(float AxisValue)
 
 void ADeepDriveSimulation::MoveRight(float AxisValue)
 {
-	if (m_curAgentController)
+	if(m_curCameraType == EDeepDriveAgentCameraType::FREE_CAMERA)
+	{
+	
+	}
+	else if (m_curAgentController)
 	{
 		m_curAgentController->MoveRight(AxisValue);
 	}
@@ -139,37 +155,64 @@ void ADeepDriveSimulation::MoveRight(float AxisValue)
 
 void ADeepDriveSimulation::LookUp(float AxisValue)
 {
-	
+	switch(m_curCameraType)
+	{
+		case EDeepDriveAgentCameraType::FREE_CAMERA:
+			//FreeCamera->LookUp();
+			break;
+
+		case EDeepDriveAgentCameraType::ORBIT_CAMERA:
+			m_OrbitCameraPitch += AxisValue;
+			m_curAgent->SetOrbitCameraRotation(m_OrbitCameraPitch, m_OrbitCameraYaw);
+			break;
+
+	}
 }
 
 void ADeepDriveSimulation::Turn(float AxisValue)
 {
-	
+	switch(m_curCameraType)
+	{
+		case EDeepDriveAgentCameraType::FREE_CAMERA:
+			//FreeCamera->LookUp();
+			break;
+
+		case EDeepDriveAgentCameraType::ORBIT_CAMERA:
+			m_OrbitCameraYaw += AxisValue;
+			m_curAgent->SetOrbitCameraRotation(m_OrbitCameraPitch, m_OrbitCameraYaw);
+			break;
+
+	}
 }
 
-void ADeepDriveSimulation::OnCameraSelect(EDeepDriveAgentCameraType CameraType)
+void ADeepDriveSimulation::SelectCamera(EDeepDriveAgentCameraType CameraType)
 {
-	
+	if(CameraType != m_curCameraType)
+	{
+		m_curCameraType = CameraType;
+
+		if(m_curCameraType != EDeepDriveAgentCameraType::FREE_CAMERA)
+			m_curAgent->ActivateCamera(m_curCameraType);
+	}
 }
 
-void ADeepDriveSimulation::OnSelectMode(EDeepDriveAgentControlMode Mode)
+void ADeepDriveSimulation::SelectMode(EDeepDriveAgentControlMode Mode)
 {
 	
 }
 
 ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(EDeepDriveAgentControlMode mode)
 {
-	FTransform transform(FVector(-28210.0f, 22480.0f, 22716.0f));
-	ADeepDriveAgent *agent  = Cast<ADeepDriveAgent>(GetWorld()->SpawnActor(Agent, &transform, FActorSpawnParameters()));
+	FTransform transform(FVector(-29260.0f, 22480.0f, 20830.0f));
+	ADeepDriveAgent *agent  = Cast<ADeepDriveAgent>(GetWorld()->SpawnActor(Agent, &SpawnTransform, FActorSpawnParameters()));
 
 	ADeepDriveAgentControllerBase *controller = spawnController(mode);
 
 	if (controller)
 	{
-		m_curAgentController = controller;
 		controller->Possess(agent);
+		UE_LOG(LogDeepDriveSimulation, Log, TEXT("Spawning agent %p Controller %p"), agent, controller );
 	}
-	UE_LOG(LogDeepDriveSimulation, Log, TEXT("Spawning agent %p"), agent );
 
 	return agent;
 }

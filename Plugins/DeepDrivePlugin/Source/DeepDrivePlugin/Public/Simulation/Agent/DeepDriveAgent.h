@@ -8,6 +8,7 @@
 
 #include "DeepDriveAgent.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveAgent, Log, All);
 
 /**
  * 
@@ -30,6 +31,8 @@ public:
 	void SetThrottle(float throttle);
 
 	void ActivateCamera(EDeepDriveAgentCameraType cameraType);
+
+	void SetOrbitCameraRotation(float pitch, float yaw);
 
 protected:
 
