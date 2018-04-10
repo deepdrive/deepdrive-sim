@@ -6,14 +6,6 @@
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 
 
-void ADeepDriveAgentManualController::Activate()
-{
-}
-
-void ADeepDriveAgentManualController::Deactivate()
-{
-}
-
 void ADeepDriveAgentManualController::MoveForward(float axisValue)
 {
 	if(m_Agent)

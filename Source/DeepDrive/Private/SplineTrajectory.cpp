@@ -20,6 +20,8 @@ ASplineTrajectory::ASplineTrajectory()
 void ASplineTrajectory::BeginPlay()
 {
 	Super::BeginPlay();
+
+	Tags.Push( FName("AgentSpline") );
 	
 }
 

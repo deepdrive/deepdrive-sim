@@ -1,35 +1,25 @@
 
 
 #include "DeepDrivePluginPrivatePCH.h"
-#include "DeepDriveAgentControllerBase.h"
+#include "Public/Simulation/Agent/DeepDriveAgentControllerBase.h"
+#include "Public/Simulation/Agent/DeepDriveAgent.h"
 
+DEFINE_LOG_CATEGORY(LogDeepDriveAgentControllerBase);
 
 ADeepDriveAgentControllerBase::ADeepDriveAgentControllerBase()
 {
 }
 
-void ADeepDriveAgentControllerBase::Possess(APawn *pawn)
+ADeepDriveAgentControllerBase::~ADeepDriveAgentControllerBase()
 {
-	m_Agent = Cast<ADeepDriveAgent>(pawn);
-
-	if (m_Agent)
-	{
-		Super::Possess(pawn);
-		Activate();
-	}
+	UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("~ADeepDriveAgentControllerBase: %p sayz bye"), this );
 }
 
-void ADeepDriveAgentControllerBase::UnPossess()
+bool ADeepDriveAgentControllerBase::Activate(ADeepDriveAgent &agent)
 {
-	if (m_Agent)
-	{
-		Deactivate();
-		m_Agent = 0;
-	}
-}
-
-void ADeepDriveAgentControllerBase::Activate()
-{
+	m_Agent = &agent;
+	Possess(m_Agent);
+	return true;
 }
 
 void ADeepDriveAgentControllerBase::Deactivate()

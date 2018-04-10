@@ -7,6 +7,7 @@
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 
 #include "Public/Simulation/Agent/Controllers/DeepDriveAgentManualController.h"
+#include "Public/Simulation/Agent/Controllers/DeepDriveAgentSplineController.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveSimulation);
 
@@ -198,19 +199,45 @@ void ADeepDriveSimulation::SelectCamera(EDeepDriveAgentCameraType CameraType)
 
 void ADeepDriveSimulation::SelectMode(EDeepDriveAgentControlMode Mode)
 {
-	
+	if(Mode != m_curAgentMode)
+	{
+		UE_LOG(LogDeepDriveSimulation, Log, TEXT(">>>>>>>>>>>>>>>>>>>>< Switching Controllers %d %d <<<<<<<<<<<<<<<<<<<<"), m_curAgentMode, Mode  );
+
+		ADeepDriveAgentControllerBase *controller = spawnController(Mode);
+		ADeepDriveAgentControllerBase *prevController = Cast<ADeepDriveAgentControllerBase> (m_curAgent->GetController());
+
+		UE_LOG(LogDeepDriveSimulation, Log, TEXT("PrevController %p <-> %p"), m_curAgentController, prevController  );
+
+		if	(	controller
+			&&	controller->Activate(*m_curAgent)
+			)
+		{
+			if(prevController)
+			{
+				prevController->Deactivate();
+				prevController->Destroy();
+			}
+
+			m_curAgentMode = Mode;
+			m_curAgentController = controller;
+			UE_LOG(LogDeepDriveSimulation, Log, TEXT("Switching to Controller %p <-> %p"), controller, m_curAgent->GetController() );
+		}
+
+	}
 }
 
 ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(EDeepDriveAgentControlMode mode)
 {
-	FTransform transform(FVector(-29260.0f, 22480.0f, 20830.0f));
-	ADeepDriveAgent *agent  = Cast<ADeepDriveAgent>(GetWorld()->SpawnActor(Agent, &SpawnTransform, FActorSpawnParameters()));
+	FTransform transform = GetActorTransform();
+	ADeepDriveAgent *agent  = Cast<ADeepDriveAgent>(GetWorld()->SpawnActor(Agent, &transform, FActorSpawnParameters()));
 
 	ADeepDriveAgentControllerBase *controller = spawnController(mode);
 
-	if (controller)
+	if	(	controller
+		&&	controller->Activate(*agent)
+		)
 	{
-		controller->Possess(agent);
+		m_curAgentMode = mode;
 		UE_LOG(LogDeepDriveSimulation, Log, TEXT("Spawning agent %p Controller %p"), agent, controller );
 	}
 
@@ -221,6 +248,19 @@ ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(EDeepDriveAgentControlMode mod
 ADeepDriveAgentControllerBase* ADeepDriveSimulation::spawnController(EDeepDriveAgentControlMode mode)
 {
 	FTransform transform;
-	ADeepDriveAgentControllerBase *controller = Cast<ADeepDriveAgentControllerBase>(GetWorld()->SpawnActor(ADeepDriveAgentManualController::StaticClass(), &transform, FActorSpawnParameters()));
+
+	ADeepDriveAgentControllerBase *controller = 0;
+
+	switch(mode)
+	{
+		case EDeepDriveAgentControlMode::MANUAL:
+			controller = Cast<ADeepDriveAgentControllerBase>(GetWorld()->SpawnActor(ADeepDriveAgentManualController::StaticClass(), &transform, FActorSpawnParameters()));
+			break;
+
+		case EDeepDriveAgentControlMode::SPLINE:
+			controller = Cast<ADeepDriveAgentControllerBase>(GetWorld()->SpawnActor(ADeepDriveAgentSplineController::StaticClass(), &transform, FActorSpawnParameters()));
+			break;
+	}
+
 	return controller;
 }

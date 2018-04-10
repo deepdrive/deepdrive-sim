@@ -16,10 +16,6 @@ class DEEPDRIVEPLUGIN_API ADeepDriveAgentManualController : public ADeepDriveAge
 public:
 
 
-	virtual void Activate();
-
-	virtual void Deactivate();
-
 	virtual void MoveForward(float axisValue);
 
 	virtual void MoveRight(float axisValue);

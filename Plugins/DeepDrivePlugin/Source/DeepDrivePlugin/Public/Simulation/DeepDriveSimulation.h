@@ -67,9 +67,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
 	TSubclassOf<ADeepDriveAgent>	Agent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
-	FTransform	SpawnTransform;
-
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void MoveForward(float AxisValue);
 

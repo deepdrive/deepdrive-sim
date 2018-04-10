@@ -6,6 +6,8 @@
 #include "DeepDriveAgentControllerBase.generated.h"
 
 
+DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveAgentControllerBase, Log, All);
+
 class ADeepDriveAgent;
 
 /**
@@ -19,13 +21,9 @@ class DEEPDRIVEPLUGIN_API ADeepDriveAgentControllerBase : public AController
 public:
 
 	ADeepDriveAgentControllerBase();
+	~ADeepDriveAgentControllerBase();
 
-	virtual void Possess(APawn *pawn) override;
-
-	virtual void UnPossess() override;
-
-
-	virtual void Activate();
+	virtual bool Activate(ADeepDriveAgent &agent);
 
 	virtual void Deactivate();
 
