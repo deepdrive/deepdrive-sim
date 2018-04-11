@@ -47,7 +47,7 @@ void ADeepDriveSimulation::PreInitializeComponents()
 		if (DeepDriveServer::GetInstance().RegisterProxy(*this))
 		{
 			m_isActive = true;
-			UE_LOG(LogDeepDriveServerProxy, Log, TEXT("Server Proxy [%s] registered"), *(GetFullName()));
+			UE_LOG(LogDeepDriveSimulation, Log, TEXT("Server Proxy [%s] registered"), *(GetFullName()));
 		}
 	}
 
@@ -201,12 +201,8 @@ void ADeepDriveSimulation::SelectMode(EDeepDriveAgentControlMode Mode)
 {
 	if(Mode != m_curAgentMode)
 	{
-		UE_LOG(LogDeepDriveSimulation, Log, TEXT(">>>>>>>>>>>>>>>>>>>>< Switching Controllers %d %d <<<<<<<<<<<<<<<<<<<<"), m_curAgentMode, Mode  );
-
 		ADeepDriveAgentControllerBase *controller = spawnController(Mode);
 		ADeepDriveAgentControllerBase *prevController = Cast<ADeepDriveAgentControllerBase> (m_curAgent->GetController());
-
-		UE_LOG(LogDeepDriveSimulation, Log, TEXT("PrevController %p <-> %p"), m_curAgentController, prevController  );
 
 		if	(	controller
 			&&	controller->Activate(*m_curAgent)
@@ -220,7 +216,6 @@ void ADeepDriveSimulation::SelectMode(EDeepDriveAgentControlMode Mode)
 
 			m_curAgentMode = Mode;
 			m_curAgentController = controller;
-			UE_LOG(LogDeepDriveSimulation, Log, TEXT("Switching to Controller %p <-> %p"), controller, m_curAgent->GetController() );
 		}
 
 	}

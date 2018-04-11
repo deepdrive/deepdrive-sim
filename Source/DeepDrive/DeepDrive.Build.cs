@@ -18,7 +18,7 @@ public class DeepDrive : ModuleRules
             "Engine",
             "InputCore",
             "DeepDrivePlugin",
-            "Json"
+            "PhysXVehicles"
         });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });

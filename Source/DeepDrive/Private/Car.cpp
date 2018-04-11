@@ -1,8 +1,8 @@
 // 
 
 #include "DeepDrive.h"
-#include "Vehicles/WheeledVehicleMovementComponent.h"
-#include "Vehicles/WheeledVehicleMovementComponent4W.h"
+#include "WheeledVehicleMovementComponent.h"
+#include "WheeledVehicleMovementComponent4W.h"
 #include "Car.h"
 #include <stdexcept>
 

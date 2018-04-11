@@ -3,6 +3,9 @@
 
 #include "Engine.h"
 #include "Runtime/Core/Public/HAL/Runnable.h"
+#include "Public/Capture/CaptureDefines.h"
+
+class CaptureBuffer;
 
 struct SCaptureSinkBufferData
 {
@@ -48,6 +51,7 @@ public:
 
 	void process(SCaptureSinkJobData &jobData);
 
+	void kill();
 
 protected:
 

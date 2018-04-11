@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "GameFramework/WheeledVehicle.h"
+#include "WheeledVehicle.h"
 
 #include "Public/Simulation/DeepDriveSimulationDefines.h"
 

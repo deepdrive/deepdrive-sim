@@ -4,6 +4,8 @@
 
 #include "Engine.h"
 
+#include "Public/Server/Messages/DeepDriveMessageIds.h"
+
 #include <map>
 #include <functional>
 

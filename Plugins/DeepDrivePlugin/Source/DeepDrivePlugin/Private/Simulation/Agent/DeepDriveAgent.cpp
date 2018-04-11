@@ -2,7 +2,7 @@
 #include "DeepDrivePluginPrivatePCH.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 
-#include "Vehicles/WheeledVehicleMovementComponent.h"
+#include "WheeledVehicleMovementComponent.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveAgent);
 

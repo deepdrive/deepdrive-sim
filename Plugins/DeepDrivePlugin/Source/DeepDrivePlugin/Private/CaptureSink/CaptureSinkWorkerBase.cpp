@@ -54,6 +54,11 @@ uint32 CaptureSinkWorkerBase::Run()
 	return 0;
 }
 
+void CaptureSinkWorkerBase::kill()
+{
+	m_WorkerThread->Kill(true);
+}
+
 void CaptureSinkWorkerBase::Stop()
 {
 	m_isStopped = true;

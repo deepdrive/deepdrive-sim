@@ -18,7 +18,3 @@ void ADeepDriveAgentManualController::MoveRight(float axisValue)
 		m_Agent->SetSteering(axisValue);
 }
 
-void ADeepDriveAgentManualController::SetControlValues(float steering, float throttle, float brake, bool handbrake)
-{
-
-}

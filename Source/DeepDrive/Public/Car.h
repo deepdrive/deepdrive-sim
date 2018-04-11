@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "GameFramework/WheeledVehicle.h"
+#include "WheeledVehicle.h"
 #include "SplineTrajectory.h"
 #include "DataTransferStructs.h"
 #include "Car.generated.h"

@@ -3,6 +3,7 @@
 
 #include "Private/CaptureSink/SharedMemSink/SharedMemCaptureSinkWorker.h"
 #include "Private/CaptureSink/SharedMemSink/SharedMemCaptureMessageBuilder.h"
+#include "Public/Messages/DeepDriveMessageHeader.h"
 
 #include "Public/SharedMemory/SharedMemory.h"
 
@@ -11,7 +12,7 @@ DEFINE_LOG_CATEGORY(LogSharedMemCaptureSinkWorker);
 SharedMemCaptureSinkWorker::SharedMemCaptureSinkWorker(const FString &sharedMemName, uint32 maxSharedMemSize)
 	: CaptureSinkWorkerBase("SharedMemCaptureSinkWorker")
 {
-	UE_LOG(LogSharedMemCaptureSinkComponent, Log, TEXT("SharedMemCaptureSinkWorker::SharedMemCaptureSinkWorker"));
+	UE_LOG(LogSharedMemCaptureSinkWorker, Log, TEXT("SharedMemCaptureSinkWorker::SharedMemCaptureSinkWorker"));
 	m_SharedMemory = new SharedMemory();
 	if (m_SharedMemory)
 	{
@@ -29,7 +30,7 @@ SharedMemCaptureSinkWorker::SharedMemCaptureSinkWorker(const FString &sharedMemN
 
 SharedMemCaptureSinkWorker::~SharedMemCaptureSinkWorker()
 {
-	UE_LOG(LogSharedMemCaptureSinkComponent, Log, TEXT("SharedMemCaptureSinkWorker::~SharedMemCaptureSinkWorker"));
+	UE_LOG(LogSharedMemCaptureSinkWorker, Log, TEXT("SharedMemCaptureSinkWorker::~SharedMemCaptureSinkWorker"));
 	delete m_SharedMemory;
 }
 
@@ -69,7 +70,7 @@ bool SharedMemCaptureSinkWorker::execute(SCaptureSinkJobData &jobData)
 
 		if (after - m_lastLoggingTimestamp > 10.0f && m_SaveCount > 1.0f)
 		{
-			UE_LOG(LogSharedMemCaptureSinkComponent, Log, TEXT("Saving in average took %f msecs"), m_TotalSavingTime / m_SaveCount);
+			UE_LOG(LogSharedMemCaptureSinkWorker, Log, TEXT("Saving in average took %f msecs"), m_TotalSavingTime / m_SaveCount);
 			m_SaveCount = 0.0f;
 			m_TotalSavingTime = 0.0f;
 			m_lastLoggingTimestamp = after;

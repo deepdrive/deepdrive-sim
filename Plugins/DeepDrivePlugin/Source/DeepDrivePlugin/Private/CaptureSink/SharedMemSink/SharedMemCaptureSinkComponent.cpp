@@ -13,8 +13,13 @@ DEFINE_LOG_CATEGORY(LogSharedMemCaptureSinkComponent);
 USharedMemCaptureSinkComponent::USharedMemCaptureSinkComponent()
 {
 	m_Name = "SharedMemSink";
-
 }
+
+USharedMemCaptureSinkComponent::~USharedMemCaptureSinkComponent()
+{
+	delete m_Worker;
+}
+
 
 void USharedMemCaptureSinkComponent::BeginPlay()
 {
@@ -30,7 +35,7 @@ void USharedMemCaptureSinkComponent::EndPlay(const EEndPlayReason::Type EndPlayR
 	Super::EndPlay(EndPlayReason);
 
 	UE_LOG(LogSharedMemCaptureSinkComponent, Log, TEXT("USharedMemCaptureSinkComponent::DestroyComponent"));
-	delete m_Worker;
+	m_Worker->kill();
 }
 
 void USharedMemCaptureSinkComponent::begin(double timestamp, uint32 sequenceNumber, const FDeepDriveDataOut &deepDriveData)

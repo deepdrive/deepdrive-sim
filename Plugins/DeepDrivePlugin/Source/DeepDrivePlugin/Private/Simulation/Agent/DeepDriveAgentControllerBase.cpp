@@ -12,7 +12,7 @@ ADeepDriveAgentControllerBase::ADeepDriveAgentControllerBase()
 
 ADeepDriveAgentControllerBase::~ADeepDriveAgentControllerBase()
 {
-	UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("~ADeepDriveAgentControllerBase: %p sayz bye"), this );
+	UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("~ADeepDriveAgentControllerBase: %p sayz bye"), this );
 }
 
 bool ADeepDriveAgentControllerBase::Activate(ADeepDriveAgent &agent)

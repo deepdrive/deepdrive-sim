@@ -49,7 +49,8 @@ public class DeepDrivePlugin : ModuleRules
 				"Slate",
 				"SlateCore",
                 "RenderCore",
-                "RHI"
+                "RHI",
+	            "PhysXVehicles"
             }
             );
 		

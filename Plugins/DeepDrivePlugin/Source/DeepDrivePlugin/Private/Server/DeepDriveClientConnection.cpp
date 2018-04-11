@@ -134,7 +134,7 @@ void DeepDriveClientConnection::registerClient(const deepdrive::server::MessageH
 	response.client_id = m_ClientId;
 	response.granted_master_role = m_isMaster ? 1 : 0;
 
-	const FString contentPath = FPaths::ConvertRelativePathToFull(FPaths::GameContentDir());
+	const FString contentPath = FPaths::ConvertRelativePathToFull(FPaths::ProjectContentDir());
 	const FString versionPath = FPaths::Combine(contentPath, "Data", "VERSION");
 	FString buildTimeStamp;
 	FFileHelper::LoadFileToString(buildTimeStamp, *versionPath);

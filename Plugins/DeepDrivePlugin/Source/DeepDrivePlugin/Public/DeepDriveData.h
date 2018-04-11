@@ -7,7 +7,7 @@
 	Unreal -> (Python) Client
 */
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FDeepDriveDataOut
 {
 	GENERATED_USTRUCT_BODY()
@@ -65,7 +65,7 @@ struct FDeepDriveDataOut
 
 };
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FDeepDriveControlData
 {
 	GENERATED_USTRUCT_BODY()

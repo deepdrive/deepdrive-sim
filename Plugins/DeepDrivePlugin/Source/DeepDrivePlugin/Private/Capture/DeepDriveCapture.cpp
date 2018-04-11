@@ -177,7 +177,7 @@ void DeepDriveCapture::processCapturing()
 						timing.elapsed_capture_time += delta * 1000.0f;
 						timing.capture_count += 1.0f;
 
-						UE_LOG(LogDeepDriveCapture, Log, TEXT("[%f] Capturing type %s with average frequency %f"), now,  *(CamTypeEnum ? CamTypeEnum->GetEnumName(static_cast<uint8> (type)) : TEXT("<Invalid Enum>")), timing.elapsed_capture_time / timing.capture_count );
+						UE_LOG(LogDeepDriveCapture, Log, TEXT("[%f] Capturing type %s with average frequency %f"), now,  *(CamTypeEnum ? CamTypeEnum->GetNameStringByIndex(static_cast<int32> (type)) : TEXT("<Invalid Enum>")), timing.elapsed_capture_time / timing.capture_count );
 					}
 					break;
 				}

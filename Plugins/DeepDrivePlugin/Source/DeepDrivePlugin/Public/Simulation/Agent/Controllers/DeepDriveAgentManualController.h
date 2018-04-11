@@ -19,9 +19,5 @@ public:
 	virtual void MoveForward(float axisValue);
 
 	virtual void MoveRight(float axisValue);
-
-	virtual void SetControlValues(float steering, float throttle, float brake, bool handbrake);
-
-	
 	
 };

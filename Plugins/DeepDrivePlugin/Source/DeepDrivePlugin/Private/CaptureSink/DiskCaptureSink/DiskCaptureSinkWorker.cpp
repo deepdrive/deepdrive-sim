@@ -43,7 +43,7 @@ bool DiskCaptureSinkWorker::execute(SCaptureSinkJobData &jobData)
 		else
 			filePath = FPaths::Combine(diskSinkJobData.base_path, diskSinkJobData.base_file_name) + FString::FromInt(diskSinkJobData.sequence_number) + ".bmp";
 
-		UE_LOG(LogDeepDriveCapture, Log, TEXT("DiskCaptureSinkWorker::execute type %s with id %d to store at %s"), *(CamTypeEnum ? CamTypeEnum->GetEnumName(static_cast<uint8> (camType)) : TEXT("<Invalid Enum>")), camId, *(filePath));
+		UE_LOG(LogDeepDriveCapture, Log, TEXT("DiskCaptureSinkWorker::execute type %s with id %d to store at %s"), *(CamTypeEnum ? CamTypeEnum->GetNameStringByIndex(static_cast<int32> (camType)) : TEXT("<Invalid Enum>")), camId, *(filePath));
 
 		saveAsBmp(*captureBuffer, filePath);
 

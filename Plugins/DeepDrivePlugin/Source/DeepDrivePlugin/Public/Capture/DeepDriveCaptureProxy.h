@@ -12,7 +12,7 @@ DECLARE_LOG_CATEGORY_EXTERN(DeepDriveCaptureProxy, Log, All);
 class UCaptureSinkComponentBase;
 
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FCaptureCyle
 {
 	GENERATED_USTRUCT_BODY()
