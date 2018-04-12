@@ -7,6 +7,11 @@
 
 DEFINE_LOG_CATEGORY(LogDeepDriveAgentSplineController);
 
+ADeepDriveAgentSplineController::ADeepDriveAgentSplineController()
+{
+}
+
+
 bool ADeepDriveAgentSplineController::Activate(ADeepDriveAgent &agent)
 {
 	/*
@@ -43,15 +48,16 @@ void ADeepDriveAgentSplineController::Tick( float DeltaSeconds )
 	desiredHeading.Normalize();
 
 	float diff = 1.0f - FVector2D::DotProduct(desiredHeading, curHeading);
-
 	if(FVector2D::DotProduct(curRight, desiredHeading) < 0.0f)
 		diff *= -1.0f;
+	m_Agent->SetSteering( m_SteeringPIDCtrl.advance(DeltaSeconds, diff, PIDSteering.X, PIDSteering.Y, PIDSteering.Z) );
 
-	UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("diff %f"), diff );
 
-	m_Agent->SetThrottle(0.5f);
-	m_Agent->SetSteering(diff);
+	const float curSpeed = m_Agent->GetVehicleMovementComponent()->GetForwardSpeed();
+	const float throttle = m_ThrottlePIDCtrl.advance(DeltaSeconds, DesiredSpeed - curSpeed, PIDThrottle.X, PIDThrottle.Y, PIDThrottle.Z);
+	m_Agent->SetThrottle(throttle);
 
+	UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("Speed cur %f diff %f throttle %f"), curSpeed, DesiredSpeed - curSpeed, throttle);
 
 
 	/*

@@ -6,8 +6,7 @@
 #include "Private/Server/DeepDriveServer.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 
-#include "Public/Simulation/Agent/Controllers/DeepDriveAgentManualController.h"
-#include "Public/Simulation/Agent/Controllers/DeepDriveAgentSplineController.h"
+#include "Public/Simulation/Agent/DeepDriveAgentControllerCreator.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveSimulation);
 
@@ -242,20 +241,11 @@ ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(EDeepDriveAgentControlMode mod
 
 ADeepDriveAgentControllerBase* ADeepDriveSimulation::spawnController(EDeepDriveAgentControlMode mode)
 {
-	FTransform transform;
-
 	ADeepDriveAgentControllerBase *controller = 0;
 
-	switch(mode)
-	{
-		case EDeepDriveAgentControlMode::MANUAL:
-			controller = Cast<ADeepDriveAgentControllerBase>(GetWorld()->SpawnActor(ADeepDriveAgentManualController::StaticClass(), &transform, FActorSpawnParameters()));
-			break;
+	controller = ControllerCreators.Contains(mode) ? ControllerCreators[mode]->CreateController() : 0;
 
-		case EDeepDriveAgentControlMode::SPLINE:
-			controller = Cast<ADeepDriveAgentControllerBase>(GetWorld()->SpawnActor(ADeepDriveAgentSplineController::StaticClass(), &transform, FActorSpawnParameters()));
-			break;
-	}
+	UE_LOG(LogDeepDriveSimulation, Log, TEXT("spawnController has it %c -> %p"), ControllerCreators.Contains(mode) ? 'T' :'F', controller );
 
 	return controller;
 }

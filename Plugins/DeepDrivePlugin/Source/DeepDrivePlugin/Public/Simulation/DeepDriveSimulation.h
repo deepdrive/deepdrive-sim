@@ -12,6 +12,7 @@
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveSimulation, Log, All);
 
 class ADeepDriveAgent;
+class ADeepDriveAgentControllerCreator;
 class ADeepDriveAgentControllerBase;
 
 
@@ -66,6 +67,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
 	TSubclassOf<ADeepDriveAgent>	Agent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
+	TMap<EDeepDriveAgentControlMode, ADeepDriveAgentControllerCreator*>	ControllerCreators;
+
 
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void MoveForward(float AxisValue);

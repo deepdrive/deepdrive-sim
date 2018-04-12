@@ -13,7 +13,7 @@ class ADeepDriveAgent;
 /**
  * 
  */
-UCLASS()
+UCLASS(Blueprintable, BlueprintType)
 class DEEPDRIVEPLUGIN_API ADeepDriveAgentControllerBase : public AController
 {
 	GENERATED_BODY()
