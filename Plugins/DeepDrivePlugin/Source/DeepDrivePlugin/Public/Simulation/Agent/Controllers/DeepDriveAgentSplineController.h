@@ -4,6 +4,7 @@
 
 #include "Simulation/Agent/DeepDriveAgentControllerBase.h"
 #include "Components/SplineComponent.h"
+#include "Runtime/Core/Public/GenericPlatform/GenericPlatformMath.h"
 #include "DeepDriveAgentSplineController.generated.h"
 
 
@@ -34,9 +35,7 @@ private:
 			m_sumE += curE;
 			const float dE = (curE - m_prevE);
 
-			float y = kp * curE + ki * dT * m_sumE;
-			if(abs(dE) > 0.0000001)
-				y += kd / (dT * curE);
+			float y = kp * curE + ki * dT * m_sumE + dE * kd / dT;
 
 			m_prevE = curE;
 
@@ -63,16 +62,28 @@ public:
 	virtual bool Activate(ADeepDriveAgent &agent);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
-	float	MaxThrottle;
+	float	LookAheadTime = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
+	float	MinLookAheadDistance = 500.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
 	FVector	PIDSteering;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
+	float	SteeringFactor = 1.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
 	float	DesiredSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
 	FVector	PIDThrottle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
+	float	ThrottleFactor = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
+	AActor*		ProjectedPos;
 
 
 private:
@@ -84,6 +95,7 @@ private:
 	PIDController			m_SteeringPIDCtrl;
 	PIDController			m_ThrottlePIDCtrl;
 
+	float					m_curThrottle = 0.0f;
 
 
 

@@ -1,7 +1,9 @@
 
 
 #include "DeepDrivePluginPrivatePCH.h"
-#include "DeepDriveAgentSplineController.h"
+
+#include "Public/Simulation/Agent/Controllers/DeepDriveAgentSplineController.h"
+#include "Public/Simulation/Agent/DeepDriveAgent.h"
 
 #include "WheeledVehicleMovementComponent.h"
 
@@ -37,34 +39,42 @@ bool ADeepDriveAgentSplineController::Activate(ADeepDriveAgent &agent)
 
 void ADeepDriveAgentSplineController::Tick( float DeltaSeconds )
 {
-	FVector agentLocation = m_Agent->GetActorLocation();
-	const float curDist = getClosestDistanceOnSpline(agentLocation);
+	if (1)
+	{
+		FVector agentLocation = m_Agent->GetActorLocation();
+		const float curDist = getClosestDistanceOnSpline(agentLocation);
+		const float curSpeed = m_Agent->GetVehicleMovementComponent()->GetForwardSpeed();
 
-	FVector projLocAhead = m_Spline->GetLocationAtDistanceAlongSpline(curDist + 1000.0f, ESplineCoordinateSpace::World);
-	FVector2D desiredHeading(projLocAhead - agentLocation);
-	FVector2D curHeading(m_Agent->GetActorForwardVector());
-	FVector2D curRight(m_Agent->GetActorRightVector());
+		const float lookAheadDist = FMath::Max(MinLookAheadDistance, curSpeed * LookAheadTime);
 
-	desiredHeading.Normalize();
+		FVector projLocAhead = m_Spline->GetLocationAtDistanceAlongSpline(curDist + lookAheadDist, ESplineCoordinateSpace::World);
+		if (ProjectedPos)
+			ProjectedPos->SetActorLocation(projLocAhead);
+		FVector2D desiredHeading(projLocAhead - agentLocation);
+		FVector2D curHeading(m_Agent->GetActorForwardVector());
+		FVector2D curRight(m_Agent->GetActorRightVector());
 
-	float diff = 1.0f - FVector2D::DotProduct(desiredHeading, curHeading);
-	if(FVector2D::DotProduct(curRight, desiredHeading) < 0.0f)
-		diff *= -1.0f;
-	m_Agent->SetSteering( m_SteeringPIDCtrl.advance(DeltaSeconds, diff, PIDSteering.X, PIDSteering.Y, PIDSteering.Z) );
+		desiredHeading.Normalize();
 
-
-	const float curSpeed = m_Agent->GetVehicleMovementComponent()->GetForwardSpeed();
-	const float throttle = m_ThrottlePIDCtrl.advance(DeltaSeconds, DesiredSpeed - curSpeed, PIDThrottle.X, PIDThrottle.Y, PIDThrottle.Z);
-	m_Agent->SetThrottle(throttle);
-
-	UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("Speed cur %f diff %f throttle %f"), curSpeed, DesiredSpeed - curSpeed, throttle);
+		float diff = 1.0f - FVector2D::DotProduct(desiredHeading, curHeading);
+		if(FVector2D::DotProduct(curRight, desiredHeading) < 0.0f)
+			diff *= -1.0f;
+		m_Agent->SetSteering(SteeringFactor * m_SteeringPIDCtrl.advance(DeltaSeconds, diff, PIDSteering.X, PIDSteering.Y, PIDSteering.Z) );
 
 
-	/*
-	if(m_Agent && UpdateSplineProgress())
+		const float y = m_ThrottlePIDCtrl.advance(DeltaSeconds, DesiredSpeed - curSpeed, PIDThrottle.X, PIDThrottle.Y, PIDThrottle.Z);
+		m_curThrottle = FMath::Clamp(m_curThrottle + y * DeltaSeconds * ThrottleFactor, -1.0f, 1.0f);
+		m_Agent->SetThrottle(m_curThrottle);
+
+		//UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("Speed cur %f diff %f throttle %f %f %f"), curSpeed, DesiredSpeed - curSpeed, m_curThrottle);
+
+		float dot = FVector2D::DotProduct(desiredHeading, curHeading);
+		float ang = FMath::RadiansToDegrees( FMath::Acos(dot) );
+		UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("Dot %f Ang %f"), dot, ang);
+
+	}
+	else if(m_Agent && UpdateSplineProgress())
 		MoveAlongSpline();
-
-	*/
 }
 
 
