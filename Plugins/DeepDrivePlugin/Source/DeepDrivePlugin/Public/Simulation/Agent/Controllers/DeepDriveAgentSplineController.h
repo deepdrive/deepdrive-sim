@@ -83,14 +83,22 @@ public:
 	float	ThrottleFactor = 1.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
-	AActor*		ProjectedPos;
+	AActor*		CurrentPosActor;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
+	AActor*		ProjectedPosActor;
 
 
 private:
 
 	float getClosestDistanceOnSpline(const FVector &location);
 
+	void updateDistanceOnSpline(const FVector &curAgentLocation);
+
 	USplineComponent		*m_Spline = 0;
+	float					m_curDistanceOnSpline = 0.0f;
+
+	FVector					m_prevAgentLocation;
 
 	PIDController			m_SteeringPIDCtrl;
 	PIDController			m_ThrottlePIDCtrl;

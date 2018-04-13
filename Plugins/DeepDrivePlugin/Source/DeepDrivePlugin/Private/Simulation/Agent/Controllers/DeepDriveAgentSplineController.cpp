@@ -34,12 +34,28 @@ bool ADeepDriveAgentSplineController::Activate(ADeepDriveAgent &agent)
 		}
 	}
 
+	if(m_Spline)
+	{
+		FVector agentLocation = agent.GetActorLocation();
+		m_curDistanceOnSpline = getClosestDistanceOnSpline(agentLocation);
+		FVector curPosOnSpline = m_Spline->GetLocationAtDistanceAlongSpline(m_curDistanceOnSpline, ESplineCoordinateSpace::World);
+		curPosOnSpline.Z = agentLocation.Z + 50.0f;
+
+		FQuat quat = m_Spline->GetQuaternionAtDistanceAlongSpline(m_curDistanceOnSpline, ESplineCoordinateSpace::World);
+
+		FTransform transform(quat.Rotator(), curPosOnSpline, FVector(1.0f, 1.0f, 1.0f));
+
+		agent.SetActorTransform(transform, false, 0, ETeleportType::TeleportPhysics);
+
+		m_prevAgentLocation = agent.GetActorLocation();
+	}
+
 	return m_Spline != 0 && Super::Activate(agent);
 }
 
 void ADeepDriveAgentSplineController::Tick( float DeltaSeconds )
 {
-	if (1)
+	if (0)
 	{
 		FVector agentLocation = m_Agent->GetActorLocation();
 		const float curDist = getClosestDistanceOnSpline(agentLocation);
@@ -47,9 +63,106 @@ void ADeepDriveAgentSplineController::Tick( float DeltaSeconds )
 
 		const float lookAheadDist = FMath::Max(MinLookAheadDistance, curSpeed * LookAheadTime);
 
+		if (CurrentPosActor)
+			CurrentPosActor->SetActorLocation(m_Spline->GetLocationAtDistanceAlongSpline(curDist, ESplineCoordinateSpace::World) + FVector(0.0f, 0.0f, 200.0f));
+
 		FVector projLocAhead = m_Spline->GetLocationAtDistanceAlongSpline(curDist + lookAheadDist, ESplineCoordinateSpace::World);
-		if (ProjectedPos)
-			ProjectedPos->SetActorLocation(projLocAhead);
+		if (ProjectedPosActor)
+			ProjectedPosActor->SetActorLocation(projLocAhead + FVector(0.0f, 0.0f, 200.0f));
+
+		FVector curForward = m_Agent->GetActorForwardVector();
+		FVector curRight = m_Agent->GetActorRightVector();
+
+		FVector desiredForward = m_Spline->GetTangentAtDistanceAlongSpline(curDist, ESplineCoordinateSpace::World);
+
+		desiredForward = projLocAhead - agentLocation;
+
+		desiredForward.Normalize();
+		float dot = FVector::DotProduct(curForward, desiredForward);
+		float ang = FMath::RadiansToDegrees( FMath::Acos(dot) );
+		float curSteering = ang / 70.0f;
+
+		if(FVector::DotProduct(curRight, desiredForward) < 0.0f)
+			curSteering *= -1.0f;
+
+		UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("Dot %f Ang %f  tangent %s forward %s"), dot, ang, *(desiredForward.ToString()), *( m_Spline->GetTransformAtDistanceAlongSpline(curDist, ESplineCoordinateSpace::World).GetRotation().GetForwardVector().ToString() ) );
+
+		m_Agent->SetSteering( curSteering );
+
+
+		const float y = m_ThrottlePIDCtrl.advance(DeltaSeconds, DesiredSpeed - curSpeed, PIDThrottle.X, PIDThrottle.Y, PIDThrottle.Z);
+		m_curThrottle = FMath::Clamp(m_curThrottle + y * DeltaSeconds * ThrottleFactor, -1.0f, 1.0f);
+		m_Agent->SetThrottle(m_curThrottle);
+
+	}
+	else if (1)
+	{
+		FVector agentLocation = m_Agent->GetActorLocation();
+
+		updateDistanceOnSpline(agentLocation);
+
+		const float curSpeed = m_Agent->GetVehicleMovementComponent()->GetForwardSpeed();
+		const float lookAheadDist = FMath::Max(MinLookAheadDistance, curSpeed * LookAheadTime);
+		FVector projLocAhead = m_Spline->GetLocationAtDistanceAlongSpline(m_curDistanceOnSpline + lookAheadDist, ESplineCoordinateSpace::World);
+
+		if (CurrentPosActor)
+			CurrentPosActor->SetActorLocation(m_Spline->GetLocationAtDistanceAlongSpline(m_curDistanceOnSpline, ESplineCoordinateSpace::World) + FVector(0.0f, 0.0f, 200.0f));
+		if (ProjectedPosActor)
+			ProjectedPosActor->SetActorLocation(projLocAhead + FVector(0.0f, 0.0f, 200.0f));
+
+		FVector curForward = m_Agent->GetActorForwardVector();
+		FVector curRight = m_Agent->GetActorRightVector();
+
+		FVector desiredForward = projLocAhead - agentLocation;
+		desiredForward.Normalize();
+
+		float dot = FVector::DotProduct(curForward, desiredForward);
+		float ang = FMath::RadiansToDegrees( FMath::Acos(dot) );
+		float curSteering = ang / 70.0f;
+
+		if(FVector::DotProduct(curRight, desiredForward) < 0.0f)
+			curSteering *= -1.0f;
+
+		UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("Dot %f Ang %f curSpeed %f"), dot, ang, curSpeed);
+
+		m_Agent->SetSteering( curSteering );
+
+		const float y = m_ThrottlePIDCtrl.advance(DeltaSeconds, DesiredSpeed - curSpeed, PIDThrottle.X, PIDThrottle.Y, PIDThrottle.Z);
+		m_curThrottle = FMath::Clamp(m_curThrottle + y * DeltaSeconds * ThrottleFactor, -1.0f, 1.0f);
+		m_Agent->SetThrottle(m_curThrottle);
+
+	}
+	else if(m_Agent && UpdateSplineProgress())
+		MoveAlongSpline();
+}
+
+
+
+void ADeepDriveAgentSplineController::updateDistanceOnSpline(const FVector &curAgentLocation)
+{
+	FVector delta = curAgentLocation - m_prevAgentLocation;
+	FVector tangent = m_Spline->GetTangentAtDistanceAlongSpline(m_curDistanceOnSpline, ESplineCoordinateSpace::World);
+	FVector projected = delta.ProjectOnTo(tangent);
+	m_curDistanceOnSpline += projected.Size();
+
+	m_prevAgentLocation = curAgentLocation;
+}
+
+
+/*
+		FVector agentLocation = m_Agent->GetActorLocation();
+		const float curDist = getClosestDistanceOnSpline(agentLocation);
+		const float curSpeed = m_Agent->GetVehicleMovementComponent()->GetForwardSpeed();
+
+		const float lookAheadDist = FMath::Max(MinLookAheadDistance, curSpeed * LookAheadTime);
+
+		if (CurrentPosActor)
+			CurrentPosActor->SetActorLocation(m_Spline->GetLocationAtDistanceAlongSpline(curDist, ESplineCoordinateSpace::World) + FVector(0.0f, 0.0f, 200.0f));
+
+		FVector projLocAhead = m_Spline->GetLocationAtDistanceAlongSpline(curDist + lookAheadDist, ESplineCoordinateSpace::World);
+		if (ProjectedPosActor)
+			ProjectedPosActor->SetActorLocation(projLocAhead + FVector(0.0f, 0.0f, 200.0f));
+
 		FVector2D desiredHeading(projLocAhead - agentLocation);
 		FVector2D curHeading(m_Agent->GetActorForwardVector());
 		FVector2D curRight(m_Agent->GetActorRightVector());
@@ -71,11 +184,7 @@ void ADeepDriveAgentSplineController::Tick( float DeltaSeconds )
 		float dot = FVector2D::DotProduct(desiredHeading, curHeading);
 		float ang = FMath::RadiansToDegrees( FMath::Acos(dot) );
 		UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("Dot %f Ang %f"), dot, ang);
-
-	}
-	else if(m_Agent && UpdateSplineProgress())
-		MoveAlongSpline();
-}
+*/
 
 
 float ADeepDriveAgentSplineController::getClosestDistanceOnSpline(const FVector &location)
@@ -269,3 +378,5 @@ void ADeepDriveAgentSplineController::MoveAlongSpline()
 
 	m_Agent->SetThrottle(throttle);
 }
+
+
