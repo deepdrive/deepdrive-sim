@@ -103,7 +103,10 @@ private:
 	PIDController			m_SteeringPIDCtrl;
 	PIDController			m_ThrottlePIDCtrl;
 
+	float					m_curSteering = 0.0f;
 	float					m_curThrottle = 0.0f;
+
+	float					m_projYawDelta = 0.0f;
 
 
 
