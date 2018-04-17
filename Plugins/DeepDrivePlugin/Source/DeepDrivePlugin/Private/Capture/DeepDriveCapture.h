@@ -3,6 +3,7 @@
 
 #include "Engine.h"
 
+#include "Public/Capture/CaptureDefines.h"
 #include "Private/Capture/CaptureBufferPool.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveCapture, Log, All);

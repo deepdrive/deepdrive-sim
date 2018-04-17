@@ -70,13 +70,16 @@ int32 DeepDriveSimulationServerProxy::RegisterCaptureCamera(float FieldOfView, i
 
 bool DeepDriveSimulationServerProxy::RequestAgentControl()
 {
-	bool res = false;
+	bool res = true;
+
+	UE_LOG(LogDeepDriveSimulationServerProxy, Log, TEXT("Control requested") );
 
 	return res;
 }
 
 void DeepDriveSimulationServerProxy::ReleaseAgentControl()
 {
+	UE_LOG(LogDeepDriveSimulationServerProxy, Log, TEXT("Control released"));
 }
 
 void DeepDriveSimulationServerProxy::ResetAgent()
@@ -86,6 +89,9 @@ void DeepDriveSimulationServerProxy::ResetAgent()
 void DeepDriveSimulationServerProxy::SetAgentControlValues(float steering, float throttle, float brake, bool handbrake)
 {
 	ADeepDriveAgentControllerBase *agentCtrl = m_isActive ? m_DeepDriveSim.getCurrentAgentController() : 0;
+
+	UE_LOG(LogDeepDriveSimulationServerProxy, Log, TEXT("SetAgentControlValues %p"), agentCtrl);
+
 	if(agentCtrl)
 		agentCtrl->SetControlValues(steering, throttle, brake, handbrake);
 }

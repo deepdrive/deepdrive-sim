@@ -53,9 +53,10 @@ bool DeepDriveSimulationCaptureProxy::beginCapture()
 		m_DeepDriveData.Position = agent->GetActorLocation();
 		m_DeepDriveData.Rotation = agent->GetActorRotation();
 		m_DeepDriveData.Velocity = agent->GetVelocity();
-		m_DeepDriveData.Velocity = agent->getAngularVelocity();
-		m_DeepDriveData.Velocity = agent->getAcceleration();
-		m_DeepDriveData.Velocity = agent->getAngularAcceleration();
+		m_DeepDriveData.AngularVelocity = agent->getAngularVelocity();
+		m_DeepDriveData.Acceleration = agent->getAcceleration();
+		m_DeepDriveData.AngularAcceleration = agent->getAngularAcceleration();
+		m_DeepDriveData.Speed = agent->getSpeed();
 
 		m_DeepDriveData.Dimension = agent->getDimensions();
 

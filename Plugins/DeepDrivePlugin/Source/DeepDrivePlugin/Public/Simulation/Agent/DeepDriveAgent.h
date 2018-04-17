@@ -10,6 +10,8 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveAgent, Log, All);
 
+class UCaptureCameraComponent;
+
 /**
  * 
  */

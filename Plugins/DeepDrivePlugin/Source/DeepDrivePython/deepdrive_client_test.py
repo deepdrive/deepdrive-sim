@@ -13,8 +13,7 @@ def cleanUp(clientId):
 
 client = deepdrive_client.create('127.0.0.1', 9876)
 
-
-if client != None:
+if client != None and 'client_id' in client:
 	clientId = client['client_id']
 	print('Connected ...', clientId)
 
@@ -47,10 +46,10 @@ if client != None:
 				while counter > 0:
 					snapshot = deepdrive_capture.step()
 					if snapshot:
-					#	print(snapshot.capture_timestamp, snapshot.sequence_number, snapshot.speed, snapshot.is_game_driving, snapshot.camera_count, len(snapshot.cameras) )
+						print(snapshot.capture_timestamp, snapshot.sequence_number, snapshot.speed, snapshot.is_game_driving, snapshot.camera_count, len(snapshot.cameras) )
 					#	for c in snapshot.cameras:
 					#		print('Id', c.id, c.capture_width, 'x', c.capture_height)
-						pass
+					#	pass
 
 					deepdrive_client.set_control_values(clientId, 0.0, 1.0, 0.0, 0)
 					time.sleep(0.1)

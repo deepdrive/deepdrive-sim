@@ -1,6 +1,7 @@
 
 #include "DeepDrivePluginPrivatePCH.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
+#include "Public/Capture/CaptureCameraComponent.h"
 
 #include "WheeledVehicleMovementComponent.h"
 #include "Runtime/Engine/Classes/Kismet/KismetRenderingLibrary.h"
@@ -55,7 +56,7 @@ int32 ADeepDriveAgent::RegisterCaptureCamera(float fieldOfView, int32 captureWid
 
 	if(targetTexture)
 	{
-		UCaptureCameraComponent *captureCamCmp = NewObject<UCaptureCameraComponent>();
+		UCaptureCameraComponent *captureCamCmp = NewObject<UCaptureCameraComponent>(this);
 		if(captureCamCmp)
 		{
 			captureCamCmp->SetupAttachment(RootComponent);
