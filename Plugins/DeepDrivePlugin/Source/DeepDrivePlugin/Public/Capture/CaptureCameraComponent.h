@@ -51,8 +51,15 @@ public:
 
 	bool capture(SCaptureRequest &reqData);
 
+	int32 getCameraId() const;
+
 private:
 
 	UPROPERTY()
 	USceneCaptureComponent2D	*m_SceneCapture;
 };
+
+inline int32 UCaptureCameraComponent::getCameraId() const
+{
+	return CameraId;
+}

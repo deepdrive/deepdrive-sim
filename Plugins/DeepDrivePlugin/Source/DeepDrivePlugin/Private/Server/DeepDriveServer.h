@@ -61,7 +61,7 @@ public:
 
 	static void Destroy();
 
-	bool RegisterProxy(IDeepDriveServerProxy &proxy);
+	bool RegisterProxy(IDeepDriveServerProxy &proxy, const FString &ipAddress, uint16 port);
 
 	void UnregisterProxy(IDeepDriveServerProxy &proxy);
 

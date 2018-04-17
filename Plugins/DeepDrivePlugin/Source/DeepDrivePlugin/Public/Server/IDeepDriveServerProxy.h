@@ -6,7 +6,7 @@
 
 class IDeepDriveServerProxy
 {
-	
+
 public:	
 
 	virtual void RegisterClient(int32 ClientId, bool IsMaster) = 0;
@@ -23,7 +23,4 @@ public:
 
 	virtual void SetAgentControlValues(float steering, float throttle, float brake, bool handbrake) = 0;
 
-	virtual const FString& getIPAddress() const = 0;
-
-	virtual uint16 getPort() const = 0;
 };

@@ -4,9 +4,13 @@
 #include "DeepDriveSimulation.h"
 
 #include "Private/Server/DeepDriveServer.h"
-#include "Public/Simulation/Agent/DeepDriveAgent.h"
+#include "Public/Simulation/DeepDriveSimulationServerProxy.h"
+#include "Public/Simulation/DeepDriveSimulationCaptureProxy.h"
 
+#include "Public/Simulation/Agent/DeepDriveAgent.h"
 #include "Public/Simulation/Agent/DeepDriveAgentControllerCreator.h"
+
+#include "Public/CaptureSink/CaptureSinkComponentBase.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveSimulation);
 
@@ -43,10 +47,18 @@ void ADeepDriveSimulation::PreInitializeComponents()
 
 	if (!alreadyRegistered)
 	{
-		if (DeepDriveServer::GetInstance().RegisterProxy(*this))
+		m_ServerProxy = new DeepDriveSimulationServerProxy(*this);
+		m_CaptureProxy = new DeepDriveSimulationCaptureProxy(*this, CaptureInterval);
+		if	(	m_ServerProxy && m_ServerProxy->initialize(IPAddress, Port)
+			&&	m_CaptureProxy
+			)
 		{
 			m_isActive = true;
-			UE_LOG(LogDeepDriveSimulation, Log, TEXT("Server Proxy [%s] registered"), *(GetFullName()));
+			UE_LOG(LogDeepDriveSimulation, Log, TEXT("DeepDriveSimulation [%s] activated"), *(GetFullName()));
+		}
+		else
+		{
+			UE_LOG(LogDeepDriveSimulation, Error, TEXT("DeepDriveSimulation [%s] could not be activated ServerProxy %p"), *(GetFullName()), m_ServerProxy);
 		}
 	}
 
@@ -66,6 +78,17 @@ void ADeepDriveSimulation::BeginPlay()
 		m_curCameraType = EDeepDriveAgentCameraType::CHASE_CAMERA;
 		m_curAgent->ActivateCamera(m_curCameraType);
 
+		const TSet < UActorComponent * > &components = GetComponents();
+		for(auto &comp : components)
+		{
+			UCaptureSinkComponentBase *captureSinkComp = Cast<UCaptureSinkComponentBase> (comp);
+			if(captureSinkComp)
+			{
+				m_CaptureSinks.Add(captureSinkComp);
+				UE_LOG(LogDeepDriveCapture, Log, TEXT("Found sink %s"), *(captureSinkComp->getName()));
+			}
+		}
+
 	}
 
 }
@@ -76,9 +99,14 @@ void ADeepDriveSimulation::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 	if (m_isActive)
 	{
-		DeepDriveServer::GetInstance().UnregisterProxy(*this);
+		if(m_CaptureProxy)
+			m_CaptureProxy->shutdown();
+
+		if(m_ServerProxy)
+			m_ServerProxy->shutdown();
+
 		m_isActive = false;
-		UE_LOG(LogDeepDriveSimulation, Log, TEXT("Server Proxy [%s] unregistered"), *(GetFullName()));
+		UE_LOG(LogDeepDriveSimulation, Log, TEXT("DeepDriveSimulation [%s] unregistered"), *(GetFullName()));
 	}
 }
 
@@ -90,44 +118,13 @@ void ADeepDriveSimulation::Tick( float DeltaTime )
 
 	if (m_isActive)
 	{
-		DeepDriveServer::GetInstance().update(DeltaTime);
+		if(m_CaptureProxy)
+			m_CaptureProxy->update(DeltaTime);
+
+		if(m_ServerProxy)
+			m_ServerProxy->update(DeltaTime);
 	}
 }
-
-void ADeepDriveSimulation::RegisterClient(int32 ClientId, bool IsMaster)
-{
-}
-
-void ADeepDriveSimulation::UnregisterClient(int32 ClientId, bool IsMaster)
-{
-}
-
-int32 ADeepDriveSimulation::RegisterCaptureCamera(float FieldOfView, int32 CaptureWidth, int32 CaptureHeight, FVector RelativePosition, FVector RelativeRotation, const FString &Label)
-{
-	int32 camId = 0;
-
-	return camId;
-}
-
-bool ADeepDriveSimulation::RequestAgentControl()
-{
-	bool res = false;
-
-	return res;
-}
-
-void ADeepDriveSimulation::ReleaseAgentControl()
-{
-}
-
-void ADeepDriveSimulation::ResetAgent()
-{
-}
-
-void ADeepDriveSimulation::SetAgentControlValues(float steering, float throttle, float brake, bool handbrake)
-{
-}
-
 
 void ADeepDriveSimulation::MoveForward(float AxisValue)
 {

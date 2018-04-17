@@ -22,7 +22,12 @@ public:
 
 	ADeepDriveAgent();
 
-	void RegisterCaptureCamera(float fieldOfView, int32 captureWidth, int32 captureHeight, FVector relativePosition, FVector relativeRotation, const FString &label);
+	virtual void BeginPlay() override;
+
+	virtual void Tick( float DeltaSeconds ) override;
+
+
+	int32 RegisterCaptureCamera(float fieldOfView, int32 captureWidth, int32 captureHeight, FVector relativePosition, FVector relativeRotation, const FString &label);
 
 	void SetControlValues(float steering, float throttle, float brake, bool handbrake);
 
@@ -30,9 +35,25 @@ public:
 
 	void SetThrottle(float throttle);
 
+	void SetBrake(float brake);
+
+	void SetHandbrake(bool on);
+
 	void ActivateCamera(EDeepDriveAgentCameraType cameraType);
 
 	void SetOrbitCameraRotation(float pitch, float yaw);
+
+	FVector getAngularVelocity() const;
+	FVector getAcceleration() const;
+	FVector getAngularAcceleration() const;
+	float getSpeed() const;
+
+	FVector getDimensions() const;
+
+	float getSteering() const;
+	float getThrottle() const;
+	float getBrake() const;
+	bool getHandbrake() const;
 
 protected:
 
@@ -49,7 +70,61 @@ protected:
 	UCameraComponent					*OrbitCamera = 0;
 
 
+private:
+
+	TArray<UCaptureCameraComponent*>	m_CaptureCameras;
+	
 	float								m_curSteering = 0.0f;
 	float								m_curThrottle = 0.0f;
+	float								m_curBrake = 0.0f;
+	bool								m_curHandbrake;
+
+	FVector								m_prevVelocity;
+	FVector								m_AngularVelocity;
+	FVector								m_prevAngularVelocity;
+	FVector								m_Acceleration;
+	FVector								m_AngularAcceleration;
+	FVector								m_Dimensions;
 
 };
+
+
+inline float ADeepDriveAgent::getSteering() const
+{
+	return m_curSteering;
+}
+
+inline float ADeepDriveAgent::getThrottle() const
+{
+	return m_curSteering;
+}
+
+inline float ADeepDriveAgent::getBrake() const
+{
+	return m_curBrake;
+}
+
+inline bool ADeepDriveAgent::getHandbrake() const
+{
+	return m_curHandbrake;
+}
+
+inline FVector ADeepDriveAgent::getAngularVelocity() const
+{
+	return m_AngularVelocity;
+}
+
+inline FVector ADeepDriveAgent::getAcceleration() const
+{
+	return m_Acceleration;
+}
+
+inline FVector ADeepDriveAgent::getAngularAcceleration() const
+{
+	return m_AngularAcceleration;
+}
+
+inline FVector ADeepDriveAgent::getDimensions() const
+{
+	return m_Dimensions;
+}

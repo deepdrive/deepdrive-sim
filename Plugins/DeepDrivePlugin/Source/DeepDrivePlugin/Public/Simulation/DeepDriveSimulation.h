@@ -4,21 +4,23 @@
 
 #include "GameFramework/Actor.h"
 
-#include "Public/Server/IDeepDriveServerProxy.h"
 #include "Public/Simulation/DeepDriveSimulationDefines.h"
 
 #include "DeepDriveSimulation.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveSimulation, Log, All);
 
+class DeepDriveSimulationCaptureProxy;
+class DeepDriveSimulationServerProxy;
+
 class ADeepDriveAgent;
 class ADeepDriveAgentControllerCreator;
 class ADeepDriveAgentControllerBase;
+class UCaptureSinkComponentBase;
 
 
 UCLASS()
 class DEEPDRIVEPLUGIN_API ADeepDriveSimulation	:	public AActor
-												,	public IDeepDriveServerProxy
 {
 	GENERATED_BODY()
 	
@@ -37,27 +39,8 @@ public:
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-	/**
-	*		IDeepDriveServerProxy methods
-	*/
-
-	virtual void RegisterClient(int32 ClientId, bool IsMaster);
-
-	virtual void UnregisterClient(int32 ClientId, bool IsMaster);
-
-	virtual int32 RegisterCaptureCamera(float FieldOfView, int32 CaptureWidth, int32 CaptureHeight, FVector RelativePosition, FVector RelativeRotation, const FString &Label);
-
-	virtual bool RequestAgentControl();
-
-	virtual void ReleaseAgentControl();
-
-	virtual void ResetAgent();
-
-	virtual void SetAgentControlValues(float steering, float throttle, float brake, bool handbrake);
-
-	virtual const FString& getIPAddress() const;
-
-	virtual uint16 getPort() const;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Capture)
+	float CaptureInterval = 0.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Server)
 	FString		IPAddress;
@@ -90,6 +73,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void SelectMode(EDeepDriveAgentControlMode Mode);
 	
+	ADeepDriveAgent* getCurrentAgent() const;
+	ADeepDriveAgentControllerBase* getCurrentAgentController() const;
+	TArray<UCaptureSinkComponentBase*>& getCaptureSinks();
 
 private:
 
@@ -98,6 +84,9 @@ private:
 	ADeepDriveAgentControllerBase* spawnController(EDeepDriveAgentControlMode mode);
 
 	bool									m_isActive = false;
+	DeepDriveSimulationServerProxy			*m_ServerProxy = 0;
+	DeepDriveSimulationCaptureProxy			*m_CaptureProxy = 0;
+	TArray<UCaptureSinkComponentBase*>		m_CaptureSinks;
 
 	ADeepDriveAgent							*m_curAgent = 0;
 	EDeepDriveAgentControlMode				m_curAgentMode = EDeepDriveAgentControlMode::NONE;
@@ -111,12 +100,17 @@ private:
 };
 
 
-inline const FString& ADeepDriveSimulation::getIPAddress() const
+inline ADeepDriveAgent* ADeepDriveSimulation::getCurrentAgent() const
 {
-	return IPAddress;
+	return m_curAgent;
 }
 
-inline uint16 ADeepDriveSimulation::getPort() const
+inline ADeepDriveAgentControllerBase* ADeepDriveSimulation::getCurrentAgentController() const
 {
-	return static_cast<uint16> (Port);
+	return m_curAgentController;
+}
+
+inline TArray<UCaptureSinkComponentBase*>& ADeepDriveSimulation::getCaptureSinks()
+{
+	return m_CaptureSinks;
 }

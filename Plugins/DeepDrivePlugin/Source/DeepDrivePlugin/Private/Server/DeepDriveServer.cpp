@@ -50,25 +50,25 @@ DeepDriveServer::~DeepDriveServer()
 {
 }
 
-bool DeepDriveServer::RegisterProxy(IDeepDriveServerProxy &proxy)
+bool DeepDriveServer::RegisterProxy(IDeepDriveServerProxy &proxy, const FString &ipAddress, uint16 port)
 {
 	bool registered = false;
 
 	bool isValid = false;
-	int32 ipAddress[4];
+	int32 ipParts[4];
 
 	TArray<FString> parts;
-	if (proxy.getIPAddress().ParseIntoArray(parts, TEXT("."), 1) == 4)
+	if (ipAddress.ParseIntoArray(parts, TEXT("."), 1) == 4)
 	{
-		ipAddress[0] = FCString::Atoi(*parts[0]);
-		ipAddress[1] = FCString::Atoi(*parts[1]);
-		ipAddress[2] = FCString::Atoi(*parts[2]);
-		ipAddress[3] = FCString::Atoi(*parts[3]);
+		ipParts[0] = FCString::Atoi(*parts[0]);
+		ipParts[1] = FCString::Atoi(*parts[1]);
+		ipParts[2] = FCString::Atoi(*parts[2]);
+		ipParts[3] = FCString::Atoi(*parts[3]);
 
-		if (ipAddress[0] >= 0 && ipAddress[0] <= 255
-			&& ipAddress[1] >= 0 && ipAddress[1] <= 255
-			&& ipAddress[2] >= 0 && ipAddress[2] <= 255
-			&& ipAddress[3] >= 0 && ipAddress[3] <= 255
+		if (	ipParts[0] >= 0 && ipParts[0] <= 255
+			&&	ipParts[1] >= 0 && ipParts[1] <= 255
+			&&	ipParts[2] >= 0 && ipParts[2] <= 255
+			&&	ipParts[3] >= 0 && ipParts[3] <= 255
 			)
 		{
 			isValid = true;
@@ -76,12 +76,10 @@ bool DeepDriveServer::RegisterProxy(IDeepDriveServerProxy &proxy)
 
 	}
 
-	if (isValid
-		&&	proxy.getPort() >= 1 && proxy.getPort() <= 65535
-		)
+	if(isValid)
 	{
 		m_Proxy = &proxy;
-		m_ConnectionListener = new DeepDriveConnectionListener(ipAddress[0], ipAddress[1], ipAddress[2], ipAddress[3], proxy.getPort());
+		m_ConnectionListener = new DeepDriveConnectionListener(ipParts[0], ipParts[1], ipParts[2], ipParts[3], port);
 
 		m_MessageQueue.Empty();
 

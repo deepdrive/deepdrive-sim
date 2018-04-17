@@ -5,6 +5,7 @@
 #include "GameFramework/Actor.h"
 #include "DeepDriveData.h"
 #include "CaptureDefines.h"
+#include "Public/Capture/IDeepDriveCaptureProxy.h"
 #include "DeepDriveCaptureProxy.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(DeepDriveCaptureProxy, Log, All);
@@ -22,7 +23,8 @@ struct FCaptureCyle
 };
 
 UCLASS()
-class DEEPDRIVEPLUGIN_API ADeepDriveCaptureProxy : public AActor
+class DEEPDRIVEPLUGIN_API ADeepDriveCaptureProxy	:	public AActor
+													,	public IDeepDriveCaptureProxy
 {
 	GENERATED_BODY()
 	
@@ -42,14 +44,21 @@ public:
 	// Called every frame
 	virtual void Tick( float DeltaSeconds ) override;
 
+	/*
+	*	IDeepDriveCaptureProxy
+	*/
+
 	UFUNCTION(BlueprintImplementableEvent, Category="DeepDrivePlugin")
 	FDeepDriveDataOut BeginCapture();
+
+	TArray<UCaptureSinkComponentBase*>& getSinks();
+
+	const FDeepDriveDataOut& getDeepDriveData() const;
+
 
 
 	UFUNCTION(BlueprintCallable, Category="DeepDrivePlugin")
 	void Capture();
-
-	TArray<UCaptureSinkComponentBase*>& getSinks();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Capturing)
 	float	CaptureInterval = 0.0f;
@@ -57,7 +66,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Capturing)
 	TArray< FCaptureCyle >	CaptureCycles;
 
-	const FDeepDriveDataOut& getDeepDriveData() const;
 
 private:
 

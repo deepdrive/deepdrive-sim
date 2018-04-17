@@ -6,7 +6,7 @@
 #include "Private/Capture/CaptureJob.h"
 
 #include "Public/Capture/CaptureCameraComponent.h"
-#include "Public/Capture/DeepDriveCaptureProxy.h"
+#include "Public/Capture/IDeepDriveCaptureProxy.h"
 #include "Public/CaptureSink/CaptureSinkComponentBase.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveCapture);
@@ -39,7 +39,7 @@ DeepDriveCapture::DeepDriveCapture()
 {
 }
 
-void DeepDriveCapture::RegisterProxy(ADeepDriveCaptureProxy &proxy)
+void DeepDriveCapture::RegisterProxy(IDeepDriveCaptureProxy &proxy)
 {
 	reset();
 
@@ -47,7 +47,7 @@ void DeepDriveCapture::RegisterProxy(ADeepDriveCaptureProxy &proxy)
 	m_Proxy = &proxy;
 }
 
-void DeepDriveCapture::UnregisterProxy(ADeepDriveCaptureProxy &proxy)
+void DeepDriveCapture::UnregisterProxy(IDeepDriveCaptureProxy &proxy)
 {
 	if(&proxy == m_Proxy)
 		m_Proxy = 0;
@@ -151,8 +151,8 @@ void DeepDriveCapture::processCapturing()
 {
 	SCaptureJob *captureJob = new SCaptureJob;
 
+/*
 	const TArray< FCaptureCyle > &captureCycles = m_Proxy->CaptureCycles;
-
 	if (captureCycles.Num())
 	{
 		const FCaptureCyle &cycle = captureCycles[m_curCycleIndex];
@@ -185,6 +185,7 @@ void DeepDriveCapture::processCapturing()
 		}
 	}
 	else
+*/
 	{
 		for (auto &captureCmp : m_CaptureComponentMap)
 		{

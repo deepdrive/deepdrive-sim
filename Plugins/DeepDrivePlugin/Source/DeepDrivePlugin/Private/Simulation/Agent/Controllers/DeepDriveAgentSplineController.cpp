@@ -66,6 +66,13 @@ void ADeepDriveAgentSplineController::Tick( float DeltaSeconds )
 		if (CurrentPosActor)
 			CurrentPosActor->SetActorLocation(m_Spline->GetLocationAtDistanceAlongSpline(curDist, ESplineCoordinateSpace::World) + FVector(0.0f, 0.0f, 200.0f));
 
+		if(CurrentPosOnSpline)
+		{
+			const float curKey = m_Spline->FindInputKeyClosestToWorldLocation(agentLocation);
+			const FVector posOnSpline = m_Spline->GetLocationAtSplineInputKey(curKey, ESplineCoordinateSpace::World);
+			CurrentPosOnSpline->SetActorLocation(posOnSpline + FVector(0.0f, 0.0f, 200.0f));
+		}
+
 		FVector projLocAhead = m_Spline->GetLocationAtDistanceAlongSpline(curDist + lookAheadDist, ESplineCoordinateSpace::World);
 		if (ProjectedPosActor)
 			ProjectedPosActor->SetActorLocation(projLocAhead + FVector(0.0f, 0.0f, 200.0f));
@@ -104,11 +111,19 @@ void ADeepDriveAgentSplineController::Tick( float DeltaSeconds )
 		const float curSpeed = m_Agent->GetVehicleMovementComponent()->GetForwardSpeed();
 		const float lookAheadDist = FMath::Max(MinLookAheadDistance, curSpeed * LookAheadTime);
 		FVector projLocAhead = m_Spline->GetLocationAtDistanceAlongSpline(m_curDistanceOnSpline + lookAheadDist, ESplineCoordinateSpace::World);
+		projLocAhead = getLookAheadPosOnSpline(agentLocation, lookAheadDist);
 
 		if (CurrentPosActor)
 			CurrentPosActor->SetActorLocation(m_Spline->GetLocationAtDistanceAlongSpline(m_curDistanceOnSpline, ESplineCoordinateSpace::World) + FVector(0.0f, 0.0f, 200.0f));
 		if (ProjectedPosActor)
 			ProjectedPosActor->SetActorLocation(projLocAhead + FVector(0.0f, 0.0f, 200.0f));
+
+		if(CurrentPosOnSpline)
+		{
+			const float curKey = m_Spline->FindInputKeyClosestToWorldLocation(agentLocation);
+			const FVector posOnSpline = m_Spline->GetLocationAtSplineInputKey(curKey, ESplineCoordinateSpace::World);
+			CurrentPosOnSpline->SetActorLocation(posOnSpline + FVector(0.0f, 0.0f, 200.0f));
+		}
 
 		FVector desiredForward = projLocAhead - agentLocation;
 		desiredForward.Normalize();
@@ -127,6 +142,7 @@ void ADeepDriveAgentSplineController::Tick( float DeltaSeconds )
 			delta += 360.0f;
 		}
 
+
 		m_projYawDelta = m_projYawDelta * 0.95f + 0.05f * delta;
 
 		const float ySteering = m_SteeringPIDCtrl.advance(DeltaSeconds, delta, PIDSteering.X, PIDSteering.Y, PIDSteering.Z);
@@ -137,7 +153,7 @@ void ADeepDriveAgentSplineController::Tick( float DeltaSeconds )
 		m_Agent->SetThrottle(m_curThrottle);
 
 		const float curSpeedMS = curSpeed * 0.01f;
-		UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("projYawDelta %f per m/s %f"), m_projYawDelta, m_projYawDelta / curSpeedMS);
+		//UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("curSteering %f projYawDelta %f per m/s %f"), ySteering, m_projYawDelta, m_projYawDelta / curSpeedMS);
 
 	}
 	else if(m_Agent && UpdateSplineProgress())
@@ -155,6 +171,40 @@ void ADeepDriveAgentSplineController::updateDistanceOnSpline(const FVector &curA
 	m_curDistanceOnSpline += 1.005f * projected.Size();
 
 	m_prevAgentLocation = curAgentLocation;
+}
+
+FVector ADeepDriveAgentSplineController::getLookAheadPosOnSpline(const FVector &curAgentLocation, float lookAheadDistance)
+{
+	const float curKey = m_Spline->FindInputKeyClosestToWorldLocation(curAgentLocation);
+
+	const int32 index0 = floor(curKey);
+	const int32 index1 = ceil(curKey);
+
+	const float dist0 = m_Spline->GetDistanceAlongSplineAtSplinePoint(index0);
+	const float dist1 = m_Spline->GetDistanceAlongSplineAtSplinePoint(index1);
+
+	const float dist = (m_Spline->GetLocationAtSplinePoint(index1, ESplineCoordinateSpace::World) - m_Spline->GetLocationAtSplinePoint(index0, ESplineCoordinateSpace::World)).Size();
+
+	const float relDistance = lookAheadDistance / dist;
+
+	const float carryOver = curKey + relDistance - static_cast<float> (index1);
+
+	UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("curKey %f i0 %d i1 %d relDist %f"), curKey, index0, index1, relDistance);
+
+	FVector posAhead;
+	if(carryOver > 0.0f)
+	{
+		lookAheadDistance -= dist * (static_cast<float> (index1) - curKey);
+		const float newDist = (m_Spline->GetLocationAtSplinePoint((index1 + 1) % m_Spline->GetNumberOfSplinePoints(), ESplineCoordinateSpace::World) - m_Spline->GetLocationAtSplinePoint(index1, ESplineCoordinateSpace::World)).Size();
+		const float newRelDist = lookAheadDistance / newDist;
+
+		UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("new lookAhead %f -> newRelDist %f"), lookAheadDistance, newRelDist);
+		posAhead = m_Spline->GetLocationAtSplineInputKey(static_cast<float> (index1) + newRelDist, ESplineCoordinateSpace::World);
+	}
+	else
+		posAhead = m_Spline->GetLocationAtSplineInputKey(curKey + relDistance, ESplineCoordinateSpace::World);
+
+	return posAhead;
 }
 
 

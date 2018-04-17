@@ -8,7 +8,7 @@
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveCapture, Log, All);
 
 class UCaptureCameraComponent;
-class ADeepDriveCaptureProxy;
+class IDeepDriveCaptureProxy;
 struct SCaptureJob;
 class USharedMemCaptureSinkComponent;
 
@@ -45,9 +45,9 @@ public:
 
 	static void Destroy();
 
-	void RegisterProxy(ADeepDriveCaptureProxy &proxy);
+	void RegisterProxy(IDeepDriveCaptureProxy &proxy);
 
-	void UnregisterProxy(ADeepDriveCaptureProxy &proxy);
+	void UnregisterProxy(IDeepDriveCaptureProxy &proxy);
 
 	int32 RegisterCaptureComponent(UCaptureCameraComponent *captureComponent);
 	
@@ -71,7 +71,7 @@ private:
 
 	static void executeCaptureJob(SCaptureJob &job);
 
-	ADeepDriveCaptureProxy			*m_Proxy = 0;
+	IDeepDriveCaptureProxy			*m_Proxy = 0;
 
 	uint32							m_nextSequenceNumber = 1;
 

@@ -88,12 +88,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
 	AActor*		ProjectedPosActor;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
+	AActor*		CurrentPosOnSpline;
+
 
 private:
 
 	float getClosestDistanceOnSpline(const FVector &location);
 
 	void updateDistanceOnSpline(const FVector &curAgentLocation);
+
+	FVector getLookAheadPosOnSpline(const FVector &curAgentLocation, float lookAheadDistance);
 
 	USplineComponent		*m_Spline = 0;
 	float					m_curDistanceOnSpline = 0.0f;
