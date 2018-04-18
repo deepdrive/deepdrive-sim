@@ -5,6 +5,10 @@
 
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 
+ADeepDriveAgentManualController::ADeepDriveAgentManualController()
+{
+	m_ControllerName = "Manual Controller";
+}
 
 void ADeepDriveAgentManualController::MoveForward(float axisValue)
 {

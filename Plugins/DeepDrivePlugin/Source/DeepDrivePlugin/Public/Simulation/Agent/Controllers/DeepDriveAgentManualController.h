@@ -15,6 +15,7 @@ class DEEPDRIVEPLUGIN_API ADeepDriveAgentManualController : public ADeepDriveAge
 	
 public:
 
+	ADeepDriveAgentManualController();
 
 	virtual void MoveForward(float axisValue);
 

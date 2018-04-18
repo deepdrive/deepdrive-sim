@@ -15,7 +15,10 @@ class DEEPDRIVEPLUGIN_API ADeepDriveAgentRemoteAIController : public ADeepDriveA
 	
 public:
 
+	ADeepDriveAgentRemoteAIController();
 
 	virtual void SetControlValues(float steering, float throttle, float brake, bool handbrake);
+
+	virtual bool ResetAgent();
 	
 };

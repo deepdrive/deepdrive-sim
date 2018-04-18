@@ -84,6 +84,8 @@ void DeepDriveSimulationServerProxy::ReleaseAgentControl()
 
 void DeepDriveSimulationServerProxy::ResetAgent()
 {
+	bool res = m_isActive ? m_DeepDriveSim.resetAgent() : false;
+	DeepDriveServer::GetInstance().onAgentReset(res);
 }
 
 void DeepDriveSimulationServerProxy::SetAgentControlValues(float steering, float throttle, float brake, bool handbrake)

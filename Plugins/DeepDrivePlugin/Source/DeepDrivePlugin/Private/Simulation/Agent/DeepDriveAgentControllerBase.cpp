@@ -6,10 +6,6 @@
 
 DEFINE_LOG_CATEGORY(LogDeepDriveAgentControllerBase);
 
-ADeepDriveAgentControllerBase::ADeepDriveAgentControllerBase()
-{
-}
-
 ADeepDriveAgentControllerBase::~ADeepDriveAgentControllerBase()
 {
 	UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("~ADeepDriveAgentControllerBase: %p sayz bye"), this );
@@ -39,4 +35,15 @@ void ADeepDriveAgentControllerBase::MoveRight(float axisValue)
 void ADeepDriveAgentControllerBase::SetControlValues(float steering, float throttle, float brake, bool handbrake)
 {
 
+}
+
+bool ADeepDriveAgentControllerBase::ResetAgent()
+{
+	bool res = false;
+	if(m_Agent)
+	{
+		m_Agent->reset();
+		res = true;
+	}
+	return res;
 }

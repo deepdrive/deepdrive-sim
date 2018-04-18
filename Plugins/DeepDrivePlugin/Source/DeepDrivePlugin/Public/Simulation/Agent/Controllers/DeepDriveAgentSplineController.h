@@ -61,6 +61,11 @@ public:
 
 	virtual bool Activate(ADeepDriveAgent &agent);
 
+	virtual bool ResetAgent();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Spline)
+	AActor	*SplineActor = 0;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
 	float	LookAheadTime = 1.0f;
 
@@ -93,6 +98,8 @@ public:
 
 
 private:
+
+	void resetAgentPosOnSpline(ADeepDriveAgent &agent);
 
 	float getClosestDistanceOnSpline(const FVector &location);
 

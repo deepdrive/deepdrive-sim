@@ -28,6 +28,7 @@ public:
 
 	virtual void Tick( float DeltaSeconds ) override;
 
+	void setResetTransform(const FTransform &transform);
 
 	int32 RegisterCaptureCamera(float fieldOfView, int32 captureWidth, int32 captureHeight, FVector relativePosition, FVector relativeRotation, const FString &label);
 
@@ -44,6 +45,9 @@ public:
 	void ActivateCamera(EDeepDriveAgentCameraType cameraType);
 
 	void SetOrbitCameraRotation(float pitch, float yaw);
+
+
+	void reset();
 
 	FVector getAngularVelocity() const;
 	FVector getAcceleration() const;
@@ -88,8 +92,13 @@ private:
 	FVector								m_AngularAcceleration;
 	FVector								m_Dimensions;
 
+	FTransform 							m_ResetTransform;
 };
 
+inline void ADeepDriveAgent::setResetTransform(const FTransform &transform)
+{
+	m_ResetTransform = transform;
+}
 
 inline float ADeepDriveAgent::getSteering() const
 {

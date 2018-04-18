@@ -52,6 +52,9 @@ public:
 	TSubclassOf<ADeepDriveAgent>	Agent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
+	EDeepDriveAgentControlMode	InitialControllerMode = EDeepDriveAgentControlMode::SPLINE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
 	TMap<EDeepDriveAgentControlMode, ADeepDriveAgentControllerCreator*>	ControllerCreators;
 
 
@@ -72,6 +75,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void SelectMode(EDeepDriveAgentControlMode Mode);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "General")
+	void OnCurrentAgentChanged(ADeepDriveAgent *CurrentAgent);
+
+
+	bool resetAgent();
 	
 	ADeepDriveAgent* getCurrentAgent() const;
 	ADeepDriveAgentControllerBase* getCurrentAgentController() const;

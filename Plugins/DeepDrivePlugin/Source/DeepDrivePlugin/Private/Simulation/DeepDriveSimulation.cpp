@@ -70,9 +70,11 @@ void ADeepDriveSimulation::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	m_curAgent = spawnAgent(EDeepDriveAgentControlMode::MANUAL);
+	m_curAgent = spawnAgent(InitialControllerMode);
 	if(m_curAgent)
 	{
+		OnCurrentAgentChanged(m_curAgent);
+
 		m_curAgentController = Cast<ADeepDriveAgentControllerBase> (m_curAgent->GetController());
 
 		m_curCameraType = EDeepDriveAgentCameraType::CHASE_CAMERA;
@@ -217,20 +219,36 @@ void ADeepDriveSimulation::SelectMode(EDeepDriveAgentControlMode Mode)
 	}
 }
 
+bool ADeepDriveSimulation::resetAgent()
+{
+	return m_curAgentController ? m_curAgentController->ResetAgent() : false;
+}
+
 ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(EDeepDriveAgentControlMode mode)
 {
 	FTransform transform = GetActorTransform();
 	ADeepDriveAgent *agent  = Cast<ADeepDriveAgent>(GetWorld()->SpawnActor(Agent, &transform, FActorSpawnParameters()));
 
-	ADeepDriveAgentControllerBase *controller = spawnController(mode);
-
-	if	(	controller
-		&&	controller->Activate(*agent)
-		)
+	if(agent)
 	{
-		m_curAgentMode = mode;
-		UE_LOG(LogDeepDriveSimulation, Log, TEXT("Spawning agent %p Controller %p"), agent, controller );
+		agent->setResetTransform(transform);
+
+		ADeepDriveAgentControllerBase *controller = spawnController(mode);
+		if(controller)
+		{
+			if(controller->Activate(*agent))
+			{
+				m_curAgentMode = mode;
+				UE_LOG(LogDeepDriveSimulation, Log, TEXT("Spawning agent controlled by %s"), *(controller->getControllerName()) );
+			}
+			else
+				UE_LOG(LogDeepDriveSimulation, Log, TEXT("Couldn't activate controller %s"), *(controller->getControllerName()) );
+		}
+		else
+			UE_LOG(LogDeepDriveSimulation, Log, TEXT("Couldn't spawn controller") );
 	}
+	else
+		UE_LOG(LogDeepDriveSimulation, Log, TEXT("Couldn't spawn agent") );
 
 	return agent;
 }
