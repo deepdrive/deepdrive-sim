@@ -68,6 +68,8 @@ int32 ADeepDriveAgent::RegisterCaptureCamera(float fieldOfView, int32 captureWid
 
 			m_CaptureCameras.Add(captureCamCmp);
 
+			OnCaptureCameraAdded(targetTexture, label);
+
 			camId = captureCamCmp->getCameraId();
 		}
 	}
@@ -118,12 +120,15 @@ void ADeepDriveAgent::ActivateCamera(EDeepDriveAgentCameraType cameraType)
 		{
 			case EDeepDriveAgentCameraType::CHASE_CAMERA:
 				ChaseCamera->Activate();
+				SetInstrumentsVisibility(true);
 				break;
 			case EDeepDriveAgentCameraType::INTERIOR_CAMERA:
 				InteriorCamera->Activate();
+				SetInstrumentsVisibility(false);
 				break;
 			case EDeepDriveAgentCameraType::ORBIT_CAMERA:
 				OrbitCamera->Activate();
+				SetInstrumentsVisibility(false);
 				break;
 		}
 

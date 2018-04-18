@@ -46,6 +46,12 @@ public:
 
 	void SetOrbitCameraRotation(float pitch, float yaw);
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "HUD")
+	void SetInstrumentsVisibility(bool Visible);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "HUD")
+	void OnCaptureCameraAdded(UTextureRenderTarget2D *CaptureTexture, const FString &label);
+
 
 	void reset();
 
