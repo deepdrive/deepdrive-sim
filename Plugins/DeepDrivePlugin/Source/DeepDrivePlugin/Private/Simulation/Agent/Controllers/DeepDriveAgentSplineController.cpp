@@ -12,6 +12,7 @@ DEFINE_LOG_CATEGORY(LogDeepDriveAgentSplineController);
 ADeepDriveAgentSplineController::ADeepDriveAgentSplineController()
 {
 	m_ControllerName = "Spline Controller";
+	m_isGameDriving = true;
 }
 
 

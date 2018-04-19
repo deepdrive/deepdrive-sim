@@ -52,7 +52,16 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "HUD")
 	void OnCaptureCameraAdded(UTextureRenderTarget2D *CaptureTexture, const FString &label);
 
+	UFUNCTION(BlueprintCallable, Category = "Simulation")
+	void OnLapStart();
 
+	UFUNCTION(BlueprintCallable, Category = "Simulation")
+	void OnLapFinished();
+
+	UFUNCTION(BlueprintCallable, Category = "Simulation")
+	void SetCenterOfTrackSpline(USplineComponent *Spline);
+
+	void setIsGameDriving(bool isGameDriving);
 	void reset();
 
 	FVector getAngularVelocity() const;
@@ -66,6 +75,11 @@ public:
 	float getThrottle() const;
 	float getBrake() const;
 	bool getHandbrake() const;
+
+	int32 getNumberOfLaps() const;
+	float getDistanceAlongRoute() const;
+	float getDistanceToCenterOfTrack() const;
+	bool getIsGameDriving() const;
 
 protected:
 
@@ -99,11 +113,22 @@ private:
 	FVector								m_Dimensions;
 
 	FTransform 							m_ResetTransform;
+
+	USplineComponent					*m_CenterOfTrackSpline = 0;
+	bool								m_isGameDriving;
+	int32								m_NumberOfLaps = 0;
+	bool								m_LapStarted = false;
 };
+
 
 inline void ADeepDriveAgent::setResetTransform(const FTransform &transform)
 {
 	m_ResetTransform = transform;
+}
+
+inline void ADeepDriveAgent::setIsGameDriving(bool isGameDriving)
+{
+	m_isGameDriving = isGameDriving;
 }
 
 inline float ADeepDriveAgent::getSteering() const
@@ -144,4 +169,14 @@ inline FVector ADeepDriveAgent::getAngularAcceleration() const
 inline FVector ADeepDriveAgent::getDimensions() const
 {
 	return m_Dimensions;
+}
+
+inline int32 ADeepDriveAgent::getNumberOfLaps() const
+{
+	return m_NumberOfLaps;
+}
+
+inline bool ADeepDriveAgent::getIsGameDriving() const
+{
+	return m_isGameDriving;
 }

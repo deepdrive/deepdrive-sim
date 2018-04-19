@@ -15,6 +15,7 @@ bool ADeepDriveAgentControllerBase::Activate(ADeepDriveAgent &agent)
 {
 	m_Agent = &agent;
 	Possess(m_Agent);
+	agent.setIsGameDriving(m_isGameDriving);
 	return true;
 }
 

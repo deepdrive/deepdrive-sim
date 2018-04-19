@@ -142,10 +142,28 @@ void ADeepDriveAgent::ActivateCamera(EDeepDriveAgentCameraType cameraType)
 	}
 }
 
+void ADeepDriveAgent::SetCenterOfTrackSpline(USplineComponent *Spline)
+{
+	m_CenterOfTrackSpline = Spline;
+}
 
 void ADeepDriveAgent::SetOrbitCameraRotation(float pitch, float yaw)
 {
 	OrbitCameraArm->SetRelativeRotation(FRotator(pitch, yaw, 0.0f));
+}
+
+void ADeepDriveAgent::OnLapStart()
+{
+	m_LapStarted = true;
+}
+
+void ADeepDriveAgent::OnLapFinished()
+{
+	if(m_LapStarted)
+	{
+		++m_NumberOfLaps;
+		m_LapStarted = false;
+	}
 }
 
 void ADeepDriveAgent::reset()
@@ -159,4 +177,14 @@ void ADeepDriveAgent::reset()
 float ADeepDriveAgent::getSpeed() const
 {
 	return GetVehicleMovementComponent()->GetForwardSpeed();
+}
+
+float ADeepDriveAgent::getDistanceAlongRoute() const
+{
+	return 0.0f;
+}
+
+float ADeepDriveAgent::getDistanceToCenterOfTrack() const
+{
+	return 0.0f;
 }

@@ -60,10 +60,17 @@ bool DeepDriveSimulationCaptureProxy::beginCapture()
 
 		m_DeepDriveData.Dimension = agent->getDimensions();
 
+		m_DeepDriveData.IsGameDriving = agent->getIsGameDriving();
+
 		m_DeepDriveData.Steering = agent->getSteering();
 		m_DeepDriveData.Throttle = agent->getThrottle();
 		m_DeepDriveData.Brake = agent->getBrake();
 		m_DeepDriveData.Handbrake = agent->getHandbrake();
+
+		m_DeepDriveData.DistanceAlongRoute = agent->getDistanceAlongRoute();
+		m_DeepDriveData.DistanceToCenterOfLane = agent->getDistanceToCenterOfTrack();
+		m_DeepDriveData.LapNumber = agent->getNumberOfLaps();
+
 	}
 
 	return agent != 0;

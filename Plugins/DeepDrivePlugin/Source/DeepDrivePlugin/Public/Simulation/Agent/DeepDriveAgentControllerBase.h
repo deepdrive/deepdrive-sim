@@ -41,6 +41,7 @@ protected:
 	ADeepDriveAgent						*m_Agent = 0;
 
 	FString								m_ControllerName = "DeepDriveAgentControllerBase";
+	bool								m_isGameDriving = false;
 };
 
 
