@@ -2,6 +2,7 @@
 #include "DeepDrivePluginPrivatePCH.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 #include "Public/Capture/CaptureCameraComponent.h"
+#include "Components/SplineComponent.h"
 
 #include "WheeledVehicleMovementComponent.h"
 #include "Runtime/Engine/Classes/Kismet/KismetRenderingLibrary.h"
@@ -162,6 +163,7 @@ void ADeepDriveAgent::OnLapFinished()
 	if(m_LapStarted)
 	{
 		++m_NumberOfLaps;
+		UE_LOG(LogDeepDriveAgent, Log, TEXT("Laps finished %d"), m_NumberOfLaps );
 		m_LapStarted = false;
 	}
 }
@@ -181,10 +183,31 @@ float ADeepDriveAgent::getSpeed() const
 
 float ADeepDriveAgent::getDistanceAlongRoute() const
 {
-	return 0.0f;
+	float res = 0.0f;
+	if (m_CenterOfTrackSpline)
+	{
+		const float closestKey = m_CenterOfTrackSpline->FindInputKeyClosestToWorldLocation(GetActorLocation());
+
+		const int32 index0 = floor(closestKey);
+		const int32 index1 = floor(closestKey + 1.0f);
+
+		const float dist0 = m_CenterOfTrackSpline->GetDistanceAlongSplineAtSplinePoint(index0);
+		const float dist1 = m_CenterOfTrackSpline->GetDistanceAlongSplineAtSplinePoint(index1);
+
+		res = FMath::Lerp(dist0, dist1, closestKey - static_cast<float> (index0));
+	}
+	return res;
 }
 
 float ADeepDriveAgent::getDistanceToCenterOfTrack() const
 {
-	return 0.0f;
+	float res = 0.0f;
+	if (m_CenterOfTrackSpline)
+	{
+		FVector curLoc = GetActorLocation();
+		const float closestKey = m_CenterOfTrackSpline->FindInputKeyClosestToWorldLocation(curLoc);
+		res = (m_CenterOfTrackSpline->GetLocationAtSplineInputKey(closestKey, ESplineCoordinateSpace::World) - curLoc).Size();
+		UE_LOG(LogDeepDriveAgent, Log, TEXT("DistToCenter %f"), res);
+	}
+	return res;
 }
