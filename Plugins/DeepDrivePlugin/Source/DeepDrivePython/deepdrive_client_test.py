@@ -46,7 +46,7 @@ if client != None and 'client_id' in client:
 				while counter > 0:
 					snapshot = deepdrive_capture.step()
 					if snapshot:
-						print(snapshot.capture_timestamp, snapshot.sequence_number, snapshot.speed, snapshot.is_game_driving, snapshot.camera_count, len(snapshot.cameras) )
+						print(snapshot.capture_timestamp, snapshot.sequence_number, snapshot.speed, snapshot.is_game_driving, snapshot.distance_along_route, snapshot.distance_to_center_of_lane, snapshot.lap_number, snapshot.camera_count, len(snapshot.cameras) )
 					#	for c in snapshot.cameras:
 					#		print('Id', c.id, c.capture_width, 'x', c.capture_height)
 					#	pass

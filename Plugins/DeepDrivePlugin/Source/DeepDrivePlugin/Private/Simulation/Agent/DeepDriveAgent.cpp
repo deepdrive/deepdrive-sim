@@ -207,7 +207,6 @@ float ADeepDriveAgent::getDistanceToCenterOfTrack() const
 		FVector curLoc = GetActorLocation();
 		const float closestKey = m_CenterOfTrackSpline->FindInputKeyClosestToWorldLocation(curLoc);
 		res = (m_CenterOfTrackSpline->GetLocationAtSplineInputKey(closestKey, ESplineCoordinateSpace::World) - curLoc).Size();
-		UE_LOG(LogDeepDriveAgent, Log, TEXT("DistToCenter %f"), res);
 	}
 	return res;
 }

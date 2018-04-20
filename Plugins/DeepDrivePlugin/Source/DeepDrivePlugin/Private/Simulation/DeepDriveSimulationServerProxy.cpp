@@ -92,8 +92,6 @@ void DeepDriveSimulationServerProxy::SetAgentControlValues(float steering, float
 {
 	ADeepDriveAgentControllerBase *agentCtrl = m_isActive ? m_DeepDriveSim.getCurrentAgentController() : 0;
 
-	UE_LOG(LogDeepDriveSimulationServerProxy, Log, TEXT("SetAgentControlValues %p"), agentCtrl);
-
 	if(agentCtrl)
 		agentCtrl->SetControlValues(steering, throttle, brake, handbrake);
 }
