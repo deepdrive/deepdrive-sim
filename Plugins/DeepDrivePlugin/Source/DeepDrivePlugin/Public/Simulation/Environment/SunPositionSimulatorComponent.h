@@ -19,6 +19,12 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = "Simulation")
 	float	Zenith = 0.0f;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Simulation")
+	float	LongitudeDegrees = 9;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Simulation")
+	float	LatitudeDegrees = 53;
+
 	UPROPERTY(BlueprintReadWrite, Category = "Simulation")
 	int32	MinutesPerSecond = 0;
 
@@ -32,8 +38,11 @@ private:
 
 	void forward(float timeDelta);
 
-	uint32 getJulianDay();
-	double getJulianDate(uint32 julianDay);
+	void advancePSA(float DeltaSeonds);
+	void advanceClassic(float DeltaSeonds);
+
+	double getJulianDay();
+	double getJulianDate(double julianDay);
 
 	double normalizeAngleDeg(double angle);
 
@@ -42,10 +51,7 @@ private:
 
 	float				m_AzimuthOffset = 0.0f;
 
-
-	double				m_LonDeg = 11.0;
-	double				m_LatDeg = 53.0;
-	uint32				m_JulianDay = 0;
+	double				m_JulianDay = 0;
 
 	FDateTime			m_DateTime;
 
