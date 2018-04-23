@@ -1,0 +1,90 @@
+
+const float PI = 3.141592654;
+
+const float Hr = 7.994;
+const float Hm = 1.2;
+
+const float EarthRadius = 6360.0;
+const float AtmosphereRadius = 6519.0;
+
+const float RadiusDelta = 159.0;
+
+const int NumSamples = 10;
+
+/*
+float intersect(in float3 start, in float3 dir)
+{
+	float a = dot(dir, dir);
+	float b = 2.0 * dot(dir, start);
+	float c = dot(start, start) - radiusAtmosphere * radiusAtmosphere;
+	float d = b * b - 4.0 * a * c;
+	t = (-b + sqrt(d)) / (2.0 * a);
+}
+*/
+
+float3 betaR = float3(5.5e-6, 13.0e-6, 22.4e-6);
+float3 betaM = float3(21e-6, 21e-6, 21e-6);
+
+float3 start = float3(0.0, EarthRadius + 1.0, 0.0);
+
+float t = 0.0;
+// intersect()
+{
+	float a = dot(ViewDirection, ViewDirection);
+	float b = 2.0 * dot(ViewDirection, start);
+	float c = dot(start, start) - AtmosphereRadius * AtmosphereRadius;
+	float d = b * b - 4.0 * a * c;
+	t = (-b + sqrt(d)) / (2.0 * a);
+}
+
+float segmentLength = t / float(NumSamples);
+float3 samplePosition = start + ViewDirection * 0.5 * segmentLength;
+float3 posDelta = ViewDirection * segmentLength;
+float3 sumR = float3(0.0);
+float3 sumM = float3(0.0);
+float opticalDepthR = 0.0;
+float opticalDepthM = 0.0;
+
+float3 nrmSunDir = normalize(SunDirection);
+segmentLength *= 1000.0;
+
+for(int i = 0; i < NumSamples; i++)
+{
+	float height = length(samplePosition) - EarthRadius;
+
+	float hr = exp(-height / Hr) * segmentLength;
+	float hm = exp(-height / Hm) * segmentLength;
+	opticalDepthR += hr;
+	opticalDepthM += hm;
+
+	// light optical depth
+
+	float h = clamp(height / RadiusDelta, 0.0, 1.0);
+
+	float od0Rayleigh = 0.0;//texture2D(lookupTable, vec2( acos(nrmSunDir.y) / PI, 0.75)).r;
+	float opticalDepthLightR = exp(-4.0 * h) * od0Rayleigh;
+
+	float od0Mie = 0.0;//texture2D(lookupTable, vec2( acos(nrmSunDir.y) / PI, 0.25)).r;
+	float opticalDepthLightM = exp(-4.0 * h) * od0Mie;
+
+	if(opticalDepthLightR > 0.0 && opticalDepthLightM > 0.0)
+	{
+		float3 tau = betaR * (opticalDepthR + opticalDepthLightR) + betaM * 1.1 * (opticalDepthM + opticalDepthLightM);
+
+		float3 attenuation = exp(-tau);
+		sumR += attenuation * hr;
+		sumM += attenuation * hm;
+	}
+
+	samplePosition += posDelta;
+}
+
+float mu = dot(ViewDirection, nrmSunDir);
+float phaseR = 3.0 / (16.0 * PI) * (1.0 + mu * mu);
+const float g = 0.98;
+float phaseM = 3.0 / (8.0 * PI) * ((1.0 - g * g) * (1.0 + mu * mu)) / ((2.0 + g * g) * pow(1.0 + g * g - 2.0 * g * mu, 1.5));
+float3 col = 20.0 * (sumR * phaseR * betaR * 1.5 + sumM * phaseM * betaM);
+
+return SunDirection;
+return col;
+//return float3(1.0, 0.0, 0.0);
