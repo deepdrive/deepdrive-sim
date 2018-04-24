@@ -69,6 +69,13 @@ python build/build.py --type dev
 ```
 This will also happen automatically when building the Unreal project.
 
+## Development keybinds 
+
+(Same as normal keybinds except)
+
+* <kbd>p</kbd> - Pause (not Esc)
+* <kbd>Esc</kbd> - Quit
+* <kbd>Shift+F1</kbd> - Regain mouse control
 
 ## Push PyPi module
 `git push origin master && git push origin master:release`
