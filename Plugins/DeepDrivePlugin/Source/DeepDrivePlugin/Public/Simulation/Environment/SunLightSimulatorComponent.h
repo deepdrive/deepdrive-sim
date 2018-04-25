@@ -3,6 +3,8 @@
 
 #include "SunLightSimulatorComponent.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogSunLightSimulator, Log, All);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class DEEPDRIVEPLUGIN_API USunLightSimulatorComponent : public UActorComponent
 {
@@ -12,6 +14,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Texture")
 	UTexture2D* CreateLookUpTexture(int32 Width, int32 NumSamples);
+
+	UFUNCTION(BlueprintCallable, Category = "SunLight")
+	FVector CalculateSunLightColor(const FVector &SunDirection);
 
 private:
 
@@ -28,5 +33,11 @@ private:
 	const float				m_Hm = 1.200f;			// Mie scale height
 	const float				m_EarthRadius = 6360;
 	const float				m_AtmosphereRadius = 6519;
+
+	const FVector			m_BetaR = FVector(5.5e-6, 13.0e-6, 22.4e-6);
+	const FVector			m_BetaM = FVector(21e-6, 21e-6, 21e-6);
+
+
+	const float				m_RefHeight = 1.59f;
 
 };

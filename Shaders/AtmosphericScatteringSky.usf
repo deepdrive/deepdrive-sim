@@ -11,21 +11,10 @@ const float RadiusDelta = 159.0;
 
 const int NumSamples = 10;
 
-/*
-float intersect(in float3 start, in float3 dir)
-{
-	float a = dot(dir, dir);
-	float b = 2.0 * dot(dir, start);
-	float c = dot(start, start) - radiusAtmosphere * radiusAtmosphere;
-	float d = b * b - 4.0 * a * c;
-	t = (-b + sqrt(d)) / (2.0 * a);
-}
-*/
-
 float3 betaR = float3(5.5e-6, 13.0e-6, 22.4e-6);
 float3 betaM = float3(21e-6, 21e-6, 21e-6);
 
-float3 start = float3(0.0, EarthRadius + 1.0, 0.0);
+float3 start = float3(0.0, 0.0, EarthRadius + 1.0);
 
 float t = 0.0;
 // intersect()
@@ -40,12 +29,12 @@ float t = 0.0;
 float segmentLength = t / float(NumSamples);
 float3 samplePosition = start + ViewDirection * 0.5 * segmentLength;
 float3 posDelta = ViewDirection * segmentLength;
-float3 sumR = float3(0.0);
-float3 sumM = float3(0.0);
+float3 sumR = float3(0.0, 0.0, 0.0);
+float3 sumM = float3(0.0, 0.0, 0.0);
 float opticalDepthR = 0.0;
 float opticalDepthM = 0.0;
 
-float3 nrmSunDir = normalize(SunDirection);
+float3 nrmSunDir = SunDirection;
 segmentLength *= 1000.0;
 
 for(int i = 0; i < NumSamples; i++)
@@ -61,13 +50,21 @@ for(int i = 0; i < NumSamples; i++)
 
 	float h = clamp(height / RadiusDelta, 0.0, 1.0);
 
-	float od0Rayleigh = 0.0;//texture2D(lookupTable, vec2( acos(nrmSunDir.y) / PI, 0.75)).r;
+	float od0Rayleigh = 0.0;
+	{
+		float3 texSample = LookUpMap.SampleLevel(LookUpMapSampler, float2(acos(nrmSunDir.z) / PI, 0.25), 0).rgb;
+		od0Rayleigh = texSample.r * 65536.0 + texSample.g * 256.0 + texSample.b;
+	}
 	float opticalDepthLightR = exp(-4.0 * h) * od0Rayleigh;
 
-	float od0Mie = 0.0;//texture2D(lookupTable, vec2( acos(nrmSunDir.y) / PI, 0.25)).r;
+	float od0Mie = 0.0;
+	{
+		float3 texSample = LookUpMap.SampleLevel(LookUpMapSampler, float2(acos(nrmSunDir.z) / PI, 0.75), 0).rgb;
+		od0Mie = texSample.r * 65536.0 + texSample.g * 256.0 + texSample.b;
+	}
 	float opticalDepthLightM = exp(-4.0 * h) * od0Mie;
 
-	if(opticalDepthLightR > 0.0 && opticalDepthLightM > 0.0)
+	//if(opticalDepthLightR > 0.0 && opticalDepthLightM > 0.0)
 	{
 		float3 tau = betaR * (opticalDepthR + opticalDepthLightR) + betaM * 1.1 * (opticalDepthM + opticalDepthLightM);
 
@@ -83,8 +80,7 @@ float mu = dot(ViewDirection, nrmSunDir);
 float phaseR = 3.0 / (16.0 * PI) * (1.0 + mu * mu);
 const float g = 0.98;
 float phaseM = 3.0 / (8.0 * PI) * ((1.0 - g * g) * (1.0 + mu * mu)) / ((2.0 + g * g) * pow(1.0 + g * g - 2.0 * g * mu, 1.5));
-float3 col = 20.0 * (sumR * phaseR * betaR * 1.5 + sumM * phaseM * betaM);
+float3 col = Intensity * (sumR * phaseR * betaR * 1.5 + sumM * phaseM * betaM);
 
-return SunDirection;
 return col;
 //return float3(1.0, 0.0, 0.0);
