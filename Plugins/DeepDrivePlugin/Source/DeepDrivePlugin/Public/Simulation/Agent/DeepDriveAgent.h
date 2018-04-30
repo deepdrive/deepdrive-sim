@@ -61,6 +61,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Simulation")
 	void SetCenterOfTrackSpline(USplineComponent *Spline);
 
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Simulation")
+	void UpdateLights(float Zenith);
+
 	void setIsGameDriving(bool isGameDriving);
 	void reset();
 

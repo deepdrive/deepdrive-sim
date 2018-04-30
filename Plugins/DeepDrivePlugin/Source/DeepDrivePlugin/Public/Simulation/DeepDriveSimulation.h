@@ -17,6 +17,7 @@ class ADeepDriveAgent;
 class ADeepDriveAgentControllerCreator;
 class ADeepDriveAgentControllerBase;
 class UCaptureSinkComponentBase;
+class ADeepDriveSimulationFreeCamera;
 
 
 UCLASS()
@@ -57,6 +58,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
 	TMap<EDeepDriveAgentControlMode, ADeepDriveAgentControllerCreator*>	ControllerCreators;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FreeCamera)
+	ADeepDriveSimulationFreeCamera	*FreeCamera = 0;
 
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void MoveForward(float AxisValue);
@@ -76,7 +79,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void SelectMode(EDeepDriveAgentControlMode Mode);
 
-	UFUNCTION(BlueprintImplementableEvent, Category = "General")
+	UFUNCTION(BlueprintImplementableEvent, Category = "Agents")
+	void OnAgentSpawned(ADeepDriveAgent *SpawnedAgent);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Agents")
 	void OnCurrentAgentChanged(ADeepDriveAgent *CurrentAgent);
 
 
@@ -105,7 +111,6 @@ private:
 	EDeepDriveAgentCameraType				m_curCameraType = EDeepDriveAgentCameraType::CHASE_CAMERA;
 	float									m_OrbitCameraPitch = 0.0f;
 	float									m_OrbitCameraYaw = 0.0f;
-
 };
 
 

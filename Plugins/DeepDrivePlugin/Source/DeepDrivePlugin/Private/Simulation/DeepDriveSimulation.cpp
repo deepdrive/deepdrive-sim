@@ -9,6 +9,7 @@
 
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 #include "Public/Simulation/Agent/DeepDriveAgentControllerCreator.h"
+#include "Public/Simulation/Misc/DeepDriveSimulationFreeCamera.h"
 
 #include "Public/CaptureSink/CaptureSinkComponentBase.h"
 
@@ -87,7 +88,7 @@ void ADeepDriveSimulation::BeginPlay()
 			if(captureSinkComp)
 			{
 				m_CaptureSinks.Add(captureSinkComp);
-				UE_LOG(LogDeepDriveCapture, Log, TEXT("Found sink %s"), *(captureSinkComp->getName()));
+				UE_LOG(LogDeepDriveSimulation, Log, TEXT("Found sink %s"), *(captureSinkComp->getName()));
 			}
 		}
 
@@ -132,7 +133,8 @@ void ADeepDriveSimulation::MoveForward(float AxisValue)
 {
 	if(m_curCameraType == EDeepDriveAgentCameraType::FREE_CAMERA)
 	{
-	
+		if (FreeCamera)
+			FreeCamera->MoveForward(AxisValue);
 	}
 	else if (m_curAgentController)
 	{
@@ -144,7 +146,8 @@ void ADeepDriveSimulation::MoveRight(float AxisValue)
 {
 	if(m_curCameraType == EDeepDriveAgentCameraType::FREE_CAMERA)
 	{
-	
+		if (FreeCamera)
+			FreeCamera->MoveRight(AxisValue);
 	}
 	else if (m_curAgentController)
 	{
@@ -157,7 +160,8 @@ void ADeepDriveSimulation::LookUp(float AxisValue)
 	switch(m_curCameraType)
 	{
 		case EDeepDriveAgentCameraType::FREE_CAMERA:
-			//FreeCamera->LookUp();
+			if(FreeCamera)
+				FreeCamera->LookUp(AxisValue);
 			break;
 
 		case EDeepDriveAgentCameraType::ORBIT_CAMERA:
@@ -173,7 +177,8 @@ void ADeepDriveSimulation::Turn(float AxisValue)
 	switch(m_curCameraType)
 	{
 		case EDeepDriveAgentCameraType::FREE_CAMERA:
-			//FreeCamera->LookUp();
+			if(FreeCamera)
+				FreeCamera->LookUp(AxisValue);
 			break;
 
 		case EDeepDriveAgentCameraType::ORBIT_CAMERA:
@@ -239,6 +244,7 @@ ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(EDeepDriveAgentControlMode mod
 			if(controller->Activate(*agent))
 			{
 				m_curAgentMode = mode;
+				OnAgentSpawned(agent);
 				UE_LOG(LogDeepDriveSimulation, Log, TEXT("Spawning agent controlled by %s"), *(controller->getControllerName()) );
 			}
 			else

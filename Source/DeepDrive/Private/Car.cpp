@@ -52,7 +52,7 @@ void ACar::Tick(float DeltaTime)
 	bPreviousShouldReset = bShouldReset;
 
 	FVector CurrentTickVelocity = GetVelocity();
-	FVector CurrentAngularVelocity = GetMesh() != nullptr ? GetMesh()->GetPhysicsAngularVelocity() : FVector(0.f, 0.f, 0.f);
+	FVector CurrentAngularVelocity = GetMesh() != nullptr ? GetMesh()->GetPhysicsAngularVelocityInDegrees() : FVector(0.f, 0.f, 0.f);
 
 	if (DeltaTime > 0)
 	{
@@ -198,7 +198,7 @@ FVector ACar::GetAngularVelocity() const
 {
 	if (GetMesh() != nullptr)
 	{
-		return GetMesh()->GetPhysicsAngularVelocity();
+		return GetMesh()->GetPhysicsAngularVelocityInDegrees();
 	}
 	else
 	{
