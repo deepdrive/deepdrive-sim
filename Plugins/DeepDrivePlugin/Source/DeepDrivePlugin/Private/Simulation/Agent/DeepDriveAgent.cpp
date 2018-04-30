@@ -110,37 +110,38 @@ void ADeepDriveAgent::SetHandbrake(bool on)
 
 void ADeepDriveAgent::ActivateCamera(EDeepDriveAgentCameraType cameraType)
 {
-	APlayerCameraManager *cameraMgr = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
-	if(cameraMgr)
+	ChaseCamera->Deactivate();
+	InteriorCamera->Deactivate();
+	OrbitCamera->Deactivate();
+
+	switch(cameraType)
 	{
-		ChaseCamera->Deactivate();
-		InteriorCamera->Deactivate();
-		OrbitCamera->Deactivate();
+		case EDeepDriveAgentCameraType::FREE_CAMERA:
+			SetInstrumentsVisibility(false);
+			break;
 
-		switch(cameraType)
-		{
-			case EDeepDriveAgentCameraType::CHASE_CAMERA:
-				ChaseCamera->Activate();
-				SetInstrumentsVisibility(true);
-				break;
-			case EDeepDriveAgentCameraType::INTERIOR_CAMERA:
-				InteriorCamera->Activate();
-				SetInstrumentsVisibility(false);
-				break;
-			case EDeepDriveAgentCameraType::ORBIT_CAMERA:
-				OrbitCamera->Activate();
-				SetInstrumentsVisibility(false);
-				break;
-		}
+		case EDeepDriveAgentCameraType::CHASE_CAMERA:
+			ChaseCamera->Activate();
+			SetInstrumentsVisibility(true);
+			break;
 
-		FViewTargetTransitionParams transitionParams;
-		transitionParams.BlendTime = 0.0f;
-		transitionParams.BlendFunction = VTBlend_Linear;
-		transitionParams.BlendExp = 0.0f;
-		transitionParams.bLockOutgoing = false;
+		case EDeepDriveAgentCameraType::INTERIOR_CAMERA:
+			InteriorCamera->Activate();
+			SetInstrumentsVisibility(false);
+			break;
 
-		cameraMgr->SetViewTarget(this, transitionParams);
+		case EDeepDriveAgentCameraType::ORBIT_CAMERA:
+			OrbitCamera->Activate();
+			SetInstrumentsVisibility(false);
+			break;
 	}
+}
+
+void ADeepDriveAgent::DeactivateCameras()
+{
+	ChaseCamera->Deactivate();
+	InteriorCamera->Deactivate();
+	OrbitCamera->Deactivate();
 }
 
 void ADeepDriveAgent::SetCenterOfTrackSpline(USplineComponent *Spline)

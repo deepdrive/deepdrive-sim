@@ -70,18 +70,38 @@ UTexture2D* USunSimulationComponent::CreateLookUpTexture(int32 Width, int32 NumS
 	return texture;
 }
 
-FLinearColor USunSimulationComponent::CalculateSunLightColor(const FVector &SunDirection)
+FLinearColor USunSimulationComponent::CalculateSunLightColor(const FVector &SunDirection, float Radius, int32 NumSamples)
+{
+	FLinearColor finalColor = calcSunLightColor(SunDirection);
+
+	if (NumSamples > 1)
+	{
+		const float delta = Radius / static_cast<float> (NumSamples - 1);
+		for (signed i = 1; i < NumSamples; ++i)
+		{
+			FVector curSunDir = SunDirection + FVector(0.0f, 0.0f, delta * static_cast<float> (i));
+			curSunDir.Normalize();
+			FLinearColor curColor = calcSunLightColor(curSunDir);
+			finalColor += curColor;
+		}
+		finalColor /= static_cast<float> (NumSamples);
+	}
+
+	return finalColor;
+}
+
+FLinearColor USunSimulationComponent::calcSunLightColor(const FVector &sunDirection)
 {
 	FVector sunLightColor;
 
 	int32 numSamples = 10;
 	FVector samplePos = FVector(0.0f, 0.0f, m_EarthRadius + m_RefHeight);
-	float t = intersect(samplePos, SunDirection);
+	float t = intersect(samplePos, sunDirection);
 
-	FVector deltaPos = SunDirection * t / static_cast<float> (numSamples);
+	FVector deltaPos = sunDirection * t / static_cast<float> (numSamples);
 	float segmentLength = t / numSamples;
 
-	samplePos += SunDirection * 0.5f * segmentLength;
+	samplePos += sunDirection * 0.5f * segmentLength;
 
 	FVector sumR(0.0f, 0.0f, 0.0f);
 	FVector sumM(0.0f, 0.0f, 0.0f);
@@ -99,7 +119,7 @@ FLinearColor USunSimulationComponent::CalculateSunLightColor(const FVector &SunD
 		height = FMath::Clamp(height, 0.0f, m_AtmosphereRadius - m_EarthRadius);
 		float opticalDepthLightR = 0.0f;
 		float opticalDepthLightM = 0.0f;
-		calculateOpticalDepth(height, SunDirection, numSamples, opticalDepthLightR, opticalDepthLightM);
+		calculateOpticalDepth(height, sunDirection, numSamples, opticalDepthLightR, opticalDepthLightM);
 
 		if(opticalDepthLightR > 0.0 && opticalDepthLightM > 0.0)
 		{
@@ -126,7 +146,7 @@ FLinearColor USunSimulationComponent::CalculateSunLightColor(const FVector &SunD
 	if(maxVal > 0.0001)
 		sunLightColor *= 1.0 / maxVal;
 
-	return FLinearColor(FMath::Max(sunLightColor.X, 0.2f), FMath::Max(sunLightColor.Y, 0.0f), FMath::Max(sunLightColor.Z, 0.2f), 1.0);
+	return FLinearColor(sunLightColor.X, sunLightColor.Y, sunLightColor.Z, 1.0);
 }
 
 

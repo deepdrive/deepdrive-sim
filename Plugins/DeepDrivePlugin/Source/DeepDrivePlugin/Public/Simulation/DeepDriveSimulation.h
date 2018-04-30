@@ -108,7 +108,7 @@ private:
 
 	ADeepDriveAgentControllerBase			*m_curAgentController = 0;
 
-	EDeepDriveAgentCameraType				m_curCameraType = EDeepDriveAgentCameraType::CHASE_CAMERA;
+	EDeepDriveAgentCameraType				m_curCameraType = EDeepDriveAgentCameraType::NONE;
 	float									m_OrbitCameraPitch = 0.0f;
 	float									m_OrbitCameraYaw = 0.0f;
 };

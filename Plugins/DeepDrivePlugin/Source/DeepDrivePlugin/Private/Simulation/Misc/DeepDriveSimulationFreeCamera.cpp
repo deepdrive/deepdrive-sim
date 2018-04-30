@@ -27,23 +27,17 @@ void ADeepDriveSimulationFreeCamera::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-}
+	const FRotator curRotation = GetActorRotation();
+	FRotator newRotation(FMath::ClampAngle(curRotation.Pitch - m_LookUp, -85.0, 85.0), curRotation.Yaw + m_Turn, 0.0f);
 
-void ADeepDriveSimulationFreeCamera::MoveForward(float AxisValue)
-{
-	SetActorLocation(GetActorLocation() + GetActorForwardVector() * AxisValue * ForwardSpeed);
-}
+	m_curForward = FMath::FInterpTo(m_curForward, m_DesiredForward, DeltaTime, InterpolationSpeed);
+	m_curRight = FMath::FInterpTo(m_curRight, m_DesiredRight, DeltaTime, InterpolationSpeed);
 
-void ADeepDriveSimulationFreeCamera::MoveRight(float AxisValue)
-{
-	SetActorLocation(GetActorLocation() + GetActorRightVector() * AxisValue * RightSpeed);
-}
+	const FVector forward = GetActorForwardVector();
+	const FVector right = GetActorRightVector();
 
-void ADeepDriveSimulationFreeCamera::LookUp(float AxisValue)
-{
-}
+	FVector newLocation = GetActorLocation() + forward * m_curForward * ForwardSpeed + right * m_curRight * RightSpeed;
 
-void ADeepDriveSimulationFreeCamera::Turn(float AxisValue)
-{
+	SetActorTransform(FTransform(newRotation, newLocation, FVector(1.0f, 1.0f, 1.0f)));
 }
 

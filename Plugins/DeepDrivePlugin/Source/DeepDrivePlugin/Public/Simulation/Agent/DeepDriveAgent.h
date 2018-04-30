@@ -44,6 +44,8 @@ public:
 
 	void ActivateCamera(EDeepDriveAgentCameraType cameraType);
 
+	void DeactivateCameras();
+
 	void SetOrbitCameraRotation(float pitch, float yaw);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "HUD")

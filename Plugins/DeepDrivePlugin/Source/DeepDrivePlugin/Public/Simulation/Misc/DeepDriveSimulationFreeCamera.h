@@ -24,14 +24,24 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement)
-	float ForwardSpeed = 200.0f;
+	float ForwardSpeed = 50.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement)
-	float RightSpeed = 100.0f;
+	float RightSpeed = 25.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement)
+	float InterpolationSpeed = 2.0f;
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void MoveForward(float AxisValue);
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void MoveRight(float AxisValue);
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void LookUp(float AxisValue);
+
+	UFUNCTION(BlueprintCallable, Category = "Movement")
 	void Turn(float AxisValue);
 
 protected:
@@ -39,5 +49,36 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = Cameras)
 	UCameraComponent					*FreeCamera = 0;
 
-	
+private:
+
+	float					m_DesiredForward = 0.0f;
+	float					m_curForward = 0.0f;
+
+	float					m_DesiredRight = 0.0f;
+	float					m_curRight = 0.0f;
+
+	float					m_LookUp = 0.0f;
+	float					m_Turn = 0.0f;
+
 };
+
+inline void ADeepDriveSimulationFreeCamera::MoveForward(float AxisValue)
+{
+	m_DesiredForward = AxisValue;
+}
+
+inline void ADeepDriveSimulationFreeCamera::MoveRight(float AxisValue)
+{
+	m_DesiredRight = AxisValue;
+}
+
+inline void ADeepDriveSimulationFreeCamera::LookUp(float AxisValue)
+{
+	m_LookUp = AxisValue;
+}
+
+inline void ADeepDriveSimulationFreeCamera::Turn(float AxisValue)
+{
+	m_Turn = AxisValue;
+}
+

@@ -19,7 +19,7 @@ public:
 	UTexture2D* CreateLookUpTexture(int32 Width, int32 NumSamples);
 
 	UFUNCTION(BlueprintCallable, Category = "SunLight")
-	FLinearColor CalculateSunLightColor(const FVector &SunDirection);
+	FLinearColor CalculateSunLightColor(const FVector &SunDirection, float Radius, int32 NumSamples);
 
 	UPROPERTY(BlueprintReadOnly, Category = "SunPosition")
 	float	Azimuth = 0.0f;
@@ -48,6 +48,8 @@ public:
 private:
 
 	void setupTable(int32 width, int32 numSamples);
+
+	FLinearColor calcSunLightColor(const FVector &sunDirection);
 
 	void calculateOpticalDepth(float height, const FVector &dir, int32 numSamples, float &odRayleigh, float &odMie);
 

@@ -18,9 +18,10 @@ enum class EDeepDriveAgentControlMode : uint8
 UENUM(BlueprintType)
 enum class EDeepDriveAgentCameraType : uint8
 {
-	CHASE_CAMERA		= 0	UMETA(DisplayName="ChaseCamera"),
-	INTERIOR_CAMERA		= 1	UMETA(DisplayName="InteriorCamera"),
-	ORBIT_CAMERA	    = 2	UMETA(DisplayName="OrbitCameraCamera"),
-	FREE_CAMERA			= 3	UMETA(DisplayName="FreeCamera")
+	NONE				= 0	UMETA(DisplayName = "None"),
+	CHASE_CAMERA		= 1	UMETA(DisplayName = "ChaseCamera"),
+	INTERIOR_CAMERA		= 2	UMETA(DisplayName = "InteriorCamera"),
+	ORBIT_CAMERA	    = 3	UMETA(DisplayName = "OrbitCameraCamera"),
+	FREE_CAMERA			= 4	UMETA(DisplayName = "FreeCamera")
 };
 

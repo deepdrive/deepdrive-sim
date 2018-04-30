@@ -78,8 +78,7 @@ void ADeepDriveSimulation::BeginPlay()
 
 		m_curAgentController = Cast<ADeepDriveAgentControllerBase> (m_curAgent->GetController());
 
-		m_curCameraType = EDeepDriveAgentCameraType::CHASE_CAMERA;
-		m_curAgent->ActivateCamera(m_curCameraType);
+		SelectCamera(EDeepDriveAgentCameraType::CHASE_CAMERA);
 
 		const TSet < UActorComponent * > &components = GetComponents();
 		for(auto &comp : components)
@@ -178,7 +177,7 @@ void ADeepDriveSimulation::Turn(float AxisValue)
 	{
 		case EDeepDriveAgentCameraType::FREE_CAMERA:
 			if(FreeCamera)
-				FreeCamera->LookUp(AxisValue);
+				FreeCamera->Turn(AxisValue);
 			break;
 
 		case EDeepDriveAgentCameraType::ORBIT_CAMERA:
@@ -191,12 +190,44 @@ void ADeepDriveSimulation::Turn(float AxisValue)
 
 void ADeepDriveSimulation::SelectCamera(EDeepDriveAgentCameraType CameraType)
 {
-	if(CameraType != m_curCameraType)
+	if (CameraType != m_curCameraType)
 	{
-		m_curCameraType = CameraType;
+		APlayerCameraManager *cameraMgr = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+		if (cameraMgr)
+		{
+			AActor *camActor = 0;
 
-		if(m_curCameraType != EDeepDriveAgentCameraType::FREE_CAMERA)
-			m_curAgent->ActivateCamera(m_curCameraType);
+			if (m_curAgent)
+			{
+				m_curAgent->ActivateCamera(CameraType);
+
+				if (CameraType == EDeepDriveAgentCameraType::FREE_CAMERA)
+				{
+					if (FreeCamera)
+					{
+						FTransform agentTransform = m_curAgent->GetActorTransform();
+						FreeCamera->SetActorTransform(FTransform(agentTransform.Rotator(), agentTransform.GetLocation() + FVector(0.0f, 0.0f, 200.0f), agentTransform.GetScale3D()));
+						camActor = FreeCamera;
+					}
+				}
+				else
+				{
+					camActor = m_curAgent;
+				}
+
+				if (camActor)
+				{
+					FViewTargetTransitionParams transitionParams;
+					transitionParams.BlendTime = 0.0f;
+					transitionParams.BlendFunction = VTBlend_Linear;
+					transitionParams.BlendExp = 0.0f;
+					transitionParams.bLockOutgoing = false;
+					cameraMgr->SetViewTarget(camActor, transitionParams);
+
+					m_curCameraType = CameraType;
+				}
+			}
+		}
 	}
 }
 
