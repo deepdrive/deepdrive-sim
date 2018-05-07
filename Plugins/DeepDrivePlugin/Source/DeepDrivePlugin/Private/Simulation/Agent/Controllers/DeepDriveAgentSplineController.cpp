@@ -116,19 +116,22 @@ void ADeepDriveAgentSplineController::Tick( float DeltaSeconds )
 
 			m_projYawDelta = m_projYawDelta * 0.95f + 0.05f * delta;
 
-			const float ySteering = m_SteeringPIDCtrl.advance(DeltaSeconds, delta, PIDSteering.X, PIDSteering.Y, PIDSteering.Z);
+			const float ySteering = m_SteeringPIDCtrl.advance(DeltaSeconds, delta, PIDSteering.X, PIDSteering.Y, PIDSteering.Z, 1.0f);
 			m_Agent->SetSteering(ySteering);
 
-			const float yThrottle = m_ThrottlePIDCtrl.advance(DeltaSeconds, DesiredSpeed - curSpeed, PIDThrottle.X, PIDThrottle.Y, PIDThrottle.Z);
+			const float curSpeedKmh = curSpeed * 0.036f;
+			const float eSpeed = DesiredSpeed - curSpeedKmh;
+			const float yThrottle = m_ThrottlePIDCtrl.advance(DeltaSeconds, eSpeed, PIDThrottle.X, PIDThrottle.Y, PIDThrottle.Z, 0.75f);
 			m_curThrottle = FMath::Clamp(m_curThrottle + yThrottle * DeltaSeconds * ThrottleFactor, -1.0f, 1.0f);
 			m_Agent->SetThrottle(m_curThrottle);
 
-			const float curSpeedMS = curSpeed * 0.01f;
-			//UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("curSteering %f projYawDelta %f per m/s %f"), ySteering, m_projYawDelta, m_projYawDelta / curSpeedMS);
+			addSpeedErrorSample(eSpeed);
+			//UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("Distance Error: %f Speed Error: %f"), calcDistToCenterError(), calcSpeedError(eSpeed) );
 
 		}
 		else if(m_Agent && UpdateSplineProgress())
 			MoveAlongSpline();
+
 	}
 }
 
@@ -212,7 +215,70 @@ float ADeepDriveAgentSplineController::getClosestDistanceOnSpline(const FVector 
 }
 
 
+float ADeepDriveAgentSplineController::calcDistToCenterError()
+{
+	FVector agentLocation = m_Agent->GetActorLocation();
 
+	const float curKey = m_Spline->FindInputKeyClosestToWorldLocation(agentLocation);
+
+	FVector pos = m_Spline->GetLocationAtSplineInputKey(curKey, ESplineCoordinateSpace::World);
+	FVector tng = m_Spline->GetTangentAtSplineInputKey(curKey, ESplineCoordinateSpace::World);
+
+	FVector delta = agentLocation - pos;
+	delta.Z = 0.0f;
+	float dist = 0.0f;
+	if (FVector::DotProduct(delta, delta) > 0.001f)
+	{
+		dist = delta.Size();
+		delta.Normalize();
+
+		if (FVector::DotProduct(delta, tng) >= 0.0f)
+			m_SumDistToCenter -= dist;
+		else
+			m_SumDistToCenter += dist;
+
+		++m_numDistSamples;
+	}
+	return m_numDistSamples > 0 ? m_SumDistToCenter / static_cast<float> (m_numDistSamples) : 0.0f;
+}
+
+void ADeepDriveAgentSplineController::addSpeedErrorSample(float curSpeedError)
+{
+	curSpeedError = FMath::Abs(curSpeedError);
+	if (m_SpeedErrorSamples.Num() < m_maxSpeedErrorSamples)
+	{
+		m_SpeedErrorSamples.Add(curSpeedError);
+	}
+	else
+	{
+		m_SpeedErrorSamples[m_nextSpeedErrorSampleIndex] = curSpeedError;
+		m_nextSpeedErrorSampleIndex = (m_nextSpeedErrorSampleIndex + 1) % m_maxSpeedErrorSamples;
+	}
+
+	m_totalSpeedError += curSpeedError;
+	++m_numTotalSpeedErrorSamples;
+
+	m_SpeedDeviationSum += curSpeedError * curSpeedError;
+	++m_numSpeedDeviation;
+}
+
+void ADeepDriveAgentSplineController::OnCheckpointReached()
+{
+	float totalSpeedError = 0.0f;
+	int32 numSamples = 0;
+	for (auto &s : m_SpeedErrorSamples)
+	{
+		totalSpeedError += s;
+		++numSamples;
+	}
+
+	float speedError = numSamples > 0 ? totalSpeedError / static_cast<float> (numSamples) : 0.0f;
+	//UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("Speed Error: %f | %f"), speedError, m_totalSpeedError / static_cast<float> (m_numTotalSpeedErrorSamples) );
+
+	UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("Speed Deviation: %f %d"), FMath::Sqrt( m_SpeedDeviationSum / static_cast<float> (m_numSpeedDeviation)), m_numSpeedDeviation );
+	m_SpeedDeviationSum = 0.0f;
+	m_numSpeedDeviation = 0;
+}
 
 bool ADeepDriveAgentSplineController::UpdateSplineProgress()
 {

@@ -34,6 +34,8 @@ public:
 	
 	virtual bool ResetAgent();
 	
+	virtual void OnCheckpointReached();
+
 	const FString& getControllerName() const;
 
 protected:

@@ -85,7 +85,6 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Agents")
 	void OnCurrentAgentChanged(ADeepDriveAgent *CurrentAgent);
 
-
 	bool resetAgent();
 	
 	ADeepDriveAgent* getCurrentAgent() const;

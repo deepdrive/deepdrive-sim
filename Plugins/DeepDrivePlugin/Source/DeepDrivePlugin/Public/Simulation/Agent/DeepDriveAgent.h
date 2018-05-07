@@ -66,6 +66,10 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Simulation")
 	void UpdateLights(float Zenith);
 
+	UFUNCTION(BlueprintCallable, Category = "Agents")
+	void OnCheckpointReached();
+
+
 	void setIsGameDriving(bool isGameDriving);
 	void reset();
 

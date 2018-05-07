@@ -48,3 +48,7 @@ bool ADeepDriveAgentControllerBase::ResetAgent()
 	}
 	return res;
 }
+
+void ADeepDriveAgentControllerBase::OnCheckpointReached()
+{
+}

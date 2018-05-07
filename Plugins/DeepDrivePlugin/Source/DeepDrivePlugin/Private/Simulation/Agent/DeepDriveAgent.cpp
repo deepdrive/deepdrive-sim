@@ -3,6 +3,7 @@
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 #include "Public/Capture/CaptureCameraComponent.h"
 #include "Components/SplineComponent.h"
+#include "Simulation/Agent/DeepDriveAgentControllerBase.h"
 
 #include "WheeledVehicleMovementComponent.h"
 #include "Runtime/Engine/Classes/Kismet/KismetRenderingLibrary.h"
@@ -210,4 +211,11 @@ float ADeepDriveAgent::getDistanceToCenterOfTrack() const
 		res = (m_CenterOfTrackSpline->GetLocationAtSplineInputKey(closestKey, ESplineCoordinateSpace::World) - curLoc).Size();
 	}
 	return res;
+}
+
+void ADeepDriveAgent::OnCheckpointReached()
+{
+	ADeepDriveAgentControllerBase *ctrl = Cast<ADeepDriveAgentControllerBase>(GetController());
+	if (ctrl)
+		ctrl->OnCheckpointReached();
 }

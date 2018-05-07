@@ -28,14 +28,21 @@ private:
 			:	m_prevE(0.0f)
 			,	m_sumE(0.0f)
 		{
+			for (signed i = 0; i < HistoryLength; ++i)
+				m_History[i] = 0.0f;
 		}
 
-		float advance(float dT, float curE, float kp, float ki, float kd)
+		float advance(float dT, float curE, float kp, float ki, float kd, float T)
 		{
-			m_sumE += curE;
 			const float dE = (curE - m_prevE);
 
-			float y = kp * curE + ki * dT * m_sumE + dE * kd / dT;
+			m_sumE -= m_History[m_lastHistoryIndex];
+			m_sumE += curE;
+			m_History[m_nextHistoryIndex] = curE;
+			m_nextHistoryIndex = (m_nextHistoryIndex + 1) % HistoryLength;
+			m_lastHistoryIndex = (m_lastHistoryIndex + 1) % HistoryLength;
+
+			float y = kp * curE + ki * dT * m_sumE / static_cast<float> (HistoryLength) + dE * kd / dT;
 
 			m_prevE = curE;
 
@@ -51,6 +58,14 @@ private:
 		float			m_prevE;
 		float			m_sumE;
 
+		enum
+		{
+			HistoryLength = 10
+		};
+
+		float			m_History[HistoryLength];
+		int32			m_lastHistoryIndex = 0;
+		int32			m_nextHistoryIndex = 1;
 	};
 	
 public:
@@ -62,6 +77,9 @@ public:
 	virtual bool Activate(ADeepDriveAgent &agent);
 
 	virtual bool ResetAgent();
+
+	void OnCheckpointReached();
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Spline)
 	AActor	*SplineActor = 0;
@@ -136,6 +154,8 @@ private:
 
 	void GetDistanceAlongRouteAtLocation(FVector CurrentLocation);
 
+	float calcDistToCenterError();
+	void addSpeedErrorSample(float curSpeedError);
 
 	float					m_DistanceAlongRoute = 0.0f;
 	float					m_DistanceToCenterOfLane = 0.0f;
@@ -144,4 +164,19 @@ private:
 	float					m_WaypointStep = 400.0f;
 	float					m_CloseDistanceThreshold = 1500.0f;
 
+
+	float					m_SumDistToCenter = 0.0f;
+	int32					m_numDistSamples = 0;
+
+	float					m_SumSpeedError = 0.0f;
+	float					m_numSpeedSamples = 0;
+
+	TArray<float>			m_SpeedErrorSamples;
+	const int32				m_maxSpeedErrorSamples = 60;
+	int32					m_nextSpeedErrorSampleIndex = 0;
+	float					m_totalSpeedError = 0.0f;
+	int32					m_numTotalSpeedErrorSamples = 0;
+
+	float					m_SpeedDeviationSum = 0.0f;
+	int32					m_numSpeedDeviation = 0;
 };
