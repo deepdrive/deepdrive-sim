@@ -61,7 +61,7 @@ Run
 
 Open deepdrive uproject file - choose other -> Skip Conversion
 
-## Building the Python Extension
+### Building the Python Extension
 
 ```
 cd Plugins/DeepDrivePlugin/Source/DeepDrivePython
@@ -69,7 +69,7 @@ python build/build.py --type dev
 ```
 This will also happen automatically when building the Unreal project.
 
-## Development keybinds 
+### Development keybinds 
 
 (Same as normal keybinds except)
 
@@ -77,23 +77,23 @@ This will also happen automatically when building the Unreal project.
 * <kbd>Esc</kbd> - Quit
 * <kbd>Shift+F1</kbd> - Regain mouse control
 
-## Push PyPi module
+### Push PyPi module
 `git push origin master && git push origin master:release`
 
-## Setting key binds
+### Setting key binds
 
 Unreal->Project Settings->Input->Action Mappings OR in Blueprints->Find (uncheck Find in Current Blueprint Only) and search for the input key, i.e. J.
 
-## Commit your VERSION file
+### Commit your VERSION file
 
 Until Unreal binary uploads are automated, the server and client version will not match unless the VERSION file changes 
 are pushed. This because the client version is determined by latest git timestamp and the server version is determined
 by the VERSION file. The VERSION file will automatically update when you build, so all that's needed is to push it.
 The only time you shouldn't push your VERSION file is when you are just packaging and uploading the sim.
 
-## Clean builds
+### Clean builds
 
 You'll often want to run `clean.sh` or `clean.bat` after pulling in changes, especially to the plugin as Unreal will spuriously cache old binaries.
 
-## PyCharm
+### PyCharm
 If you open an Unreal project in Pycharm, add Binaries, Build, Content, Intermediate, and Saved to your project’s “Excluded” directories in Project Structure or simply by right clicking and choosing “Mark Directory as” => “Excluded”. Keeping these large binary directories in the project will cause PyCharm to index them.
