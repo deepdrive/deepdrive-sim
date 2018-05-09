@@ -1,3 +1,4 @@
+
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
 using UnrealBuildTool;
@@ -12,7 +13,7 @@ using System.Runtime.InteropServices;
 
 public class DeepDrivePlugin : ModuleRules
 {
-	public DeepDrivePlugin(TargetInfo Target)
+	public DeepDrivePlugin(ReadOnlyTargetRules Target) : base(Target)
 	{
 		
 		PublicIncludePaths.AddRange(

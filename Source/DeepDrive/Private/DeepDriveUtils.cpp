@@ -1,5 +1,5 @@
-#include "DeepDrive.h"
 #include "DeepDriveUtils.h"
+#include "DeepDrive.h"
 
 
 std::random_device DeepdriveUtilsRandomSeed;

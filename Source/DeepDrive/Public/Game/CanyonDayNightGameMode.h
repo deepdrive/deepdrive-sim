@@ -9,7 +9,7 @@
  * 
  */
 UCLASS()
-class DEEPDRIVE_API ACanyonDayNightGameMode : public AGameMode
+class DEEPDRIVE_API ACanyonDayNightGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
 	
