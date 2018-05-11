@@ -26,6 +26,8 @@ bool ADeepDriveAgentSplineController::Activate(ADeepDriveAgent &agent)
 			m_Spline = Cast<USplineComponent> (splines[0]);
 	}
 
+
+
 	if(m_Spline == 0)
 	{
 		/*
@@ -47,12 +49,12 @@ bool ADeepDriveAgentSplineController::Activate(ADeepDriveAgent &agent)
 		}
 	}
 
-	if(m_Spline)
+	if (Track)
 	{
 		m_SplineDrivingCtrl = new DeepDriveAgentSplineDrivingCtrl(PIDSteering, PIDThrottle, FVector());
 		if(m_SplineDrivingCtrl)
 		{
-			m_SplineDrivingCtrl->setSpline(m_Spline);
+			m_SplineDrivingCtrl->setTrack(Track);
 			m_SplineDrivingCtrl->setAgent(&agent);
 			resetAgentPosOnSpline(agent);
 			UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("ADeepDriveAgentSplineController::Activate Successfully initialized") );
@@ -81,7 +83,7 @@ void ADeepDriveAgentSplineController::Tick( float DeltaSeconds )
 {
 	if (m_Agent && m_SplineDrivingCtrl)
 	{
-		m_SplineDrivingCtrl->update(DeltaSeconds, DesiredSpeed, -1.0f);
+		m_SplineDrivingCtrl->update(DeltaSeconds, DesiredSpeed, -1.0f, -200.0f);
 
 		const float curSpeed = m_Agent->GetVehicleMovementComponent()->GetForwardSpeed();
 		const float curSpeedKmh = curSpeed * 0.036f;

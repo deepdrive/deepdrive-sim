@@ -11,6 +11,8 @@
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveAgentSplineController, Log, All);
 
 class DeepDriveAgentSplineDrivingCtrl;
+class ADeepDriveSplineTrack;
+
 
 /**
  * 
@@ -37,6 +39,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Spline)
 	AActor	*SplineActor = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Track)
+	ADeepDriveSplineTrack	*Track = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
 	float	LookAheadTime = 1.0f;
