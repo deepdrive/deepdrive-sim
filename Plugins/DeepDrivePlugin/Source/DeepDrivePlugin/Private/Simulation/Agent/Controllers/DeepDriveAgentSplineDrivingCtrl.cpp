@@ -2,7 +2,7 @@
 
 #include "DeepDrivePluginPrivatePCH.h"
 #include "Private/Simulation/Agent/Controllers/DeepDriveAgentSplineDrivingCtrl.h"
-#include "Private/Simulation/Misc/DeepDriveSplineTrack.h"
+#include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 #include "WheeledVehicleMovementComponent.h"
 #include "Runtime/Engine/Classes/Components/SplineComponent.h"
@@ -26,7 +26,7 @@ void DeepDriveAgentSplineDrivingCtrl::update(float dT, float desiredSpeed, float
 {
 	if(m_Track && m_Agent)
 	{
-		//desiredSpeed = limitSpeed(desiredSpeed, distanceToObstacle);
+		desiredSpeed = limitSpeed(desiredSpeed, distanceToObstacle);
 
 		const float curSpeed = m_Agent->GetVehicleMovementComponent()->GetForwardSpeed();
 		const float curSpeedKmh = curSpeed * 0.036f;
@@ -69,26 +69,14 @@ void DeepDriveAgentSplineDrivingCtrl::update(float dT, float desiredSpeed, float
 	}
 }
 
-
-
-FVector DeepDriveAgentSplineDrivingCtrl::getLookAheadPosOnSpline(const FVector &curAgentLocation, float lookAheadDistance, float offset)
-{
-	const float curKey = getLookAheadInputKey(lookAheadDistance);
-	FVector posAhead = m_Spline->GetLocationAtSplineInputKey(curKey, ESplineCoordinateSpace::World);
-
-	if (offset != 0.0f)
-	{
-		posAhead += m_Spline->GetTangentAtSplineInputKey(curKey, ESplineCoordinateSpace::World) * offset;
-	}
-
-	return posAhead;
-}
-
-
 float DeepDriveAgentSplineDrivingCtrl::limitSpeed(float desiredSpeed, float distanceToObstacle)
 {
-	const float ds0 = calcSpeedLimitForCollision(desiredSpeed, distanceToObstacle);
-	const float ds1 = calcSpeedLimitForCurvature(desiredSpeed);
+	const float trackSpeedLimit = m_Track->getSpeedLimit(0.0f);
+	const float ds0 = trackSpeedLimit > 0.0f ? FMath::Min(desiredSpeed, trackSpeedLimit) : desiredSpeed;
+	const float ds1 = calcSpeedLimitForCollision(desiredSpeed, distanceToObstacle);
+
+	UE_LOG(LogDeepDriveAgentSplineDrivingCtrl, Log, TEXT("Track speed limit %f"), trackSpeedLimit );
+
 
 	return FMath::Min(ds0, ds1);
 }
@@ -97,77 +85,4 @@ float DeepDriveAgentSplineDrivingCtrl::limitSpeed(float desiredSpeed, float dist
 float DeepDriveAgentSplineDrivingCtrl::calcSpeedLimitForCollision(float desiredSpeed, float distanceToObstacle)
 {
 	return desiredSpeed;
-}
-
-float DeepDriveAgentSplineDrivingCtrl::calcSpeedLimitForCurvature(float desiredSpeed)
-{
-	const float curSpeed = m_Agent->GetVehicleMovementComponent()->GetForwardSpeed();
-	float curKey = getLookAheadInputKey(0.5 * curSpeed);	// m_Spline->FindInputKeyClosestToWorldLocation(m_curAgentLocation);
-	float lastKey = getLookAheadInputKey(2.0 * curSpeed);
-
-	float curveAngle = 0.0f;
-	const int32 numSamples = 5;
-	const float delta = (lastKey - curKey) / static_cast<float> (numSamples - 1);
-	FVector2D lastDirection = FVector2D(m_Spline->GetDirectionAtSplineInputKey(curKey, ESplineCoordinateSpace::World));
-	lastDirection.Normalize();
-	for (int32 i = 0; i < numSamples; ++i)
-	{
-		curKey += delta;
-		FVector2D curDirection = FVector2D(m_Spline->GetDirectionAtSplineInputKey(curKey, ESplineCoordinateSpace::World));
-		curDirection.Normalize();
-
-		curveAngle += FMath::RadiansToDegrees(FMath::Acos(FVector2D::DotProduct(curDirection, lastDirection)));
-		lastDirection = curDirection;
-	}
-
-	const float fac = 0.8f * (1.0f - FMath::SmoothStep(30.0f, 90.0f, curveAngle)) + 0.2f;
-
-	UE_LOG(LogDeepDriveAgentSplineDrivingCtrl, Log, TEXT("Curve angle %f Factor %f"), curveAngle, fac);
-
-	return desiredSpeed * fac;
-}
-
-
-float DeepDriveAgentSplineDrivingCtrl::getLookAheadInputKey(float lookAheadDistance)
-{
-	float key = m_Spline->FindInputKeyClosestToWorldLocation(m_curAgentLocation);
-
-	while(true)
-	{
-		const int32 index0 = floor(key);
-		const int32 index1 = ceil(key);
-
-		const float dist0 = m_Spline->GetDistanceAlongSplineAtSplinePoint(index0);
-		const float dist1 = m_Spline->GetDistanceAlongSplineAtSplinePoint(index1);
-
-		const float dist = (m_Spline->GetLocationAtSplinePoint(index1, ESplineCoordinateSpace::World) - m_Spline->GetLocationAtSplinePoint(index0, ESplineCoordinateSpace::World)).Size();
-
-		const float relDistance = lookAheadDistance / dist;
-
-		const float carryOver = key + relDistance - static_cast<float> (index1);
-
-		if(carryOver > 0.0f)
-		{
-			lookAheadDistance -= dist * (static_cast<float> (index1) - key);
-			const float newDist = (m_Spline->GetLocationAtSplinePoint((index1 + 1) % m_Spline->GetNumberOfSplinePoints(), ESplineCoordinateSpace::World) - m_Spline->GetLocationAtSplinePoint(index1, ESplineCoordinateSpace::World)).Size();
-			const float newRelDist = lookAheadDistance / newDist;
-			key = static_cast<float> (index1) + newRelDist;
-			if(newRelDist < 1.0f)
-				break;
-		}
-		else
-		{
-			key += relDistance;
-			break;
-		}
-	}
-
-	return key;
-}
-
-void DeepDriveAgentSplineDrivingCtrl::setSpline(USplineComponent *spline)
-{
-	m_Spline = spline;
-//	if(spline)
-//		m_Track = new DeepDriveSplineTrack(*spline);
 }

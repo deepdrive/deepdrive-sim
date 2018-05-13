@@ -34,8 +34,9 @@ public:
 
 	virtual bool ResetAgent();
 
-	void OnCheckpointReached();
+	virtual void OnCheckpointReached();
 
+	virtual void OnDebugTrigger();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Spline)
 	AActor	*SplineActor = 0;
@@ -64,9 +65,8 @@ private:
 
 	float getClosestDistanceOnSpline(const FVector &location);
 
-	FVector getLookAheadPosOnSpline(const FVector &curAgentLocation, float lookAheadDistance);
-
 	float calcDistToCenterError();
+
 	void addSpeedErrorSample(float curSpeedError);
 
 	DeepDriveAgentSplineDrivingCtrl		*m_SplineDrivingCtrl;
@@ -88,4 +88,6 @@ private:
 
 	float								m_SpeedDeviationSum = 0.0f;
 	int32								m_numSpeedDeviation = 0;
+
+	bool								m_isPaused = false;
 };

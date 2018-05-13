@@ -16,6 +16,20 @@ ADeepDriveSplineTrack::~ADeepDriveSplineTrack()
 {
 }
 
+void ADeepDriveSplineTrack::BeginPlay()
+{
+	for (auto &x : SpeedLimits)
+	{
+		const float dist = x.X;
+		const float key = SplineTrack->GetInputKeyAtDistanceAlongSpline(dist);
+
+		const FVector loc = SplineTrack->GetLocationAtDistanceAlongSpline(dist, ESplineCoordinateSpace::World);
+
+		m_SpeedLimits.Add(FVector2D(SplineTrack->FindInputKeyClosestToWorldLocation(loc), x.Y));
+	}
+
+	m_SpeedLimits.Sort([](const FVector2D &lhs, const FVector2D &rhs) { return lhs.X < rhs.X; });
+}
 
 void ADeepDriveSplineTrack::setBaseLocation(const FVector &baseLocation)
 {
@@ -38,9 +52,34 @@ FVector ADeepDriveSplineTrack::getLocationAhead(float distanceAhead, float sideO
 
 }
 
-float ADeepDriveSplineTrack::getSpeedLimit()
+float ADeepDriveSplineTrack::getSpeedLimit(float distanceAhead)
 {
-	return -1.0f;
+	float speedLimit = -1.0f;
+
+	if (m_SpeedLimits.Num() > 0)
+	{
+		const float curKey = distanceAhead > 0.0f ? getInputKeyAhead(distanceAhead) : m_BaseKey;
+		if	(	curKey < m_SpeedLimits[0].X
+			||	curKey >= m_SpeedLimits.Last().X
+			)
+		{
+			speedLimit = m_SpeedLimits.Last().Y;
+		}
+		else
+		{
+			for (signed i = 0; i < m_SpeedLimits.Num(); ++i)
+			{
+				if (curKey >= m_SpeedLimits[i].X)
+				{
+					speedLimit = m_SpeedLimits[i].Y;
+				}
+				else
+					break;
+			}
+		}
+	}
+
+	return speedLimit;
 }
 
 float ADeepDriveSplineTrack::getInputKeyAhead(float distanceAhead)

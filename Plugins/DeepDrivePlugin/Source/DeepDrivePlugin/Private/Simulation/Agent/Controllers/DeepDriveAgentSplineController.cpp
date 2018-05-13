@@ -5,6 +5,8 @@
 #include "Public/Simulation/Agent/Controllers/DeepDriveAgentSplineController.h"
 #include "Private/Simulation/Agent/Controllers/DeepDriveAgentSplineDrivingCtrl.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
+#include "Public/Simulation/Agent/DeepDriveAgent.h"
+#include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
 
 #include "WheeledVehicleMovementComponent.h"
 
@@ -19,15 +21,7 @@ ADeepDriveAgentSplineController::ADeepDriveAgentSplineController()
 
 bool ADeepDriveAgentSplineController::Activate(ADeepDriveAgent &agent)
 {
-	if(SplineActor)
-	{
-		TArray <UActorComponent*> splines = SplineActor->GetComponentsByClass( USplineComponent::StaticClass() );
-		if(splines.Num() > 0)
-			m_Spline = Cast<USplineComponent> (splines[0]);
-	}
-
-
-
+#if 0
 	if(m_Spline == 0)
 	{
 		/*
@@ -48,6 +42,7 @@ bool ADeepDriveAgentSplineController::Activate(ADeepDriveAgent &agent)
 			}
 		}
 	}
+#endif
 
 	if (Track)
 	{
@@ -56,7 +51,10 @@ bool ADeepDriveAgentSplineController::Activate(ADeepDriveAgent &agent)
 		{
 			m_SplineDrivingCtrl->setTrack(Track);
 			m_SplineDrivingCtrl->setAgent(&agent);
+
+			m_Spline = Track->GetSpline();
 			resetAgentPosOnSpline(agent);
+
 			UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("ADeepDriveAgentSplineController::Activate Successfully initialized") );
 		}
 	}
@@ -64,12 +62,12 @@ bool ADeepDriveAgentSplineController::Activate(ADeepDriveAgent &agent)
 		UE_LOG(LogDeepDriveAgentSplineController, Error, TEXT("ADeepDriveAgentSplineController::Activate Didn't find spline") );
 
 
-	return m_Spline != 0 && m_SplineDrivingCtrl != 0 && Super::Activate(agent);
+	return Track != 0 && m_SplineDrivingCtrl != 0 && Super::Activate(agent);
 }
 
 bool ADeepDriveAgentSplineController::ResetAgent()
 {
-	if(m_Spline && m_Agent)
+	if(Track && m_Agent)
 	{
 		UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("Reset Agent") );
 		m_Agent->reset();
@@ -189,4 +187,23 @@ void ADeepDriveAgentSplineController::OnCheckpointReached()
 	UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("Speed Deviation: %f %d"), FMath::Sqrt( m_SpeedDeviationSum / static_cast<float> (m_numSpeedDeviation)), m_numSpeedDeviation );
 	m_SpeedDeviationSum = 0.0f;
 	m_numSpeedDeviation = 0;
+}
+
+void ADeepDriveAgentSplineController::OnDebugTrigger()
+{
+	if (m_isPaused)
+	{
+		UGameplayStatics::SetGamePaused(GetWorld(), false);
+		m_isPaused = false;
+	}
+	else
+	{
+		FVector agentLocation = m_Agent->GetActorLocation();
+		const float curKey = m_Spline->FindInputKeyClosestToWorldLocation(agentLocation);
+
+		UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("Current key: %f"), curKey);
+
+		UGameplayStatics::SetGamePaused(GetWorld(), true);
+		m_isPaused = true;
+	}
 }

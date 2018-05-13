@@ -219,3 +219,10 @@ void ADeepDriveAgent::OnCheckpointReached()
 	if (ctrl)
 		ctrl->OnCheckpointReached();
 }
+
+void ADeepDriveAgent::OnDebugTrigger()
+{
+	ADeepDriveAgentControllerBase *ctrl = Cast<ADeepDriveAgentControllerBase>(GetController());
+	if (ctrl)
+		ctrl->OnDebugTrigger();
+}

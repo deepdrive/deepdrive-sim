@@ -36,6 +36,8 @@ public:
 	
 	virtual void OnCheckpointReached();
 
+	virtual void OnDebugTrigger();
+
 	const FString& getControllerName() const;
 
 protected:

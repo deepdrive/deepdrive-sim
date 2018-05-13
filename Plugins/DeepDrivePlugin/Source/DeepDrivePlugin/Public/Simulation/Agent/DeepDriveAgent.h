@@ -69,6 +69,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Agents")
 	void OnCheckpointReached();
 
+	UFUNCTION(BlueprintCallable, Category = "Agents")
+	void OnDebugTrigger();
+
 
 	void setIsGameDriving(bool isGameDriving);
 	void reset();

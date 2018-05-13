@@ -24,8 +24,6 @@ public:
 
 	void setAgent(ADeepDriveAgent *agent);
 
-	void setSpline(USplineComponent *spline);
-
 	void setTrack(ADeepDriveSplineTrack *track);
 
 	void update(float dT, float desiredSpeed, float distanceToObstacle, float offset);
@@ -42,7 +40,6 @@ private:
 	float calcSpeedLimitForCurvature(float desiredSpeed);
 
 	ADeepDriveAgent					*m_Agent = 0;
-	USplineComponent				*m_Spline = 0;
 	ADeepDriveSplineTrack			*m_Track = 0;
 
 

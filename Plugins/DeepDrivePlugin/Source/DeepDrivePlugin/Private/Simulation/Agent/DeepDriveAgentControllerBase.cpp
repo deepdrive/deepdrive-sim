@@ -52,3 +52,8 @@ bool ADeepDriveAgentControllerBase::ResetAgent()
 void ADeepDriveAgentControllerBase::OnCheckpointReached()
 {
 }
+
+void ADeepDriveAgentControllerBase::OnDebugTrigger()
+{
+}
+

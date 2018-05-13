@@ -302,3 +302,10 @@ ADeepDriveAgentControllerBase* ADeepDriveSimulation::spawnController(EDeepDriveA
 	return controller;
 }
 
+void ADeepDriveSimulation::OnDebugTrigger()
+{
+	if (m_curAgent)
+	{
+		m_curAgent->OnDebugTrigger();
+	}
+}

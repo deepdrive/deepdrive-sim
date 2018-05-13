@@ -24,14 +24,21 @@ public:
 
 	~ADeepDriveSplineTrack();
 
+	virtual void BeginPlay() override;
+
+
 	void setBaseLocation(const FVector &baseLocation);
 
 	FVector getLocationAhead(float distanceAhead, float sideOffset);
 
-	float getSpeedLimit();
+	float getSpeedLimit(float distanceAhead);
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Track")
 	TArray<FVector2D>		SpeedLimits;
+
+	UFUNCTION(BlueprintCallable, Category = "Track")
+	USplineComponent* GetSpline();
 
 protected:
 
@@ -42,7 +49,13 @@ private:
 
 	float getInputKeyAhead(float distanceAhead);
 
+	TArray<FVector2D>				m_SpeedLimits;
+
 	FVector							m_BaseLocation;
 	float							m_BaseKey = 0.0f;
 };
 
+inline USplineComponent* ADeepDriveSplineTrack::GetSpline()
+{
+	return SplineTrack;
+}
