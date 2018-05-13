@@ -22,11 +22,11 @@ DeepDriveAgentSplineDrivingCtrl::~DeepDriveAgentSplineDrivingCtrl()
 }
 
 
-void DeepDriveAgentSplineDrivingCtrl::update(float dT, float desiredSpeed, float distanceToObstacle, float offset)
+void DeepDriveAgentSplineDrivingCtrl::update(float dT, float desiredSpeed, float offset)
 {
 	if(m_Track && m_Agent)
 	{
-		desiredSpeed = limitSpeed(desiredSpeed, distanceToObstacle);
+		desiredSpeed = limitSpeed(desiredSpeed);
 
 		const float curSpeed = m_Agent->GetVehicleMovementComponent()->GetForwardSpeed();
 		const float curSpeedKmh = curSpeed * 0.036f;
@@ -69,20 +69,24 @@ void DeepDriveAgentSplineDrivingCtrl::update(float dT, float desiredSpeed, float
 	}
 }
 
-float DeepDriveAgentSplineDrivingCtrl::limitSpeed(float desiredSpeed, float distanceToObstacle)
+float DeepDriveAgentSplineDrivingCtrl::limitSpeed(float desiredSpeed)
 {
 	const float trackSpeedLimit = m_Track->getSpeedLimit(0.0f);
 	const float ds0 = trackSpeedLimit > 0.0f ? FMath::Min(desiredSpeed, trackSpeedLimit) : desiredSpeed;
-	const float ds1 = calcSpeedLimitForCollision(desiredSpeed, distanceToObstacle);
+	const float ds1 = calcSpeedLimitForCollision(ds0);
 
-	UE_LOG(LogDeepDriveAgentSplineDrivingCtrl, Log, TEXT("Track speed limit %f"), trackSpeedLimit );
+	//UE_LOG(LogDeepDriveAgentSplineDrivingCtrl, Log, TEXT("Track speed limit %f"), trackSpeedLimit );
 
-
-	return FMath::Min(ds0, ds1);
+	return ds1;
 }
 
 
-float DeepDriveAgentSplineDrivingCtrl::calcSpeedLimitForCollision(float desiredSpeed, float distanceToObstacle)
+float DeepDriveAgentSplineDrivingCtrl::calcSpeedLimitForCollision(float desiredSpeed)
 {
+	const float dist2Obastacle = m_Agent->getDistanceToObstacleAhead(desiredSpeed);
+	if (dist2Obastacle >= 0.0f)
+	{
+
+	}
 	return desiredSpeed;
 }

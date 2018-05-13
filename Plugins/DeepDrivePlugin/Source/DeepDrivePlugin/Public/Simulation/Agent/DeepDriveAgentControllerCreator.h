@@ -8,7 +8,6 @@
 
 class ADeepDriveAgentControllerBase;
 
-
 UCLASS()
 class DEEPDRIVEPLUGIN_API ADeepDriveAgentControllerCreator	:	public AActor
 {
@@ -17,7 +16,7 @@ class DEEPDRIVEPLUGIN_API ADeepDriveAgentControllerCreator	:	public AActor
 public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Controller")
-	ADeepDriveAgentControllerBase* CreateController();
+	ADeepDriveAgentControllerBase* CreateController(const FDeepDriveControllerData &ControllerData);
 
 
 };

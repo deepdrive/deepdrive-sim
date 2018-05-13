@@ -44,6 +44,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Track)
 	ADeepDriveSplineTrack	*Track = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Track)
+	float	StartDistance = 0.0f;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
 	float	LookAheadTime = 1.0f;
 

@@ -2,7 +2,9 @@
 #pragma once
 
 #include "Engine.h"
+#include "Runtime/CoreUObject/Public/UObject/ObjectMacros.h"
 
+#include "DeepDriveSimulationDefines.generated.h"
 
 UENUM(BlueprintType)
 enum class EDeepDriveAgentControlMode : uint8
@@ -23,5 +25,30 @@ enum class EDeepDriveAgentCameraType : uint8
 	INTERIOR_CAMERA		= 2	UMETA(DisplayName = "InteriorCamera"),
 	ORBIT_CAMERA	    = 3	UMETA(DisplayName = "OrbitCameraCamera"),
 	FREE_CAMERA			= 4	UMETA(DisplayName = "FreeCamera")
+};
+
+USTRUCT(BlueprintType)
+struct FDeepDriveControllerData
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float	FloatParameter1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float	FloatParameter2;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float	FloatParameter3;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float	FloatParameter4;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	AActor	*Actor1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	AActor	*Actor2;
+
 };
 

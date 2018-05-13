@@ -72,6 +72,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Agents")
 	void OnDebugTrigger();
 
+	float getDistanceToObstacleAhead(float maxDistance);
 
 	void setIsGameDriving(bool isGameDriving);
 	void reset();
@@ -107,6 +108,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = Cameras)
 	UCameraComponent					*OrbitCamera = 0;
 
+	UPROPERTY(EditDefaultsOnly, Category = Cameras)
+	UArrowComponent						*WhiskerStraight = 0;
 
 private:
 

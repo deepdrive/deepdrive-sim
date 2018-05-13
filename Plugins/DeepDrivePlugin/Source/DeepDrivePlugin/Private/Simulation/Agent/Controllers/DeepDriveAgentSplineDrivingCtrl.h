@@ -26,7 +26,7 @@ public:
 
 	void setTrack(ADeepDriveSplineTrack *track);
 
-	void update(float dT, float desiredSpeed, float distanceToObstacle, float offset);
+	void update(float dT, float desiredSpeed, float offset);
 
 
 private:
@@ -34,9 +34,9 @@ private:
 	FVector getLookAheadPosOnSpline(const FVector &curAgentLocation, float lookAheadDistance, float offset);
 	float getLookAheadInputKey(float lookAheadDistance);
 
-	float limitSpeed(float desiredSpeed, float distanceToObstacle);
+	float limitSpeed(float desiredSpeed);
 
-	float calcSpeedLimitForCollision(float desiredSpeed, float distanceToObstacle);
+	float calcSpeedLimitForCollision(float desiredSpeed);
 	float calcSpeedLimitForCurvature(float desiredSpeed);
 
 	ADeepDriveAgent					*m_Agent = 0;

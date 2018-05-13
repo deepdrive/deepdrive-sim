@@ -81,7 +81,7 @@ void ADeepDriveAgentSplineController::Tick( float DeltaSeconds )
 {
 	if (m_Agent && m_SplineDrivingCtrl)
 	{
-		m_SplineDrivingCtrl->update(DeltaSeconds, DesiredSpeed, -1.0f, -200.0f);
+		m_SplineDrivingCtrl->update(DeltaSeconds, DesiredSpeed, -200.0f);
 
 		const float curSpeed = m_Agent->GetVehicleMovementComponent()->GetForwardSpeed();
 		const float curSpeedKmh = curSpeed * 0.036f;
@@ -95,7 +95,7 @@ void ADeepDriveAgentSplineController::Tick( float DeltaSeconds )
 
 void ADeepDriveAgentSplineController::resetAgentPosOnSpline(ADeepDriveAgent &agent)
 {
-	FVector agentLocation = agent.GetActorLocation();
+	FVector agentLocation = StartDistance > 0.0f ? (m_Spline->GetLocationAtDistanceAlongSpline(StartDistance, ESplineCoordinateSpace::World) + FVector(0.0f, 0.0f, 200.0f)) : agent.GetActorLocation();
 	m_curDistanceOnSpline = getClosestDistanceOnSpline(agentLocation);
 	FVector curPosOnSpline = m_Spline->GetLocationAtDistanceAlongSpline(m_curDistanceOnSpline, ESplineCoordinateSpace::World);
 	curPosOnSpline.Z = agentLocation.Z + 50.0f;

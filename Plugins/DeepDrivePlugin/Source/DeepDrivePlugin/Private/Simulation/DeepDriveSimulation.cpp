@@ -235,7 +235,7 @@ void ADeepDriveSimulation::SelectMode(EDeepDriveAgentControlMode Mode)
 {
 	if(Mode != m_curAgentMode)
 	{
-		ADeepDriveAgentControllerBase *controller = spawnController(Mode);
+		ADeepDriveAgentControllerBase *controller = spawnController(Mode, FDeepDriveControllerData());
 		ADeepDriveAgentControllerBase *prevController = Cast<ADeepDriveAgentControllerBase> (m_curAgent->GetController());
 
 		if	(	controller
@@ -269,7 +269,7 @@ ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(EDeepDriveAgentControlMode mod
 	{
 		agent->setResetTransform(transform);
 
-		ADeepDriveAgentControllerBase *controller = spawnController(mode);
+		ADeepDriveAgentControllerBase *controller = spawnController(mode, FDeepDriveControllerData());
 		if(controller)
 		{
 			if(controller->Activate(*agent))
@@ -277,6 +277,8 @@ ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(EDeepDriveAgentControlMode mod
 				m_curAgentMode = mode;
 				OnAgentSpawned(agent);
 				UE_LOG(LogDeepDriveSimulation, Log, TEXT("Spawning agent controlled by %s"), *(controller->getControllerName()) );
+
+				spawnAdditionalAgents();
 			}
 			else
 				UE_LOG(LogDeepDriveSimulation, Log, TEXT("Couldn't activate controller %s"), *(controller->getControllerName()) );
@@ -290,12 +292,42 @@ ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(EDeepDriveAgentControlMode mod
 	return agent;
 }
 
+void ADeepDriveSimulation::spawnAdditionalAgents()
+{
+	for (auto &data : AdditionalAgents)
+	{
+		FTransform transform;
+		ADeepDriveAgent *agent = Cast<ADeepDriveAgent>(GetWorld()->SpawnActor(data.Agent, &transform, FActorSpawnParameters()));
 
-ADeepDriveAgentControllerBase* ADeepDriveSimulation::spawnController(EDeepDriveAgentControlMode mode)
+		if (agent)
+		{
+			agent->setResetTransform(transform);
+
+			ADeepDriveAgentControllerBase *controller = spawnController(data.Mode, data.ControllerData);
+			if (controller)
+			{
+				if (controller->Activate(*agent))
+				{
+					OnAgentSpawned(agent);
+					UE_LOG(LogDeepDriveSimulation, Log, TEXT("Additional agent spawned, controlled by %s"), *(controller->getControllerName()));
+				}
+				else
+					UE_LOG(LogDeepDriveSimulation, Log, TEXT("Couldn't activate controller %s"), *(controller->getControllerName()));
+			}
+			else
+				UE_LOG(LogDeepDriveSimulation, Log, TEXT("Couldn't spawn controller for additional agent"));
+		}
+		else
+			UE_LOG(LogDeepDriveSimulation, Log, TEXT("Couldn't spawn additional agent"));
+
+	}
+}
+
+ADeepDriveAgentControllerBase* ADeepDriveSimulation::spawnController(EDeepDriveAgentControlMode mode, const FDeepDriveControllerData &data)
 {
 	ADeepDriveAgentControllerBase *controller = 0;
 
-	controller = ControllerCreators.Contains(mode) ? ControllerCreators[mode]->CreateController() : 0;
+	controller = ControllerCreators.Contains(mode) ? ControllerCreators[mode]->CreateController(data) : 0;
 
 	UE_LOG(LogDeepDriveSimulation, Log, TEXT("spawnController has it %c -> %p"), ControllerCreators.Contains(mode) ? 'T' :'F', controller );
 

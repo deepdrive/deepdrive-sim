@@ -18,7 +18,22 @@ class ADeepDriveAgentControllerCreator;
 class ADeepDriveAgentControllerBase;
 class UCaptureSinkComponentBase;
 class ADeepDriveSimulationFreeCamera;
+class ADeepDriveSplineTrack;
 
+USTRUCT(BlueprintType)
+struct FDeepDriveAdditionalAgentData
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	TSubclassOf<ADeepDriveAgent>	Agent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	EDeepDriveAgentControlMode		Mode;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	FDeepDriveControllerData	ControllerData;
+};
 
 UCLASS()
 class DEEPDRIVEPLUGIN_API ADeepDriveSimulation	:	public AActor
@@ -54,6 +69,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
 	EDeepDriveAgentControlMode	InitialControllerMode = EDeepDriveAgentControlMode::SPLINE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
+	TArray<FDeepDriveAdditionalAgentData>	AdditionalAgents;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
 	TMap<EDeepDriveAgentControlMode, ADeepDriveAgentControllerCreator*>	ControllerCreators;
@@ -98,7 +116,9 @@ private:
 
 	ADeepDriveAgent* spawnAgent(EDeepDriveAgentControlMode mode);
 
-	ADeepDriveAgentControllerBase* spawnController(EDeepDriveAgentControlMode mode);
+	void spawnAdditionalAgents();
+
+	ADeepDriveAgentControllerBase* spawnController(EDeepDriveAgentControlMode mode, const FDeepDriveControllerData &data);
 
 	bool									m_isActive = false;
 	DeepDriveSimulationServerProxy			*m_ServerProxy = 0;

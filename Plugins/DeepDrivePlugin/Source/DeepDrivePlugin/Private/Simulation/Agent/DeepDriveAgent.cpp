@@ -24,6 +24,9 @@ ADeepDriveAgent::ADeepDriveAgent()
 	OrbitCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("OrbitCamera"));
 	OrbitCamera->SetupAttachment(OrbitCameraArm);
 
+	WhiskerStraight = CreateDefaultSubobject<UArrowComponent> (TEXT("WhiskerStraight"));
+	WhiskerStraight->SetupAttachment(GetRootComponent());
+
 }
 
 void ADeepDriveAgent::BeginPlay()
@@ -212,6 +215,22 @@ float ADeepDriveAgent::getDistanceToCenterOfTrack() const
 	}
 	return res;
 }
+
+float ADeepDriveAgent::getDistanceToObstacleAhead(float maxDistance)
+{
+	float distance = -1.0f;
+
+	FHitResult outHit;
+	FVector start = WhiskerStraight->GetComponentLocation();
+	FVector end = start + WhiskerStraight->GetForwardVector() * maxDistance;
+	if (GetWorld()->LineTraceSingleByChannel(outHit, start, end, ECC_Visibility))
+	{
+		distance = outHit.Distance;
+	}
+
+	return distance;
+}
+
 
 void ADeepDriveAgent::OnCheckpointReached()
 {
