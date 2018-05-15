@@ -45,7 +45,11 @@ FVector ADeepDriveSplineTrack::getLocationAhead(float distanceAhead, float sideO
 
 	if (sideOffset != 0.0f)
 	{
-		posAhead += SplineTrack->GetTangentAtSplineInputKey(curKey, ESplineCoordinateSpace::World) * sideOffset;
+		FVector dir = SplineTrack->GetDirectionAtSplineInputKey(curKey, ESplineCoordinateSpace::World);
+		dir.Z = 0.0f;
+		dir.Normalize();
+		FVector tng(dir.Y, -dir.X, 0.0f);
+		posAhead += tng * sideOffset;
 	}
 
 	return posAhead;

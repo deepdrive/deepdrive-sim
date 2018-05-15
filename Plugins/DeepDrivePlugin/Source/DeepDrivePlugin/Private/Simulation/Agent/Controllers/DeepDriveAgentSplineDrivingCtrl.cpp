@@ -40,7 +40,7 @@ void DeepDriveAgentSplineDrivingCtrl::update(float dT, float desiredSpeed, float
 		m_Track->setBaseLocation(m_curAgentLocation);
 
 		const float lookAheadDist = 1000.0f; //  FMath::Max(1000.0f, curSpeed * 1.5f);
-		FVector projLocAhead = m_Track->getLocationAhead(lookAheadDist, 0.0f);
+		FVector projLocAhead = m_Track->getLocationAhead(lookAheadDist, 400.0f);
 
 		FVector desiredForward = projLocAhead - m_curAgentLocation;
 		desiredForward.Normalize();

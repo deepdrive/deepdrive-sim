@@ -21,29 +21,6 @@ ADeepDriveAgentSplineController::ADeepDriveAgentSplineController()
 
 bool ADeepDriveAgentSplineController::Activate(ADeepDriveAgent &agent)
 {
-#if 0
-	if(m_Spline == 0)
-	{
-		/*
-			A bit of a hack. Find spline to run on by searching for actors tagged with AgentSpline and having a spline component
-		*/
-
-		TArray<AActor*> actors;
-		UGameplayStatics::GetAllActorsWithTag(GetWorld(), TEXT("AgentSpline"), actors);
-
-		for(auto actor : actors)
-		{
-			TArray <UActorComponent*> splines = actor->GetComponentsByClass( USplineComponent::StaticClass() );
-			if(splines.Num() > 0)
-			{
-				m_Spline = Cast<USplineComponent> (splines[0]);
-				if(m_Spline)
-					break;
-			}
-		}
-	}
-#endif
-
 	if (Track)
 	{
 		m_SplineDrivingCtrl = new DeepDriveAgentSplineDrivingCtrl(PIDSteering, PIDThrottle, FVector());
@@ -81,7 +58,7 @@ void ADeepDriveAgentSplineController::Tick( float DeltaSeconds )
 {
 	if (m_Agent && m_SplineDrivingCtrl)
 	{
-		m_SplineDrivingCtrl->update(DeltaSeconds, DesiredSpeed, -200.0f);
+		m_SplineDrivingCtrl->update(DeltaSeconds, DesiredSpeed, 0.0f);
 
 		const float curSpeed = m_Agent->GetVehicleMovementComponent()->GetForwardSpeed();
 		const float curSpeedKmh = curSpeed * 0.036f;
@@ -154,18 +131,6 @@ float ADeepDriveAgentSplineController::calcDistToCenterError()
 void ADeepDriveAgentSplineController::addSpeedErrorSample(float curSpeedError)
 {
 	curSpeedError = FMath::Abs(curSpeedError);
-	if (m_SpeedErrorSamples.Num() < m_maxSpeedErrorSamples)
-	{
-		m_SpeedErrorSamples.Add(curSpeedError);
-	}
-	else
-	{
-		m_SpeedErrorSamples[m_nextSpeedErrorSampleIndex] = curSpeedError;
-		m_nextSpeedErrorSampleIndex = (m_nextSpeedErrorSampleIndex + 1) % m_maxSpeedErrorSamples;
-	}
-
-	m_totalSpeedError += curSpeedError;
-	++m_numTotalSpeedErrorSamples;
 
 	m_SpeedDeviationSum += curSpeedError * curSpeedError;
 	++m_numSpeedDeviation;
@@ -173,17 +138,6 @@ void ADeepDriveAgentSplineController::addSpeedErrorSample(float curSpeedError)
 
 void ADeepDriveAgentSplineController::OnCheckpointReached()
 {
-	float totalSpeedError = 0.0f;
-	int32 numSamples = 0;
-	for (auto &s : m_SpeedErrorSamples)
-	{
-		totalSpeedError += s;
-		++numSamples;
-	}
-
-	float speedError = numSamples > 0 ? totalSpeedError / static_cast<float> (numSamples) : 0.0f;
-	//UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("Speed Error: %f | %f"), speedError, m_totalSpeedError / static_cast<float> (m_numTotalSpeedErrorSamples) );
-
 	UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("Speed Deviation: %f %d"), FMath::Sqrt( m_SpeedDeviationSum / static_cast<float> (m_numSpeedDeviation)), m_numSpeedDeviation );
 	m_SpeedDeviationSum = 0.0f;
 	m_numSpeedDeviation = 0;

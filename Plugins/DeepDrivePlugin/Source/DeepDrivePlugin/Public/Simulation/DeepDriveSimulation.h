@@ -71,6 +71,9 @@ public:
 	EDeepDriveAgentControlMode	InitialControllerMode = EDeepDriveAgentControlMode::SPLINE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
+	FDeepDriveControllerData	InitialControllerData;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
 	TArray<FDeepDriveAdditionalAgentData>	AdditionalAgents;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
@@ -114,7 +117,7 @@ public:
 
 private:
 
-	ADeepDriveAgent* spawnAgent(EDeepDriveAgentControlMode mode);
+	ADeepDriveAgent* spawnAgent(EDeepDriveAgentControlMode mode, const FDeepDriveControllerData &ctrlData);
 
 	void spawnAdditionalAgents();
 

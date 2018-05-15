@@ -38,9 +38,6 @@ public:
 
 	virtual void OnDebugTrigger();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Spline)
-	AActor	*SplineActor = 0;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Track)
 	ADeepDriveSplineTrack	*Track = 0;
 
@@ -62,7 +59,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
 	FVector	PIDThrottle;
 
-private:
+protected:
 
 	void resetAgentPosOnSpline(ADeepDriveAgent &agent);
 
@@ -79,15 +76,6 @@ private:
 
 	float								m_SumDistToCenter = 0.0f;
 	int32								m_numDistSamples = 0;
-
-	float								m_SumSpeedError = 0.0f;
-	float								m_numSpeedSamples = 0;
-
-	TArray<float>						m_SpeedErrorSamples;
-	const int32							m_maxSpeedErrorSamples = 60;
-	int32								m_nextSpeedErrorSampleIndex = 0;
-	float								m_totalSpeedError = 0.0f;
-	int32								m_numTotalSpeedErrorSamples = 0;
 
 	float								m_SpeedDeviationSum = 0.0f;
 	int32								m_numSpeedDeviation = 0;

@@ -71,7 +71,7 @@ void ADeepDriveSimulation::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	m_curAgent = spawnAgent(InitialControllerMode);
+	m_curAgent = spawnAgent(InitialControllerMode, InitialControllerData);
 	if(m_curAgent)
 	{
 		OnCurrentAgentChanged(m_curAgent);
@@ -260,7 +260,7 @@ bool ADeepDriveSimulation::resetAgent()
 	return m_curAgentController ? m_curAgentController->ResetAgent() : false;
 }
 
-ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(EDeepDriveAgentControlMode mode)
+ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(EDeepDriveAgentControlMode mode, const FDeepDriveControllerData &ctrlData)
 {
 	FTransform transform = GetActorTransform();
 	ADeepDriveAgent *agent  = Cast<ADeepDriveAgent>(GetWorld()->SpawnActor(Agent, &transform, FActorSpawnParameters()));
@@ -269,7 +269,7 @@ ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(EDeepDriveAgentControlMode mod
 	{
 		agent->setResetTransform(transform);
 
-		ADeepDriveAgentControllerBase *controller = spawnController(mode, FDeepDriveControllerData());
+		ADeepDriveAgentControllerBase *controller = spawnController(mode, ctrlData);
 		if(controller)
 		{
 			if(controller->Activate(*agent))
