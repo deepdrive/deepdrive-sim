@@ -3,8 +3,14 @@
 #include "DeepDrivePluginPrivatePCH.h"
 #include "DeepDriveAgentLocalAIController.h"
 #include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
+#include "Private/Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentCruisingState.h"
+#include "Private/Simulation/Agent/Controllers/DeepDriveAgentSplineDrivingCtrl.h"
 
-#include "Simulation/Agent/Controllers/LocalAI/DeepDriveAgentLocalAIStateBase.h"
+#include "Private/Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentCruisingState.h"
+#include "Private/Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentBeginOvertakingState.h"
+#include "Private/Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentOvertakingState.h"
+#include "Private/Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentFinishOvertakingState.h"
+#include "Private/Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentAbortOvertakingState.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveAgentLocalAIController);
 
@@ -32,10 +38,22 @@ bool ADeepDriveAgentLocalAIController::Activate(ADeepDriveAgent &agent)
 		}
 	}
 
-	m_StateMachineCtx = new DeepDriveAgentLocalAIStateMachineContext(*this, agent);
+	const bool activated = ADeepDriveAgentSplineController::Activate(agent);
 
+	if (activated)
+	{
+		m_StateMachineCtx = new DeepDriveAgentLocalAIStateMachineContext(*this, agent, *m_SplineDrivingCtrl);
 
-	return ADeepDriveAgentSplineController::Activate(agent);
+		m_StateMachine.registerState(new DeepDriveAgentCruisingState(m_StateMachine));
+		m_StateMachine.registerState(new DeepDriveAgentBeginOvertakingState(m_StateMachine));
+		m_StateMachine.registerState(new DeepDriveAgentOvertakingState(m_StateMachine));
+		m_StateMachine.registerState(new DeepDriveAgentFinishOvertakingState(m_StateMachine));
+		m_StateMachine.registerState(new DeepDriveAgentAbortOvertakingState(m_StateMachine));
+
+		m_StateMachine.setNextState("Cruising");
+	}
+
+	return activated;
 }
 
 
@@ -46,6 +64,5 @@ void ADeepDriveAgentLocalAIController::Tick( float DeltaSeconds )
 		if(m_StateMachineCtx)
 			m_StateMachine.update(*m_StateMachineCtx, DeltaSeconds);
 
-		m_SplineDrivingCtrl->update(DeltaSeconds, DesiredSpeed, 0.0f);
 	}
 }
