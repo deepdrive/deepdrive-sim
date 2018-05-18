@@ -22,9 +22,7 @@ public:
 
 	~DeepDriveAgentSplineDrivingCtrl();
 
-	void setAgent(ADeepDriveAgent *agent);
-
-	void setTrack(ADeepDriveSplineTrack *track);
+	void initialize(ADeepDriveAgent &agent, ADeepDriveSplineTrack *track);
 
 	void update(float dT, float desiredSpeed, float offset);
 
@@ -54,13 +52,3 @@ private:
 	float							m_desiredSteering = 0.0f;
 };
 
-
-inline void DeepDriveAgentSplineDrivingCtrl::setAgent(ADeepDriveAgent *agent)
-{
-	m_Agent = agent;
-}
-
-inline void DeepDriveAgentSplineDrivingCtrl::setTrack(ADeepDriveSplineTrack *track)
-{
-	m_Track = track;
-}

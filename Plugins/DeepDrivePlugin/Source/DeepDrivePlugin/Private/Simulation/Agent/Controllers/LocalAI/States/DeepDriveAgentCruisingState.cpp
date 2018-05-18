@@ -23,7 +23,7 @@ void DeepDriveAgentCruisingState::update(DeepDriveAgentLocalAIStateMachineContex
 
 	if (m_Countdown > 0.0f)
 	{
-		m_Countdown -= dT;
+		//m_Countdown -= dT;
 		if (m_Countdown <= 0.0f)
 		{
 			m_StateMachine.setNextState("BeginOvertaking");

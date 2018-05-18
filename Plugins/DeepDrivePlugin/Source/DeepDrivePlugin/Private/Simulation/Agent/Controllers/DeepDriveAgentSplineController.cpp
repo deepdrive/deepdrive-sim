@@ -26,8 +26,7 @@ bool ADeepDriveAgentSplineController::Activate(ADeepDriveAgent &agent)
 		m_SplineDrivingCtrl = new DeepDriveAgentSplineDrivingCtrl(PIDSteering, PIDThrottle, FVector());
 		if(m_SplineDrivingCtrl)
 		{
-			m_SplineDrivingCtrl->setTrack(Track);
-			m_SplineDrivingCtrl->setAgent(&agent);
+			m_SplineDrivingCtrl->initialize(agent, Track);
 
 			m_Spline = Track->GetSpline();
 			resetAgentPosOnSpline(agent);

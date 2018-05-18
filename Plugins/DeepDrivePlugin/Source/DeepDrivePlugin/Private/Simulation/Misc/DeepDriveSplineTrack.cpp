@@ -9,7 +9,8 @@ ADeepDriveSplineTrack::ADeepDriveSplineTrack()
 {
 	SplineTrack = CreateDefaultSubobject<USplineComponent>(TEXT("SplneTrack"));
 	RootComponent = SplineTrack;
-//	SplineTrack->SetupAttachment(GetRootComponent());
+
+	PrimaryActorTick.TickGroup = TG_PrePhysics;
 }
 
 ADeepDriveSplineTrack::~ADeepDriveSplineTrack()
@@ -30,6 +31,14 @@ void ADeepDriveSplineTrack::BeginPlay()
 
 	m_SpeedLimits.Sort([](const FVector2D &lhs, const FVector2D &rhs) { return lhs.X < rhs.X; });
 }
+
+void ADeepDriveSplineTrack::Tick(float DeltaTime)
+{
+	for(auto &item : m_RegisteredAgents)
+		item.Value = SplineTrack->FindInputKeyClosestToWorldLocation(item.Key->GetActorLocation());
+
+}
+
 
 void ADeepDriveSplineTrack::setBaseLocation(const FVector &baseLocation)
 {
@@ -84,6 +93,26 @@ float ADeepDriveSplineTrack::getSpeedLimit(float distanceAhead)
 	}
 
 	return speedLimit;
+}
+
+void ADeepDriveSplineTrack::registerAgent(ADeepDriveAgent &agent, float curKey)
+{
+	m_RegisteredAgents.Add(&agent, curKey);
+}
+
+void ADeepDriveSplineTrack::beginAgentQuery(ADeepDriveAgent &agent, bool oppositeDirection, float maxDistance)
+{
+}
+
+void ADeepDriveSplineTrack::beginAgentQuery(const FVector &location, bool oppositeDirection, float maxDistance)
+{
+}
+
+bool ADeepDriveSplineTrack::nextAgent(ADeepDriveAgent* &agentPtr, float &distance)
+{
+	bool res = false;
+
+	return res;
 }
 
 float ADeepDriveSplineTrack::getInputKeyAhead(float distanceAhead)

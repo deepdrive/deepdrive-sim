@@ -21,6 +21,14 @@ DeepDriveAgentSplineDrivingCtrl::~DeepDriveAgentSplineDrivingCtrl()
 {
 }
 
+void DeepDriveAgentSplineDrivingCtrl::initialize(ADeepDriveAgent &agent, ADeepDriveSplineTrack *track)
+{
+	m_Agent = &agent;
+	m_Track = track;
+
+	m_Track->registerAgent(agent, m_Track->GetSpline()->FindInputKeyClosestToWorldLocation(agent.GetActorLocation()));
+}
+
 
 void DeepDriveAgentSplineDrivingCtrl::update(float dT, float desiredSpeed, float offset)
 {
