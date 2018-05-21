@@ -35,14 +35,84 @@ void DeepDriveAgentSplineDrivingCtrl::update(float dT, float desiredSpeed, float
 	if(m_Track && m_Agent)
 	{
 		desiredSpeed = limitSpeed(desiredSpeed);
+		float curBrake = 1.0f;
+		float curThrottle = 1.0f;
 
-		const float curSpeed = m_Agent->GetVehicleMovementComponent()->GetForwardSpeed();
-		const float curSpeedKmh = curSpeed * 0.036f;
-		const float eSpeed = desiredSpeed - curSpeedKmh;
-		const float yThrottle = m_ThrottlePIDCtrl.advance(dT, eSpeed);
-		m_curThrottle = FMath::Clamp(m_curThrottle + yThrottle * dT, -1.0f, 1.0f);
-		m_Agent->SetThrottle(m_curThrottle);
+		if (desiredSpeed > 0.0f)
+		{
+			const float curSpeed = m_Agent->GetVehicleMovementComponent()->GetForwardSpeed();
 
+			const float curSpeedKmh = curSpeed * 0.036f;// / desiredSpeed;
+			/*
+
+			const float deltaSpeed = 1.0f - curSpeedKmh;
+			const float eSpeed = deltaSpeed;// FMath::Sign(deltaSpeed) * FMath::Pow(deltaSpeed, 4.0f);
+
+			if (eSpeed < 0.05f)
+			{
+				curBrake = m_BrakePIDCtrl.advance(dT, eSpeed);
+			}
+
+			if (deltaSpeed <= 0.0f)
+			{
+				curThrottle = 0.0f;
+			}
+			else if (deltaSpeed > 0.2f)
+				curThrottle = 1.0f;
+			else
+			{
+				const float yThrottle = m_ThrottlePIDCtrl.advance(dT, eSpeed);
+				m_curThrottle = FMath::Clamp(yThrottle, 0.0f, 1.0f);
+
+				curThrottle = 1.0f - m_curThrottle;
+
+				curThrottle = 0.0f;
+			}
+
+			curThrottle = FMath::SmoothStep(-0.05f, 0.025f, deltaSpeed);
+			*/
+			curThrottle = m_Accelerate ? 1.0f : 0.0f;
+
+			if (m_Accelerate && m_elapsedTime > 30.0f)
+				m_Accelerate = false;
+
+			curBrake = 0.0f;
+
+			UE_LOG(LogDeepDriveAgentSplineDrivingCtrl, Log, TEXT("DeepDriveAgentSplineDrivingCtrl::update %f curSpeed %4.2f curThrottle %f"), m_elapsedTime, curSpeed * 0.036f, curThrottle);
+
+			m_elapsedTime += dT;
+			//UE_LOG(LogDeepDriveAgentSplineDrivingCtrl, Log, TEXT("DeepDriveAgentSplineDrivingCtrl::update curSpeed %4.2f deltaSpeed %f curThrottle %f curBrake %f dThrottle %f"), curSpeed * 0.036f, deltaSpeed, curThrottle, curBrake, m_curThrottle);
+		}
+
+		m_Agent->SetThrottle(curThrottle);
+		m_Agent->SetBrake(curBrake);
+
+#if 0
+		if (m_keepSafetyDistance)
+		{
+			ADeepDriveAgent *nextAgent = 0;
+			float distance = 0.0f;
+			m_Track->getNextAgent(*m_Agent, nextAgent, distance);
+
+			const float BrakingDeceleration = 800.0f;
+			float safetyDistance = 1.25f * curSpeed * curSpeed / (2.0f * BrakingDeceleration);
+
+			safetyDistance *= m_SafetyDistanceFactor;
+
+			if (distance < safetyDistance)
+			{
+				desiredSpeed = nextAgent->GetVehicleMovementComponent()->GetForwardSpeed() * 0.036f;
+
+				distance = m_Agent->getDistanceToAgent(*nextAgent);
+				desiredSpeed *= FMath::SmoothStep(m_BrakingDistanceRange.X, m_BrakingDistanceRange.Y, distance);
+
+				brake = 1.0f - FMath::SmoothStep(m_BrakingDistanceRange.X, m_BrakingDistanceRange.Y, distance);
+
+				UE_LOG(LogDeepDriveAgentSplineDrivingCtrl, Log, TEXT("DeepDriveAgentSplineDrivingCtrl::update distance %f safetyDist %f speed %f brake %f"), distance, safetyDistance, curSpeed, brake);
+			}
+
+		}
+#endif
 
 		m_curAgentLocation = m_Agent->GetActorLocation();
 		m_Track->setBaseLocation(m_curAgentLocation);

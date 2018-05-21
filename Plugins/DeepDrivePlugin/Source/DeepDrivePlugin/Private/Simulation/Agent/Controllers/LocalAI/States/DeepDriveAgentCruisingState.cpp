@@ -14,7 +14,7 @@ DeepDriveAgentCruisingState::DeepDriveAgentCruisingState(DeepDriveAgentLocalAISt
 
 void DeepDriveAgentCruisingState::enter(DeepDriveAgentLocalAIStateMachineContext &ctx)
 {
-	m_Countdown = ctx.local_ai_ctrl.OvertakingBeginDuration;
+	m_Countdown = ctx.configuration.OvertakingBeginDuration;
 }
 
 void DeepDriveAgentCruisingState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)

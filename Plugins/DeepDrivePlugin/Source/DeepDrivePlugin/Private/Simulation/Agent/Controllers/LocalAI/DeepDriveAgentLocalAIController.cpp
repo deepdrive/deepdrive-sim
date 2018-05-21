@@ -38,11 +38,31 @@ bool ADeepDriveAgentLocalAIController::Activate(ADeepDriveAgent &agent)
 		}
 	}
 
-	const bool activated = ADeepDriveAgentSplineController::Activate(agent);
+	if (Track)
+	{
+		m_SplineDrivingCtrl = new DeepDriveAgentSplineDrivingCtrl(m_Configuration.PIDSteering, m_Configuration.PIDThrottle, m_Configuration.PIDBrake);
+		if (m_SplineDrivingCtrl)
+		{
+			m_SplineDrivingCtrl->initialize(agent, Track);
+
+			m_Spline = Track->GetSpline();
+			resetAgentPosOnSpline(agent);
+
+			UE_LOG(LogDeepDriveAgentSplineController, Log, TEXT("ADeepDriveAgentSplineController::Activate Successfully initialized"));
+		}
+	}
+	else
+		UE_LOG(LogDeepDriveAgentSplineController, Error, TEXT("ADeepDriveAgentSplineController::Activate Didn't find spline"));
+
+
+	const bool activated = m_Spline != 0 && m_SplineDrivingCtrl != 0 && ADeepDriveAgentControllerBase::Activate(agent);
 
 	if (activated)
 	{
-		m_StateMachineCtx = new DeepDriveAgentLocalAIStateMachineContext(*this, agent, *m_SplineDrivingCtrl);
+		m_SplineDrivingCtrl->setSafetyDistanceFactor(m_Configuration.SafetyDistanceFactor);
+		m_SplineDrivingCtrl->setBrakingDistanceRange(m_Configuration.BrakingDistanceRange);
+
+		m_StateMachineCtx = new DeepDriveAgentLocalAIStateMachineContext(*this, agent, *m_SplineDrivingCtrl, m_Configuration);
 
 		m_StateMachine.registerState(new DeepDriveAgentCruisingState(m_StateMachine));
 		m_StateMachine.registerState(new DeepDriveAgentBeginOvertakingState(m_StateMachine));
@@ -57,12 +77,21 @@ bool ADeepDriveAgentLocalAIController::Activate(ADeepDriveAgent &agent)
 }
 
 
+void ADeepDriveAgentLocalAIController::Configure(const FDeepDriveLocalAIControllerConfiguration &Configuration, int32 StartPositionSlot)
+{
+	m_Configuration = Configuration;
+
+	DesiredSpeed = FMath::RandRange(Configuration.SpeedRange.X, Configuration.SpeedRange.Y);
+	Track = Configuration.Track;
+	StartDistance = Configuration.StartDistances[StartPositionSlot];
+}
+
+
 void ADeepDriveAgentLocalAIController::Tick( float DeltaSeconds )
 {
 	if (m_Agent && m_SplineDrivingCtrl)
 	{
 		if(m_StateMachineCtx)
 			m_StateMachine.update(*m_StateMachineCtx, DeltaSeconds);
-
 	}
 }

@@ -14,9 +14,9 @@ DeepDriveAgentFinishOvertakingState::DeepDriveAgentFinishOvertakingState(DeepDri
 
 void DeepDriveAgentFinishOvertakingState::enter(DeepDriveAgentLocalAIStateMachineContext &ctx)
 {
-	m_remainingPullInTime = ctx.local_ai_ctrl.ChangeLaneDuration;
+	m_remainingPullInTime = ctx.configuration.ChangeLaneDuration;
 	m_curOffset = ctx.side_offset;
-	m_deltaOffsetFac = ctx.local_ai_ctrl.OvertakingOffset / m_remainingPullInTime;
+	m_deltaOffsetFac = ctx.configuration.OvertakingOffset / m_remainingPullInTime;
 }
 
 void DeepDriveAgentFinishOvertakingState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)
@@ -27,7 +27,7 @@ void DeepDriveAgentFinishOvertakingState::update(DeepDriveAgentLocalAIStateMachi
 	{
 		m_StateMachine.setNextState("Cruising");
 	}
-	ctx.spline_driving_ctrl.update(dT, ctx.local_ai_ctrl.OvertakingSpeed, m_curOffset);
+	ctx.spline_driving_ctrl.update(dT, ctx.configuration.OvertakingSpeed, m_curOffset);
 
 }
 

@@ -24,8 +24,11 @@ ADeepDriveAgent::ADeepDriveAgent()
 	OrbitCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("OrbitCamera"));
 	OrbitCamera->SetupAttachment(OrbitCameraArm);
 
-	WhiskerStraight = CreateDefaultSubobject<UArrowComponent> (TEXT("WhiskerStraight"));
-	WhiskerStraight->SetupAttachment(GetRootComponent());
+	FrontMarker = CreateDefaultSubobject<UArrowComponent>(TEXT("FrontMarker"));
+	FrontMarker->SetupAttachment(GetRootComponent());
+
+	BackMarker = CreateDefaultSubobject<UArrowComponent>(TEXT("BackMarker"));
+	BackMarker->SetupAttachment(GetRootComponent());
 
 }
 
@@ -105,6 +108,7 @@ void ADeepDriveAgent::SetThrottle(float throttle)
 void ADeepDriveAgent::SetBrake(float brake)
 {
 	m_curBrake = brake;
+	GetVehicleMovementComponent()->SetBrakeInput(brake);
 }
 
 void ADeepDriveAgent::SetHandbrake(bool on)
@@ -220,14 +224,6 @@ float ADeepDriveAgent::getDistanceToObstacleAhead(float maxDistance)
 {
 	float distance = -1.0f;
 
-	FHitResult outHit;
-	FVector start = WhiskerStraight->GetComponentLocation();
-	FVector end = start + WhiskerStraight->GetForwardVector() * maxDistance;
-	if (GetWorld()->LineTraceSingleByChannel(outHit, start, end, ECC_Visibility))
-	{
-		distance = outHit.Distance;
-	}
-
 	return distance;
 }
 
@@ -244,4 +240,9 @@ void ADeepDriveAgent::OnDebugTrigger()
 	ADeepDriveAgentControllerBase *ctrl = Cast<ADeepDriveAgentControllerBase>(GetController());
 	if (ctrl)
 		ctrl->OnDebugTrigger();
+}
+
+float ADeepDriveAgent::getDistanceToAgent(ADeepDriveAgent &other)
+{
+	return (other.BackMarker->GetComponentLocation() - FrontMarker->GetComponentLocation()).Size();
 }

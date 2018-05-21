@@ -18,5 +18,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Controller")
 	ADeepDriveAgentControllerBase* CreateController(const FDeepDriveControllerData &ControllerData);
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Controller")
+	ADeepDriveAgentControllerBase* CreateAgentController(int32 ConfigurationSlot, int32 StartPositionSlot);
+
 
 };

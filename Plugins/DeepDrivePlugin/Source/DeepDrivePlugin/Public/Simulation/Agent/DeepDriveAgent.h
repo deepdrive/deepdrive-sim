@@ -94,6 +94,8 @@ public:
 	float getDistanceToCenterOfTrack() const;
 	bool getIsGameDriving() const;
 
+	float getDistanceToAgent(ADeepDriveAgent &other);
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = Cameras)
@@ -109,7 +111,10 @@ protected:
 	UCameraComponent					*OrbitCamera = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = Cameras)
-	UArrowComponent						*WhiskerStraight = 0;
+	UArrowComponent						*FrontMarker = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category = Cameras)
+	UArrowComponent						*BackMarker = 0;
 
 private:
 

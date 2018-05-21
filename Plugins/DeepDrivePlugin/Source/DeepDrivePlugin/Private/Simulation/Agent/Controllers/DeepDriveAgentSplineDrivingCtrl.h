@@ -26,6 +26,11 @@ public:
 
 	void update(float dT, float desiredSpeed, float offset);
 
+	void setSafetyDistanceFactor(float safetyDistanceFactor);
+
+	void setKeepSafetyDistance(bool keepSafetyDistance);
+
+	void setBrakingDistanceRange(const FVector2D &range);
 
 private:
 
@@ -50,5 +55,29 @@ private:
 	float							m_curThrottle = 0.0f;
 	float							m_curSteering = 0.0f;
 	float							m_desiredSteering = 0.0f;
+
+	float							m_SafetyDistanceFactor = 1.0f;
+	bool							m_keepSafetyDistance = true;
+	FVector2D						m_BrakingDistanceRange;
+
+
+	float							m_elapsedTime = 0.0f;
+	bool							m_Accelerate = true;
+
 };
 
+
+inline void DeepDriveAgentSplineDrivingCtrl::setSafetyDistanceFactor(float safetyDistanceFactor)
+{
+	m_SafetyDistanceFactor = safetyDistanceFactor;
+}
+
+inline void DeepDriveAgentSplineDrivingCtrl::setKeepSafetyDistance(bool keepSafetyDistance)
+{
+	m_keepSafetyDistance = keepSafetyDistance;
+}
+
+inline void DeepDriveAgentSplineDrivingCtrl::setBrakingDistanceRange(const FVector2D &range)
+{
+	m_BrakingDistanceRange = range;
+}

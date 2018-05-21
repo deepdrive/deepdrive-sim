@@ -9,22 +9,42 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveAgentLocalAIController, Log, All);
 
-/**
- * 
- */
-UCLASS()
-class DEEPDRIVEPLUGIN_API ADeepDriveAgentLocalAIController : public ADeepDriveAgentSplineController
+
+
+USTRUCT(BlueprintType)
+struct FDeepDriveLocalAIControllerConfiguration
 {
-	GENERATED_BODY()
-	
-public:
+	GENERATED_USTRUCT_BODY()
 
-	ADeepDriveAgentLocalAIController();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
+	FString		ConfigurationName;
 
-	virtual void Tick( float DeltaSeconds ) override;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
+	ADeepDriveSplineTrack	*Track;
 
-	virtual bool Activate(ADeepDriveAgent &agent);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
+	TArray<float>	StartDistances;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
+	FVector		PIDThrottle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
+	FVector		PIDSteering;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
+	FVector		PIDBrake;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
+	FVector2D	SpeedRange;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Safety)
+	float	SafetyDistanceFactor = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Safety)
+	FVector2D	BrakingDistanceRange;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Overtaking)
+	bool EnableOvertaking = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Overtaking)
 	float	OvertakingOffset = 500.0f;
@@ -41,9 +61,32 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Overtaking)
 	float	OvertakingDuration = 10.0f;
 
+};
+
+/**
+ * 
+ */
+UCLASS()
+class DEEPDRIVEPLUGIN_API ADeepDriveAgentLocalAIController : public ADeepDriveAgentSplineController
+{
+	GENERATED_BODY()
+	
+public:
+
+	ADeepDriveAgentLocalAIController();
+
+	virtual void Tick( float DeltaSeconds ) override;
+
+	virtual bool Activate(ADeepDriveAgent &agent);
+
+	UFUNCTION(BlueprintCallable, Category = "Configuration")
+	void Configure(const FDeepDriveLocalAIControllerConfiguration &Configuration, int32 StartPositionSlot);
+
 private:
 
 	DeepDriveAgentLocalAIStateMachine			m_StateMachine;
 	DeepDriveAgentLocalAIStateMachineContext	*m_StateMachineCtx;
 	
+	FDeepDriveLocalAIControllerConfiguration	m_Configuration;
+
 };

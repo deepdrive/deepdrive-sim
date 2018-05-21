@@ -32,7 +32,10 @@ struct FDeepDriveAdditionalAgentData
 	EDeepDriveAgentControlMode		Mode;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	FDeepDriveControllerData	ControllerData;
+	int32	ConfigurationSlot;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	int32	StartPositionSlot;
 };
 
 UCLASS()
@@ -71,7 +74,10 @@ public:
 	EDeepDriveAgentControlMode	InitialControllerMode = EDeepDriveAgentControlMode::SPLINE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
-	FDeepDriveControllerData	InitialControllerData;
+	int32	InitialConfigurationSlot;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
+	int32	StartPositionSlot;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
 	TArray<FDeepDriveAdditionalAgentData>	AdditionalAgents;
@@ -117,11 +123,11 @@ public:
 
 private:
 
-	ADeepDriveAgent* spawnAgent(EDeepDriveAgentControlMode mode, const FDeepDriveControllerData &ctrlData);
+	ADeepDriveAgent* spawnAgent(EDeepDriveAgentControlMode mode, int32 configSlot, int32 startPosSlot);
 
 	void spawnAdditionalAgents();
 
-	ADeepDriveAgentControllerBase* spawnController(EDeepDriveAgentControlMode mode, const FDeepDriveControllerData &data);
+	ADeepDriveAgentControllerBase* spawnController(EDeepDriveAgentControlMode mode, int32 configSlot, int32 startPosSlot);
 
 	bool									m_isActive = false;
 	DeepDriveSimulationServerProxy			*m_ServerProxy = 0;

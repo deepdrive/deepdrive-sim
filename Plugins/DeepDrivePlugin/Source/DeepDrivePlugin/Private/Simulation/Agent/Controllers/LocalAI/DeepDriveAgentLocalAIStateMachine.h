@@ -8,19 +8,23 @@ class ADeepDriveAgentLocalAIController;
 class ADeepDriveAgent;
 class DeepDriveAgentSplineDrivingCtrl;
 
+struct FDeepDriveLocalAIControllerConfiguration;
+
 struct DeepDriveAgentLocalAIStateMachineContext
 {
-	DeepDriveAgentLocalAIStateMachineContext(ADeepDriveAgentLocalAIController &c, ADeepDriveAgent &a, DeepDriveAgentSplineDrivingCtrl &sdc)
+	DeepDriveAgentLocalAIStateMachineContext(ADeepDriveAgentLocalAIController &c, ADeepDriveAgent &a, DeepDriveAgentSplineDrivingCtrl &sdc, const FDeepDriveLocalAIControllerConfiguration &cfg)
 		:	local_ai_ctrl(c)
 		,	agent(a)
 		,	spline_driving_ctrl(sdc)
+		,	configuration(cfg)
 	{	}
 
-	ADeepDriveAgentLocalAIController		&local_ai_ctrl;
-	ADeepDriveAgent							&agent;
-	DeepDriveAgentSplineDrivingCtrl			&spline_driving_ctrl;
+	ADeepDriveAgentLocalAIController					&local_ai_ctrl;
+	ADeepDriveAgent										&agent;
+	DeepDriveAgentSplineDrivingCtrl						&spline_driving_ctrl;
+	const FDeepDriveLocalAIControllerConfiguration		&configuration;
 
-	float									side_offset = 0.0f;
+	float												side_offset = 0.0f;
 
 };
 

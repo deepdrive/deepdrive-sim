@@ -22,9 +22,16 @@ class DEEPDRIVEPLUGIN_API ADeepDriveSplineTrack	:	public AActor
 	//	maps agent to current key on spline
 	typedef TMap<ADeepDriveAgent*, float>		TAgentMap;
 
-	struct AgentQueryData
+	struct AgentData
 	{
+		AgentData(ADeepDriveAgent *a, float k, float d)
+			:	agent(a)
+			,	key(k)
+			,	distance(d)
+		{}
+
 		ADeepDriveAgent		*agent;
+		float				key;
 		float				distance;
 	};
 
@@ -48,11 +55,9 @@ public:
 
 	void registerAgent(ADeepDriveAgent &agent, float curKey);
 
-	void beginAgentQuery(ADeepDriveAgent &agent, bool oppositeDirection, float maxDistance);
+	bool getNextAgent(ADeepDriveAgent &agent, ADeepDriveAgent* &agentPtr, float &distance);
 
-	void beginAgentQuery(const FVector &location, bool oppositeDirection, float maxDistance);
-
-	bool nextAgent(ADeepDriveAgent* &agentPtr, float &distance);
+	void getPreviousAgent(const FVector &location, ADeepDriveAgent* &agentPtr, float &distance);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Track")
 	TArray<FVector2D>		SpeedLimits;
@@ -69,16 +74,16 @@ private:
 
 	float getInputKeyAhead(float distanceAhead);
 
-	void buildAgentQueryList(float curKey, bool oppositeDirection, float maxDistance);
+	float getDistance(float key);
 
 	TArray<FVector2D>				m_SpeedLimits;
 
 	FVector							m_BaseLocation;
 	float							m_BaseKey = 0.0f;
 
-	TAgentMap						m_RegisteredAgents;
-	TArray<AgentQueryData>			m_AgentQueryDataList;
-
+	TArray<AgentData>				m_RegisteredAgents;
+	
+	float							m_TrackLength;
 };
 
 inline USplineComponent* ADeepDriveSplineTrack::GetSpline()

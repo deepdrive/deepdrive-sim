@@ -51,4 +51,3 @@ struct FDeepDriveControllerData
 	AActor	*Actor2;
 
 };
-
