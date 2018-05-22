@@ -60,12 +60,6 @@ private:
 	bool							m_keepSafetyDistance = true;
 	FVector2D						m_BrakingDistanceRange;
 
-
-	float							m_elapsedTime = 0.0f;
-	bool							m_Accelerate = true;
-
-
-	float							m_Throttle = 0.0f;
 };
 
 
