@@ -64,6 +64,8 @@ private:
 	float							m_elapsedTime = 0.0f;
 	bool							m_Accelerate = true;
 
+
+	float							m_Throttle = 0.0f;
 };
 
 

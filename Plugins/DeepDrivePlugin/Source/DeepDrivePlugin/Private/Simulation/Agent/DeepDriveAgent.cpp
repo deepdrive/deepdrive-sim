@@ -44,6 +44,8 @@ void ADeepDriveAgent::BeginPlay()
 
 void ADeepDriveAgent::Tick( float DeltaSeconds )
 {
+	Super::Tick(DeltaSeconds);
+
 	FVector curVelocity = GetVelocity();
 	m_Acceleration = (curVelocity - m_prevVelocity) / DeltaSeconds;
 	m_prevVelocity = curVelocity;
