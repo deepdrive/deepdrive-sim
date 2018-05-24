@@ -3,6 +3,7 @@
 #include "DeepDrivePluginPrivatePCH.h"
 #include "DeepDriveAgentLocalAIController.h"
 #include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
+#include "Public/Simulation/Agent/DeepDriveAgent.h"
 #include "Private/Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentCruisingState.h"
 #include "Private/Simulation/Agent/Controllers/DeepDriveAgentSplineDrivingCtrl.h"
 
@@ -103,7 +104,7 @@ void ADeepDriveAgentLocalAIController::Tick( float DeltaSeconds )
 
 void ADeepDriveAgentLocalAIController::think(float dT)
 {
-	if(Track->getNextAgent(*m_Agent, m_StateMachineCtx->next_agent, m_StateMachineCtx->distance_to_next_agent))
+	if(Track->getNextAgent(*m_Agent, m_StateMachineCtx->next_agent, m_StateMachineCtx->distance_to_next_agent) == false)
 	{
 		m_StateMachineCtx->next_agent = 0;
 		m_StateMachineCtx->distance_to_next_agent = -1.0f;
@@ -124,30 +125,27 @@ void ADeepDriveAgentLocalAIController::think(float dT)
 
 float ADeepDriveAgentLocalAIController::calculateOvertakingScore(ADeepDriveAgent &nextAgent, float distanceToNextAgent)
 {
-	float score = 0.0f;
+	float score = -1.0f;
 
 	if	(	m_StateMachineCtx->overtaking_in_progess == false
 		&&	distanceToNextAgent <= m_Configuration.OvertakingMinDistance
 		)
 	{
-		score = 0.5f;
+		score = 1.0f;
 	}
 
-	if(nextAgent.getSpeed() * 0.036f >= m_Configuration.MinSpeedDifference)
-		score += 0.25f;
+	if(nextAgent.getSpeed() * 0.036f < m_Configuration.MinSpeedDifference)
+		score -= 1.0f;
 
 	ADeepDriveAgent *nextButOne = 0;
 	float nextButOneDist = -1.0f;
 	if(Track->getNextAgent(nextAgent, nextButOne, nextButOneDist))
 	{
-		if(nextButOne && nextButOneDist > m_Configuration.GapBetweenAgents)
-			score += 0.25f;
-		else
-			score = -1.0f;
+		if(nextButOne && nextButOneDist < m_Configuration.GapBetweenAgents)
+			score -= 1.0f;
 	}
-	else
-		score += 0.25f;			//	enough space before next agent
 
+/*
 	ADeepDriveAgent *nextOpposing = 0;
 	float nextOpposingDist = -1.0f;
 	if(Track->getNextAgent(nextAgent, nextButOne, nextButOneDist))
@@ -159,7 +157,7 @@ float ADeepDriveAgentLocalAIController::calculateOvertakingScore(ADeepDriveAgent
 	}
 	else
 		score += 1.0f;	
-
+*/
 	return score;
 }
 

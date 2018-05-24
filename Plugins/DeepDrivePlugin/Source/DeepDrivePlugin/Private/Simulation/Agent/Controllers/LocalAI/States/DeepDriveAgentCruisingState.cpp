@@ -20,7 +20,7 @@ void DeepDriveAgentCruisingState::update(DeepDriveAgentLocalAIStateMachineContex
 {
 	if(ctx.overtaking_score > 0.0f)
 	{
-		//m_StateMachine.setNextState("BeginOvertaking");
+		m_StateMachine.setNextState("BeginOvertaking");
 	}
 	ctx.spline_driving_ctrl.update(dT, ctx.local_ai_ctrl.DesiredSpeed, 0.0f);
 
