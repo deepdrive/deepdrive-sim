@@ -24,6 +24,12 @@ struct DeepDriveAgentLocalAIStateMachineContext
 	DeepDriveAgentSplineDrivingCtrl						&spline_driving_ctrl;
 	const FDeepDriveLocalAIControllerConfiguration		&configuration;
 
+	ADeepDriveAgent										*next_agent = 0;
+	float												distance_to_next_agent = -1.0f;
+
+	float												overtaking_score = -1.0f;
+	bool												overtaking_in_progess = false;
+
 	float												side_offset = 0.0f;
 
 };

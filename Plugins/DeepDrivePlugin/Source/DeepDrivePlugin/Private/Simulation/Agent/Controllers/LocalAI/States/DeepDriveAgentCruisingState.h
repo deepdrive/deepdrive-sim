@@ -17,6 +17,4 @@ public:
 
 private:
 
-	float				m_Countdown = 0.0f;
-
 };

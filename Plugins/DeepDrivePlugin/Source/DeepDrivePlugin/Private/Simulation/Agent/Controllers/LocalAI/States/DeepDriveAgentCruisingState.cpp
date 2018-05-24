@@ -14,21 +14,16 @@ DeepDriveAgentCruisingState::DeepDriveAgentCruisingState(DeepDriveAgentLocalAISt
 
 void DeepDriveAgentCruisingState::enter(DeepDriveAgentLocalAIStateMachineContext &ctx)
 {
-	m_Countdown = ctx.configuration.OvertakingBeginDuration;
 }
 
 void DeepDriveAgentCruisingState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)
 {
+	if(ctx.overtaking_score > 0.0f)
+	{
+		//m_StateMachine.setNextState("BeginOvertaking");
+	}
 	ctx.spline_driving_ctrl.update(dT, ctx.local_ai_ctrl.DesiredSpeed, 0.0f);
 
-	if (m_Countdown > 0.0f)
-	{
-		//m_Countdown -= dT;
-		if (m_Countdown <= 0.0f)
-		{
-			m_StateMachine.setNextState("BeginOvertaking");
-		}
-	}
 }
 
 void DeepDriveAgentCruisingState::exit(DeepDriveAgentLocalAIStateMachineContext &ctx)

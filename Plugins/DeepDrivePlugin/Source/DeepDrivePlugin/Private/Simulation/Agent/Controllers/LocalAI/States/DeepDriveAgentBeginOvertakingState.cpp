@@ -16,6 +16,9 @@ void DeepDriveAgentBeginOvertakingState::enter(DeepDriveAgentLocalAIStateMachine
 {
 	m_remainingPullOutTime = ctx.configuration.ChangeLaneDuration;
 	m_deltaOffsetFac = ctx.configuration.OvertakingOffset  / m_remainingPullOutTime;
+
+	ctx.overtaking_in_progess = true;
+	ctx.spline_driving_ctrl.setKeepSafetyDistance(false);
 }
 
 void DeepDriveAgentBeginOvertakingState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)

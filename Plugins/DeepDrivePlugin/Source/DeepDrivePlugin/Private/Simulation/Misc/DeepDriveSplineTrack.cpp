@@ -119,26 +119,31 @@ void ADeepDriveSplineTrack::registerAgent(ADeepDriveAgent &agent, float curKey)
 bool ADeepDriveSplineTrack::getNextAgent(ADeepDriveAgent &agent, ADeepDriveAgent* &agentPtr, float &distance)
 {
 	bool foundIt = false;
-	int32 ind = 0;
-	for( ; ind < m_RegisteredAgents.Num() && m_RegisteredAgents[ind].agent != &agent; ++ind) {}
-	if (ind < m_RegisteredAgents.Num())
+	if(m_RegisteredAgents.Num() > 1)
 	{
-		foundIt = true;
-
-		float dist0 = m_RegisteredAgents[ind].distance;
-
-		ind = (ind + 1) % m_RegisteredAgents.Num();
-		agentPtr = m_RegisteredAgents[ind].agent;
-
-		float dist1 = m_RegisteredAgents[ind].distance;
-
-		if (dist1 > dist0)
+		int32 ind = 0;
+		for( ; ind < m_RegisteredAgents.Num() && m_RegisteredAgents[ind].agent != &agent; ++ind) {}
+		if (ind < m_RegisteredAgents.Num())
 		{
-			distance = dist1 - dist0;
-		}
-		else
-		{
-			distance = m_TrackLength - dist0 + dist1;
+			foundIt = true;
+
+			float dist0 = m_RegisteredAgents[ind].distance;
+
+			ind = (ind + 1) % m_RegisteredAgents.Num();
+			agentPtr = m_RegisteredAgents[ind].agent;
+
+			float dist1 = m_RegisteredAgents[ind].distance;
+
+			if (dist1 > dist0)
+			{
+				distance = dist1 - dist0;
+			}
+			else
+			{
+				distance = m_TrackLength - dist0 + dist1;
+			}
+
+			distance = FMath::Max(0.0f, distance - agent.getFrontBumperDistance() - agentPtr->getBackBumperDistance());
 		}
 	}
 	return foundIt;

@@ -14,16 +14,17 @@ DeepDriveAgentOvertakingState::DeepDriveAgentOvertakingState(DeepDriveAgentLocal
 
 void DeepDriveAgentOvertakingState::enter(DeepDriveAgentLocalAIStateMachineContext &ctx)
 {
-	m_remainingOvertakingTime = ctx.configuration.OvertakingDuration;
 }
 
 void DeepDriveAgentOvertakingState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)
 {
-	m_remainingOvertakingTime -= dT;
+/*
 	if (m_remainingOvertakingTime <= 0.0f)
 	{
 		m_StateMachine.setNextState("FinishOvertaking");
 	}
+*/
+	
 	ctx.spline_driving_ctrl.update(dT, ctx.configuration.OvertakingSpeed, ctx.side_offset);
 }
 

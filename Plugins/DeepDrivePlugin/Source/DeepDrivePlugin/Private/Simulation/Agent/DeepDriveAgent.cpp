@@ -10,8 +10,11 @@
 
 DEFINE_LOG_CATEGORY(LogDeepDriveAgent);
 
+int32 ADeepDriveAgent::s_nextAgentId = 1;
+
 ADeepDriveAgent::ADeepDriveAgent()
 {
+	m_AgentId = s_nextAgentId++;
 	ChaseCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ChaseCamera"));
 	ChaseCamera->SetupAttachment(GetRootComponent());
 
@@ -23,13 +26,6 @@ ADeepDriveAgent::ADeepDriveAgent()
 
 	OrbitCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("OrbitCamera"));
 	OrbitCamera->SetupAttachment(OrbitCameraArm);
-
-	FrontMarker = CreateDefaultSubobject<UArrowComponent>(TEXT("FrontMarker"));
-	FrontMarker->SetupAttachment(GetRootComponent());
-
-	BackMarker = CreateDefaultSubobject<UArrowComponent>(TEXT("BackMarker"));
-	BackMarker->SetupAttachment(GetRootComponent());
-
 }
 
 void ADeepDriveAgent::BeginPlay()
@@ -242,9 +238,4 @@ void ADeepDriveAgent::OnDebugTrigger()
 	ADeepDriveAgentControllerBase *ctrl = Cast<ADeepDriveAgentControllerBase>(GetController());
 	if (ctrl)
 		ctrl->OnDebugTrigger();
-}
-
-float ADeepDriveAgent::getDistanceToAgent(ADeepDriveAgent &other)
-{
-	return (other.BackMarker->GetComponentLocation() - FrontMarker->GetComponentLocation()).Size();
 }

@@ -17,5 +17,4 @@ public:
 
 private:
 
-	float				m_remainingOvertakingTime = 0.0f;
 };

@@ -94,7 +94,10 @@ public:
 	float getDistanceToCenterOfTrack() const;
 	bool getIsGameDriving() const;
 
-	float getDistanceToAgent(ADeepDriveAgent &other);
+	float getFrontBumperDistance() const;
+	float getBackBumperDistance() const;
+
+	int32 getAgentId() const;
 
 protected:
 
@@ -110,13 +113,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = Cameras)
 	UCameraComponent					*OrbitCamera = 0;
 
-	UPROPERTY(EditDefaultsOnly, Category = Cameras)
-	UArrowComponent						*FrontMarker = 0;
+	UPROPERTY(EditDefaultsOnly, Category = Car)
+	float								FrontBumperDistance = 0.0f;
 
-	UPROPERTY(EditDefaultsOnly, Category = Cameras)
-	UArrowComponent						*BackMarker = 0;
+	UPROPERTY(EditDefaultsOnly, Category = Car)
+	float								BackBumperDistance = 0.0f;
 
 private:
+
+	int32								m_AgentId;
 
 	TArray<UCaptureCameraComponent*>	m_CaptureCameras;
 	
@@ -138,6 +143,8 @@ private:
 	bool								m_isGameDriving;
 	int32								m_NumberOfLaps = 0;
 	bool								m_LapStarted = false;
+
+	static int32						s_nextAgentId;
 };
 
 
@@ -199,4 +206,19 @@ inline int32 ADeepDriveAgent::getNumberOfLaps() const
 inline bool ADeepDriveAgent::getIsGameDriving() const
 {
 	return m_isGameDriving;
+}
+
+inline int32 ADeepDriveAgent::getAgentId() const
+{
+	return m_AgentId;
+}
+
+inline float ADeepDriveAgent::getFrontBumperDistance() const
+{
+	return FrontBumperDistance;
+}
+
+inline float ADeepDriveAgent::getBackBumperDistance() const
+{
+	return BackBumperDistance;
 }
