@@ -14,6 +14,10 @@ public:
 	{
 	}
 
+	virtual ~TStateBase()
+	{
+	}
+
 	virtual void enter(CTX &ctx)
 	{
 	}

@@ -71,7 +71,7 @@ public:
 	TSubclassOf<ADeepDriveAgent>	Agent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
-	EDeepDriveAgentControlMode	InitialControllerMode = EDeepDriveAgentControlMode::SPLINE;
+	EDeepDriveAgentControlMode	InitialControllerMode = EDeepDriveAgentControlMode::NONE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
 	int32	InitialConfigurationSlot;

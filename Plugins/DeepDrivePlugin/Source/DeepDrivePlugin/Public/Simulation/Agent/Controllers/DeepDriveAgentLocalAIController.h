@@ -3,13 +3,16 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Simulation/Agent/Controllers/DeepDriveAgentSplineController.h"
+#include "Components/SplineComponent.h"
+#include "Simulation/Agent/DeepDriveAgentControllerBase.h"
 #include "Simulation/Agent/Controllers/LocalAI/DeepDriveAgentLocalAIStateMachine.h"
 #include "DeepDriveAgentLocalAIController.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveAgentLocalAIController, Log, All);
 
-
+class DeepDriveAgentSpeedController;
+class DeepDriveAgentSteeringController;
+class ADeepDriveSplineTrack;
 
 USTRUCT(BlueprintType)
 struct FDeepDriveLocalAIControllerConfiguration
@@ -50,6 +53,9 @@ struct FDeepDriveLocalAIControllerConfiguration
 	float	OvertakingMinDistance = 800.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Overtaking)
+	float	OvertakingSpeedLimitBoost = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Overtaking)
 	float	MinSpeedDifference = 10.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Overtaking)
@@ -70,7 +76,7 @@ struct FDeepDriveLocalAIControllerConfiguration
  * 
  */
 UCLASS()
-class DEEPDRIVEPLUGIN_API ADeepDriveAgentLocalAIController : public ADeepDriveAgentSplineController
+class DEEPDRIVEPLUGIN_API ADeepDriveAgentLocalAIController : public ADeepDriveAgentControllerBase
 {
 	GENERATED_BODY()
 	
@@ -82,18 +88,47 @@ public:
 
 	virtual bool Activate(ADeepDriveAgent &agent);
 
+	virtual bool ResetAgent();
+
+	virtual void OnCheckpointReached();
+
+	virtual void OnDebugTrigger();
+
 	UFUNCTION(BlueprintCallable, Category = "Configuration")
 	void Configure(const FDeepDriveLocalAIControllerConfiguration &Configuration, int32 StartPositionSlot);
 
-private:
+	float calculateOvertakingScore();
+	float calculateAbortOvertakingScore();
 
-	void think(float dT);
+	float getDesiredSpeed() const;
+
+private:
 
 	float calculateOvertakingScore(ADeepDriveAgent &nextAgent, float distanceToNextAgent);
 
+	void resetAgentPosOnSpline(ADeepDriveAgent &agent);
+	float getClosestDistanceOnSpline(const FVector &location);
+
 	DeepDriveAgentLocalAIStateMachine			m_StateMachine;
-	DeepDriveAgentLocalAIStateMachineContext	*m_StateMachineCtx;
+	DeepDriveAgentLocalAIStateMachineContext	*m_StateMachineCtx = 0;
 	
+	DeepDriveAgentSpeedController				*m_SpeedController = 0;
+	DeepDriveAgentSteeringController			*m_SteeringController = 0;
+
 	FDeepDriveLocalAIControllerConfiguration	m_Configuration;
 
+	ADeepDriveSplineTrack						*m_Track = 0;
+	float										m_StartDistance = 0.0f;
+	float										m_DesiredSpeed;
+
+	USplineComponent							*m_Spline = 0;
+
+	bool										m_isPaused = false;
+
 };
+
+
+inline float ADeepDriveAgentLocalAIController::getDesiredSpeed() const
+{
+	return m_DesiredSpeed;
+}

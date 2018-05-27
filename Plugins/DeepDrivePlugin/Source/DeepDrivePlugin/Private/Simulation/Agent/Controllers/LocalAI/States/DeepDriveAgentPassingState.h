@@ -3,11 +3,11 @@
 
 #include "Private/Simulation/Agent/Controllers/LocalAI/DeepDriveAgentLocalAIStateMachine.h"
 
-class DeepDriveAgentCruisingState : public DeepDriveAgentLocalAIStateBase
+class DeepDriveAgentPassingState : public DeepDriveAgentLocalAIStateBase
 {
 public:
 
-	DeepDriveAgentCruisingState(DeepDriveAgentLocalAIStateMachine &stateMachine);
+	DeepDriveAgentPassingState(DeepDriveAgentLocalAIStateMachine &stateMachine);
 
 	virtual void enter(DeepDriveAgentLocalAIStateMachineContext &ctx);
 
@@ -17,4 +17,5 @@ public:
 
 private:
 
+	bool hasPassed();
 };

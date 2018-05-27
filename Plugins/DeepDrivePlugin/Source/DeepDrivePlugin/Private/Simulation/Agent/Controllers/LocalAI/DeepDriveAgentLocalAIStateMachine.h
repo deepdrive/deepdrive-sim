@@ -6,28 +6,28 @@
 
 class ADeepDriveAgentLocalAIController;
 class ADeepDriveAgent;
-class DeepDriveAgentSplineDrivingCtrl;
+class DeepDriveAgentSpeedController;
+class DeepDriveAgentSteeringController;
 
 struct FDeepDriveLocalAIControllerConfiguration;
 
 struct DeepDriveAgentLocalAIStateMachineContext
 {
-	DeepDriveAgentLocalAIStateMachineContext(ADeepDriveAgentLocalAIController &c, ADeepDriveAgent &a, DeepDriveAgentSplineDrivingCtrl &sdc, const FDeepDriveLocalAIControllerConfiguration &cfg)
+	DeepDriveAgentLocalAIStateMachineContext(ADeepDriveAgentLocalAIController &c, ADeepDriveAgent &a, DeepDriveAgentSpeedController &sc, DeepDriveAgentSteeringController &steering, const FDeepDriveLocalAIControllerConfiguration &cfg)
 		:	local_ai_ctrl(c)
 		,	agent(a)
-		,	spline_driving_ctrl(sdc)
+		,	speed_controller(sc)
+		,	steering_controller(steering)
 		,	configuration(cfg)
 	{	}
 
 	ADeepDriveAgentLocalAIController					&local_ai_ctrl;
 	ADeepDriveAgent										&agent;
-	DeepDriveAgentSplineDrivingCtrl						&spline_driving_ctrl;
+	DeepDriveAgentSpeedController						&speed_controller;
+	DeepDriveAgentSteeringController					&steering_controller;
+
 	const FDeepDriveLocalAIControllerConfiguration		&configuration;
 
-	ADeepDriveAgent										*next_agent = 0;
-	float												distance_to_next_agent = -1.0f;
-
-	float												overtaking_score = -1.0f;
 	bool												overtaking_in_progess = false;
 
 	float												side_offset = 0.0f;

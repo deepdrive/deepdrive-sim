@@ -98,6 +98,11 @@ public:
 	float getBackBumperDistance() const;
 
 	int32 getAgentId() const;
+	void setNextAgent(ADeepDriveAgent *agent, float distance);
+	void setPrevAgent(ADeepDriveAgent *agent, float distance);
+
+	ADeepDriveAgent* getNextAgent(float *distance = 0);
+	ADeepDriveAgent* getPrevAgent(float *distance = 0);
 
 protected:
 
@@ -122,6 +127,10 @@ protected:
 private:
 
 	int32								m_AgentId;
+	ADeepDriveAgent						*m_NextAgent = 0;
+	float								m_DistanceToNextAgent = 0.0f;
+	ADeepDriveAgent						*m_PrevAgent = 0;
+	float								m_DistanceToPrevAgent = 0.0f;
 
 	TArray<UCaptureCameraComponent*>	m_CaptureCameras;
 	
@@ -221,4 +230,32 @@ inline float ADeepDriveAgent::getFrontBumperDistance() const
 inline float ADeepDriveAgent::getBackBumperDistance() const
 {
 	return BackBumperDistance;
+}
+
+
+
+inline void ADeepDriveAgent::setNextAgent(ADeepDriveAgent *agent, float distance)
+{
+	m_NextAgent = agent;
+	m_DistanceToNextAgent = distance;
+}
+
+inline void ADeepDriveAgent::setPrevAgent(ADeepDriveAgent *agent, float distance)
+{
+	m_PrevAgent = agent;
+	m_DistanceToPrevAgent = distance;
+}
+
+inline ADeepDriveAgent* ADeepDriveAgent::getNextAgent(float *distance)
+{
+	if (distance)
+		*distance = m_DistanceToNextAgent;
+	return m_NextAgent;
+}
+
+inline ADeepDriveAgent* ADeepDriveAgent::getPrevAgent(float *distance)
+{
+	if (distance)
+		*distance = m_DistanceToPrevAgent;
+	return m_PrevAgent;
 }

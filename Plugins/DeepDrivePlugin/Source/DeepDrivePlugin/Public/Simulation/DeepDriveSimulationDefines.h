@@ -11,9 +11,8 @@ enum class EDeepDriveAgentControlMode : uint8
 {
 	NONE			= 0	UMETA(DisplayName = "None"),
 	MANUAL			= 1	UMETA(DisplayName = "Manual"),
-	SPLINE			= 2	UMETA(DisplayName = "Spline"),
-	REMOTE_AI		= 3	UMETA(DisplayName = "RemoteAI"),
-	LOCAL_AI		= 4	UMETA(DisplayName = "LocalAI")
+	REMOTE_AI		= 2	UMETA(DisplayName = "RemoteAI"),
+	LOCAL_AI		= 3	UMETA(DisplayName = "LocalAI")
 };
 
 

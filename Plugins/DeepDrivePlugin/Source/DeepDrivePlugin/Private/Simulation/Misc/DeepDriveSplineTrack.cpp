@@ -52,7 +52,27 @@ void ADeepDriveSplineTrack::Tick(float DeltaTime)
 		item.distance = getDistance(item.key);
 	}
 
-	m_RegisteredAgents.Sort([](const AgentData &lhs, const AgentData &rhs) {	return lhs.key < rhs.key;	 });
+	if (m_RegisteredAgents.Num() > 1)
+	{
+		m_RegisteredAgents.Sort([](const AgentData &lhs, const AgentData &rhs) {	return lhs.key < rhs.key;	 });
+
+		int32 ind0 = 0;
+		int32 ind1 = 1;
+		for (int32 i = 0; i < m_RegisteredAgents.Num(); ++i)
+		{
+			ADeepDriveAgent *agent0 = m_RegisteredAgents[ind0].agent;
+			ADeepDriveAgent *agent1 = m_RegisteredAgents[ind1].agent;
+			float distance = ind1 > ind0 ? m_RegisteredAgents[ind1].distance - m_RegisteredAgents[ind0].distance : (m_TrackLength - m_RegisteredAgents[ind1].distance + m_RegisteredAgents[ind0].distance);
+			distance -= agent0->getFrontBumperDistance() + agent1->getBackBumperDistance();
+
+			agent0->setNextAgent(agent1, FMath::Max(0.0f, distance));
+			agent1->setPrevAgent(agent0, FMath::Max(0.0f, distance));
+
+			ind0 = ind1;
+			ind1 = (ind1 + 1) % m_RegisteredAgents.Num();
+		}
+	}
+
 }
 
 
