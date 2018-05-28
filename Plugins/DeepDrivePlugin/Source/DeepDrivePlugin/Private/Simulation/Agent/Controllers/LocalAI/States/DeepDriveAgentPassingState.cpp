@@ -23,13 +23,13 @@ void DeepDriveAgentPassingState::update(DeepDriveAgentLocalAIStateMachineContext
 	{
 		m_StateMachine.setNextState("AbortOvertaking");
 	}
-	else if (hasPassed())
+	else if (ctx.local_ai_ctrl.hasPassed(ctx.agent_to_overtake, ctx.configuration.MinPullInDistance))
 	{
 		m_StateMachine.setNextState("PullIn");
 	}
 	
 	float desiredSpeed = ctx.configuration.OvertakingSpeed;
-	desiredSpeed = ctx.speed_controller.limitSpeedByTrack(desiredSpeed, ctx.configuration.OvertakingSpeedLimitBoost);
+	desiredSpeed = ctx.speed_controller.limitSpeedByTrack(desiredSpeed, ctx.configuration.SpeedLimitFactor);
 
 	ctx.speed_controller.update(dT, desiredSpeed);
 	ctx.steering_controller.update(dT, desiredSpeed, ctx.side_offset);
@@ -39,7 +39,3 @@ void DeepDriveAgentPassingState::exit(DeepDriveAgentLocalAIStateMachineContext &
 {
 }
 
-bool DeepDriveAgentPassingState::hasPassed()
-{
-	return false;
-}

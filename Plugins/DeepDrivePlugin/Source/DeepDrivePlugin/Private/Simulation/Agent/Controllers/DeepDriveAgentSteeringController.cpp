@@ -33,7 +33,7 @@ void DeepDriveAgentSteeringController::update(float dT, float desiredSpeed, floa
 		FVector curAgentLocation = m_Agent->GetActorLocation();
 		m_Track->setBaseLocation(curAgentLocation);
 
-		const float lookAheadDist = 1000.0f; //  FMath::Max(1000.0f, curSpeed * 1.5f);
+		const float lookAheadDist = 500.0f; //  FMath::Max(1000.0f, curSpeed * 1.5f);
 		FVector projLocAhead = m_Track->getLocationAhead(lookAheadDist, offset);
 
 		FVector desiredForward = projLocAhead - curAgentLocation;
@@ -53,9 +53,11 @@ void DeepDriveAgentSteeringController::update(float dT, float desiredSpeed, floa
 			delta += 360.0f;
 		}
 
-		m_desiredSteering = m_SteeringPIDCtrl.advance(dT, delta);
-		m_curSteering = FMath::FInterpTo(m_curSteering, m_desiredSteering, dT, 4.0f);
+		m_desiredSteering = m_SteeringPIDCtrl.advance(dT, delta) * dT;
+		//m_curSteering = FMath::FInterpTo(m_curSteering, m_desiredSteering, dT, 4.0f);
+		m_curSteering = FMath::Clamp(m_desiredSteering, -1.0f, 1.0f);
 		//ySteering = FMath::SmoothStep(0.0f, 80.0f, FMath::Abs(delta)) * FMath::Sign(delta);
+
 		m_Agent->SetSteering(m_curSteering);
 
 		// UE_LOG(LogDeepDriveAgentSteeringController, Log, TEXT("DeepDriveAgentSteeringController::update curThrottle %f"), m_curThrottle );

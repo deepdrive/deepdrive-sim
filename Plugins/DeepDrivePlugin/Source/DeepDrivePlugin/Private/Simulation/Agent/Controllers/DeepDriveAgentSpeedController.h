@@ -23,7 +23,7 @@ public:
 
 	void initialize(ADeepDriveAgent &agent, ADeepDriveSplineTrack &track, float safetyDistanceFactor);
 
-	float limitSpeedByTrack(float desiredSpeed, float speedBoost = 1.0f);
+	float limitSpeedByTrack(float desiredSpeed, float speedBoost);
 
 	float limitSpeedByNextAgent(float desiredSpeed);
 

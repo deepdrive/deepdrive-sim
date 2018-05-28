@@ -146,28 +146,34 @@ float ADeepDriveAgentLocalAIController::getClosestDistanceOnSpline(const FVector
 
 float ADeepDriveAgentLocalAIController::calculateOvertakingScore()
 {
+	float score = -1.0f;
+
 	float distanceToNextAgent = -1.0f;
 	ADeepDriveAgent *nextAgent = m_Agent->getNextAgent(&distanceToNextAgent);
 
-	//UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("calculateOvertakingScore: Agent %d dist %f"), m_Agent->getAgentId(), distanceToNextAgent);
-
-	float score = -1.0f;
-
-	if (distanceToNextAgent <= m_Configuration.OvertakingMinDistance)
+	if(nextAgent)
 	{
-		score = 1.0f;
-	}
+		//UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("calculateOvertakingScore: Agent %d dist %f"), m_Agent->getAgentId(), distanceToNextAgent);
 
-	if (nextAgent->getSpeed() * 0.036f < m_Configuration.MinSpeedDifference)
-		score -= 1.0f;
 
-	float nextButOneDist = -1.0f;
-	ADeepDriveAgent *nextButOne = nextAgent->getNextAgent(&nextButOneDist);
-	if (nextButOne != m_Agent)
-	{
-		if (nextButOne && nextButOneDist < m_Configuration.GapBetweenAgents)
+		if (distanceToNextAgent <= m_Configuration.MinPullOutDistance)
+		{
+			score = 1.0f;
+		}
+
+		if (nextAgent->getSpeed() * 0.036f < m_Configuration.MinSpeedDifference)
 			score -= 1.0f;
+
+		float nextButOneDist = -1.0f;
+		ADeepDriveAgent *nextButOne = nextAgent->getNextAgent(&nextButOneDist);
+		if (nextButOne != m_Agent)
+		{
+			if (nextButOne && nextButOneDist < m_Configuration.GapBetweenAgents)
+				score -= 1.0f;
+		}
+
 	}
+
 	return score;
 }
 
@@ -178,80 +184,26 @@ float ADeepDriveAgentLocalAIController::calculateAbortOvertakingScore()
 	return score;
 }
 
-float ADeepDriveAgentLocalAIController::calculateOvertakingScore(ADeepDriveAgent &nextAgent, float distanceToNextAgent)
+bool ADeepDriveAgentLocalAIController::hasPassed(ADeepDriveAgent *other, float minDistance)
 {
-	float score = -1.0f;
+	bool hasPassed = false;
 
-	if	(	m_StateMachineCtx->overtaking_in_progess == false
-		&&	distanceToNextAgent <= m_Configuration.OvertakingMinDistance
-		)
+	float dist2Prev = -1.0f;
+	ADeepDriveAgent *prevAgent = m_Agent->getPrevAgent(&dist2Prev);
+
+	if(prevAgent == other)
 	{
-		score = 1.0f;
+		FVector dir = m_Agent->GetActorLocation() - prevAgent->GetActorLocation();
+		dir.Normalize();
+
+		if(FVector::DotProduct(prevAgent->GetActorForwardVector(), dir) > 0.5f)
+		{
+			hasPassed = dist2Prev >= minDistance;
+		}
 	}
 
-	if(nextAgent.getSpeed() * 0.036f < m_Configuration.MinSpeedDifference)
-		score -= 1.0f;
-
-	ADeepDriveAgent *nextButOne = 0;
-	float nextButOneDist = -1.0f;
-	if(m_Track->getNextAgent(nextAgent, nextButOne, nextButOneDist))
-	{
-		if(nextButOne && nextButOneDist < m_Configuration.GapBetweenAgents)
-			score -= 1.0f;
-	}
-
-/*
-	ADeepDriveAgent *nextOpposing = 0;
-	float nextOpposingDist = -1.0f;
-	if(Track->getNextAgent(nextAgent, nextButOne, nextButOneDist))
-	{
-		if(nextOpposing && nextButOneDist > m_Configuration.GapBetweenAgents)
-			score += 0.25f;
-		else
-			score = -1.0f;
-	}
-	else
-		score += 1.0f;	
-*/
-	return score;
+	return hasPassed;
 }
-
-
-/*
-
-- extend state machine context
-
-struct DeepDriveAgentLocalAIStateMachineContext
-{
-
-	ADeepDriveAgent										*next_agent = 0;
-	float												distance_to_next_agent = -1.0f;
-
-	float												overtaking_score = 0.0f;
-	bool												overtaking_in_progess = false;
-
-	float												side_offset = 0.0f;
-
-};
-
-Think:
-
-- every x seconds check for next agent (0.25)
-- if overtaking enabled, every x seconds calculate overtaking score
-
-
-float calculateOvertakingScore()
-{
-	- next agent must not be overtaking
-	- distance to next agent must be smaller than OvertakingMinDistance (applies only when overtaking_in_progess == false)
-	- speed difference to next agent must be greater than MinSpeedDifference
-	- distance between next agent and its next agent must be greater than GapBetweenAgents
-	- estimated remaning overtaking distance must be smaller than distance to next agent on opposing lane
-}
-
-
-*/
-
 
 void ADeepDriveAgentLocalAIController::OnCheckpointReached()
 {

@@ -28,7 +28,7 @@ void DeepDriveAgentCruiseState::update(DeepDriveAgentLocalAIStateMachineContext 
 	}
 
 	float desiredSpeed = ctx.local_ai_ctrl.getDesiredSpeed();
-	desiredSpeed = ctx.speed_controller.limitSpeedByTrack(desiredSpeed);
+	desiredSpeed = ctx.speed_controller.limitSpeedByTrack(desiredSpeed, 1.0f);
 	desiredSpeed = ctx.speed_controller.limitSpeedByNextAgent(desiredSpeed);
 
 	ctx.speed_controller.update(dT, desiredSpeed);

@@ -30,7 +30,7 @@ void DeepDriveAgentPullInState::update(DeepDriveAgentLocalAIStateMachineContext 
 	}
 
 	float desiredSpeed = ctx.configuration.OvertakingSpeed;
-	desiredSpeed = ctx.speed_controller.limitSpeedByTrack(desiredSpeed, ctx.configuration.OvertakingSpeedLimitBoost);
+	desiredSpeed = ctx.speed_controller.limitSpeedByTrack(desiredSpeed, ctx.configuration.SpeedLimitFactor);
 
 	ctx.speed_controller.update(dT, desiredSpeed);
 	ctx.steering_controller.update(dT, desiredSpeed, m_curOffset);
@@ -39,4 +39,5 @@ void DeepDriveAgentPullInState::update(DeepDriveAgentLocalAIStateMachineContext 
 
 void DeepDriveAgentPullInState::exit(DeepDriveAgentLocalAIStateMachineContext &ctx)
 {
+	ctx.agent_to_overtake = 0;
 }

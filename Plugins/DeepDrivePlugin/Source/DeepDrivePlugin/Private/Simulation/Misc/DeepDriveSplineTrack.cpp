@@ -5,6 +5,8 @@
 #include "Runtime/Engine/Classes/Components/SplineComponent.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 
+DEFINE_LOG_CATEGORY(LogDeepDriveSplineTrack);
+
 ADeepDriveSplineTrack::ADeepDriveSplineTrack()
 	:	SplineTrack(0)
 {
@@ -50,6 +52,8 @@ void ADeepDriveSplineTrack::Tick(float DeltaTime)
 	{
 		item.key = SplineTrack->FindInputKeyClosestToWorldLocation(item.agent->GetActorLocation());
 		item.distance = getDistance(item.key);
+
+		//UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("Agent %d Distance %f"), item.agent->getAgentId(), item.distance );
 	}
 
 	if (m_RegisteredAgents.Num() > 1)

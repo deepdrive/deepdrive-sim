@@ -18,8 +18,9 @@ void DeepDriveAgentPullOutState::enter(DeepDriveAgentLocalAIStateMachineContext 
 {
 	m_remainingPullOutTime = ctx.configuration.ChangeLaneDuration;
 	m_deltaOffsetFac = ctx.configuration.OvertakingOffset  / m_remainingPullOutTime;
+	m_curOffset = 0.0f;
 
-	ctx.overtaking_in_progess = true;
+	ctx.agent_to_overtake = ctx.agent.getNextAgent();
 }
 
 void DeepDriveAgentPullOutState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)
@@ -35,7 +36,7 @@ void DeepDriveAgentPullOutState::update(DeepDriveAgentLocalAIStateMachineContext
 	}
 
 	float desiredSpeed = ctx.local_ai_ctrl.getDesiredSpeed();
-	desiredSpeed = ctx.speed_controller.limitSpeedByTrack(desiredSpeed, ctx.configuration.OvertakingSpeedLimitBoost);
+	desiredSpeed = ctx.speed_controller.limitSpeedByTrack(desiredSpeed, ctx.configuration.SpeedLimitFactor);
 
 	ctx.speed_controller.update(dT, desiredSpeed);
 	ctx.steering_controller.update(dT, desiredSpeed, m_curOffset);

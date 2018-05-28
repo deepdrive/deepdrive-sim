@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "DeepDriveSplineTrack.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveSplineTrack, Log, All);
+
 class USplineComponent;
 class ADeepDriveAgent;
 

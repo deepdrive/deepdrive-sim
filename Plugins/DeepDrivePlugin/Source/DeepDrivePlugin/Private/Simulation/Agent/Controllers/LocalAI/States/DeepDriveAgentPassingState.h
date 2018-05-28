@@ -17,5 +17,4 @@ public:
 
 private:
 
-	bool hasPassed();
 };

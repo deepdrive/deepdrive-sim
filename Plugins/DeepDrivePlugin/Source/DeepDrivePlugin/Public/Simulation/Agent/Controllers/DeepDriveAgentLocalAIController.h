@@ -44,16 +44,19 @@ struct FDeepDriveLocalAIControllerConfiguration
 	float	SafetyDistanceFactor = 1.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Safety)
+	float	SpeedLimitFactor = 1.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Safety)
 	FVector2D	BrakingDistanceRange;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Overtaking)
 	bool OvertakingEnabled = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Overtaking)
-	float	OvertakingMinDistance = 800.0f;
+	float	MinPullOutDistance = 800.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Overtaking)
-	float	OvertakingSpeedLimitBoost = 1.0f;
+	float	MinPullInDistance = 200.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Overtaking)
 	float	MinSpeedDifference = 10.0f;
@@ -99,12 +102,11 @@ public:
 
 	float calculateOvertakingScore();
 	float calculateAbortOvertakingScore();
+	bool hasPassed(ADeepDriveAgent *other, float minDistance);
 
 	float getDesiredSpeed() const;
 
 private:
-
-	float calculateOvertakingScore(ADeepDriveAgent &nextAgent, float distanceToNextAgent);
 
 	void resetAgentPosOnSpline(ADeepDriveAgent &agent);
 	float getClosestDistanceOnSpline(const FVector &location);

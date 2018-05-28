@@ -77,7 +77,8 @@ float DeepDriveAgentSpeedController::limitSpeedByNextAgent(float desiredSpeed)
 		float safetyDistance = m_SafetyDistanceFactor * curSpeed * curSpeed / (2.0f * m_BrakingDeceleration);
 		const float nextAgentSpeed = nextAgent->GetVehicleMovementComponent()->GetForwardSpeed() * 0.036f;
 
-		desiredSpeed = FMath::Lerp(nextAgentSpeed, desiredSpeed, FMath::SmoothStep(1.0f, 1.25f, distanceToNext / safetyDistance));
+		if(nextAgentSpeed < desiredSpeed)
+			desiredSpeed = FMath::Lerp(nextAgentSpeed, desiredSpeed, FMath::SmoothStep(1.0f, 1.25f, distanceToNext / safetyDistance));
 	}
 
 	return desiredSpeed;

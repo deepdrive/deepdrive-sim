@@ -28,7 +28,7 @@ struct DeepDriveAgentLocalAIStateMachineContext
 
 	const FDeepDriveLocalAIControllerConfiguration		&configuration;
 
-	bool												overtaking_in_progess = false;
+	ADeepDriveAgent										*agent_to_overtake = 0;
 
 	float												side_offset = 0.0f;
 
