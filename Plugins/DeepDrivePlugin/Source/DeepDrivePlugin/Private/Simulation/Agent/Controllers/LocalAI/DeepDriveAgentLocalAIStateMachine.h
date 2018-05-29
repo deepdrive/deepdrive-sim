@@ -31,6 +31,7 @@ struct DeepDriveAgentLocalAIStateMachineContext
 	ADeepDriveAgent										*agent_to_overtake = 0;
 
 	float												side_offset = 0.0f;
+	float												wait_time_before_overtaking = 0.0f;
 
 };
 

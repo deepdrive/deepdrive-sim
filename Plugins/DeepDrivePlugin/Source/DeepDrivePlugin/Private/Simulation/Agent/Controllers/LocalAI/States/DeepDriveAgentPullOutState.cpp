@@ -19,8 +19,6 @@ void DeepDriveAgentPullOutState::enter(DeepDriveAgentLocalAIStateMachineContext 
 	m_remainingPullOutTime = ctx.configuration.ChangeLaneDuration;
 	m_deltaOffsetFac = ctx.configuration.OvertakingOffset  / m_remainingPullOutTime;
 	m_curOffset = 0.0f;
-
-	ctx.agent_to_overtake = ctx.agent.getNextAgent();
 }
 
 void DeepDriveAgentPullOutState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)

@@ -50,7 +50,7 @@ struct FDeepDriveLocalAIControllerConfiguration
 	FVector2D	BrakingDistanceRange;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Overtaking)
-	bool OvertakingEnabled = false;
+	int32 MaxAgentsToOvertake = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Overtaking)
 	float	MinPullOutDistance = 800.0f;
@@ -101,6 +101,7 @@ public:
 	void Configure(const FDeepDriveLocalAIControllerConfiguration &Configuration, int32 StartPositionSlot);
 
 	float calculateOvertakingScore();
+	float calculateOvertakingScore(int32 maxAgentsToOvertake, float overtakingSpeed, ADeepDriveAgent* &finalAgent);
 	float calculateAbortOvertakingScore();
 	bool hasPassed(ADeepDriveAgent *other, float minDistance);
 

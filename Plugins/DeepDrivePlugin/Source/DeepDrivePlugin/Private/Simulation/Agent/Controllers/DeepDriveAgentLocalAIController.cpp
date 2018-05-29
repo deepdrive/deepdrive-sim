@@ -98,9 +98,6 @@ void ADeepDriveAgentLocalAIController::Configure(const FDeepDriveLocalAIControll
 	m_DesiredSpeed = FMath::RandRange(Configuration.SpeedRange.X, Configuration.SpeedRange.Y);
 	m_Track = Configuration.Track;
 	m_StartDistance = Configuration.StartDistances[StartPositionSlot];
-
-	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Configure %c"), m_Configuration.OvertakingEnabled ? 'T' : 'F');
-
 }
 
 
@@ -155,7 +152,6 @@ float ADeepDriveAgentLocalAIController::calculateOvertakingScore()
 	{
 		//UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("calculateOvertakingScore: Agent %d dist %f"), m_Agent->getAgentId(), distanceToNextAgent);
 
-
 		if (distanceToNextAgent <= m_Configuration.MinPullOutDistance)
 		{
 			score = 1.0f;
@@ -175,6 +171,42 @@ float ADeepDriveAgentLocalAIController::calculateOvertakingScore()
 	}
 
 	return score;
+}
+
+float ADeepDriveAgentLocalAIController::calculateOvertakingScore(int32 maxAgentsToOvertake, float overtakingSpeed, ADeepDriveAgent* &finalAgent)
+{
+	float score = -1.0f;
+	finalAgent = 0;
+
+	float distanceToNextAgent = -1.0f;
+	ADeepDriveAgent *nextAgent = m_Agent->getNextAgent(&distanceToNextAgent);
+	if (nextAgent && distanceToNextAgent <= m_Configuration.MinPullOutDistance)
+	{
+		score = 1.0f;
+		while(maxAgentsToOvertake > 0 && nextAgent)
+		{
+			const float speedDiff = (overtakingSpeed - nextAgent->getSpeed() * 0.036f);
+			if ( speedDiff < m_Configuration.MinSpeedDifference)
+			{
+				break;
+			}
+
+			float nextButOneDist = -1.0f;
+			ADeepDriveAgent *nextButOne = nextAgent->getNextAgent(&nextButOneDist);
+
+			if(nextButOne == 0 || nextButOneDist > m_Configuration.GapBetweenAgents)
+				finalAgent = nextAgent;
+
+			if (nextButOne == m_Agent)
+				break;
+
+			nextAgent = nextAgent->getNextAgent(&distanceToNextAgent);
+			--maxAgentsToOvertake;
+			score *= 0.9f;
+		}
+	}
+
+	return finalAgent ? score : -1.0f;
 }
 
 float ADeepDriveAgentLocalAIController::calculateAbortOvertakingScore()

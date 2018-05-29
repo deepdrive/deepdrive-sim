@@ -15,16 +15,26 @@ DeepDriveAgentCruiseState::DeepDriveAgentCruiseState(DeepDriveAgentLocalAIStateM
 
 void DeepDriveAgentCruiseState::enter(DeepDriveAgentLocalAIStateMachineContext &ctx)
 {
+	m_WaitTimeBeforeOvertaking = ctx.wait_time_before_overtaking;
 }
 
 void DeepDriveAgentCruiseState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)
 {
-	if	(	ctx.configuration.OvertakingEnabled
-		&&	ctx.local_ai_ctrl.calculateOvertakingScore() > 0.0f
+	if(m_WaitTimeBeforeOvertaking > 0.0f)
+		m_WaitTimeBeforeOvertaking -= dT;
+
+	if	(	ctx.configuration.MaxAgentsToOvertake > 0
+		&&	m_WaitTimeBeforeOvertaking <= 0.0f
 		)
 	{
-		m_StateMachine.setNextState("PullOut");
-		UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d trying to overtake agent %d Pulling out"), ctx.agent.getAgentId(), ctx.agent.getNextAgent()->getAgentId() );
+		ADeepDriveAgent *finalAgentToOvertake = 0;
+		float score = ctx.local_ai_ctrl.calculateOvertakingScore(ctx.configuration.MaxAgentsToOvertake, ctx.configuration.OvertakingSpeed, finalAgentToOvertake);
+		if(finalAgentToOvertake && score > 0.0f)
+		{
+			ctx.agent_to_overtake = finalAgentToOvertake;
+			m_StateMachine.setNextState("PullOut");
+			UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d trying to overtake agent %d Pulling out"), ctx.agent.getAgentId(), ctx.agent.getNextAgent()->getAgentId() );
+		}
 	}
 
 	float desiredSpeed = ctx.local_ai_ctrl.getDesiredSpeed();
