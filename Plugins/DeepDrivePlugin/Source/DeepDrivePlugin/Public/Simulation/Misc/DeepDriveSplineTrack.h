@@ -61,8 +61,8 @@ public:
 
 	void getPreviousAgent(const FVector &location, ADeepDriveAgent* &agentPtr, float &distance);
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Track")
-	TArray<FVector2D>		SpeedLimits;
+	UFUNCTION(BlueprintCallable, Category = "Track")
+	void AddSpeedLimit(float Distance, float SpeedLimit);
 
 	UFUNCTION(BlueprintCallable, Category = "Track")
 	USplineComponent* GetSpline();
@@ -79,12 +79,13 @@ private:
 	float getDistance(float key);
 
 	TArray<FVector2D>				m_SpeedLimits;
+	bool							m_SpeedLimitsDirty = false;
 
 	FVector							m_BaseLocation;
 	float							m_BaseKey = 0.0f;
 
 	TArray<AgentData>				m_RegisteredAgents;
-	
+
 	float							m_TrackLength;
 };
 

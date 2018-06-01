@@ -25,7 +25,7 @@ ADeepDriveSplineTrack::~ADeepDriveSplineTrack()
 void ADeepDriveSplineTrack::BeginPlay()
 {
 	Super::BeginPlay();
-
+#if 0
 	for (auto &x : SpeedLimits)
 	{
 		const float dist = x.X;
@@ -37,7 +37,7 @@ void ADeepDriveSplineTrack::BeginPlay()
 	}
 
 	m_SpeedLimits.Sort([](const FVector2D &lhs, const FVector2D &rhs) { return lhs.X < rhs.X; });
-
+#endif
 
 	SetActorTickEnabled(true);
 	PrimaryActorTick.TickGroup = TG_PrePhysics;
@@ -105,9 +105,22 @@ FVector ADeepDriveSplineTrack::getLocationAhead(float distanceAhead, float sideO
 
 }
 
+void ADeepDriveSplineTrack::AddSpeedLimit(float Distance, float SpeedLimit)
+{
+	const FVector loc = SplineTrack->GetLocationAtDistanceAlongSpline(Distance, ESplineCoordinateSpace::World);
+	m_SpeedLimits.Add(FVector2D(SplineTrack->FindInputKeyClosestToWorldLocation(loc), SpeedLimit));
+	m_SpeedLimitsDirty = true;
+}
+
 float ADeepDriveSplineTrack::getSpeedLimit(float distanceAhead)
 {
 	float speedLimit = -1.0f;
+
+	if(m_SpeedLimitsDirty)
+	{
+		m_SpeedLimits.Sort([](const FVector2D &lhs, const FVector2D &rhs) { return lhs.X < rhs.X; });
+		m_SpeedLimitsDirty = false;
+	}
 
 	if (m_SpeedLimits.Num() > 0)
 	{

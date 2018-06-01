@@ -15,6 +15,7 @@ DeepDriveAgentPassingState::DeepDriveAgentPassingState(DeepDriveAgentLocalAIStat
 
 void DeepDriveAgentPassingState::enter(DeepDriveAgentLocalAIStateMachineContext &ctx)
 {
+	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d Passing"), ctx.agent.getAgentId());
 }
 
 void DeepDriveAgentPassingState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)

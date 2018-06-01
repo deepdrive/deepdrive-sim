@@ -18,6 +18,7 @@ void DeepDriveAgentPullInState::enter(DeepDriveAgentLocalAIStateMachineContext &
 	m_remainingPullInTime = ctx.configuration.ChangeLaneDuration;
 	m_curOffset = ctx.side_offset;
 	m_deltaOffsetFac = ctx.configuration.OvertakingOffset / m_remainingPullInTime;
+	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d Pulling In"), ctx.agent.getAgentId());
 }
 
 void DeepDriveAgentPullInState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)

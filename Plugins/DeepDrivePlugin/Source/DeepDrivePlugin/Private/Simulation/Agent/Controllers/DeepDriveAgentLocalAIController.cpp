@@ -103,8 +103,11 @@ void ADeepDriveAgentLocalAIController::Configure(const FDeepDriveLocalAIControll
 
 void ADeepDriveAgentLocalAIController::Tick( float DeltaSeconds )
 {
-	if (m_Agent)
+	if (m_Agent && m_Track)
 	{
+		FVector curAgentLocation = m_Agent->GetActorLocation();
+		m_Track->setBaseLocation(curAgentLocation);
+
 		if(m_StateMachineCtx)
 			m_StateMachine.update(*m_StateMachineCtx, DeltaSeconds);
 	}
@@ -197,7 +200,9 @@ float ADeepDriveAgentLocalAIController::calculateOvertakingScore(int32 maxAgents
 			if(nextButOne == 0 || nextButOneDist > m_Configuration.GapBetweenAgents)
 				finalAgent = nextAgent;
 
-			if (nextButOne == m_Agent)
+			if	(	nextButOne == m_Agent
+				||	nextButOneDist > 3.0f * m_Configuration.GapBetweenAgents
+				)
 				break;
 
 			nextAgent = nextAgent->getNextAgent(&distanceToNextAgent);

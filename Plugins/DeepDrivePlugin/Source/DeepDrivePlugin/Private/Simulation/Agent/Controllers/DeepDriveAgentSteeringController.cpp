@@ -29,10 +29,7 @@ void DeepDriveAgentSteeringController::update(float dT, float desiredSpeed, floa
 {
 	if(m_Track && m_Agent)
 	{
-
 		FVector curAgentLocation = m_Agent->GetActorLocation();
-		m_Track->setBaseLocation(curAgentLocation);
-
 		const float lookAheadDist = 500.0f; //  FMath::Max(1000.0f, curSpeed * 1.5f);
 		FVector projLocAhead = m_Track->getLocationAhead(lookAheadDist, offset);
 

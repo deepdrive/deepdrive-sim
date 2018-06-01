@@ -19,6 +19,8 @@ void DeepDriveAgentPullOutState::enter(DeepDriveAgentLocalAIStateMachineContext 
 	m_remainingPullOutTime = ctx.configuration.ChangeLaneDuration;
 	m_deltaOffsetFac = ctx.configuration.OvertakingOffset  / m_remainingPullOutTime;
 	m_curOffset = 0.0f;
+
+	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d Pulling out"), ctx.agent.getAgentId());
 }
 
 void DeepDriveAgentPullOutState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)
@@ -26,7 +28,6 @@ void DeepDriveAgentPullOutState::update(DeepDriveAgentLocalAIStateMachineContext
 	m_remainingPullOutTime -= dT;
 	m_curOffset += dT * m_deltaOffsetFac;
 
-	//UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Pulling out: Agent %d time %f dist %f"), ctx.agent.getAgentId(), m_remainingPullOutTime, m_curOffset);
 
 	if (m_remainingPullOutTime <= 0.0f)
 	{
