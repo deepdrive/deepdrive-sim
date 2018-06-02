@@ -43,11 +43,14 @@ def main(build_type):
     ext_root = os.path.dirname(DIR)
     print('PYPY_USERNAME is %s' % env.get('PYPI_USERNAME'))
     if build_type == 'dev':
-        run_command('%s -m pip uninstall --yes '    % py + config.PACKAGE_NAME, env=env, cwd=ext_root)
+        try:
+            run_command('%s -m pip uninstall --yes '    % py + config.PACKAGE_NAME, env=env, cwd=ext_root)
+        except Exception as e:
+            print('Best effort uninstall method 1 of external deepdrive package failed, error was: %s' % str(e))
         try:
             run_command('pip uninstall --yes ' + config.PACKAGE_NAME, env=env, cwd=ext_root)
         except Exception as e:
-            print('Best effort uninstall of external deepdrive package failed, error was: %s' % str(e))
+            print('Best effort uninstall method 2 of external deepdrive package failed, error was: %s' % str(e))
         try:
             run_command('%s -m pip install -e . --upgrade --force-reinstall --ignore-installed --no-deps' % py,
                     env=env, cwd=ext_root)
