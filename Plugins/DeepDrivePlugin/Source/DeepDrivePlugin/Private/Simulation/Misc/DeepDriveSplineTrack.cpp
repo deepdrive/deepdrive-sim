@@ -195,6 +195,7 @@ void ADeepDriveSplineTrack::getPreviousAgent(const FVector &location, ADeepDrive
 			{
 				break;
 			}
+			ind0 = ind1;
 		}
 
 		agentPtr = m_RegisteredAgents[ind1].agent;

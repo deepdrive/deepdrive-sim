@@ -24,18 +24,10 @@ void DeepDriveAgentCruiseState::update(DeepDriveAgentLocalAIStateMachineContext 
 	if(m_WaitTimeBeforeOvertaking > 0.0f)
 		m_WaitTimeBeforeOvertaking -= dT;
 
-	if	(	ctx.configuration.MaxAgentsToOvertake > 0
-		&&	m_WaitTimeBeforeOvertaking <= 0.0f
-		)
+	if	(isOvertakingPossible(ctx))
 	{
-		ADeepDriveAgent *finalAgentToOvertake = 0;
-		float score = ctx.local_ai_ctrl.calculateOvertakingScore(ctx.configuration.MaxAgentsToOvertake, ctx.configuration.OvertakingSpeed, finalAgentToOvertake);
-		if(finalAgentToOvertake && score > 0.0f)
-		{
-			ctx.agent_to_overtake = finalAgentToOvertake;
-			m_StateMachine.setNextState("PullOut");
-			UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d trying to overtake agent %d Pulling out"), ctx.agent.getAgentId(), ctx.agent.getNextAgent()->getAgentId() );
-		}
+		m_StateMachine.setNextState("PullOut");
+		UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d trying to overtake agent %d Pulling out"), ctx.agent.getAgentId(), ctx.agent.getNextAgent()->getAgentId() );
 	}
 
 	float desiredSpeed = ctx.local_ai_ctrl.getDesiredSpeed();
@@ -64,10 +56,25 @@ bool DeepDriveAgentCruiseState::isOvertakingPossible(DeepDriveAgentLocalAIStateM
 		if (nextAgent && distanceToNextAgent <= ctx.configuration.MinPullOutDistance)
 		{
 			const float speedDiff = (ctx.configuration.OvertakingSpeed - nextAgent->getSpeed() * 0.036f);
-			if(speedDiff > ctx.configuration.MinSpeedDifference)
+			if(speedDiff > 0.0f && speedDiff > ctx.configuration.MinSpeedDifference)
 			{
-				const float overtakingDistance = distanceToNextAgent + nextAgent->getFrontBumperDistance() + ctx.agent.getBackBumperDistance() + ctx.configuration.MinPullInDistance;
+				float nextButOneDist = -1.0f;
+				ADeepDriveAgent *nextButOne = nextAgent->getNextAgent(&nextButOneDist);
 
+				if (nextButOne)
+				{
+					// calc absolute distance needed
+					float overtakingDistance = nextButOneDist + nextAgent->getFrontBumperDistance() + ctx.agent.getBackBumperDistance() + ctx.configuration.MinPullInDistance;
+					// calc time needed to cover this distance only by speed difference
+					const float overtakingTime = overtakingDistance / speedDiff;
+
+					// calculate distance covered in that time based on current agent speed
+					overtakingDistance = ctx.agent.getSpeed() * 0.036f * overtakingTime;
+
+					res = ctx.local_ai_ctrl.isOppositeTrackClear(overtakingDistance);
+				}
+				else
+					res = true;
 			}
 		}
 	}
