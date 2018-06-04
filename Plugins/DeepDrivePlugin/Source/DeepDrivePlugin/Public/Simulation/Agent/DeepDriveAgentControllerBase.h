@@ -34,6 +34,8 @@ public:
 	
 	virtual bool ResetAgent();
 	
+	virtual void requestSlowDown(float relSpeed, float duration);
+
 	virtual void OnCheckpointReached();
 
 	virtual void OnDebugTrigger();

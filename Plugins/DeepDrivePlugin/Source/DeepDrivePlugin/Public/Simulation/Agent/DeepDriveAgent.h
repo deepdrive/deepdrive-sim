@@ -11,6 +11,7 @@
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveAgent, Log, All);
 
 class UCaptureCameraComponent;
+class ADeepDriveAgentControllerBase;
 
 /**
  * 
@@ -103,6 +104,8 @@ public:
 
 	ADeepDriveAgent* getNextAgent(float *distance = 0);
 	ADeepDriveAgent* getPrevAgent(float *distance = 0);
+
+	ADeepDriveAgentControllerBase *getAgentController();
 
 protected:
 
@@ -259,3 +262,4 @@ inline ADeepDriveAgent* ADeepDriveAgent::getPrevAgent(float *distance)
 		*distance = m_DistanceToPrevAgent;
 	return m_PrevAgent;
 }
+

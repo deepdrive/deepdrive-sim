@@ -67,6 +67,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Track")
 	USplineComponent* GetSpline();
 
+	UPROPERTY(EditAnywhere, Category = "Track")
+	ADeepDriveSplineTrack	*OppositeTrack = 0;
+
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Track")

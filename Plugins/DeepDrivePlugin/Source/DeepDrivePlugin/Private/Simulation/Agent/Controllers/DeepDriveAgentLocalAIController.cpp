@@ -48,6 +48,8 @@ bool ADeepDriveAgentLocalAIController::Activate(ADeepDriveAgent &agent)
 		m_SteeringController = new DeepDriveAgentSteeringController(m_Configuration.PIDSteering);
 		m_SteeringController->initialize(agent, *m_Track);
 
+		m_OppositeTrack = m_Track->OppositeTrack;
+
 		if (m_SpeedController && m_SteeringController)
 		{
 			m_Spline = m_Track->GetSpline();
@@ -240,6 +242,24 @@ bool ADeepDriveAgentLocalAIController::hasPassed(ADeepDriveAgent *other, float m
 	}
 
 	return hasPassed;
+}
+
+bool ADeepDriveAgentLocalAIController::isOppositeTrackClear(float distance)
+{
+	bool res = true;
+
+	if(m_OppositeTrack)
+	{
+		ADeepDriveAgent *prevAgent;
+		float distanceToPrev = 0.0f;
+
+		m_OppositeTrack->getPreviousAgent(m_Agent->GetActorLocation(), prevAgent, distanceToPrev);
+		if(prevAgent)
+		{
+			res = distance < distanceToPrev;
+		}
+	}
+	return res;
 }
 
 void ADeepDriveAgentLocalAIController::OnCheckpointReached()

@@ -239,3 +239,8 @@ void ADeepDriveAgent::OnDebugTrigger()
 	if (ctrl)
 		ctrl->OnDebugTrigger();
 }
+
+ADeepDriveAgentControllerBase *ADeepDriveAgent::getAgentController()
+{
+	return Cast<ADeepDriveAgentControllerBase>(GetController());
+}

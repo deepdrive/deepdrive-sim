@@ -105,6 +105,8 @@ public:
 	float calculateAbortOvertakingScore();
 	bool hasPassed(ADeepDriveAgent *other, float minDistance);
 
+	bool isOppositeTrackClear(float distance);
+
 	float getDesiredSpeed() const;
 
 private:
@@ -121,6 +123,7 @@ private:
 	FDeepDriveLocalAIControllerConfiguration	m_Configuration;
 
 	ADeepDriveSplineTrack						*m_Track = 0;
+	ADeepDriveSplineTrack						*m_OppositeTrack = 0;
 	float										m_StartDistance = 0.0f;
 	float										m_DesiredSpeed;
 

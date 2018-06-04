@@ -49,3 +49,27 @@ void DeepDriveAgentCruiseState::update(DeepDriveAgentLocalAIStateMachineContext 
 void DeepDriveAgentCruiseState::exit(DeepDriveAgentLocalAIStateMachineContext &ctx)
 {
 }
+
+
+bool DeepDriveAgentCruiseState::isOvertakingPossible(DeepDriveAgentLocalAIStateMachineContext &ctx)
+{
+	bool res = false;
+
+	if	(	ctx.configuration.MaxAgentsToOvertake > 0
+		&&	m_WaitTimeBeforeOvertaking <= 0.0f
+		)
+	{
+		float distanceToNextAgent = -1.0f;
+		ADeepDriveAgent *nextAgent = ctx.agent.getNextAgent(&distanceToNextAgent);
+		if (nextAgent && distanceToNextAgent <= ctx.configuration.MinPullOutDistance)
+		{
+			const float speedDiff = (ctx.configuration.OvertakingSpeed - nextAgent->getSpeed() * 0.036f);
+			if(speedDiff > ctx.configuration.MinSpeedDifference)
+			{
+				const float overtakingDistance = distanceToNextAgent + nextAgent->getFrontBumperDistance() + ctx.agent.getBackBumperDistance() + ctx.configuration.MinPullInDistance;
+
+			}
+		}
+	}
+	return res;
+}

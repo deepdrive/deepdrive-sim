@@ -25,19 +25,6 @@ ADeepDriveSplineTrack::~ADeepDriveSplineTrack()
 void ADeepDriveSplineTrack::BeginPlay()
 {
 	Super::BeginPlay();
-#if 0
-	for (auto &x : SpeedLimits)
-	{
-		const float dist = x.X;
-		const float key = SplineTrack->GetInputKeyAtDistanceAlongSpline(dist);
-
-		const FVector loc = SplineTrack->GetLocationAtDistanceAlongSpline(dist, ESplineCoordinateSpace::World);
-
-		m_SpeedLimits.Add(FVector2D(SplineTrack->FindInputKeyClosestToWorldLocation(loc), x.Y));
-	}
-
-	m_SpeedLimits.Sort([](const FVector2D &lhs, const FVector2D &rhs) { return lhs.X < rhs.X; });
-#endif
 
 	SetActorTickEnabled(true);
 	PrimaryActorTick.TickGroup = TG_PrePhysics;
@@ -188,7 +175,42 @@ bool ADeepDriveSplineTrack::getNextAgent(ADeepDriveAgent &agent, ADeepDriveAgent
 
 void ADeepDriveSplineTrack::getPreviousAgent(const FVector &location, ADeepDriveAgent* &agentPtr, float &distance)
 {
+	agentPtr = 0;
+	distance = -1.0f;
 
+	if(m_RegisteredAgents.Num() > 1)
+	{
+		float key = SplineTrack->FindInputKeyClosestToWorldLocation(location);
+
+		int32 ind0 = 0;
+		int32 ind1 = 1;
+		for(int32 i = 0; i < m_RegisteredAgents.Num(); ++i)
+		{
+			ind1 = (ind0 + 1) % m_RegisteredAgents.Num();
+			if	(	key >= m_RegisteredAgents[ind0].key
+				&&	(	ind0 > ind1
+					||	key < m_RegisteredAgents[ind1].key
+					)
+				)
+			{
+				break;
+			}
+		}
+
+		agentPtr = m_RegisteredAgents[ind1].agent;
+		const float dist0 = m_RegisteredAgents[ind0].distance;
+		const float dist1 = m_RegisteredAgents[ind1].distance;
+		const float curDistance = getDistance(key);
+		if(ind0 < ind1)
+		{
+			distance = dist1 - dist0 - curDistance;
+		}
+		else
+		{
+			distance = m_TrackLength - dist0 + dist1 - curDistance;
+		}
+
+	}
 }
 
 

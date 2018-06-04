@@ -17,5 +17,7 @@ public:
 
 private:
 
+	bool isOvertakingPossible(DeepDriveAgentLocalAIStateMachineContext &ctx);
+
 	float				m_WaitTimeBeforeOvertaking;
 };
