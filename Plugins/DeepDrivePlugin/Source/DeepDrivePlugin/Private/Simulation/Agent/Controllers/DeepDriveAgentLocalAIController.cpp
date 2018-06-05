@@ -244,7 +244,7 @@ bool ADeepDriveAgentLocalAIController::hasPassed(ADeepDriveAgent *other, float m
 	return hasPassed;
 }
 
-bool ADeepDriveAgentLocalAIController::isOppositeTrackClear(float distance)
+bool ADeepDriveAgentLocalAIController::isOppositeTrackClear(float distance, float duration)
 {
 	bool res = true;
 
@@ -256,6 +256,11 @@ bool ADeepDriveAgentLocalAIController::isOppositeTrackClear(float distance)
 		m_OppositeTrack->getPreviousAgent(m_Agent->GetActorLocation(), prevAgent, distanceToPrev);
 		if(prevAgent)
 		{
+			if(duration > 0.0f)
+			{
+				const float coveredDist = duration * prevAgent->getSpeed();
+				distance += coveredDist;
+			}
 			res = distance < distanceToPrev;
 		}
 	}

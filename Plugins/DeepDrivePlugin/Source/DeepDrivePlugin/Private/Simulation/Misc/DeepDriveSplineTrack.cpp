@@ -178,37 +178,46 @@ void ADeepDriveSplineTrack::getPreviousAgent(const FVector &location, ADeepDrive
 	agentPtr = 0;
 	distance = -1.0f;
 
-	if(m_RegisteredAgents.Num() > 1)
+	float key = SplineTrack->FindInputKeyClosestToWorldLocation(location);
+
+	if(m_RegisteredAgents.Num() == 1)
 	{
-		float key = SplineTrack->FindInputKeyClosestToWorldLocation(location);
-
-		int32 ind0 = 0;
-		int32 ind1 = 1;
-		for(int32 i = 0; i < m_RegisteredAgents.Num(); ++i)
-		{
-			ind1 = (ind0 + 1) % m_RegisteredAgents.Num();
-			if	(	key >= m_RegisteredAgents[ind0].key
-				&&	(	ind0 > ind1
-					||	key < m_RegisteredAgents[ind1].key
-					)
-				)
-			{
-				break;
-			}
-			ind0 = ind1;
-		}
-
-		agentPtr = m_RegisteredAgents[ind1].agent;
-		const float dist0 = m_RegisteredAgents[ind0].distance;
-		const float dist1 = m_RegisteredAgents[ind1].distance;
+		agentPtr = m_RegisteredAgents[0].agent;
+		const float dist = m_RegisteredAgents[0].distance;
 		const float curDistance = getDistance(key);
-		if(ind0 < ind1)
+		if(key > m_RegisteredAgents[0].key)
 		{
-			distance = dist1 - dist0 - curDistance;
+			distance = curDistance - dist;
 		}
 		else
 		{
-			distance = m_TrackLength - dist0 + dist1 - curDistance;
+			distance = curDistance - (m_TrackLength - dist);
+		}
+		UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("Agent %d Distance %f"), agentPtr->getAgentId(), distance );
+	}
+	else if(m_RegisteredAgents.Num() > 1)
+	{
+		int32 ind = m_RegisteredAgents.Num() - 1;
+		for (int32 i = 0; i < m_RegisteredAgents.Num(); ++i)
+		{
+			if (m_RegisteredAgents[i].key < key)
+			{
+				ind = i;
+			}
+			else
+				break;
+		}
+
+		agentPtr = m_RegisteredAgents[ind].agent;
+		const float dist = m_RegisteredAgents[ind].distance;
+		const float curDistance = getDistance(key);
+		if(curDistance >= dist)
+		{
+			distance = curDistance - dist;
+		}
+		else
+		{
+			distance = m_TrackLength - dist + curDistance;
 		}
 
 	}
