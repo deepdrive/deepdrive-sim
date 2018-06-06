@@ -273,9 +273,8 @@ float ADeepDriveAgentLocalAIController::isOppositeTrackClear(ADeepDriveAgent &ne
 
 			const float d = (prevAgent->GetActorLocation() - m_Agent->GetActorLocation()).Size();
 
-			UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("%s %f %f %f %f|%f %f"), *(prevAgent->GetName()), prevAgent->getSpeed(), d, distanceToPrev, pureOvertakingDistance, overtakingDistance, overtakingDuration);
-
 			res = distanceToPrev / overtakingDistance;
+			//UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %s Spd %f AirDist %f DistToPrev %f OvrTkDist %f|%f Duration %f Otc %f"), *(prevAgent->GetName()), prevAgent->getSpeed(), d, distanceToPrev, pureOvertakingDistance, overtakingDistance, overtakingDuration, res);
 		}
 	}
 	return res;

@@ -59,7 +59,8 @@ bool DeepDriveAgentPullOutState::abortOvertaking(DeepDriveAgentLocalAIStateMachi
 	if (nextAgent)
 	{
 		const float curSpeed = ctx.agent.getSpeed() * 0.036f;
-		const float speedDiff = (curSpeed - nextAgent->getSpeed() * 0.036f);
+		//const float speedDiff = (ctx.configuration.OvertakingSpeed - nextAgent->getSpeed() * 0.036f);
+		const float speedDiff = FMath::Max(1.0f, (curSpeed - nextAgent->getSpeed() * 0.036f));
 		float nextButOneDist = -1.0f;
 		ADeepDriveAgent *nextButOne = nextAgent->getNextAgent(&nextButOneDist);
 		if	(	nextButOne != &ctx.agent
@@ -67,7 +68,6 @@ bool DeepDriveAgentPullOutState::abortOvertaking(DeepDriveAgentLocalAIStateMachi
 			)
 		{
 			float otc = ctx.local_ai_ctrl.isOppositeTrackClear(*nextAgent, distanceToNextAgent, speedDiff, curSpeed, true);
-			UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("%f"), otc );
 			abort = otc < 1.0f;
 		}
 		else

@@ -4,6 +4,7 @@
 #include "Public/Simulation/Agent/Controllers/DeepDriveAgentLocalAIController.h"
 #include "Private/Simulation/Agent/Controllers/DeepDriveAgentSpeedController.h"
 #include "Private/Simulation/Agent/Controllers/DeepDriveAgentSteeringController.h"
+#include "Public/Simulation/Agent/DeepDriveAgent.h"
 
 
 DeepDriveAgentPullBackInState::DeepDriveAgentPullBackInState(DeepDriveAgentLocalAIStateMachine &stateMachine)
@@ -15,20 +16,22 @@ DeepDriveAgentPullBackInState::DeepDriveAgentPullBackInState(DeepDriveAgentLocal
 
 void DeepDriveAgentPullBackInState::enter(DeepDriveAgentLocalAIStateMachineContext &ctx)
 {
-	m_remainingPullInTime = ctx.configuration.ChangeLaneDuration;
 	m_curOffset = ctx.side_offset;
-	m_deltaOffsetFac = ctx.configuration.OvertakingOffset / m_remainingPullInTime;
+	m_deltaOffsetFac = ctx.configuration.OvertakingOffset / ctx.configuration.ChangeLaneDuration;
+	m_remainingPullInTime = m_curOffset / m_deltaOffsetFac;
 	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d Pulling back In"), ctx.agent.getAgentId());
 }
 
 void DeepDriveAgentPullBackInState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)
 {
 	m_remainingPullInTime -= dT;
-	m_curOffset -= dT * m_deltaOffsetFac;
 	if (m_remainingPullInTime <= 0.0f)
 	{
 		m_StateMachine.setNextState("Cruise");
+		m_curOffset = 0.0f;
 	}
+	else
+		m_curOffset -= dT * m_deltaOffsetFac;
 
 	float desiredSpeed = ctx.local_ai_ctrl.getDesiredSpeed();
 	desiredSpeed = ctx.speed_controller.limitSpeedByTrack(desiredSpeed, ctx.configuration.SpeedLimitFactor);
