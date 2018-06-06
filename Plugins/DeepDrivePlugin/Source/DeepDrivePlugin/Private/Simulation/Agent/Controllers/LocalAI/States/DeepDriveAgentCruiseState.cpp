@@ -64,6 +64,7 @@ bool DeepDriveAgentCruiseState::isOvertakingPossible(DeepDriveAgentLocalAIStateM
 					||	nextButOneDist < ctx.configuration.GapBetweenAgents
 					)
 				{
+#if 0
 					// calculate pure overtaking distance
 					const float pureOvertakingDistance = distanceToNextAgent + ctx.configuration.MinPullInDistance + nextAgent->getFrontBumperDistance() + ctx.agent.getBackBumperDistance();
 					// calcualte time nased on speed difference
@@ -74,6 +75,13 @@ bool DeepDriveAgentCruiseState::isOvertakingPossible(DeepDriveAgentLocalAIStateM
 					// UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("%f %f %f %f"), pureOvertakingDistance, speedDiff, overtakingDuration, overtakingDistance );
 
 					res = ctx.local_ai_ctrl.isOppositeTrackClear(overtakingDistance, overtakingDuration);
+#endif
+
+					float otc = ctx.local_ai_ctrl.isOppositeTrackClear(*nextAgent, distanceToNextAgent, speedDiff, ctx.configuration.OvertakingSpeed, true);
+					UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("%f"), otc );
+					res = otc >= 1.0f;
+
+
 				}
 			}
 		}

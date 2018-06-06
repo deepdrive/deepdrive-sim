@@ -28,8 +28,11 @@ void DeepDriveAgentPullOutState::update(DeepDriveAgentLocalAIStateMachineContext
 	m_remainingPullOutTime -= dT;
 	m_curOffset += dT * m_deltaOffsetFac;
 
-
-	if (m_remainingPullOutTime <= 0.0f)
+	if(abortOvertaking(ctx))
+	{
+		m_StateMachine.setNextState("PullBackIn");
+	}
+	else if (m_remainingPullOutTime <= 0.0f)
 	{
 		m_StateMachine.setNextState("Passing");
 	}
@@ -44,4 +47,32 @@ void DeepDriveAgentPullOutState::update(DeepDriveAgentLocalAIStateMachineContext
 void DeepDriveAgentPullOutState::exit(DeepDriveAgentLocalAIStateMachineContext &ctx)
 {
 	ctx.side_offset = m_curOffset;
+}
+
+
+bool DeepDriveAgentPullOutState::abortOvertaking(DeepDriveAgentLocalAIStateMachineContext &ctx)
+{
+	bool abort = false;
+
+	float distanceToNextAgent = -1.0f;
+	ADeepDriveAgent *nextAgent = ctx.agent.getNextAgent(&distanceToNextAgent);
+	if (nextAgent)
+	{
+		const float curSpeed = ctx.agent.getSpeed() * 0.036f;
+		const float speedDiff = (curSpeed - nextAgent->getSpeed() * 0.036f);
+		float nextButOneDist = -1.0f;
+		ADeepDriveAgent *nextButOne = nextAgent->getNextAgent(&nextButOneDist);
+		if	(	nextButOne != &ctx.agent
+			||	nextButOneDist > ctx.configuration.GapBetweenAgents
+			)
+		{
+			float otc = ctx.local_ai_ctrl.isOppositeTrackClear(*nextAgent, distanceToNextAgent, speedDiff, curSpeed, true);
+			UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("%f"), otc );
+			abort = otc < 1.0f;
+		}
+		else
+			abort = nextButOne == &ctx.agent;
+	}
+
+	return abort;
 }

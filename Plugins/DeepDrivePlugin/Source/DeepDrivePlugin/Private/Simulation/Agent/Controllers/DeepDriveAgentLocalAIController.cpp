@@ -11,6 +11,7 @@
 #include "Private/Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentPullOutState.h"
 #include "Private/Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentPassingState.h"
 #include "Private/Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentPullInState.h"
+#include "Private/Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentPullBackInState.h"
 
 #include "Private/Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentAbortOvertakingState.h"
 
@@ -70,6 +71,7 @@ bool ADeepDriveAgentLocalAIController::Activate(ADeepDriveAgent &agent)
 
 		m_StateMachine.registerState(new DeepDriveAgentCruiseState(m_StateMachine));
 		m_StateMachine.registerState(new DeepDriveAgentPullOutState(m_StateMachine));
+		m_StateMachine.registerState(new DeepDriveAgentPullBackInState(m_StateMachine));
 		m_StateMachine.registerState(new DeepDriveAgentPassingState(m_StateMachine));
 		m_StateMachine.registerState(new DeepDriveAgentPullInState(m_StateMachine));
 		m_StateMachine.registerState(new DeepDriveAgentAbortOvertakingState(m_StateMachine));
@@ -243,6 +245,42 @@ bool ADeepDriveAgentLocalAIController::hasPassed(ADeepDriveAgent *other, float m
 
 	return hasPassed;
 }
+
+float ADeepDriveAgentLocalAIController::isOppositeTrackClear(ADeepDriveAgent &nextAgent, float distanceToNextAgent, float speedDifference, float overtakingSpeed, bool considerDuration)
+{
+	float res = 1.0f;
+
+	if(m_OppositeTrack)
+	{
+		// calculate pure overtaking distance
+		const float pureOvertakingDistance = distanceToNextAgent + m_Configuration.MinPullInDistance + nextAgent.getFrontBumperDistance() + m_Agent->getBackBumperDistance();
+		// calcualte time nased on speed difference
+		const float overtakingDuration = pureOvertakingDistance / (speedDifference * 100.0f * 1000.0f / 3600.0f) ;
+		// calculate distance covered in that time based on theoretically overtaking speed
+		float overtakingDistance = overtakingDuration * overtakingSpeed * 100.0f * 1000.0f / 3600.0f;
+
+		ADeepDriveAgent *prevAgent;
+		float distanceToPrev = 0.0f;
+
+		m_OppositeTrack->getPreviousAgent(m_Agent->GetActorLocation(), prevAgent, distanceToPrev);
+		if(prevAgent)
+		{
+			if(considerDuration)
+			{
+				const float coveredDist = overtakingDuration * prevAgent->getSpeed();
+				overtakingDistance += coveredDist;
+			}
+
+			const float d = (prevAgent->GetActorLocation() - m_Agent->GetActorLocation()).Size();
+
+			UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("%s %f %f %f %f|%f %f"), *(prevAgent->GetName()), prevAgent->getSpeed(), d, distanceToPrev, pureOvertakingDistance, overtakingDistance, overtakingDuration);
+
+			res = distanceToPrev / overtakingDistance;
+		}
+	}
+	return res;
+}
+
 
 bool ADeepDriveAgentLocalAIController::isOppositeTrackClear(float distance, float duration)
 {

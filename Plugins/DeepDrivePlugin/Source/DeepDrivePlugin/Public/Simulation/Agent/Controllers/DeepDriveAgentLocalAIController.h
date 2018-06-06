@@ -105,6 +105,7 @@ public:
 	float calculateAbortOvertakingScore();
 	bool hasPassed(ADeepDriveAgent *other, float minDistance);
 
+	float isOppositeTrackClear(ADeepDriveAgent &nextAgent, float distanceToNextAgent, float speedDifference, float overtakingSpeed, bool considerDuration);
 	bool isOppositeTrackClear(float distance, float duration);
 
 	float getDesiredSpeed() const;

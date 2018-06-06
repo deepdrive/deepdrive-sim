@@ -3,11 +3,11 @@
 
 #include "Private/Simulation/Agent/Controllers/LocalAI/DeepDriveAgentLocalAIStateMachine.h"
 
-class DeepDriveAgentPullOutState : public DeepDriveAgentLocalAIStateBase
+class DeepDriveAgentPullBackInState : public DeepDriveAgentLocalAIStateBase
 {
 public:
 
-	DeepDriveAgentPullOutState(DeepDriveAgentLocalAIStateMachine &stateMachine);
+	DeepDriveAgentPullBackInState(DeepDriveAgentLocalAIStateMachine &stateMachine);
 
 	virtual void enter(DeepDriveAgentLocalAIStateMachineContext &ctx);
 
@@ -17,9 +17,7 @@ public:
 
 private:
 
-	bool abortOvertaking(DeepDriveAgentLocalAIStateMachineContext &ctx);
-
-	float				m_remainingPullOutTime = 0.0f;
+	float				m_remainingPullInTime = 0.0f;
 
 	float				m_curOffset = 0.0f;
 	float				m_deltaOffsetFac = 0.0f;
