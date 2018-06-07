@@ -4,6 +4,7 @@
 #include "Public/Simulation/Agent/Controllers/DeepDriveAgentLocalAIController.h"
 #include "Private/Simulation/Agent/Controllers/DeepDriveAgentSpeedController.h"
 #include "Private/Simulation/Agent/Controllers/DeepDriveAgentSteeringController.h"
+#include "Public/Simulation/Agent/DeepDriveAgent.h"
 
 
 DeepDriveAgentPullInState::DeepDriveAgentPullInState(DeepDriveAgentLocalAIStateMachine &stateMachine)

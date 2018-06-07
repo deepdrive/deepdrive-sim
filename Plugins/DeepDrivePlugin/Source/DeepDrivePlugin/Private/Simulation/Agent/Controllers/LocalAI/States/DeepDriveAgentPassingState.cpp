@@ -4,6 +4,7 @@
 #include "Private/Simulation/Agent/Controllers/DeepDriveAgentSpeedController.h"
 #include "Private/Simulation/Agent/Controllers/DeepDriveAgentSteeringController.h"
 #include "Public/Simulation/Agent/Controllers/DeepDriveAgentLocalAIController.h"
+#include "Public/Simulation/Agent/DeepDriveAgent.h"
 
 
 DeepDriveAgentPassingState::DeepDriveAgentPassingState(DeepDriveAgentLocalAIStateMachine &stateMachine)
@@ -30,7 +31,7 @@ void DeepDriveAgentPassingState::update(DeepDriveAgentLocalAIStateMachineContext
 			m_StateMachine.setNextState("PullIn");
 	else if(isTimeToThink(dT))
 	{
-		if (abortOvertaking(ctx) > 0.0f)
+		if (abortOvertaking(ctx))
 		{
 			m_StateMachine.setNextState("AbortOvertaking");
 		}
