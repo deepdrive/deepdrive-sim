@@ -73,6 +73,9 @@ struct FDeepDriveLocalAIControllerConfiguration
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Overtaking)
 	float	ChangeLaneDuration = 2.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Overtaking)
+	FVector4	ThinkDelays;
+
 };
 
 /**

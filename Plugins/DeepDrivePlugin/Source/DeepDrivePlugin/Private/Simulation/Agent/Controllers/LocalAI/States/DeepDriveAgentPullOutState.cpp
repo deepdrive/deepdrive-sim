@@ -16,29 +16,35 @@ DeepDriveAgentPullOutState::DeepDriveAgentPullOutState(DeepDriveAgentLocalAIStat
 
 void DeepDriveAgentPullOutState::enter(DeepDriveAgentLocalAIStateMachineContext &ctx)
 {
-	m_remainingPullOutTime = ctx.configuration.ChangeLaneDuration;
-	m_deltaOffsetFac = ctx.configuration.OvertakingOffset  / m_remainingPullOutTime;
+	m_PullOutTimeFactor = 1.0f / ctx.configuration.ChangeLaneDuration;
+	m_PullOutAlpha = 0.0f;
+
 	m_curOffset = 0.0f;
+
+	startThinkTimer(ctx.configuration.ThinkDelays.Y, false);
 
 	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d Pulling out"), ctx.agent.getAgentId());
 }
 
 void DeepDriveAgentPullOutState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)
 {
-	m_remainingPullOutTime -= dT;
-	m_curOffset += dT * m_deltaOffsetFac;
+	m_PullOutAlpha += m_PullOutTimeFactor * dT;
+	m_curOffset = FMath::Lerp(0.0f, ctx.configuration.OvertakingOffset, m_PullOutAlpha);
 
-	if(abortOvertaking(ctx))
-	{
-		m_StateMachine.setNextState("PullBackIn");
-	}
-	else if (m_remainingPullOutTime <= 0.0f)
+	float desiredSpeed = ctx.configuration.OvertakingSpeed;// ctx.local_ai_ctrl.getDesiredSpeed();
+	const float limitedSpeed = ctx.speed_controller.limitSpeedByNextAgent(desiredSpeed);
+
+	desiredSpeed = FMath::Lerp(limitedSpeed, desiredSpeed, FMath::SmoothStep(0.4f, 0.6f, m_PullOutAlpha));
+	desiredSpeed = ctx.speed_controller.limitSpeedByTrack(desiredSpeed, ctx.configuration.SpeedLimitFactor);
+
+	if (m_PullOutAlpha >= 1.0f)
 	{
 		m_StateMachine.setNextState("Passing");
 	}
-
-	float desiredSpeed = ctx.local_ai_ctrl.getDesiredSpeed();
-	desiredSpeed = ctx.speed_controller.limitSpeedByTrack(desiredSpeed, ctx.configuration.SpeedLimitFactor);
+	else if(isTimeToThink(dT) && abortOvertaking(ctx, ctx.agent.getSpeedKmh()))
+	{
+		m_StateMachine.setNextState("PullBackIn");
+	}
 
 	ctx.speed_controller.update(dT, desiredSpeed);
 	ctx.steering_controller.update(dT, desiredSpeed, m_curOffset);
@@ -50,7 +56,7 @@ void DeepDriveAgentPullOutState::exit(DeepDriveAgentLocalAIStateMachineContext &
 }
 
 
-bool DeepDriveAgentPullOutState::abortOvertaking(DeepDriveAgentLocalAIStateMachineContext &ctx)
+bool DeepDriveAgentPullOutState::abortOvertaking(DeepDriveAgentLocalAIStateMachineContext &ctx, float desiredSpeed)
 {
 	bool abort = false;
 
@@ -58,9 +64,9 @@ bool DeepDriveAgentPullOutState::abortOvertaking(DeepDriveAgentLocalAIStateMachi
 	ADeepDriveAgent *nextAgent = ctx.agent.getNextAgent(&distanceToNextAgent);
 	if (nextAgent)
 	{
-		const float curSpeed = ctx.agent.getSpeed() * 0.036f;
+		const float curSpeed = ctx.agent.getSpeedKmh();
 		//const float speedDiff = (ctx.configuration.OvertakingSpeed - nextAgent->getSpeed() * 0.036f);
-		const float speedDiff = FMath::Max(1.0f, (curSpeed - nextAgent->getSpeed() * 0.036f));
+		const float speedDiff = FMath::Max(1.0f, (desiredSpeed - nextAgent->getSpeedKmh()));
 		float nextButOneDist = -1.0f;
 		ADeepDriveAgent *nextButOne = nextAgent->getNextAgent(&nextButOneDist);
 		if	(	nextButOne != &ctx.agent

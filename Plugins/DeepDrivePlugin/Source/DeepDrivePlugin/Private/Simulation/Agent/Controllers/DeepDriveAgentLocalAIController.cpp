@@ -164,7 +164,7 @@ float ADeepDriveAgentLocalAIController::calculateOvertakingScore()
 			score = 1.0f;
 		}
 
-		if (nextAgent->getSpeed() * 0.036f < m_Configuration.MinSpeedDifference)
+		if (nextAgent->getSpeedKmh() < m_Configuration.MinSpeedDifference)
 			score -= 1.0f;
 
 		float nextButOneDist = -1.0f;
@@ -192,7 +192,7 @@ float ADeepDriveAgentLocalAIController::calculateOvertakingScore(int32 maxAgents
 		score = 1.0f;
 		while(maxAgentsToOvertake > 0 && nextAgent)
 		{
-			const float speedDiff = (overtakingSpeed - nextAgent->getSpeed() * 0.036f);
+			const float speedDiff = (overtakingSpeed - nextAgent->getSpeedKmh());
 			if ( speedDiff < m_Configuration.MinSpeedDifference)
 			{
 				break;
@@ -274,7 +274,7 @@ float ADeepDriveAgentLocalAIController::isOppositeTrackClear(ADeepDriveAgent &ne
 			const float d = (prevAgent->GetActorLocation() - m_Agent->GetActorLocation()).Size();
 
 			res = distanceToPrev / overtakingDistance;
-			//UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %s Spd %f AirDist %f DistToPrev %f OvrTkDist %f|%f Duration %f Otc %f"), *(prevAgent->GetName()), prevAgent->getSpeed(), d, distanceToPrev, pureOvertakingDistance, overtakingDistance, overtakingDuration, res);
+			//UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %s Spd %f|%4.1f|%4.1f AirDist %f DistToPrev %f OvrTkDist %f|%f Duration %f Otc %f"), *(prevAgent->GetName()), prevAgent->getSpeed(), overtakingSpeed, speedDifference, d, distanceToPrev, pureOvertakingDistance, overtakingDistance, overtakingDuration, res);
 		}
 	}
 	return res;

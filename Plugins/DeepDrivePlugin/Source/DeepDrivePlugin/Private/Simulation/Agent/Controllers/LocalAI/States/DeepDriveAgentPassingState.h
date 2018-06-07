@@ -17,4 +17,11 @@ public:
 
 private:
 
+	bool abortOvertaking(DeepDriveAgentLocalAIStateMachineContext &ctx);
+
+	ADeepDriveAgent				*m_AgentToPass = 0;
+
+	float						m_TotalOppositeTrackClearance = 0.0f;
+	float						m_OppositeTrackClearanceCount = 0.0f;
+
 };

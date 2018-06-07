@@ -15,20 +15,31 @@ DeepDriveAgentPassingState::DeepDriveAgentPassingState(DeepDriveAgentLocalAIStat
 
 void DeepDriveAgentPassingState::enter(DeepDriveAgentLocalAIStateMachineContext &ctx)
 {
-	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d Passing"), ctx.agent.getAgentId());
+	startThinkTimer(ctx.configuration.ThinkDelays.Z, false);
+	m_AgentToPass = ctx.agent.getNextAgent();
+	m_TotalOppositeTrackClearance = 0.0f;
+	m_OppositeTrackClearanceCount = 0.0f;
+
+
+	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d Passing"), m_AgentToPass ? m_AgentToPass->getAgentId() : -1);
 }
 
 void DeepDriveAgentPassingState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)
 {
-	if (ctx.local_ai_ctrl.calculateAbortOvertakingScore() > 0.0f)
+	if(m_AgentToPass == 0)
+			m_StateMachine.setNextState("PullIn");
+	else if(isTimeToThink(dT))
 	{
-		m_StateMachine.setNextState("AbortOvertaking");
+		if (abortOvertaking(ctx) > 0.0f)
+		{
+			m_StateMachine.setNextState("AbortOvertaking");
+		}
+		else if (ctx.local_ai_ctrl.hasPassed(m_AgentToPass, ctx.configuration.MinPullInDistance))
+		{
+			m_StateMachine.setNextState("PullIn");
+		}
 	}
-	else if (ctx.local_ai_ctrl.hasPassed(ctx.agent_to_overtake, ctx.configuration.MinPullInDistance))
-	{
-		m_StateMachine.setNextState("PullIn");
-	}
-	
+		
 	float desiredSpeed = ctx.configuration.OvertakingSpeed;
 	desiredSpeed = ctx.speed_controller.limitSpeedByTrack(desiredSpeed, ctx.configuration.SpeedLimitFactor);
 
@@ -40,3 +51,32 @@ void DeepDriveAgentPassingState::exit(DeepDriveAgentLocalAIStateMachineContext &
 {
 }
 
+bool DeepDriveAgentPassingState::abortOvertaking(DeepDriveAgentLocalAIStateMachineContext &ctx)
+{
+	bool abort = false;
+
+	float distanceToNextAgent = -1.0f;
+	ADeepDriveAgent *nextAgent = ctx.agent.getNextAgent(&distanceToNextAgent);
+	if (nextAgent)
+	{
+		const float curSpeed = ctx.agent.getSpeedKmh();
+		const float speedDiff = FMath::Max(1.0f, (curSpeed - nextAgent->getSpeedKmh()));
+		float nextButOneDist = -1.0f;
+		ADeepDriveAgent *nextButOne = nextAgent->getNextAgent(&nextButOneDist);
+		if	(	nextButOne != &ctx.agent
+			||	nextButOneDist > ctx.configuration.GapBetweenAgents
+			)
+		{
+			float otc = ctx.local_ai_ctrl.isOppositeTrackClear(*nextAgent, distanceToNextAgent, speedDiff, curSpeed, true);
+			abort = otc < 1.0f;
+
+			m_TotalOppositeTrackClearance += otc;
+			m_OppositeTrackClearanceCount += 1.0f;
+			UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("cur %f avg %f"), otc, m_TotalOppositeTrackClearance / m_OppositeTrackClearanceCount);
+		}
+		else
+			abort = nextButOne == &ctx.agent;
+	}
+
+	return abort;
+}

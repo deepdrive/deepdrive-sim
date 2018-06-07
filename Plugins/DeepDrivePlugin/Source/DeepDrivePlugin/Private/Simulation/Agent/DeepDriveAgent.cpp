@@ -188,6 +188,11 @@ float ADeepDriveAgent::getSpeed() const
 	return GetVehicleMovementComponent()->GetForwardSpeed();
 }
 
+float ADeepDriveAgent::getSpeedKmh() const
+{
+	return GetVehicleMovementComponent()->GetForwardSpeed() * 0.036f;
+}
+
 float ADeepDriveAgent::getDistanceAlongRoute() const
 {
 	float res = 0.0f;

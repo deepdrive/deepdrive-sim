@@ -82,6 +82,7 @@ public:
 	FVector getAcceleration() const;
 	FVector getAngularAcceleration() const;
 	float getSpeed() const;
+	float getSpeedKmh() const;
 
 	FVector getDimensions() const;
 

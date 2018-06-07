@@ -28,8 +28,6 @@ struct DeepDriveAgentLocalAIStateMachineContext
 
 	const FDeepDriveLocalAIControllerConfiguration		&configuration;
 
-	ADeepDriveAgent										*agent_to_overtake = 0;
-
 	float												side_offset = 0.0f;
 	float												wait_time_before_overtaking = 0.0f;
 
@@ -60,8 +58,39 @@ public:
 	{
 	}
 
+	void startThinkTimer(float delay, bool thinkImmediately);
+	void clearThinkTimer();
+	bool isTimeToThink(float dT);
+
 protected:
 
 	DeepDriveAgentLocalAIStateMachine		&m_StateMachine;
 
+	float									m_ThinkDelay = -1.0f;
+	float									m_remainingTimeToThink = 0.0f;
 };
+
+
+inline void DeepDriveAgentLocalAIStateBase::startThinkTimer(float delay, bool thinkImmediately)
+{
+	m_ThinkDelay = delay;
+	m_remainingTimeToThink = thinkImmediately ? -1.0f : delay;
+}
+
+inline void DeepDriveAgentLocalAIStateBase::clearThinkTimer()
+{
+	m_ThinkDelay = -1.0f;
+}
+
+inline bool DeepDriveAgentLocalAIStateBase::isTimeToThink(float dT)
+{
+	bool res = true;
+	if(m_ThinkDelay > 0.0f)
+	{
+		m_remainingTimeToThink -= dT;
+		res = m_remainingTimeToThink <= 0.0f;
+		if(res)
+			m_remainingTimeToThink = m_ThinkDelay;
+	}
+	return res;
+}

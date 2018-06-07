@@ -16,6 +16,7 @@ DeepDriveAgentCruiseState::DeepDriveAgentCruiseState(DeepDriveAgentLocalAIStateM
 void DeepDriveAgentCruiseState::enter(DeepDriveAgentLocalAIStateMachineContext &ctx)
 {
 	m_WaitTimeBeforeOvertaking = ctx.wait_time_before_overtaking;
+	startThinkTimer(ctx.configuration.ThinkDelays.X, false);
 	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d Cruising"), ctx.agent.getAgentId());
 }
 
@@ -24,10 +25,13 @@ void DeepDriveAgentCruiseState::update(DeepDriveAgentLocalAIStateMachineContext 
 	if(m_WaitTimeBeforeOvertaking > 0.0f)
 		m_WaitTimeBeforeOvertaking -= dT;
 
-	if(isOvertakingPossible(ctx))
+	if(isTimeToThink(dT))
 	{
-		m_StateMachine.setNextState("PullOut");
-		UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d trying to overtake agent %d Pulling out"), ctx.agent.getAgentId(), ctx.agent.getNextAgent()->getAgentId() );
+		if(isOvertakingPossible(ctx))
+		{
+			m_StateMachine.setNextState("PullOut");
+			UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d trying to overtake agent %d Pulling out"), ctx.agent.getAgentId(), ctx.agent.getNextAgent()->getAgentId() );
+		}
 	}
 
 	float desiredSpeed = ctx.local_ai_ctrl.getDesiredSpeed();
@@ -55,8 +59,9 @@ bool DeepDriveAgentCruiseState::isOvertakingPossible(DeepDriveAgentLocalAIStateM
 		ADeepDriveAgent *nextAgent = ctx.agent.getNextAgent(&distanceToNextAgent);
 		if (nextAgent && distanceToNextAgent <= ctx.configuration.MinPullOutDistance)
 		{
-			const float speedDiff = (ctx.configuration.OvertakingSpeed - nextAgent->getSpeed() * 0.036f);
-			if(speedDiff > ctx.configuration.MinSpeedDifference)
+			const float agentSpdKmh = nextAgent->getSpeedKmh();
+			const float maxSpeedDiff = (ctx.configuration.OvertakingSpeed - agentSpdKmh);
+			if(maxSpeedDiff > ctx.configuration.MinSpeedDifference)
 			{
 				float nextButOneDist = -1.0f;
 				ADeepDriveAgent *nextButOne = nextAgent->getNextAgent(&nextButOneDist);
@@ -64,7 +69,9 @@ bool DeepDriveAgentCruiseState::isOvertakingPossible(DeepDriveAgentLocalAIStateM
 					||	nextButOneDist < ctx.configuration.GapBetweenAgents
 					)
 				{
-					float otc = ctx.local_ai_ctrl.isOppositeTrackClear(*nextAgent, distanceToNextAgent, speedDiff, ctx.configuration.OvertakingSpeed, true);
+					const float curSpeed = ctx.agent.getSpeedKmh();
+					const float overtakingSpeed = 0.5f * (curSpeed + ctx.configuration.OvertakingSpeed);
+					float otc = ctx.local_ai_ctrl.isOppositeTrackClear(*nextAgent, distanceToNextAgent, overtakingSpeed - agentSpdKmh, curSpeed, true);
 					res = otc >= 1.0f;
 				}
 			}

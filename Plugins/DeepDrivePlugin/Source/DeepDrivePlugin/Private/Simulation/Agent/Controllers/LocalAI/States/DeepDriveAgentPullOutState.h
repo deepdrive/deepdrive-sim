@@ -17,11 +17,11 @@ public:
 
 private:
 
-	bool abortOvertaking(DeepDriveAgentLocalAIStateMachineContext &ctx);
+	bool abortOvertaking(DeepDriveAgentLocalAIStateMachineContext &ctx, float desiredSpeed);
 
-	float				m_remainingPullOutTime = 0.0f;
+	float				m_PullOutTimeFactor = 0.0f;
+	float				m_PullOutAlpha = 0.0f;
 
 	float				m_curOffset = 0.0f;
-	float				m_deltaOffsetFac = 0.0f;
 
 };

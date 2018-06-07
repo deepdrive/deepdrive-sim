@@ -37,10 +37,13 @@ void DeepDriveAgentPullInState::update(DeepDriveAgentLocalAIStateMachineContext 
 	ctx.speed_controller.update(dT, desiredSpeed);
 	ctx.steering_controller.update(dT, desiredSpeed, m_curOffset);
 
+	ADeepDriveAgent *next = ctx.agent.getNextAgent();
+
+	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d Pulling In spd %f %s"), ctx.agent.getAgentId(), desiredSpeed, *(next->GetName()) );
+
 }
 
 void DeepDriveAgentPullInState::exit(DeepDriveAgentLocalAIStateMachineContext &ctx)
 {
-	ctx.agent_to_overtake = 0;
 	ctx.wait_time_before_overtaking = 2.0f;
 }
