@@ -40,11 +40,12 @@ void DeepDriveAgentPullInState::update(DeepDriveAgentLocalAIStateMachineContext 
 
 	ADeepDriveAgent *next = ctx.agent.getNextAgent();
 
-	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d Pulling In spd %f %s"), ctx.agent.getAgentId(), desiredSpeed, *(next->GetName()) );
+	//UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d Pulling In spd %f %s"), ctx.agent.getAgentId(), desiredSpeed, *(next->GetName()) );
 
 }
 
 void DeepDriveAgentPullInState::exit(DeepDriveAgentLocalAIStateMachineContext &ctx)
 {
-	ctx.wait_time_before_overtaking = 2.0f;
+	ctx.wait_time_before_overtaking = 200000000.0f;
+	ctx.local_ai_ctrl.setDesiredSpeed(30.0f);
 }

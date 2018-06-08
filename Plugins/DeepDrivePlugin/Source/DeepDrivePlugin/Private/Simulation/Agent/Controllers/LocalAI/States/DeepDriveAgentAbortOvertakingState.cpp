@@ -17,6 +17,7 @@ DeepDriveAgentAbortOvertakingState::DeepDriveAgentAbortOvertakingState(DeepDrive
 
 void DeepDriveAgentAbortOvertakingState::enter(DeepDriveAgentLocalAIStateMachineContext &ctx)
 {
+	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("AbortOvertaking"));
 }
 
 void DeepDriveAgentAbortOvertakingState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)

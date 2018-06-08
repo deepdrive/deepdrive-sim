@@ -24,8 +24,6 @@ void DeepDriveAgentSpeedController::initialize(ADeepDriveAgent &agent, ADeepDriv
 	m_Agent = &agent;
 	m_Track = &track;
 	m_SafetyDistanceFactor = safetyDistanceFactor;
-
-	m_Track->registerAgent(agent, m_Track->GetSpline()->FindInputKeyClosestToWorldLocation(agent.GetActorLocation()));
 }
 
 
@@ -72,13 +70,18 @@ float DeepDriveAgentSpeedController::limitSpeedByNextAgent(float desiredSpeed)
 	ADeepDriveAgent *nextAgent = m_Agent->getNextAgent(&distanceToNext);
 	if (nextAgent)
 	{
-		const float curSpeed = m_Agent->GetVehicleMovementComponent()->GetForwardSpeed();
-
+		const float curSpeed = m_Agent->getSpeed();
 		float safetyDistance = m_SafetyDistanceFactor * curSpeed * curSpeed / (2.0f * m_BrakingDeceleration);
-		const float nextAgentSpeed = nextAgent->GetVehicleMovementComponent()->GetForwardSpeed() * 0.036f;
 
-		if(nextAgentSpeed < desiredSpeed)
-			desiredSpeed = FMath::Lerp(nextAgentSpeed, desiredSpeed, FMath::SmoothStep(1.0f, 1.25f, distanceToNext / safetyDistance));
+		const float relDistance = distanceToNext / safetyDistance;
+		if(relDistance < 1.0f)
+		{
+			const float nextAgentSpeed = nextAgent->getSpeedKmh();
+			desiredSpeed = nextAgentSpeed * FMath::SmoothStep(0.0f, 1.0f, relDistance);
+		}
+
+		//if(nextAgentSpeed < desiredSpeed)
+		//	desiredSpeed = FMath::Lerp(nextAgentSpeed, desiredSpeed, FMath::SmoothStep(1.0f, 1.25f, distanceToNext / safetyDistance));
 	}
 
 	return desiredSpeed;

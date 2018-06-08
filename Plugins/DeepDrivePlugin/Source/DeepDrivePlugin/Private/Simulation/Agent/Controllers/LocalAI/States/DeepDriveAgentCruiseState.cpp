@@ -66,7 +66,7 @@ bool DeepDriveAgentCruiseState::isOvertakingPossible(DeepDriveAgentLocalAIStateM
 				float nextButOneDist = -1.0f;
 				ADeepDriveAgent *nextButOne = nextAgent->getNextAgent(&nextButOneDist);
 				if	(	nextButOne == &ctx.agent
-					||	nextButOneDist < ctx.configuration.GapBetweenAgents
+					||	nextButOneDist > ctx.configuration.GapBetweenAgents
 					)
 				{
 					const float curSpeed = ctx.agent.getSpeedKmh();

@@ -107,11 +107,13 @@ public:
 	float calculateOvertakingScore(int32 maxAgentsToOvertake, float overtakingSpeed, ADeepDriveAgent* &finalAgent);
 	float calculateAbortOvertakingScore();
 	bool hasPassed(ADeepDriveAgent *other, float minDistance);
+	float getPassedDistance(ADeepDriveAgent *other);
 
 	float isOppositeTrackClear(ADeepDriveAgent &nextAgent, float distanceToNextAgent, float speedDifference, float overtakingSpeed, bool considerDuration);
 	bool isOppositeTrackClear(float distance, float duration);
 
 	float getDesiredSpeed() const;
+	void setDesiredSpeed(float desiredSpeed);
 
 private:
 
@@ -141,4 +143,9 @@ private:
 inline float ADeepDriveAgentLocalAIController::getDesiredSpeed() const
 {
 	return m_DesiredSpeed;
+}
+
+inline void ADeepDriveAgentLocalAIController::setDesiredSpeed(float desiredSpeed)
+{
+	m_DesiredSpeed = desiredSpeed;
 }

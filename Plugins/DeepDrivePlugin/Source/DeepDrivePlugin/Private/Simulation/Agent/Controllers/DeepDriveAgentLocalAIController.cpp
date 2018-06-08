@@ -43,6 +43,8 @@ bool ADeepDriveAgentLocalAIController::Activate(ADeepDriveAgent &agent)
 
 	if (m_Track)
 	{
+		m_Track->registerAgent(agent, m_Track->GetSpline()->FindInputKeyClosestToWorldLocation(agent.GetActorLocation()));
+
 		m_SpeedController = new DeepDriveAgentSpeedController(m_Configuration.PIDThrottle, m_Configuration.PIDBrake);
 		m_SpeedController->initialize(agent, *m_Track, m_Configuration.SafetyDistanceFactor);
 
@@ -244,6 +246,13 @@ bool ADeepDriveAgentLocalAIController::hasPassed(ADeepDriveAgent *other, float m
 	}
 
 	return hasPassed;
+}
+
+float ADeepDriveAgentLocalAIController::getPassedDistance(ADeepDriveAgent *other)
+{
+	float distance = 0.0f;
+	ADeepDriveAgent *prevAgent = m_Agent->getPrevAgent(&distance);
+	return (prevAgent == other) ? distance : -1.0f;
 }
 
 float ADeepDriveAgentLocalAIController::isOppositeTrackClear(ADeepDriveAgent &nextAgent, float distanceToNextAgent, float speedDifference, float overtakingSpeed, bool considerDuration)
