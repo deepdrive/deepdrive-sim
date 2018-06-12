@@ -253,7 +253,18 @@ float ADeepDriveAgentLocalAIController::getPassedDistance(ADeepDriveAgent *other
 {
 	float distance = 0.0f;
 	ADeepDriveAgent *prevAgent = m_Agent->getPrevAgent(&distance);
-	return (prevAgent == other) ? distance : -1.0f;
+	if (prevAgent == other)
+	{
+		FVector dir = m_Agent->GetActorLocation() - prevAgent->GetActorLocation();
+		dir.Normalize();
+
+		if (FVector::DotProduct(prevAgent->GetActorForwardVector(), dir) > 0.0f)
+		{
+			return distance;
+		}
+	}
+
+	return -1.0f;
 }
 
 float ADeepDriveAgentLocalAIController::isOppositeTrackClear(ADeepDriveAgent &nextAgent, float distanceToNextAgent, float speedDifference, float overtakingSpeed, bool considerDuration)

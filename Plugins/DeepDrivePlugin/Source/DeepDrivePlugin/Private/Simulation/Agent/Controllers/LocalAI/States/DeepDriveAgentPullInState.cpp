@@ -33,9 +33,11 @@ void DeepDriveAgentPullInState::update(DeepDriveAgentLocalAIStateMachineContext 
 
 	float desiredSpeed = ctx.local_ai_ctrl.getDesiredSpeed();
 	desiredSpeed = ctx.speed_controller.limitSpeedByTrack(desiredSpeed, ctx.configuration.SpeedLimitFactor);
-	desiredSpeed = ctx.speed_controller.limitSpeedByNextAgent(desiredSpeed);
 
-	ctx.speed_controller.update(dT, desiredSpeed);
+	float curDistanceToNext = 0.0f;
+	float safetyDistance = ctx.local_ai_ctrl.calculateSafetyDistance(&curDistanceToNext);
+	ctx.speed_controller.update(dT, desiredSpeed, safetyDistance, curDistanceToNext);
+
 	ctx.steering_controller.update(dT, desiredSpeed, m_curOffset);
 
 	ADeepDriveAgent *next = ctx.agent.getNextAgent();
@@ -46,6 +48,5 @@ void DeepDriveAgentPullInState::update(DeepDriveAgentLocalAIStateMachineContext 
 
 void DeepDriveAgentPullInState::exit(DeepDriveAgentLocalAIStateMachineContext &ctx)
 {
-	ctx.wait_time_before_overtaking = 200000000.0f;
-	ctx.local_ai_ctrl.setDesiredSpeed(30.0f);
+	ctx.wait_time_before_overtaking = 2.0f;
 }

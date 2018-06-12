@@ -39,8 +39,6 @@ private:
 
 	PIDController					m_ThrottlePIDCtrl;
 	PIDController					m_BrakePIDCtrl;
-	PIDController					m_DistancePIDCtrl;
-
 
 	float							m_curThrottle = 0.0f;
 

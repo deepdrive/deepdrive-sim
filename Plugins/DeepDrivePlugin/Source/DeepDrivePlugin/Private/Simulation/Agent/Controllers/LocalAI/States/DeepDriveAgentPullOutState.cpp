@@ -32,10 +32,6 @@ void DeepDriveAgentPullOutState::update(DeepDriveAgentLocalAIStateMachineContext
 	m_curOffset = FMath::Lerp(0.0f, ctx.configuration.OvertakingOffset, m_PullOutAlpha);
 
 	float desiredSpeed = ctx.configuration.OvertakingSpeed;// ctx.local_ai_ctrl.getDesiredSpeed();
-	const float limitedSpeed = ctx.speed_controller.limitSpeedByNextAgent(desiredSpeed);
-
-	desiredSpeed = FMath::Lerp(limitedSpeed, desiredSpeed, FMath::SmoothStep(0.4f, 0.6f, m_PullOutAlpha));
-	desiredSpeed = ctx.speed_controller.limitSpeedByTrack(desiredSpeed, ctx.configuration.SpeedLimitFactor);
 
 	if (m_PullOutAlpha >= 1.0f)
 	{
@@ -46,7 +42,10 @@ void DeepDriveAgentPullOutState::update(DeepDriveAgentLocalAIStateMachineContext
 		m_StateMachine.setNextState("PullBackIn");
 	}
 
-	ctx.speed_controller.update(dT, desiredSpeed);
+	float curDistanceToNext = 0.0f;
+	float safetyDistance = ctx.local_ai_ctrl.calculateSafetyDistance(&curDistanceToNext);
+	ctx.speed_controller.update(dT, desiredSpeed, safetyDistance, curDistanceToNext);
+
 	ctx.steering_controller.update(dT, desiredSpeed, m_curOffset);
 }
 
