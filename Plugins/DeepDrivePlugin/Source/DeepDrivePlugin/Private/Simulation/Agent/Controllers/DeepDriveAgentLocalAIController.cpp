@@ -104,6 +104,7 @@ void ADeepDriveAgentLocalAIController::Configure(const FDeepDriveLocalAIControll
 	m_DesiredSpeed = FMath::RandRange(Configuration.SpeedRange.X, Configuration.SpeedRange.Y);
 	m_Track = Configuration.Track;
 	m_StartDistance = Configuration.StartDistances[StartPositionSlot];
+	m_SafetyDistanceFactor = Configuration.SafetyDistanceFactor;
 }
 
 
@@ -311,6 +312,19 @@ bool ADeepDriveAgentLocalAIController::isOppositeTrackClear(float distance, floa
 		}
 	}
 	return res;
+}
+
+float ADeepDriveAgentLocalAIController::calculateSafetyDistance(float *curDistance)
+{
+	float safetyDistance = -1.0f;
+	ADeepDriveAgent *nextAgent = m_Agent->getNextAgent(curDistance);
+	if (nextAgent)
+	{
+		const float curSpeed = m_Agent->getSpeed();
+		safetyDistance = m_SafetyDistanceFactor * curSpeed * curSpeed / (2.0f * m_BrakingDeceleration);
+	}
+
+	return safetyDistance;
 }
 
 void ADeepDriveAgentLocalAIController::OnCheckpointReached()

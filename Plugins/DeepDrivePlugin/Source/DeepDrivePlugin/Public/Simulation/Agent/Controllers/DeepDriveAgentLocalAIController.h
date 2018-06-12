@@ -112,6 +112,8 @@ public:
 	float isOppositeTrackClear(ADeepDriveAgent &nextAgent, float distanceToNextAgent, float speedDifference, float overtakingSpeed, bool considerDuration);
 	bool isOppositeTrackClear(float distance, float duration);
 
+	float calculateSafetyDistance(float *curDistance = 0);
+
 	float getDesiredSpeed() const;
 	void setDesiredSpeed(float desiredSpeed);
 
@@ -134,6 +136,8 @@ private:
 	float										m_DesiredSpeed;
 
 	USplineComponent							*m_Spline = 0;
+	float										m_SafetyDistanceFactor = 1.0f;
+	float										m_BrakingDeceleration = 800.0f;
 
 	bool										m_isPaused = false;
 

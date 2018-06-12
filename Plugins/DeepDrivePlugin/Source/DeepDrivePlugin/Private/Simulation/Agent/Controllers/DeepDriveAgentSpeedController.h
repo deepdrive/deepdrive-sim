@@ -29,6 +29,8 @@ public:
 
 	void update(float dT, float desiredSpeed);
 
+	void update(float dT, float desiredSpeed, float desiredDistance, float curDistance);
+
 private:
 
 	ADeepDriveAgent					*m_Agent = 0;
@@ -37,6 +39,7 @@ private:
 
 	PIDController					m_ThrottlePIDCtrl;
 	PIDController					m_BrakePIDCtrl;
+	PIDController					m_DistancePIDCtrl;
 
 
 	float							m_curThrottle = 0.0f;

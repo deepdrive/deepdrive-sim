@@ -12,6 +12,7 @@ DEFINE_LOG_CATEGORY(LogDeepDriveAgentSpeedController);
 DeepDriveAgentSpeedController::DeepDriveAgentSpeedController(const FVector &pidThrottleParams, const FVector &pidBrakeParams)
 	:	m_ThrottlePIDCtrl(pidThrottleParams.X, pidThrottleParams.Y, pidThrottleParams.Z)
 	,	m_BrakePIDCtrl(pidBrakeParams.X, pidBrakeParams.Y, pidBrakeParams.Z)
+	,	m_DistancePIDCtrl(pidBrakeParams.X, pidBrakeParams.Y, pidBrakeParams.Z)
 {
 }
 
@@ -47,6 +48,54 @@ void DeepDriveAgentSpeedController::update(float dT, float desiredSpeed)
 
 			const float throttleDampFac = FMath::SmoothStep(-0.025, 0.025, eSpeed);
 			curThrottle = m_curThrottle * throttleDampFac;
+
+			curBrake = 0.0f;
+
+			//UE_LOG(LogDeepDriveAgentSpeedController, Log, TEXT("DeepDriveAgentSpeedController::update desiredSpeed %4.2f curSpeed %4.2f eSpeed %f curThrottle %f | %f curBrake %f dThrottle %f"), desiredSpeed, curSpeedKmh, eSpeed, curThrottle, throttleDampFac, curBrake, yThrottle);
+		}
+
+		m_Agent->SetThrottle(curThrottle);
+		m_Agent->SetBrake(curBrake);
+	}
+}
+
+void DeepDriveAgentSpeedController::update(float dT, float desiredSpeed, float desiredDistance, float curDistance)
+{
+	if(m_Agent)
+	{
+		float curBrake = 1.0f;
+		float curThrottle = 1.0f;
+
+		if (desiredSpeed > 0.0f)
+		{
+			const float curSpeed = m_Agent->GetVehicleMovementComponent()->GetForwardSpeed();
+
+			const float curSpeedKmh = curSpeed * 0.036f;
+			const float deltaSpeed = desiredSpeed - curSpeedKmh;
+			const float eSpeed = deltaSpeed / desiredSpeed;
+
+			const float yThrottle = m_ThrottlePIDCtrl.advance(dT, eSpeed) * dT;
+			m_curThrottle = FMath::Clamp(m_curThrottle + yThrottle, 0.0f, 1.0f);
+
+			const float throttleDampFac = FMath::SmoothStep(-0.025, 0.025, eSpeed);
+			curThrottle = m_curThrottle * throttleDampFac;
+
+			if(desiredDistance > 0.0f)
+			{
+				const float relDistance = curDistance / desiredDistance;
+				//const float distDampFac = FMath::SmoothStep(0.8f, 1.2f, relDistance);
+				//curThrottle *= distDampFac;
+				//UE_LOG(LogDeepDriveAgentSpeedController, Log, TEXT("DeepDriveAgentSpeedController::update Agent %s relDist %f distDampFac %f curThr %f"), *(m_Agent->GetName()), relDistance, distDampFac, curThrottle);
+				
+				const float eDist = FMath::Max(-0.25f, 1.0f - relDistance);
+				float distDamping = m_DistancePIDCtrl.advance(dT, eDist) * dT;
+				distDamping = FMath::Clamp(distDamping, 0.0f, 1.0f);
+				curThrottle = FMath::Max(curThrottle - distDamping, 0.0f);
+			
+				if(m_Agent->getAgentId() == 1)
+					UE_LOG(LogDeepDriveAgentSpeedController, Log, TEXT("DeepDriveAgentSpeedController::update Agent %s relDist %f eDist %f distDamp %f curThr %f"), *(m_Agent->GetName()), relDistance, eDist, distDamping, curThrottle);
+	
+			}
 
 			curBrake = 0.0f;
 

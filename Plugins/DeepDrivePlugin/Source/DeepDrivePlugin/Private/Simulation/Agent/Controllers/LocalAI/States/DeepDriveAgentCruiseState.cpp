@@ -36,9 +36,15 @@ void DeepDriveAgentCruiseState::update(DeepDriveAgentLocalAIStateMachineContext 
 
 	float desiredSpeed = ctx.local_ai_ctrl.getDesiredSpeed();
 	desiredSpeed = ctx.speed_controller.limitSpeedByTrack(desiredSpeed, 1.0f);
-	desiredSpeed = ctx.speed_controller.limitSpeedByNextAgent(desiredSpeed);
 
-	ctx.speed_controller.update(dT, desiredSpeed);
+	//desiredSpeed = ctx.speed_controller.limitSpeedByNextAgent(desiredSpeed);
+
+	float curDistanceToNext = 0.0f;
+	float safetyDistance = ctx.local_ai_ctrl.calculateSafetyDistance(&curDistanceToNext);
+
+	//UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %s sfty %f cur %f"), *(ctx.agent.GetName()), safetyDistance, curDistanceToNext );
+
+	ctx.speed_controller.update(dT, desiredSpeed, safetyDistance, curDistanceToNext);
 	ctx.steering_controller.update(dT, desiredSpeed, 0.0f);
 }
 
