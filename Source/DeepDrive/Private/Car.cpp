@@ -26,6 +26,25 @@ void ACar::BeginPlay()
 {
 	Super::BeginPlay();
 	EpisodeStartTime = GetAgentTime();
+/*
+	if (RandomLocationSeed)
+	{
+		if (Trajectory.Get() == nullptr)
+		{
+			UE_LOG(LogTemp, VeryVerbose, TEXT("getting trajectory"));
+
+			for (TActorIterator<ASplineTrajectory> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+			{
+				Trajectory = *ActorItr;
+			}
+
+			if (Trajectory.Get() == nullptr)
+			{
+				UE_LOG(LogTemp, VeryVerbose, TEXT("car AI is turned on but no spline is set for movement"));
+			}
+		}
+	}
+*/
 }
 
 void ACar::Tick(float DeltaTime)
@@ -38,7 +57,7 @@ void ACar::Tick(float DeltaTime)
 		bShouldReset = false;
 	}
 
-	if(bShouldReset)
+	if(bShouldReset && RandomLocationSeed == 0)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Resetting Car"));
 
@@ -289,6 +308,22 @@ bool ACar::UpdateSplineProgress()
 		{
 			UE_LOG(LogTemp, VeryVerbose, TEXT("car AI is turned on but no spline is set for movement"));
 			return false;
+		}
+		else
+		{
+			if (RandomLocationSeed)
+			{
+				m_RandomStream = FRandomStream(RandomLocationSeed);
+				float randomDist = m_RandomStream.FRandRange(0.0f, Trajectory->Trajectory->GetSplineLength());
+
+				FVector curPosOnSpline = Trajectory->Trajectory->GetLocationAtDistanceAlongSpline(randomDist, ESplineCoordinateSpace::World);
+				curPosOnSpline.Z += 200.0f;
+				FQuat quat = Trajectory->Trajectory->GetQuaternionAtDistanceAlongSpline(randomDist, ESplineCoordinateSpace::World);
+
+				FTransform transform(quat.Rotator(), curPosOnSpline, FVector(1.0f, 1.0f, 1.0f));
+
+				SetActorTransform(transform, false, 0, ETeleportType::TeleportPhysics);
+			}
 		}
 	}
 	FVector CurrentLocation = GetActorLocation();
