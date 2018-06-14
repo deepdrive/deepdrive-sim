@@ -36,9 +36,10 @@ void DeepDriveAgentPullBackInState::update(DeepDriveAgentLocalAIStateMachineCont
 	float desiredSpeed = ctx.local_ai_ctrl.getDesiredSpeed();
 	desiredSpeed = ctx.speed_controller.limitSpeedByTrack(desiredSpeed, ctx.configuration.SpeedLimitFactor);
 
+	float safetyDistance = ctx.local_ai_ctrl.calculateSafetyDistance();
 	float curDistanceToNext = 0.0f;
-	float safetyDistance = ctx.local_ai_ctrl.calculateSafetyDistance(&curDistanceToNext);
-	ctx.speed_controller.update(dT, desiredSpeed, safetyDistance, curDistanceToNext);
+	ADeepDriveAgent *nextAgent = ctx.agent.getNextAgent(2.0f * safetyDistance, &curDistanceToNext);
+	ctx.speed_controller.update(dT, desiredSpeed, nextAgent ? safetyDistance : -1.0f, curDistanceToNext);
 
 	ctx.steering_controller.update(dT, desiredSpeed, m_curOffset);
 

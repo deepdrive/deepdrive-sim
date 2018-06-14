@@ -16,17 +16,18 @@ DeepDriveAgentPullInState::DeepDriveAgentPullInState(DeepDriveAgentLocalAIStateM
 
 void DeepDriveAgentPullInState::enter(DeepDriveAgentLocalAIStateMachineContext &ctx)
 {
-	m_remainingPullInTime = ctx.configuration.ChangeLaneDuration;
-	m_curOffset = ctx.side_offset;
-	m_deltaOffsetFac = ctx.configuration.OvertakingOffset / m_remainingPullInTime;
+	m_PullInTimeFactor = 1.0f / ctx.configuration.ChangeLaneDuration;
+	m_PullInAlpha = 1.0f;
+
 	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d Pulling In"), ctx.agent.getAgentId());
 }
 
 void DeepDriveAgentPullInState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)
 {
-	m_remainingPullInTime -= dT;
-	m_curOffset -= dT * m_deltaOffsetFac;
-	if (m_remainingPullInTime <= 0.0f)
+	m_PullInAlpha -= m_PullInTimeFactor * dT;
+	m_curOffset = FMath::Lerp(0.0f, ctx.side_offset, m_PullInAlpha);
+
+	if (m_PullInAlpha <= 0.0f)
 	{
 		m_StateMachine.setNextState("Cruise");
 	}
@@ -34,19 +35,16 @@ void DeepDriveAgentPullInState::update(DeepDriveAgentLocalAIStateMachineContext 
 	float desiredSpeed = ctx.local_ai_ctrl.getDesiredSpeed();
 	desiredSpeed = ctx.speed_controller.limitSpeedByTrack(desiredSpeed, ctx.configuration.SpeedLimitFactor);
 
+	float safetyDistance = ctx.local_ai_ctrl.calculateSafetyDistance();
 	float curDistanceToNext = 0.0f;
-	float safetyDistance = ctx.local_ai_ctrl.calculateSafetyDistance(&curDistanceToNext);
-	ctx.speed_controller.update(dT, desiredSpeed, safetyDistance, curDistanceToNext);
+	ADeepDriveAgent *nextAgent = ctx.agent.getNextAgent(2.0f * safetyDistance, &curDistanceToNext);
+	ctx.speed_controller.update(dT, desiredSpeed, nextAgent ? safetyDistance : -1.0f, curDistanceToNext);
 
 	ctx.steering_controller.update(dT, desiredSpeed, m_curOffset);
-
-	ADeepDriveAgent *next = ctx.agent.getNextAgent();
-
-	//UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d Pulling In spd %f %s"), ctx.agent.getAgentId(), desiredSpeed, *(next->GetName()) );
-
 }
 
 void DeepDriveAgentPullInState::exit(DeepDriveAgentLocalAIStateMachineContext &ctx)
 {
 	ctx.wait_time_before_overtaking = 2.0f;
+	ctx.side_offset = m_curOffset;
 }

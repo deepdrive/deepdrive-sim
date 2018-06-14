@@ -49,11 +49,6 @@ bool ADeepDriveAgentControllerBase::ResetAgent()
 	return res;
 }
 
-void ADeepDriveAgentControllerBase::requestSlowDown(float relSpeed, float duration)
-{
-}
-
-
 void ADeepDriveAgentControllerBase::OnCheckpointReached()
 {
 }

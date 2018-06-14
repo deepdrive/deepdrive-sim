@@ -151,6 +151,7 @@ float ADeepDriveAgentLocalAIController::getClosestDistanceOnSpline(const FVector
 	return FMath::Lerp(dist0, dist1, closestKey - static_cast<float> (index0));
 }
 
+#if 0
 float ADeepDriveAgentLocalAIController::calculateOvertakingScore()
 {
 	float score = -1.0f;
@@ -233,7 +234,7 @@ bool ADeepDriveAgentLocalAIController::hasPassed(ADeepDriveAgent *other, float m
 	bool hasPassed = false;
 
 	float dist2Prev = -1.0f;
-	ADeepDriveAgent *prevAgent = m_Agent->getPrevAgent(&dist2Prev);
+	ADeepDriveAgent *prevAgent = m_Agent->getPrevAgent(-1.0f, &dist2Prev);
 
 	if(prevAgent == other)
 	{
@@ -249,10 +250,12 @@ bool ADeepDriveAgentLocalAIController::hasPassed(ADeepDriveAgent *other, float m
 	return hasPassed;
 }
 
+#endif
+
 float ADeepDriveAgentLocalAIController::getPassedDistance(ADeepDriveAgent *other)
 {
 	float distance = 0.0f;
-	ADeepDriveAgent *prevAgent = m_Agent->getPrevAgent(&distance);
+	ADeepDriveAgent *prevAgent = m_Agent->getPrevAgent(-1.0f, &distance);
 	if (prevAgent == other)
 	{
 		FVector dir = m_Agent->GetActorLocation() - prevAgent->GetActorLocation();
@@ -295,13 +298,45 @@ float ADeepDriveAgentLocalAIController::isOppositeTrackClear(ADeepDriveAgent &ne
 			const float d = (prevAgent->GetActorLocation() - m_Agent->GetActorLocation()).Size();
 
 			res = distanceToPrev / overtakingDistance;
-			//UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %s Spd %f|%4.1f|%4.1f AirDist %f DistToPrev %f OvrTkDist %f|%f Duration %f Otc %f"), *(prevAgent->GetName()), prevAgent->getSpeed(), overtakingSpeed, speedDifference, d, distanceToPrev, pureOvertakingDistance, overtakingDistance, overtakingDuration, res);
+			UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %s Spd %4.1f|%4.1f|%4.1f AirDist %f dtn %f dtp %f OvrTkDist %f|%f Duration %f Otc %f"), *(prevAgent->GetName()), prevAgent->getSpeed(), overtakingSpeed, speedDifference, d, distanceToNextAgent, distanceToPrev, pureOvertakingDistance, overtakingDistance, overtakingDuration, res);
 		}
 	}
 	return res;
 }
 
+float ADeepDriveAgentLocalAIController::computeOppositeTrackClearance(float overtakingDistance, float speedDifference, float overtakingSpeed, bool considerDuration)
+{
+	float res = 1.0f;
 
+	if(m_OppositeTrack)
+	{
+		// calcualte time nased on speed difference
+		const float overtakingDuration = overtakingDistance / (speedDifference * 100.0f * 1000.0f / 3600.0f) ;
+		// calculate distance covered in that time based on theoretically overtaking speed
+		overtakingDistance = overtakingDuration * overtakingSpeed * 100.0f * 1000.0f / 3600.0f;
+
+		ADeepDriveAgent *prevAgent;
+		float distanceToPrev = 0.0f;
+
+		m_OppositeTrack->getPreviousAgent(m_Agent->GetActorLocation(), prevAgent, distanceToPrev);
+		if(prevAgent)
+		{
+			if(considerDuration)
+			{
+				const float coveredDist = overtakingDuration * prevAgent->getSpeed();
+				overtakingDistance += coveredDist;
+			}
+
+			const float d = (prevAgent->GetActorLocation() - m_Agent->GetActorLocation()).Size();
+
+			res = distanceToPrev / overtakingDistance;
+			UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %s Spd %4.1f|%4.1f|%4.1f AirDist %f dtp %f OvrTkDist %f Duration %f Otc %f"), *(prevAgent->GetName()), prevAgent->getSpeed(), overtakingSpeed, speedDifference, d, distanceToPrev,overtakingDistance, overtakingDuration, res);
+		}
+	}
+	return res;
+}
+
+#if 0
 bool ADeepDriveAgentLocalAIController::isOppositeTrackClear(float distance, float duration)
 {
 	bool res = true;
@@ -334,6 +369,15 @@ float ADeepDriveAgentLocalAIController::calculateSafetyDistance(float *curDistan
 		const float curSpeed = m_Agent->getSpeed();
 		safetyDistance = m_SafetyDistanceFactor * curSpeed * curSpeed / (2.0f * m_BrakingDeceleration);
 	}
+
+	return safetyDistance;
+}
+#endif
+
+float ADeepDriveAgentLocalAIController::calculateSafetyDistance()
+{
+	const float curSpeed = m_Agent->getSpeed();
+	const float safetyDistance = m_SafetyDistanceFactor * curSpeed * curSpeed / (2.0f * m_BrakingDeceleration);
 
 	return safetyDistance;
 }

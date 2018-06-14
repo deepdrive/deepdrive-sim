@@ -103,16 +103,19 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Configuration")
 	void Configure(const FDeepDriveLocalAIControllerConfiguration &Configuration, int32 StartPositionSlot);
 
-	float calculateOvertakingScore();
-	float calculateOvertakingScore(int32 maxAgentsToOvertake, float overtakingSpeed, ADeepDriveAgent* &finalAgent);
-	float calculateAbortOvertakingScore();
-	bool hasPassed(ADeepDriveAgent *other, float minDistance);
+	//float calculateOvertakingScore();
+	//float calculateOvertakingScore(int32 maxAgentsToOvertake, float overtakingSpeed, ADeepDriveAgent* &finalAgent);
+	//float calculateAbortOvertakingScore();
+	
+	//bool hasPassed(ADeepDriveAgent *other, float minDistance);
+
 	float getPassedDistance(ADeepDriveAgent *other);
 
 	float isOppositeTrackClear(ADeepDriveAgent &nextAgent, float distanceToNextAgent, float speedDifference, float overtakingSpeed, bool considerDuration);
-	bool isOppositeTrackClear(float distance, float duration);
+	float computeOppositeTrackClearance(float overtakingDistance, float speedDifference, float overtakingSpeed, bool considerDuration);
 
-	float calculateSafetyDistance(float *curDistance = 0);
+	float calculateSafetyDistance();
+	//float calculateSafetyDistance(float *curDistance);
 
 	float getDesiredSpeed() const;
 	void setDesiredSpeed(float desiredSpeed);

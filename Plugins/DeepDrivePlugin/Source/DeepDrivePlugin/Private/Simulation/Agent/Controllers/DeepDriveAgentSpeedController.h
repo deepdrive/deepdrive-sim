@@ -25,7 +25,7 @@ public:
 
 	float limitSpeedByTrack(float desiredSpeed, float speedBoost);
 
-	float limitSpeedByNextAgent(float desiredSpeed);
+	//float limitSpeedByNextAgent(float desiredSpeed);
 
 	void update(float dT, float desiredSpeed);
 

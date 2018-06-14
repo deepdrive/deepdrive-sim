@@ -104,6 +104,7 @@ float DeepDriveAgentSpeedController::limitSpeedByTrack(float desiredSpeed, float
 	return trackSpeedLimit > 0.0f ? FMath::Min(desiredSpeed, trackSpeedLimit * speedBoost) : desiredSpeed;
 }
 
+#if 0
 float DeepDriveAgentSpeedController::limitSpeedByNextAgent(float desiredSpeed)
 {
 	float distanceToNext = 0.0f;
@@ -126,3 +127,4 @@ float DeepDriveAgentSpeedController::limitSpeedByNextAgent(float desiredSpeed)
 
 	return desiredSpeed;
 }
+#endif

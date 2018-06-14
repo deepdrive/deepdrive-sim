@@ -30,16 +30,17 @@ void DeepDriveAgentCruiseState::update(DeepDriveAgentLocalAIStateMachineContext 
 		if(isOvertakingPossible(ctx))
 		{
 			m_StateMachine.setNextState("PullOut");
-			UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d trying to overtake agent %d Pulling out"), ctx.agent.getAgentId(), ctx.agent.getNextAgent()->getAgentId() );
+			UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d trying to overtake agent %d Pulling out"), ctx.agent.getAgentId(), ctx.agent.getNextAgent(-1.0f)->getAgentId() );
 		}
 	}
 
 	float desiredSpeed = ctx.local_ai_ctrl.getDesiredSpeed();
 	desiredSpeed = ctx.speed_controller.limitSpeedByTrack(desiredSpeed, 1.0f);
 
+	float safetyDistance = ctx.local_ai_ctrl.calculateSafetyDistance();
 	float curDistanceToNext = 0.0f;
-	float safetyDistance = ctx.local_ai_ctrl.calculateSafetyDistance(&curDistanceToNext);
-	ctx.speed_controller.update(dT, desiredSpeed, safetyDistance, curDistanceToNext);
+	ADeepDriveAgent *nextAgent = ctx.agent.getNextAgent(2.0f * safetyDistance, &curDistanceToNext);
+	ctx.speed_controller.update(dT, desiredSpeed, nextAgent ? safetyDistance : -1.0f, curDistanceToNext);
 
 	ctx.steering_controller.update(dT, desiredSpeed, 0.0f);
 }
@@ -58,18 +59,15 @@ bool DeepDriveAgentCruiseState::isOvertakingPossible(DeepDriveAgentLocalAIStateM
 		)
 	{
 		float distanceToNextAgent = -1.0f;
-		ADeepDriveAgent *nextAgent = ctx.agent.getNextAgent(&distanceToNextAgent);
-		if (nextAgent && distanceToNextAgent <= ctx.configuration.MinPullOutDistance)
+		ADeepDriveAgent *nextAgent = ctx.agent.getNextAgent(ctx.configuration.MinPullOutDistance, &distanceToNextAgent);
+		if (nextAgent)
 		{
 			const float agentSpdKmh = nextAgent->getSpeedKmh();
 			const float maxSpeedDiff = (ctx.configuration.OvertakingSpeed - agentSpdKmh);
 			if(maxSpeedDiff > ctx.configuration.MinSpeedDifference)
 			{
-				float nextButOneDist = -1.0f;
-				ADeepDriveAgent *nextButOne = nextAgent->getNextAgent(&nextButOneDist);
-				if	(	nextButOne == &ctx.agent
-					||	nextButOneDist > ctx.configuration.GapBetweenAgents
-					)
+				ADeepDriveAgent *nextButOne = nextAgent->getNextAgent(ctx.configuration.GapBetweenAgents);
+				if(nextButOne == 0)
 				{
 					const float curSpeed = ctx.agent.getSpeedKmh();
 					const float overtakingSpeed = 0.5f * (curSpeed + ctx.configuration.OvertakingSpeed);

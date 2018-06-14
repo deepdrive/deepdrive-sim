@@ -42,9 +42,10 @@ void DeepDriveAgentPullOutState::update(DeepDriveAgentLocalAIStateMachineContext
 		m_StateMachine.setNextState("PullBackIn");
 	}
 
+	float safetyDistance = ctx.local_ai_ctrl.calculateSafetyDistance();
 	float curDistanceToNext = 0.0f;
-	float safetyDistance = ctx.local_ai_ctrl.calculateSafetyDistance(&curDistanceToNext);
-	ctx.speed_controller.update(dT, desiredSpeed, safetyDistance, curDistanceToNext);
+	ADeepDriveAgent *nextAgent = ctx.agent.getNextAgent(2.0f * safetyDistance, &curDistanceToNext);
+	ctx.speed_controller.update(dT, desiredSpeed, nextAgent ? safetyDistance : -1.0f, curDistanceToNext);
 
 	ctx.steering_controller.update(dT, desiredSpeed, m_curOffset);
 }
@@ -60,17 +61,15 @@ bool DeepDriveAgentPullOutState::abortOvertaking(DeepDriveAgentLocalAIStateMachi
 	bool abort = false;
 
 	float distanceToNextAgent = -1.0f;
-	ADeepDriveAgent *nextAgent = ctx.agent.getNextAgent(&distanceToNextAgent);
+	ADeepDriveAgent *nextAgent = ctx.agent.getNextAgent(-1.0f, &distanceToNextAgent);
 	if (nextAgent)
 	{
 		const float curSpeed = ctx.agent.getSpeedKmh();
 		//const float speedDiff = (ctx.configuration.OvertakingSpeed - nextAgent->getSpeed() * 0.036f);
 		const float speedDiff = FMath::Max(1.0f, (desiredSpeed - nextAgent->getSpeedKmh()));
-		float nextButOneDist = -1.0f;
-		ADeepDriveAgent *nextButOne = nextAgent->getNextAgent(&nextButOneDist);
-		if	(	nextButOne != &ctx.agent
-			||	nextButOneDist > ctx.configuration.GapBetweenAgents
-			)
+
+		ADeepDriveAgent *nextButOne = nextAgent->getNextAgent(ctx.configuration.GapBetweenAgents);
+		if(nextButOne == 0)
 		{
 			float otc = ctx.local_ai_ctrl.isOppositeTrackClear(*nextAgent, distanceToNextAgent, speedDiff, curSpeed, true);
 			abort = otc < 1.0f;

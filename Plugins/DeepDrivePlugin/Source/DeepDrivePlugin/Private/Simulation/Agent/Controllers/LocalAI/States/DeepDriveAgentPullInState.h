@@ -17,9 +17,9 @@ public:
 
 private:
 
-	float				m_remainingPullInTime = 0.0f;
+	float				m_PullInTimeFactor = 0.0f;
+	float				m_PullInAlpha = 0.0f;
 
 	float				m_curOffset = 0.0f;
-	float				m_deltaOffsetFac = 0.0f;
 
 };

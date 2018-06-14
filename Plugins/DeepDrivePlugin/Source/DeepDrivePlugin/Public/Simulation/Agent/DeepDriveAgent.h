@@ -103,8 +103,8 @@ public:
 	void setNextAgent(ADeepDriveAgent *agent, float distance);
 	void setPrevAgent(ADeepDriveAgent *agent, float distance);
 
-	ADeepDriveAgent* getNextAgent(float *distance = 0);
-	ADeepDriveAgent* getPrevAgent(float *distance = 0);
+	ADeepDriveAgent* getNextAgent(float maxDistance, float *distance = 0);
+	ADeepDriveAgent* getPrevAgent(float maxDistance, float *distance = 0);
 
 	ADeepDriveAgentControllerBase *getAgentController();
 
@@ -250,17 +250,29 @@ inline void ADeepDriveAgent::setPrevAgent(ADeepDriveAgent *agent, float distance
 	m_DistanceToPrevAgent = distance;
 }
 
-inline ADeepDriveAgent* ADeepDriveAgent::getNextAgent(float *distance)
+inline ADeepDriveAgent* ADeepDriveAgent::getNextAgent(float maxDistance, float *distance)
 {
-	if (distance)
-		*distance = m_DistanceToNextAgent;
-	return m_NextAgent;
+	if	(	maxDistance <= 0.0f
+		||	m_DistanceToNextAgent <= maxDistance
+		)
+	{
+		if (distance)
+			*distance = m_DistanceToNextAgent;
+		return m_NextAgent;
+	}
+	return 0;
 }
 
-inline ADeepDriveAgent* ADeepDriveAgent::getPrevAgent(float *distance)
+inline ADeepDriveAgent* ADeepDriveAgent::getPrevAgent(float maxDistance, float *distance)
 {
-	if (distance)
-		*distance = m_DistanceToPrevAgent;
-	return m_PrevAgent;
+	if	(	maxDistance <= 0.0f
+		||	m_DistanceToPrevAgent <= maxDistance
+		)
+	{
+		if (distance)
+			*distance = m_DistanceToPrevAgent;
+		return m_PrevAgent;
+	}
+	return 0;
 }
 
