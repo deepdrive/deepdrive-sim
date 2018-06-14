@@ -186,4 +186,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	bool IsInputEnabled = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Setup")
+	int32	RandomLocationSeed = 0;
+
+	FRandomStream		m_RandomStream;
 };
