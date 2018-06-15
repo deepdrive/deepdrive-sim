@@ -183,11 +183,13 @@ public:
 
 	void GetDistanceAlongRouteAtLocation(FVector CurrentLocation);
 
+	void ResetPosition();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	bool IsInputEnabled = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Setup")
-	int32	RandomLocationSeed = 0;
-
+	int32	m_randomLocationSeed = 5558;
+	float	m_startDistanceAlongSpline = 0;
+	float	m_shouldStartAtRandomPosition = true;
 	FRandomStream		m_RandomStream;
 };

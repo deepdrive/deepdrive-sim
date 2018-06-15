@@ -56,10 +56,10 @@ if client != None:
 					#		print('Id', c.id, c.capture_width, 'x', c.capture_height)
 						pass
 
-					seqNr = deepdrive_client.advance_synchronous_stepping(clientId, 0.0625, 0.0, 1.0, 0.0, 0)
-					print('Advanced', seqNr)
+					seqNr = deepdrive_client.advance_synchronous_stepping(clientId, 0.125, 0.2, 1.0, 0.0, 0)
+					print('Advanced', counter, seqNr)
 					time.sleep(0.05)
-					counter = counter - 1
+					counter -= 1
 
 				print('Resetting agent .....')
 				deepdrive_client.reset_agent(clientId)

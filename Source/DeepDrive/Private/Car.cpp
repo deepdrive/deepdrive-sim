@@ -26,6 +26,10 @@ void ACar::BeginPlay()
 {
 	Super::BeginPlay();
 	EpisodeStartTime = GetAgentTime();
+	if (m_shouldStartAtRandomPosition)
+	{
+        m_RandomStream = FRandomStream(m_randomLocationSeed);
+	}
 /*
 	if (RandomLocationSeed)
 	{
@@ -47,6 +51,29 @@ void ACar::BeginPlay()
 */
 }
 
+void ACar::ResetPosition()
+{
+        if (Trajectory.Get() == nullptr)
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Spline not yet available to reset on"));
+            return;
+        }
+
+        if (m_shouldStartAtRandomPosition)
+        {
+    		m_startDistanceAlongSpline = m_RandomStream.FRandRange(0.0f, Trajectory->Trajectory->GetSplineLength());
+        }
+
+        UE_LOG(LogTemp, Warning, TEXT("Resetting Car to %f"), m_startDistanceAlongSpline);
+
+
+		FVector curPosOnSpline = Trajectory->Trajectory->GetLocationAtDistanceAlongSpline(m_startDistanceAlongSpline, ESplineCoordinateSpace::World);
+		curPosOnSpline.Z += 200.0f;
+		FQuat quat = Trajectory->Trajectory->GetQuaternionAtDistanceAlongSpline(m_startDistanceAlongSpline, ESplineCoordinateSpace::World);
+		FTransform transform(quat.Rotator(), curPosOnSpline, FVector(1.0f, 1.0f, 1.0f));
+		SetActorTransform(transform, false, 0, ETeleportType::TeleportPhysics);
+}
+
 void ACar::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -57,15 +84,15 @@ void ACar::Tick(float DeltaTime)
 		bShouldReset = false;
 	}
 
-	if(bShouldReset && RandomLocationSeed == 0)
+	if(bShouldReset)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Resetting Car"));
-
 		WaypointDistanceAlongSpline = 0.f;
 		DistanceAlongRoute = 0.f;
 		DistanceToCenterOfLane = 0.f;
 		LapNumber = 0;
-		bShouldResetPosition = true;
+		bShouldResetPosition = false;  // TODO: Remove - doing this in C++ now, not AliceGT
+        ResetPosition();
 		ResetAgentFinished();
 	}
 	bPreviousShouldReset = bShouldReset;
@@ -297,7 +324,7 @@ bool ACar::UpdateSplineProgress()
 {
 	if (Trajectory.Get() == nullptr)
 	{
-		UE_LOG(LogTemp, VeryVerbose, TEXT("getting trajectory"));
+		UE_LOG(LogTemp, VeryVerbose, TEXT("first lap, getting trajectory"));
 
 		for (TActorIterator<ASplineTrajectory> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 		{
@@ -311,19 +338,8 @@ bool ACar::UpdateSplineProgress()
 		}
 		else
 		{
-			if (RandomLocationSeed)
-			{
-				m_RandomStream = FRandomStream(RandomLocationSeed);
-				float randomDist = m_RandomStream.FRandRange(0.0f, Trajectory->Trajectory->GetSplineLength());
-
-				FVector curPosOnSpline = Trajectory->Trajectory->GetLocationAtDistanceAlongSpline(randomDist, ESplineCoordinateSpace::World);
-				curPosOnSpline.Z += 200.0f;
-				FQuat quat = Trajectory->Trajectory->GetQuaternionAtDistanceAlongSpline(randomDist, ESplineCoordinateSpace::World);
-
-				FTransform transform(quat.Rotator(), curPosOnSpline, FVector(1.0f, 1.0f, 1.0f));
-
-				SetActorTransform(transform, false, 0, ETeleportType::TeleportPhysics);
-			}
+		    // First spawn
+            ResetPosition();
 		}
 	}
 	FVector CurrentLocation = GetActorLocation();
