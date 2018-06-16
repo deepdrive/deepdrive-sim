@@ -91,7 +91,13 @@ void ACar::Tick(float DeltaTime)
 		DistanceAlongRoute = 0.f;
 		DistanceToCenterOfLane = 0.f;
 		LapNumber = 0;
-		bShouldResetPosition = false;  // TODO: Remove - doing this in C++ now, not AliceGT
+
+		// TODO: Remove - do this all in C++ in ResetPosition, not AliceGT BluePrint, specifically
+		// https://api.unrealengine.com/INT/API/Runtime/Engine/Components/UPrimitiveComponent/SetPhysicsLinearVelocity/index.html
+		// and http://api.unrealengine.com/INT/API/Runtime/Engine/Components/UPrimitiveComponent/SetPhysicsAngularVelocity/index.html
+		// from http://api.unrealengine.com/INT/API/Runtime/Engine/Components/UPrimitiveComponent/
+		bShouldResetPosition = true;
+
         ResetPosition();
 		ResetAgentFinished();
 	}
