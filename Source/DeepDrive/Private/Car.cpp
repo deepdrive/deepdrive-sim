@@ -66,7 +66,6 @@ void ACar::ResetPosition()
 
         UE_LOG(LogTemp, Warning, TEXT("Resetting Car to %f"), m_startDistanceAlongSpline);
 
-
 		FVector curPosOnSpline = Trajectory->Trajectory->GetLocationAtDistanceAlongSpline(m_startDistanceAlongSpline, ESplineCoordinateSpace::World);
 		curPosOnSpline.Z += 200.0f;
 		FQuat quat = Trajectory->Trajectory->GetQuaternionAtDistanceAlongSpline(m_startDistanceAlongSpline, ESplineCoordinateSpace::World);
@@ -87,10 +86,7 @@ void ACar::Tick(float DeltaTime)
 	if(bShouldReset)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Resetting Car"));
-		WaypointDistanceAlongSpline = 0.f;
-		DistanceAlongRoute = 0.f;
-		DistanceToCenterOfLane = 0.f;
-		LapNumber = 0;
+
 
 		// TODO: Remove - do this all in C++ in ResetPosition, not AliceGT BluePrint, specifically
 		// https://api.unrealengine.com/INT/API/Runtime/Engine/Components/UPrimitiveComponent/SetPhysicsLinearVelocity/index.html
@@ -99,6 +95,14 @@ void ACar::Tick(float DeltaTime)
 		bShouldResetPosition = true;
 
         ResetPosition();
+
+		WaypointDistanceAlongSpline = m_startDistanceAlongSpline;
+		DistanceAlongRoute = m_startDistanceAlongSpline;
+		DistanceToCenterOfLane = 0.f;
+		LapNumber = 0;
+
+		UE_LOG(LogTemp, Warning, TEXT("m_shouldStartAtRandomPosition %f"), m_shouldStartAtRandomPosition);
+
 		ResetAgentFinished();
 	}
 	bPreviousShouldReset = bShouldReset;
@@ -354,7 +358,7 @@ bool ACar::UpdateSplineProgress()
 	GetDistanceAlongRouteAtLocation(CurrentLocation);
 	WaypointDistanceAlongSpline = static_cast<int>(DistanceAlongRoute + WaypointStep + CloseDistanceThreshold) / static_cast<int>(WaypointStep) * WaypointStep; // Assumes whole number waypoint step
 
-	UE_LOG(LogTemp, VeryVerbose, TEXT("WaypointDistanceAlongSpline %f"), WaypointDistanceAlongSpline);
+	UE_LOG(LogTemp, Warning, TEXT("WaypointDistanceAlongSpline %f"), WaypointDistanceAlongSpline);
 
 	FVector WaypointPosition = Trajectory->Trajectory->GetLocationAtDistanceAlongSpline(WaypointDistanceAlongSpline, ESplineCoordinateSpace::World);
 	if (FVector::Dist(WaypointPosition, CurrentLocation) < CloseDistanceThreshold)
@@ -383,7 +387,7 @@ bool ACar::searchAlongSpline(FVector CurrentLocation, int step, float distToCurr
 	{
 		FVector nextLocation = Trajectory->Trajectory->GetLocationAtDistanceAlongSpline(distanceAlongRoute + step, ESplineCoordinateSpace::World);
 		float distToNext = FVector::Dist(CurrentLocation, nextLocation);
-		UE_LOG(LogTemp, VeryVerbose, TEXT("distToCurrent %f, distToNext %f, distanceAlongRoute %f, step %d"), distToCurrent, distToNext, distanceAlongRoute, step);
+		UE_LOG(LogTemp, Warning, TEXT("distToCurrent %f, distToNext %f, distanceAlongRoute %f, step %d"), distToCurrent, distToNext, distanceAlongRoute, step);
 
 		if (distToNext > distToCurrent) // || distanceAlongRoute <= static_cast<float> (abs(step))
 		{
@@ -391,11 +395,11 @@ bool ACar::searchAlongSpline(FVector CurrentLocation, int step, float distToCurr
 		}
 		else if (i > 9)
 		{
-			UE_LOG(LogTemp, VeryVerbose, TEXT("searched %d steps for closer spline point - giving up!"), i);
+			UE_LOG(LogTemp, Warning, TEXT("searched %d steps for closer spline point - giving up!"), i);
 			return false;
 		}
 		else {
-			UE_LOG(LogTemp, VeryVerbose, TEXT("advancing distance along route: %f by step %d"), distanceAlongRoute, step);
+			UE_LOG(LogTemp, Warning, TEXT("advancing distance along route: %f by step %d"), distanceAlongRoute, step);
 			distToCurrent = distToNext;
 			distanceAlongRoute += step;
 		}
@@ -414,26 +418,26 @@ bool ACar::getDistanceAlongSplineAtLocationWithStep(FVector CurrentLocation, uns
 	float distToPrev   = FVector::Dist(CurrentLocation, prevLocation);
 	float distToAhead  = FVector::Dist(CurrentLocation, locationAhead);
 	float distToBehind = FVector::Dist(CurrentLocation, locationBehind);
-	UE_LOG(LogTemp, VeryVerbose, TEXT("distToPrev: %f, distToAhead: %f, distToBehind %f"), distToPrev, distToAhead, distToBehind);
+	UE_LOG(LogTemp, Warning, TEXT("distToPrev: %f, distToAhead: %f, distToBehind %f"), distToPrev, distToAhead, distToBehind);
 
 	bool found = false;
 
 	if (distToAhead <= distToPrev && distToAhead <= distToBehind)
 	{
 		// Move forward
-		UE_LOG(LogTemp, VeryVerbose, TEXT("moving forward"));
+		UE_LOG(LogTemp, Warning, TEXT("moving forward"));
 		found = searchAlongSpline(CurrentLocation, step, distToAhead, distanceAlongRoute);
 	}
 	else if (distToPrev <= distToAhead && distToPrev <= distToBehind)
 	{
 		// Stay
-		UE_LOG(LogTemp, VeryVerbose, TEXT("staying"));
+		UE_LOG(LogTemp, Warning, TEXT("staying"));
 		found = true;
 	}
 	else if (distToBehind <= distToPrev && distToBehind <= distToAhead)
 	{
 		// Go back
-		UE_LOG(LogTemp, VeryVerbose, TEXT("going back"));
+		UE_LOG(LogTemp, Warning, TEXT("going back"));
 		found = searchAlongSpline(CurrentLocation, - static_cast<int>(step), distToBehind, distanceAlongRoute);
 	}
 	else
@@ -448,19 +452,23 @@ void ACar::GetDistanceAlongRouteAtLocation(FVector CurrentLocation)
 {
 	// Search the spline's distance table starting at the last calculated distance: first at 1 meter increments, then 10cm
 
+	UE_LOG(LogTemp, Warning, TEXT("looking for distance along route starting at %f"), DistanceAlongRoute);
+
+
 	//   TODO: Binary search
 	if( ! getDistanceAlongSplineAtLocationWithStep(CurrentLocation, 100, DistanceAlongRoute))
 	{
-		// Our starting point way off base - search with larger steps
+	    UE_LOG(LogTemp, Warning, TEXT("Our starting point way off base - search with larger steps"));
+
 		getDistanceAlongSplineAtLocationWithStep(CurrentLocation, 1000, DistanceAlongRoute);
 
 		getDistanceAlongSplineAtLocationWithStep(CurrentLocation, 100, DistanceAlongRoute);
 	}
-	UE_LOG(LogTemp, VeryVerbose, TEXT("dist 1 meter %f"), DistanceAlongRoute);
+	UE_LOG(LogTemp, Warning, TEXT("dist 1 meter %f"), DistanceAlongRoute);
 
 	// Narrow down search to get a more precise estimate
 	getDistanceAlongSplineAtLocationWithStep(CurrentLocation, 10, DistanceAlongRoute);
-	UE_LOG(LogTemp, VeryVerbose, TEXT("dist 100 cm %f"), DistanceAlongRoute);
+	UE_LOG(LogTemp, Warning, TEXT("dist 100 cm %f"), DistanceAlongRoute);
 }
 
 void ACar::MoveAlongSpline()
