@@ -53,24 +53,29 @@ void ACar::BeginPlay()
 
 void ACar::ResetPosition()
 {
-        if (Trajectory.Get() == nullptr)
-        {
-            UE_LOG(LogTemp, Warning, TEXT("Spline not yet available to reset on"));
-            return;
-        }
+ 	if (Trajectory.Get() == nullptr)
+ 	{
+ 	    UE_LOG(LogTemp, Warning, TEXT("Spline not yet available to reset on"));
+ 	    return;
+ 	}
 
-        if (m_shouldStartAtRandomPosition)
-        {
-    		m_startDistanceAlongSpline = m_RandomStream.FRandRange(0.0f, Trajectory->Trajectory->GetSplineLength());
-        }
+ 	if (m_shouldStartAtRandomPosition)
+ 	{
+ 	    m_startDistanceAlongSpline = m_RandomStream.FRandRange(0.0f, Trajectory->Trajectory->GetSplineLength());
+ 	}
 
-        UE_LOG(LogTemp, Warning, TEXT("Resetting Car to %f"), m_startDistanceAlongSpline);
+ 	UE_LOG(LogTemp, VeryVerbose, TEXT("Resetting Car to %f"), m_startDistanceAlongSpline);
 
-		FVector curPosOnSpline = Trajectory->Trajectory->GetLocationAtDistanceAlongSpline(m_startDistanceAlongSpline, ESplineCoordinateSpace::World);
-		curPosOnSpline.Z += 200.0f;
-		FQuat quat = Trajectory->Trajectory->GetQuaternionAtDistanceAlongSpline(m_startDistanceAlongSpline, ESplineCoordinateSpace::World);
-		FTransform transform(quat.Rotator(), curPosOnSpline, FVector(1.0f, 1.0f, 1.0f));
-		SetActorTransform(transform, false, 0, ETeleportType::TeleportPhysics);
+ 	FVector curPosOnSpline = Trajectory->Trajectory->GetLocationAtDistanceAlongSpline(m_startDistanceAlongSpline, ESplineCoordinateSpace::World);
+ 	curPosOnSpline.Z += 200.0f;
+ 	FQuat quat = Trajectory->Trajectory->GetQuaternionAtDistanceAlongSpline(m_startDistanceAlongSpline, ESplineCoordinateSpace::World);
+ 	FTransform transform(quat.Rotator(), curPosOnSpline, FVector(1.0f, 1.0f, 1.0f));
+ 	SetActorTransform(transform, false, 0, ETeleportType::TeleportPhysics);
+
+ 	WaypointDistanceAlongSpline = m_startDistanceAlongSpline;
+ 	m_distanceAlongSpline = m_startDistanceAlongSpline;
+ 	DistanceAlongRoute = 0;
+ 	DistanceToCenterOfLane = 0.f;
 }
 
 void ACar::Tick(float DeltaTime)
@@ -95,13 +100,9 @@ void ACar::Tick(float DeltaTime)
 		bShouldResetPosition = true;
 
         ResetPosition();
-
-		WaypointDistanceAlongSpline = m_startDistanceAlongSpline;
-		DistanceAlongRoute = m_startDistanceAlongSpline;
-		DistanceToCenterOfLane = 0.f;
 		LapNumber = 0;
 
-		UE_LOG(LogTemp, Warning, TEXT("m_shouldStartAtRandomPosition %f"), m_shouldStartAtRandomPosition);
+		UE_LOG(LogTemp, VeryVerbose, TEXT("m_shouldStartAtRandomPosition %f"), m_shouldStartAtRandomPosition);
 
 		ResetAgentFinished();
 	}
@@ -355,25 +356,39 @@ bool ACar::UpdateSplineProgress()
 	FVector CurrentLocation = GetActorLocation();
 	auto ClosestSplineLocation = Trajectory->Trajectory->FindLocationClosestToWorldLocation(CurrentLocation, ESplineCoordinateSpace::World);
 	DistanceToCenterOfLane = sqrt(FVector::DistSquaredXY(CurrentLocation, ClosestSplineLocation));
-	GetDistanceAlongRouteAtLocation(CurrentLocation);
-	WaypointDistanceAlongSpline = static_cast<int>(DistanceAlongRoute + WaypointStep + CloseDistanceThreshold) / static_cast<int>(WaypointStep) * WaypointStep; // Assumes whole number waypoint step
+	GetDistanceAlongSplineAtLocation(CurrentLocation);
+	auto SplineLength = Trajectory->Trajectory->GetSplineLength();
 
-	UE_LOG(LogTemp, Warning, TEXT("WaypointDistanceAlongSpline %f"), WaypointDistanceAlongSpline);
+
+	if (DistanceAlongRoute > SplineLength / 2. &&  m_distanceAlongSpline < m_startDistanceAlongSpline)
+	{
+		// Wrap assuming they didn't reverse through have the course.
+	    DistanceAlongRoute = SplineLength - m_startDistanceAlongSpline + m_distanceAlongSpline;
+	}
+	else
+	{
+		DistanceAlongRoute = m_distanceAlongSpline - m_startDistanceAlongSpline;
+	}
+
+	UE_LOG(LogTemp, VeryVerbose, TEXT("DistanceAlongRoute %f"), DistanceAlongRoute);
+
+
+	WaypointDistanceAlongSpline = static_cast<int>(m_distanceAlongSpline + WaypointStep + CloseDistanceThreshold) / static_cast<int>(WaypointStep) * WaypointStep; // Assumes whole number waypoint step
+
+	UE_LOG(LogTemp, VeryVerbose, TEXT("WaypointDistanceAlongSpline %f"), WaypointDistanceAlongSpline);
 
 	FVector WaypointPosition = Trajectory->Trajectory->GetLocationAtDistanceAlongSpline(WaypointDistanceAlongSpline, ESplineCoordinateSpace::World);
 	if (FVector::Dist(WaypointPosition, CurrentLocation) < CloseDistanceThreshold)
 	{
 		// We've gotten to the next waypoint along the spline
 		WaypointDistanceAlongSpline += WaypointStep; // TODO: Don't assume we are travelling at speeds and framerates for this to make sense.
-		auto SplineLength = Trajectory->Trajectory->GetSplineLength();
 		if (WaypointDistanceAlongSpline > SplineLength)
 		{
 			UE_LOG(LogTemp, Warning, 
 				TEXT("resetting target point on spline after making full trip around track (waypoint distance: %f, spline length: %f"), 
 				WaypointDistanceAlongSpline, SplineLength);
 
-			WaypointDistanceAlongSpline = 0.f;
-			DistanceAlongRoute = 0.f;
+            ResetPosition();
 			LapNumber += 1;
 		}
 	}
@@ -387,7 +402,7 @@ bool ACar::searchAlongSpline(FVector CurrentLocation, int step, float distToCurr
 	{
 		FVector nextLocation = Trajectory->Trajectory->GetLocationAtDistanceAlongSpline(distanceAlongRoute + step, ESplineCoordinateSpace::World);
 		float distToNext = FVector::Dist(CurrentLocation, nextLocation);
-		UE_LOG(LogTemp, Warning, TEXT("distToCurrent %f, distToNext %f, distanceAlongRoute %f, step %d"), distToCurrent, distToNext, distanceAlongRoute, step);
+		UE_LOG(LogTemp, VeryVerbose, TEXT("distToCurrent %f, distToNext %f, distanceAlongRoute %f, step %d"), distToCurrent, distToNext, distanceAlongRoute, step);
 
 		if (distToNext > distToCurrent) // || distanceAlongRoute <= static_cast<float> (abs(step))
 		{
@@ -399,7 +414,7 @@ bool ACar::searchAlongSpline(FVector CurrentLocation, int step, float distToCurr
 			return false;
 		}
 		else {
-			UE_LOG(LogTemp, Warning, TEXT("advancing distance along route: %f by step %d"), distanceAlongRoute, step);
+			UE_LOG(LogTemp, VeryVerbose, TEXT("advancing distance along route: %f by step %d"), distanceAlongRoute, step);
 			distToCurrent = distToNext;
 			distanceAlongRoute += step;
 		}
@@ -418,26 +433,26 @@ bool ACar::getDistanceAlongSplineAtLocationWithStep(FVector CurrentLocation, uns
 	float distToPrev   = FVector::Dist(CurrentLocation, prevLocation);
 	float distToAhead  = FVector::Dist(CurrentLocation, locationAhead);
 	float distToBehind = FVector::Dist(CurrentLocation, locationBehind);
-	UE_LOG(LogTemp, Warning, TEXT("distToPrev: %f, distToAhead: %f, distToBehind %f"), distToPrev, distToAhead, distToBehind);
+	UE_LOG(LogTemp, VeryVerbose, TEXT("distToPrev: %f, distToAhead: %f, distToBehind %f"), distToPrev, distToAhead, distToBehind);
 
 	bool found = false;
 
 	if (distToAhead <= distToPrev && distToAhead <= distToBehind)
 	{
 		// Move forward
-		UE_LOG(LogTemp, Warning, TEXT("moving forward"));
+		UE_LOG(LogTemp, VeryVerbose, TEXT("moving forward"));
 		found = searchAlongSpline(CurrentLocation, step, distToAhead, distanceAlongRoute);
 	}
 	else if (distToPrev <= distToAhead && distToPrev <= distToBehind)
 	{
 		// Stay
-		UE_LOG(LogTemp, Warning, TEXT("staying"));
+		UE_LOG(LogTemp, VeryVerbose, TEXT("staying"));
 		found = true;
 	}
 	else if (distToBehind <= distToPrev && distToBehind <= distToAhead)
 	{
 		// Go back
-		UE_LOG(LogTemp, Warning, TEXT("going back"));
+		UE_LOG(LogTemp, VeryVerbose, TEXT("going back"));
 		found = searchAlongSpline(CurrentLocation, - static_cast<int>(step), distToBehind, distanceAlongRoute);
 	}
 	else
@@ -448,27 +463,27 @@ bool ACar::getDistanceAlongSplineAtLocationWithStep(FVector CurrentLocation, uns
 	return found;
 }
 
-void ACar::GetDistanceAlongRouteAtLocation(FVector CurrentLocation)
+void ACar::GetDistanceAlongSplineAtLocation(FVector CurrentLocation)
 {
 	// Search the spline's distance table starting at the last calculated distance: first at 1 meter increments, then 10cm
 
-	UE_LOG(LogTemp, Warning, TEXT("looking for distance along route starting at %f"), DistanceAlongRoute);
+	UE_LOG(LogTemp, VeryVerbose, TEXT("looking for distance along route starting at %f"), m_distanceAlongSpline);
 
 
 	//   TODO: Binary search
-	if( ! getDistanceAlongSplineAtLocationWithStep(CurrentLocation, 100, DistanceAlongRoute))
+	if( ! getDistanceAlongSplineAtLocationWithStep(CurrentLocation, 100, m_distanceAlongSpline))
 	{
 	    UE_LOG(LogTemp, Warning, TEXT("Our starting point way off base - search with larger steps"));
 
-		getDistanceAlongSplineAtLocationWithStep(CurrentLocation, 1000, DistanceAlongRoute);
+		getDistanceAlongSplineAtLocationWithStep(CurrentLocation, 1000, m_distanceAlongSpline);
 
-		getDistanceAlongSplineAtLocationWithStep(CurrentLocation, 100, DistanceAlongRoute);
+		getDistanceAlongSplineAtLocationWithStep(CurrentLocation, 100, m_distanceAlongSpline);
 	}
-	UE_LOG(LogTemp, Warning, TEXT("dist 1 meter %f"), DistanceAlongRoute);
+	UE_LOG(LogTemp, VeryVerbose, TEXT("dist 1 meter %f"), m_distanceAlongSpline);
 
 	// Narrow down search to get a more precise estimate
-	getDistanceAlongSplineAtLocationWithStep(CurrentLocation, 10, DistanceAlongRoute);
-	UE_LOG(LogTemp, Warning, TEXT("dist 100 cm %f"), DistanceAlongRoute);
+	getDistanceAlongSplineAtLocationWithStep(CurrentLocation, 10, m_distanceAlongSpline);
+	UE_LOG(LogTemp, VeryVerbose, TEXT("dist 100 cm %f"), m_distanceAlongSpline);
 }
 
 void ACar::MoveAlongSpline()

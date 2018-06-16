@@ -181,7 +181,7 @@ public:
 
 	bool getDistanceAlongSplineAtLocationWithStep(FVector CurrentLocation, unsigned int step, float& distanceAlongRoute);
 
-	void GetDistanceAlongRouteAtLocation(FVector CurrentLocation);
+	void GetDistanceAlongSplineAtLocation(FVector CurrentLocation);
 
 	void ResetPosition();
 
@@ -190,6 +190,7 @@ public:
 
 	int32	m_randomLocationSeed = 5558;
 	float	m_startDistanceAlongSpline = 0;
+	float	m_distanceAlongSpline = 0;
 	float	m_shouldStartAtRandomPosition = true;
 	FRandomStream		m_RandomStream;
 };
