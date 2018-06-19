@@ -98,6 +98,12 @@ void DeepDriveAgentSpeedController::update(float dT, float desiredSpeed, float d
 	}
 }
 
+void DeepDriveAgentSpeedController::brake(float strength)
+{
+	m_Agent->SetThrottle(0.40f);
+	m_Agent->SetBrake(strength);
+}
+
 float DeepDriveAgentSpeedController::limitSpeedByTrack(float desiredSpeed, float speedBoost)
 {
 	const float trackSpeedLimit = m_Track->getSpeedLimit(0.0f);

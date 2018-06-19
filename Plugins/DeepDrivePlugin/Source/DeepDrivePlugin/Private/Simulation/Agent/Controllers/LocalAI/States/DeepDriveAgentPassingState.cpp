@@ -76,13 +76,18 @@ bool DeepDriveAgentPassingState::abortOvertaking(DeepDriveAgentLocalAIStateMachi
 	if(nextAgent)
 	{
 		const float overtakingDist = distanceToNextAgent + ctx.configuration.MinPullInDistance + nextAgent->getFrontBumperDistance() + ctx.agent.getBackBumperDistance();
-		otc = ctx.local_ai_ctrl.computeOppositeTrackClearance(overtakingDist, speedDiff, curSpeed, true);
+		//otc = ctx.local_ai_ctrl.computeOppositeTrackClearance(overtakingDist, speedDiff, curSpeed, true);
+		otc = ctx.local_ai_ctrl.computeOppositeTrackClearance(curSpeed, ctx.configuration.LookAheadTime);
 	}
 	else
 	{
-		otc = ctx.local_ai_ctrl.computeOppositeTrackClearance(ctx.configuration.GapBetweenAgents, speedDiff, curSpeed, true);
+		//otc = ctx.local_ai_ctrl.computeOppositeTrackClearance(ctx.configuration.GapBetweenAgents, speedDiff, curSpeed, true);
+		otc = ctx.local_ai_ctrl.computeOppositeTrackClearance(curSpeed, ctx.configuration.LookAheadTime);
 	}
-	abort = otc < 1.0f;
+	abort = otc < 0.10f;
+
+	//UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("otc %f"), otc);
+
 
 #if 0
 	float distanceToNextAgent = 1.0f;

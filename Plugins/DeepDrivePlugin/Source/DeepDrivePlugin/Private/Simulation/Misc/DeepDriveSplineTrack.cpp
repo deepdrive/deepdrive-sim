@@ -193,7 +193,7 @@ void ADeepDriveSplineTrack::getPreviousAgent(const FVector &location, ADeepDrive
 		{
 			distance = curDistance - (m_TrackLength - dist);
 		}
-		UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("Agent %d Distance %f"), agentPtr->getAgentId(), distance );
+		//UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("Agent %d Distance %f"), agentPtr->getAgentId(), distance );
 	}
 	else if(m_RegisteredAgents.Num() > 1)
 	{

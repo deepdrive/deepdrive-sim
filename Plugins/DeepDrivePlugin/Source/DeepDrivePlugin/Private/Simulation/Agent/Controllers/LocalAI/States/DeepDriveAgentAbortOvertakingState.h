@@ -17,6 +17,14 @@ public:
 
 private:
 
+	enum SubState
+	{
+		FallBack,
+		PullIn
+	};
+
+	SubState			m_SubState;
+
 	float				m_PullInTimeFactor = 0.0f;
 	float				m_PullInAlpha = 0.0f;
 

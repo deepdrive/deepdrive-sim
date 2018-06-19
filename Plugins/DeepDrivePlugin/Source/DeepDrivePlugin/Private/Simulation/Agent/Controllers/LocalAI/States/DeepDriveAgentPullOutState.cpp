@@ -71,8 +71,9 @@ bool DeepDriveAgentPullOutState::abortOvertaking(DeepDriveAgentLocalAIStateMachi
 		ADeepDriveAgent *nextButOne = nextAgent->getNextAgent(ctx.configuration.GapBetweenAgents);
 		if(nextButOne == 0)
 		{
-			float otc = ctx.local_ai_ctrl.isOppositeTrackClear(*nextAgent, distanceToNextAgent, speedDiff, curSpeed, true);
-			abort = otc < 1.0f;
+			//float otc = ctx.local_ai_ctrl.isOppositeTrackClear(*nextAgent, distanceToNextAgent, speedDiff, curSpeed, true);
+			float otc = ctx.local_ai_ctrl.computeOppositeTrackClearance(curSpeed, ctx.configuration.LookAheadTime);
+			abort = otc < 0.0f;
 		}
 		else
 			abort = nextButOne == &ctx.agent;

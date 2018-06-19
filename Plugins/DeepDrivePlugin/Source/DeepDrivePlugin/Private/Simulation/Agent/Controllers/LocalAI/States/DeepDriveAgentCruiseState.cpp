@@ -36,11 +36,15 @@ void DeepDriveAgentCruiseState::update(DeepDriveAgentLocalAIStateMachineContext 
 
 	float desiredSpeed = ctx.local_ai_ctrl.getDesiredSpeed();
 	desiredSpeed = ctx.speed_controller.limitSpeedByTrack(desiredSpeed, 1.0f);
-
-	float safetyDistance = ctx.local_ai_ctrl.calculateSafetyDistance();
-	float curDistanceToNext = 0.0f;
-	ADeepDriveAgent *nextAgent = ctx.agent.getNextAgent(2.0f * safetyDistance, &curDistanceToNext);
-	ctx.speed_controller.update(dT, desiredSpeed, nextAgent ? safetyDistance : -1.0f, curDistanceToNext);
+	if (ctx.configuration.MaxAgentsToOvertake >= 0)
+	{
+		float safetyDistance = ctx.local_ai_ctrl.calculateSafetyDistance();
+		float curDistanceToNext = 0.0f;
+		ADeepDriveAgent *nextAgent = ctx.agent.getNextAgent(2.0f * safetyDistance, &curDistanceToNext);
+		ctx.speed_controller.update(dT, desiredSpeed, nextAgent ? safetyDistance : -1.0f, curDistanceToNext);
+	}
+	else
+		ctx.speed_controller.update(dT, desiredSpeed, -1.0f, 0.0f);
 
 	ctx.steering_controller.update(dT, desiredSpeed, 0.0f);
 }
@@ -70,9 +74,12 @@ bool DeepDriveAgentCruiseState::isOvertakingPossible(DeepDriveAgentLocalAIStateM
 				if(nextButOne == 0)
 				{
 					const float curSpeed = ctx.agent.getSpeedKmh();
-					const float overtakingSpeed = 0.5f * (curSpeed + ctx.configuration.OvertakingSpeed);
-					float otc = ctx.local_ai_ctrl.isOppositeTrackClear(*nextAgent, distanceToNextAgent, overtakingSpeed - agentSpdKmh, curSpeed, true);
-					res = otc >= 1.0f;
+					//const float overtakingSpeed = 0.5f * (curSpeed + ctx.configuration.OvertakingSpeed);
+					//float otc = ctx.local_ai_ctrl.isOppositeTrackClear(*nextAgent, distanceToNextAgent, overtakingSpeed - agentSpdKmh, curSpeed, true);
+					float otc = ctx.local_ai_ctrl.computeOppositeTrackClearance(curSpeed, ctx.configuration.LookAheadTime);
+					res = otc >= 0.0f;
+
+
 				}
 			}
 		}

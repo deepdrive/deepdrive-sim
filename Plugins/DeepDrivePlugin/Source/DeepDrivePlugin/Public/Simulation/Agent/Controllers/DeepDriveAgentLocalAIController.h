@@ -76,6 +76,9 @@ struct FDeepDriveLocalAIControllerConfiguration
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Overtaking)
 	FVector4	ThinkDelays;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Overtaking)
+	float	LookAheadTime = 2.0f;
+
 };
 
 /**
@@ -113,6 +116,8 @@ public:
 
 	float isOppositeTrackClear(ADeepDriveAgent &nextAgent, float distanceToNextAgent, float speedDifference, float overtakingSpeed, bool considerDuration);
 	float computeOppositeTrackClearance(float overtakingDistance, float speedDifference, float overtakingSpeed, bool considerDuration);
+
+	float computeOppositeTrackClearance(float overtakingSpeed, float lookAheadDuration);
 
 	float calculateSafetyDistance();
 	//float calculateSafetyDistance(float *curDistance);

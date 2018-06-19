@@ -31,6 +31,8 @@ public:
 
 	void update(float dT, float desiredSpeed, float desiredDistance, float curDistance);
 
+	void brake(float strength);
+
 private:
 
 	ADeepDriveAgent					*m_Agent = 0;
