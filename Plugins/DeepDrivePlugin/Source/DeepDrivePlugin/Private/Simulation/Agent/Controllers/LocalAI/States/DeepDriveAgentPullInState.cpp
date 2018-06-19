@@ -19,7 +19,7 @@ void DeepDriveAgentPullInState::enter(DeepDriveAgentLocalAIStateMachineContext &
 	m_PullInTimeFactor = 1.0f / ctx.configuration.ChangeLaneDuration;
 	m_PullInAlpha = 1.0f;
 
-	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d Pulling In"), ctx.agent.getAgentId());
+	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT(">>>> Pulling In Agent %d"), ctx.agent.getAgentId());
 }
 
 void DeepDriveAgentPullInState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)

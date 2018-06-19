@@ -17,7 +17,7 @@ void DeepDriveAgentCruiseState::enter(DeepDriveAgentLocalAIStateMachineContext &
 {
 	m_WaitTimeBeforeOvertaking = ctx.wait_time_before_overtaking;
 	startThinkTimer(ctx.configuration.ThinkDelays.X, false);
-	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d Cruising"), ctx.agent.getAgentId());
+	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT(">>>> Cruising Agent %d"), ctx.agent.getAgentId());
 }
 
 void DeepDriveAgentCruiseState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)

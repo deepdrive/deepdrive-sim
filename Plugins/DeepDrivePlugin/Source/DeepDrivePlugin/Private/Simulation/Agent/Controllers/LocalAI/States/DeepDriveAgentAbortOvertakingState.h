@@ -15,4 +15,11 @@ public:
 
 	virtual void exit(DeepDriveAgentLocalAIStateMachineContext &ctx);
 
+private:
+
+	float				m_PullInTimeFactor = 0.0f;
+	float				m_PullInAlpha = 0.0f;
+
+	float				m_curOffset = 0.0f;
+
 };

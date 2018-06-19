@@ -25,7 +25,7 @@ void DeepDriveAgentPassingState::enter(DeepDriveAgentLocalAIStateMachineContext 
 	m_TotalOppositeTrackClearance = 0.0f;
 	m_OppositeTrackClearanceCount = 0.0f;
 
-	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Passing agent %d/%s"), m_AgentToPass ? m_AgentToPass->getAgentId() : -1, *(m_AgentToPass ? *(m_AgentToPass->GetName()) : FString("")) );
+	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT(">>>> Passing agent %d/%s"), m_AgentToPass ? m_AgentToPass->getAgentId() : -1, *(m_AgentToPass ? *(m_AgentToPass->GetName()) : FString("")) );
 }
 
 void DeepDriveAgentPassingState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)

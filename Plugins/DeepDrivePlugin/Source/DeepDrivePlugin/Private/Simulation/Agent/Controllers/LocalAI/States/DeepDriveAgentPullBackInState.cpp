@@ -19,7 +19,7 @@ void DeepDriveAgentPullBackInState::enter(DeepDriveAgentLocalAIStateMachineConte
 	m_curOffset = ctx.side_offset;
 	m_deltaOffsetFac = ctx.configuration.OvertakingOffset / ctx.configuration.ChangeLaneDuration;
 	m_remainingPullInTime = m_curOffset / m_deltaOffsetFac;
-	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d Pulling back In"), ctx.agent.getAgentId());
+	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT(">>>> Pulling back In Agent %d"), ctx.agent.getAgentId());
 }
 
 void DeepDriveAgentPullBackInState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)

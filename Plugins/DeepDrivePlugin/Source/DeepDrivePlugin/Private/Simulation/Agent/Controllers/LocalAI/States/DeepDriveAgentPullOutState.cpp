@@ -23,7 +23,7 @@ void DeepDriveAgentPullOutState::enter(DeepDriveAgentLocalAIStateMachineContext 
 
 	startThinkTimer(ctx.configuration.ThinkDelays.Y, false);
 
-	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d Pulling out"), ctx.agent.getAgentId());
+	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT(">>>> Pulling out Agent %d"), ctx.agent.getAgentId());
 }
 
 void DeepDriveAgentPullOutState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)
@@ -37,7 +37,7 @@ void DeepDriveAgentPullOutState::update(DeepDriveAgentLocalAIStateMachineContext
 	{
 		m_StateMachine.setNextState("Passing");
 	}
-	else if(isTimeToThink(dT) && abortOvertaking(ctx, ctx.agent.getSpeedKmh()))
+	else if(isTimeToThink(dT) && abortOvertaking(ctx, FMath::Lerp(ctx.agent.getSpeedKmh(), desiredSpeed, m_PullOutAlpha)) )
 	{
 		m_StateMachine.setNextState("PullBackIn");
 	}
