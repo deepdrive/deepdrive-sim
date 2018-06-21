@@ -34,11 +34,17 @@ void DeepDriveAgentAbortOvertakingState::enter(DeepDriveAgentLocalAIStateMachine
 	m_PullInTimeFactor = 1.0f / ctx.configuration.ChangeLaneDuration;
 	m_PullInAlpha = 1.0f;
 
+	m_Timestamp = 0.0f;
+
+	ctx.agent.OnDebugTrigger();
+
 	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("AbortOvertaking next %s %f prev %s %f"), *(nextAgent ? nextAgent->GetName() : FString("XXX")), distanceToNextAgent, *(prevAgent ? prevAgent->GetName() : FString("XXX")), distanceToPrevAgent );
 }
 
 void DeepDriveAgentAbortOvertakingState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)
 {
+	m_Timestamp += dT;
+
 	switch (m_SubState)
 	{
 		case FallBack:
@@ -96,19 +102,20 @@ void DeepDriveAgentAbortOvertakingState::fallBack(DeepDriveAgentLocalAIStateMach
 		forward.Normalize();
 
 		const float dot = FVector2D::DotProduct(forward, dir2Ref);
+		float desiredSpeed = ctx.configuration.AbortSpeedReduction * refAgent->getSpeedKmh();
+		float curSpeed = ctx.agent.getSpeedKmh();
+		const float ratio = curSpeed / desiredSpeed;
 
-		if	(	(dot > 0.0f && distance > 0.0f)
-			||	dot > 0.7f
+		if	(	(dot > 0.0f && distance > 0.0f && ratio < 1.0f)
+			||	(dot > 0.7f && ratio < 1.0f)
 			)
 		{
 			//UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Start pulling in: Ref agent %s Dot %f Dist %f"), *(refAgent->GetName()), dot, distance);
 			m_SubState = PullIn;
+			ctx.agent.OnDebugTrigger();
 		}
 		else
 		{
-			float desiredSpeed = 0.7f * refAgent->getSpeedKmh();
-			float curSpeed = ctx.agent.getSpeedKmh();
-			const float ratio = curSpeed / desiredSpeed;
 			//float brake = ratio > 1.1f ? (1.0f - FMath::SmoothStep(0.0f, 0.8f, dot)) : 0.0f;
 			float brake = ratio > 1.1f ? 1.0f : 0.0f;
 
@@ -120,7 +127,7 @@ void DeepDriveAgentAbortOvertakingState::fallBack(DeepDriveAgentLocalAIStateMach
 			else
 				ctx.speed_controller.update(dT, desiredSpeed, -1.0f, 0.0f);
 
-			UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Falling back: Ref agent %s Dot %f Dist %f desiredSpeed %3.1f curSpeed %3.1f brake %f"), *(refAgent->GetName()), dot, distance, desiredSpeed, curSpeed, brake);
+			UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Falling back: %6.4f Ref agent %s Dot %f Dist %f desiredSpeed %3.1f curSpeed %3.1f brake %f"), m_Timestamp, *(refAgent->GetName()), dot, distance, desiredSpeed, curSpeed, brake);
 			ctx.steering_controller.update(dT, desiredSpeed, ctx.side_offset);
 		}
 

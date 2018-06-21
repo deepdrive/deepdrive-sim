@@ -36,6 +36,6 @@ private:
 
 	float				m_curOffset = 0.0f;
 
-	ADeepDriveAgent		*m_OtherAgent = 0;
+	float				m_Timestamp = 0.0f;
 
 };
