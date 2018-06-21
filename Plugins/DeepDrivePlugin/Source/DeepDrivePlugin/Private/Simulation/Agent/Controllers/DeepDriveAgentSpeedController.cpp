@@ -100,7 +100,7 @@ void DeepDriveAgentSpeedController::update(float dT, float desiredSpeed, float d
 
 void DeepDriveAgentSpeedController::brake(float strength)
 {
-	m_Agent->SetThrottle(0.40f);
+	m_Agent->SetThrottle(0.0f);
 	m_Agent->SetBrake(strength);
 }
 

@@ -17,6 +17,12 @@ public:
 
 private:
 
+	void fallBack(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT);
+
+	void pullIn(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT);
+
+	ADeepDriveAgent* getReferenceAgent(ADeepDriveAgent &self, float forwardDist, float backwardDist, float &distance);
+
 	enum SubState
 	{
 		FallBack,
@@ -29,5 +35,7 @@ private:
 	float				m_PullInAlpha = 0.0f;
 
 	float				m_curOffset = 0.0f;
+
+	ADeepDriveAgent		*m_OtherAgent = 0;
 
 };

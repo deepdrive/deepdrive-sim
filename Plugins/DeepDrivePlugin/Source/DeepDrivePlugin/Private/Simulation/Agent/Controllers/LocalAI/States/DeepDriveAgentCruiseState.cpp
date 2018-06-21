@@ -36,12 +36,22 @@ void DeepDriveAgentCruiseState::update(DeepDriveAgentLocalAIStateMachineContext 
 
 	float desiredSpeed = ctx.local_ai_ctrl.getDesiredSpeed();
 	desiredSpeed = ctx.speed_controller.limitSpeedByTrack(desiredSpeed, 1.0f);
-	if (ctx.configuration.MaxAgentsToOvertake >= 0)
+	float safetyDistance = ctx.local_ai_ctrl.calculateSafetyDistance();
+	float curDistanceToNext = 0.0f;
+	ADeepDriveAgent *nextAgent = ctx.agent.getNextAgent(2.0f * safetyDistance, &curDistanceToNext);
+
+	if(nextAgent)
 	{
-		float safetyDistance = ctx.local_ai_ctrl.calculateSafetyDistance();
-		float curDistanceToNext = 0.0f;
-		ADeepDriveAgent *nextAgent = ctx.agent.getNextAgent(2.0f * safetyDistance, &curDistanceToNext);
-		ctx.speed_controller.update(dT, desiredSpeed, nextAgent ? safetyDistance : -1.0f, curDistanceToNext);
+		FVector2D a2a( FVector2D(nextAgent->GetActorLocation()) - FVector2D(ctx.agent.GetActorLocation()) );
+		a2a.Normalize();
+		FVector2D dir(ctx.agent.GetActorForwardVector());
+		dir.Normalize();
+		const float dot = FVector2D::DotProduct(dir, a2a);
+
+		if(curDistanceToNext > 0.0f || dot > 0.8f)
+			ctx.speed_controller.update(dT, desiredSpeed, safetyDistance, curDistanceToNext);
+		else
+			ctx.speed_controller.update(dT, desiredSpeed, -1.0f, 0.0f);
 	}
 	else
 		ctx.speed_controller.update(dT, desiredSpeed, -1.0f, 0.0f);
