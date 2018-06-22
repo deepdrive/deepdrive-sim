@@ -19,12 +19,6 @@ private:
 
 	bool abortOvertaking(DeepDriveAgentLocalAIStateMachineContext &ctx);
 
-	ADeepDriveAgent				*m_AgentToPass = 0;
-
-	float						m_totalSpeedDifference = 0.0f;
-	uint32						m_totalSpeedDifferenceCount = 0;
-
-	float						m_TotalOppositeTrackClearance = 0.0f;
-	float						m_OppositeTrackClearanceCount = 0.0f;
+	ADeepDriveAgent			*m_AgentToPass = 0;
 
 };

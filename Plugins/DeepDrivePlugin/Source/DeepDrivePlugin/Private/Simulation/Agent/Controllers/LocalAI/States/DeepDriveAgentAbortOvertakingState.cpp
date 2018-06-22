@@ -22,9 +22,16 @@ void DeepDriveAgentAbortOvertakingState::enter(DeepDriveAgentLocalAIStateMachine
 	ADeepDriveAgent *nextAgent = ctx.agent.getNextAgent(ctx.configuration.GapBetweenAgents, &distanceToNextAgent);
 	ADeepDriveAgent *prevAgent = ctx.agent.getPrevAgent(ctx.configuration.GapBetweenAgents, &distanceToPrevAgent);
 
-	if(nextAgent == 0 && prevAgent == 0)
+	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("AbortOvertaking next %s %f prev %s %f"), *(nextAgent ? nextAgent->GetName() : FString("XXX")), distanceToNextAgent, *(prevAgent ? prevAgent->GetName() : FString("XXX")), distanceToPrevAgent );
+
+	const float ratio = nextAgent ?  ctx.agent.getSpeedKmh() / nextAgent->getSpeedKmh() : 0.0f;
+
+	if	(	(nextAgent == 0 && prevAgent == 0)
+		||	(nextAgent && prevAgent == 0 &&	(distanceToNextAgent > ctx.configuration.MinPullInDistance || (ratio < 1.05f && distanceToNextAgent > 0.0f)) )
+		)
 	{
 		m_SubState = PullIn;
+		UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Pulling in immediately"));
 	}
 	else
 	{
@@ -36,9 +43,7 @@ void DeepDriveAgentAbortOvertakingState::enter(DeepDriveAgentLocalAIStateMachine
 
 	m_Timestamp = 0.0f;
 
-	ctx.agent.OnDebugTrigger();
-
-	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("AbortOvertaking next %s %f prev %s %f"), *(nextAgent ? nextAgent->GetName() : FString("XXX")), distanceToNextAgent, *(prevAgent ? prevAgent->GetName() : FString("XXX")), distanceToPrevAgent );
+	//ctx.agent.OnDebugTrigger();
 }
 
 void DeepDriveAgentAbortOvertakingState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)
@@ -49,35 +54,6 @@ void DeepDriveAgentAbortOvertakingState::update(DeepDriveAgentLocalAIStateMachin
 	{
 		case FallBack:
 			fallBack(ctx, dT);
-			#if 0
-			{
-				ADeepDriveAgent *refAgent = getReferenceAgent(ctx.agent, ctx.configuration.GapBetweenAgents, ctx.configuration.GapBetweenAgents);
-				//UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Falling back %f"), distanceToNextAgent);
-
-				if(refAgent)
-				{
-					float brake = 1.0f;
-					float desiredSpeed = 5.0f;
-					desiredSpeed = 0.75f * refAgent->getSpeedKmh();
-					float curSpeed = ctx.agent.getSpeedKmh();
-					if(curSpeed > desiredSpeed)
-						brake = FMath::SmoothStep(1.0f, 1.25f, curSpeed / desiredSpeed);
-					else
-						brake = 0.0f;
-					if(brake > 0.0f)
-						ctx.speed_controller.brake(brake);
-					else
-						ctx.speed_controller.update(dT, desiredSpeed, -1.0f, 0.0f);
-
-					UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Falling back Ref agent %s desiredSpeed %3.1f curSpeed %3.1f brake %f"), *(refAgent->GetName()), desiredSpeed, curSpeed, brake);
-
-
-					ctx.steering_controller.update(dT, desiredSpeed, ctx.side_offset);
-				}
-				else
-					m_SubState = PullIn;				
-			}
-#endif
 			break;
 
 		case PullIn:
@@ -110,24 +86,21 @@ void DeepDriveAgentAbortOvertakingState::fallBack(DeepDriveAgentLocalAIStateMach
 			||	(dot > 0.7f && ratio < 1.0f)
 			)
 		{
-			//UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Start pulling in: Ref agent %s Dot %f Dist %f"), *(refAgent->GetName()), dot, distance);
+			UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Start pulling in: %6.4f Ref agent %s Dot %f Dist %f Ratio %f"), m_Timestamp, *(refAgent->GetName()), dot, distance, ratio);
 			m_SubState = PullIn;
-			ctx.agent.OnDebugTrigger();
 		}
 		else
 		{
-			//float brake = ratio > 1.1f ? (1.0f - FMath::SmoothStep(0.0f, 0.8f, dot)) : 0.0f;
 			float brake = ratio > 1.1f ? 1.0f : 0.0f;
 
 			if(brake > 0.0f)
 			{
 				ctx.speed_controller.brake(brake);
-				//ctx.speed_controller.update(dT, 0.75f * desiredSpeed, -1.0f, 0.0f);
 			}
 			else
 				ctx.speed_controller.update(dT, desiredSpeed, -1.0f, 0.0f);
 
-			UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Falling back: %6.4f Ref agent %s Dot %f Dist %f desiredSpeed %3.1f curSpeed %3.1f brake %f"), m_Timestamp, *(refAgent->GetName()), dot, distance, desiredSpeed, curSpeed, brake);
+			//UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Falling back: %6.4f Ref agent %s Dot %f Dist %f desiredSpeed %3.1f curSpeed %3.1f brake %f"), m_Timestamp, *(refAgent->GetName()), dot, distance, desiredSpeed, curSpeed, brake);
 			ctx.steering_controller.update(dT, desiredSpeed, ctx.side_offset);
 		}
 

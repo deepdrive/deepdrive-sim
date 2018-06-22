@@ -80,6 +80,9 @@ struct FDeepDriveLocalAIControllerConfiguration
 	float	LookAheadTime = 2.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Overtaking)
+	float	SafetyVsOvertakingThreshold = 0.8f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Overtaking)
 	float	AbortSpeedReduction = 0.5f;
 
 };

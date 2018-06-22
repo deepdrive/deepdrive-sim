@@ -30,7 +30,6 @@ void DeepDriveAgentCruiseState::update(DeepDriveAgentLocalAIStateMachineContext 
 		if(isOvertakingPossible(ctx))
 		{
 			m_StateMachine.setNextState("PullOut");
-			UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Agent %d trying to overtake agent %d Pulling out"), ctx.agent.getAgentId(), ctx.agent.getNextAgent(-1.0f)->getAgentId() );
 		}
 	}
 
@@ -48,7 +47,7 @@ void DeepDriveAgentCruiseState::update(DeepDriveAgentLocalAIStateMachineContext 
 		dir.Normalize();
 		const float dot = FVector2D::DotProduct(dir, a2a);
 
-		if(curDistanceToNext > 0.0f || dot > 0.8f)
+		if(curDistanceToNext > 0.0f || dot > ctx.configuration.SafetyVsOvertakingThreshold)
 			ctx.speed_controller.update(dT, desiredSpeed, safetyDistance, curDistanceToNext);
 		else
 			ctx.speed_controller.update(dT, desiredSpeed, -1.0f, 0.0f);
@@ -84,12 +83,10 @@ bool DeepDriveAgentCruiseState::isOvertakingPossible(DeepDriveAgentLocalAIStateM
 				if(nextButOne == 0)
 				{
 					const float curSpeed = ctx.agent.getSpeedKmh();
-					//const float overtakingSpeed = 0.5f * (curSpeed + ctx.configuration.OvertakingSpeed);
-					//float otc = ctx.local_ai_ctrl.isOppositeTrackClear(*nextAgent, distanceToNextAgent, overtakingSpeed - agentSpdKmh, curSpeed, true);
 					float otc = ctx.local_ai_ctrl.computeOppositeTrackClearance(curSpeed, ctx.configuration.LookAheadTime);
 					res = otc >= 0.0f;
-
-
+					if(res)
+						UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Overtaking %s / %d possible"), *(nextAgent->GetName()), nextAgent->getAgentId() );
 				}
 			}
 		}

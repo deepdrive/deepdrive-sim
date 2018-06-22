@@ -31,13 +31,13 @@ void DeepDriveAgentPullOutState::update(DeepDriveAgentLocalAIStateMachineContext
 	m_PullOutAlpha += m_PullOutTimeFactor * dT;
 	m_curOffset = FMath::Lerp(0.0f, ctx.configuration.OvertakingOffset, m_PullOutAlpha);
 
-	float desiredSpeed = ctx.configuration.OvertakingSpeed;// ctx.local_ai_ctrl.getDesiredSpeed();
+	float desiredSpeed = FMath::Lerp(ctx.agent.getSpeedKmh(), desiredSpeed, m_PullOutAlpha);
 
 	if (m_PullOutAlpha >= 1.0f)
 	{
 		m_StateMachine.setNextState("Passing");
 	}
-	else if(isTimeToThink(dT) && abortOvertaking(ctx, FMath::Lerp(ctx.agent.getSpeedKmh(), desiredSpeed, m_PullOutAlpha)) )
+	else if(isTimeToThink(dT) && abortOvertaking(ctx, desiredSpeed) )
 	{
 		m_StateMachine.setNextState("PullBackIn");
 	}
@@ -65,15 +65,14 @@ bool DeepDriveAgentPullOutState::abortOvertaking(DeepDriveAgentLocalAIStateMachi
 	if (nextAgent)
 	{
 		const float curSpeed = ctx.agent.getSpeedKmh();
-		//const float speedDiff = (ctx.configuration.OvertakingSpeed - nextAgent->getSpeed() * 0.036f);
-		const float speedDiff = FMath::Max(1.0f, (desiredSpeed - nextAgent->getSpeedKmh()));
 
 		ADeepDriveAgent *nextButOne = nextAgent->getNextAgent(ctx.configuration.GapBetweenAgents);
 		if(nextButOne == 0)
 		{
-			//float otc = ctx.local_ai_ctrl.isOppositeTrackClear(*nextAgent, distanceToNextAgent, speedDiff, curSpeed, true);
 			float otc = ctx.local_ai_ctrl.computeOppositeTrackClearance(curSpeed, ctx.configuration.LookAheadTime);
 			abort = otc < 0.0f;
+			if(abort)
+				UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Abort overtaking otc %f"), otc);
 		}
 		else
 			abort = nextButOne == &ctx.agent;
