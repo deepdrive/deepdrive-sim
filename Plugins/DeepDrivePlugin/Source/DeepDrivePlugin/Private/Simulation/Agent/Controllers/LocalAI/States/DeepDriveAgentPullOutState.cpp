@@ -31,7 +31,8 @@ void DeepDriveAgentPullOutState::update(DeepDriveAgentLocalAIStateMachineContext
 	m_PullOutAlpha += m_PullOutTimeFactor * dT;
 	m_curOffset = FMath::Lerp(0.0f, ctx.configuration.OvertakingOffset, m_PullOutAlpha);
 
-	float desiredSpeed = FMath::Lerp(ctx.agent.getSpeedKmh(), desiredSpeed, m_PullOutAlpha);
+	float desiredSpeed = FMath::Lerp(ctx.agent.getSpeedKmh(), ctx.configuration.OvertakingSpeed, m_PullOutAlpha);
+	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Desired Speed %3.1f"), desiredSpeed);
 
 	if (m_PullOutAlpha >= 1.0f)
 	{
