@@ -382,7 +382,7 @@ bool ACar::UpdateSplineProgress()
 	{
 		// We've gotten to the next waypoint along the spline
 		WaypointDistanceAlongSpline += WaypointStep; // TODO: Don't assume we are travelling at speeds and framerates for this to make sense.
-		if (WaypointDistanceAlongSpline > SplineLength)
+		if ((DistanceAlongRoute + WaypointStep) > SplineLength)
 		{
 			UE_LOG(LogTemp, Warning, 
 				TEXT("resetting target point on spline after making full trip around track (waypoint distance: %f, spline length: %f"), 
