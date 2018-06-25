@@ -39,7 +39,6 @@ public:
 
 	virtual void SetAgentControlValues(float steering, float throttle, float brake, bool handbrake);
 
-
 private:
 
 	ADeepDriveSimulation 			&m_DeepDriveSim;

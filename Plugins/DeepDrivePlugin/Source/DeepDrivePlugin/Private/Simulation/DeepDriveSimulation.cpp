@@ -71,6 +71,8 @@ void ADeepDriveSimulation::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	SetTickableWhenPaused(true);
+
 	m_curAgent = spawnAgent(InitialControllerMode, InitialConfigurationSlot, StartPositionSlot);
 	if(m_curAgent)
 	{
@@ -90,7 +92,6 @@ void ADeepDriveSimulation::BeginPlay()
 				UE_LOG(LogDeepDriveSimulation, Log, TEXT("Found sink %s"), *(captureSinkComp->getName()));
 			}
 		}
-
 	}
 
 }

@@ -14,7 +14,7 @@ def cleanUp(clientId):
 client = deepdrive_client.create('127.0.0.1', 9876)
 
 
-if client != None:
+if client != None and 'client_id' in client:
 	clientId = client['client_id']
 	print('Connected ...', clientId)
 

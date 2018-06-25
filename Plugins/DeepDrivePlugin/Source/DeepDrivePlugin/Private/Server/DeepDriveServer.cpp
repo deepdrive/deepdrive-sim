@@ -163,9 +163,12 @@ void DeepDriveServer::update(float DeltaSeconds)
 			break;
 
 		case Stepping_Advance:
-			if (FPlatformTime::Seconds() >= m_AdvanceEndTime)
+			if	(	FPlatformTime::Seconds() >= m_AdvanceEndTime
+				&&	m_World
+				)
 			{
-				UGameplayStatics::SetGamePaused(m_Proxy->GetWorld(), true);
+
+				UGameplayStatics::SetGamePaused(m_World, true);
 				m_State = Stepping_WaitForCapture;
 				CaptureFinishedDelegate captureFinishedDelegate;
 				captureFinishedDelegate.BindRaw(this, &DeepDriveServer::onCaptureFinished);
@@ -363,10 +366,14 @@ void DeepDriveServer::activateSynchronousStepping(const deepdrive::server::Messa
 		DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
 		if (client)
 		{
-			if(client->isMaster() && m_State == Continous)
+			if	(	client->isMaster() && m_State == Continous
+				&&	m_World
+				)
 			{
 				m_State = Stepping_Idle;
-				m_Proxy->activateSynchronousStepping();
+				UGameplayStatics::SetGamePaused(m_World, true);
+				UE_LOG(LogDeepDriveServer, Log, TEXT("SynchronousStepping activated"));
+
 
 				client->enqueueResponse(new deepdrive::server::ActivateSynchronousSteppingResponse(true));
 			}
@@ -384,10 +391,14 @@ void DeepDriveServer::deactivateSynchronousStepping(const deepdrive::server::Mes
 		DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
 		if (client)
 		{
-			if	(client->isMaster() && m_State == Stepping_Idle)
+			if	(	client->isMaster() && m_State == Stepping_Idle
+				&&	m_World
+				)
 			{
 				m_State = Continous;
-				m_Proxy->deactivateSynchronousStepping();
+				UGameplayStatics::SetGamePaused(m_World, false);
+				UE_LOG(LogDeepDriveServer, Log, TEXT("SynchronousStepping deactivated"));
+
 				client->enqueueResponse(new deepdrive::server::DeactivateSynchronousSteppingResponse(true));
 			}
 			else
@@ -407,7 +418,8 @@ void DeepDriveServer::advanceSynchronousStepping(const deepdrive::server::Messag
 			if(client->isMaster() && m_State == Stepping_Idle)
 			{
 				m_SteppingClient = client;
-				m_Proxy->advanceSynchronousStepping(req.steering, req.throttle, req.brake, req.handbrake != 0 ? true : false);
+				UGameplayStatics::SetGamePaused(m_World, false);
+				m_Proxy->SetAgentControlValues(req.steering, req.throttle, req.brake, req.handbrake != 0 ? true : false);
 
 				m_State = Stepping_Advance;
 				m_AdvanceEndTime = FPlatformTime::Seconds() + req.time_step;
@@ -443,4 +455,28 @@ void  DeepDriveServer::enqueueMessage(deepdrive::server::MessageHeader *message)
 	if(message)
 		m_MessageQueue.Enqueue(message);
 }
-		
+
+
+#if 0
+
+void DeepDriveSimulationServerProxy::activateSynchronousStepping()
+{
+	SetTickableWhenPaused(true);
+	UGameplayStatics::SetGamePaused(GetWorld(), true);
+	UE_LOG(LogDeepDriveSimulationServerProxy, Log, TEXT("SynchronousStepping activated"));
+}
+
+void DeepDriveSimulationServerProxy::deactivateSynchronousStepping()
+{
+	UGameplayStatics::SetGamePaused(GetWorld(), false);
+	SetTickableWhenPaused(false);
+	UE_LOG(LogDeepDriveSimulationServerProxy, Log, TEXT("SynchronousStepping deactivated"));
+}
+
+void DeepDriveSimulationServerProxy::advanceSynchronousStepping(float steering, float throttle, float brake, bool handbrake)
+{
+	UGameplayStatics::SetGamePaused(GetWorld(), false);
+	SetAgentControlValues(steering, throttle, brake, handbrake != 0 ? true : false);
+}
+
+#endif

@@ -18,6 +18,8 @@ class IDeepDriveServerProxy;
 
 class FSocket;
 
+class UWorld;
+
 namespace deepdrive { namespace server {
 struct MessageHeader;
 } }
@@ -60,6 +62,8 @@ public:
 	static DeepDriveServer& GetInstance();
 
 	static void Destroy();
+
+	void setWorld(UWorld *world);
 
 	bool RegisterProxy(IDeepDriveServerProxy &proxy, const FString &ipAddress, uint16 port);
 
@@ -105,6 +109,7 @@ private:
 	DeepDriveConnectionListener		*m_ConnectionListener = 0;
 
 	IDeepDriveServerProxy			*m_Proxy = 0;
+	UWorld							*m_World = 0;
 
 	TQueue<SIncomingConnection*>	m_IncomingConnections;
 
@@ -135,3 +140,9 @@ private:
 
 	static DeepDriveServer			*theInstance;
 };
+
+
+inline void DeepDriveServer::setWorld(UWorld *world)
+{
+	m_World = world;
+}

@@ -154,7 +154,8 @@ void DeepDriveCapture::processCapturing()
 {
 	SCaptureJob *captureJob = new SCaptureJob;
 
-/*
+/*	Capture cycles currently deactivated
+
 	const TArray< FCaptureCyle > &captureCycles = m_Proxy->CaptureCycles;
 	if (captureCycles.Num())
 	{
@@ -289,7 +290,11 @@ USharedMemCaptureSinkComponent* DeepDriveCapture::getSharedMemorySink()
 
 void DeepDriveCapture::onNextCapture(CaptureFinishedDelegate &captureFinished)
 {
+/*
+	Ensure otherwise that a capture proxy is tickable when paused
+
 	if(m_Proxy)
 		m_Proxy->SetTickableWhenPaused(true);
+*/
 	m_onCaptureFinished = captureFinished;
 }
