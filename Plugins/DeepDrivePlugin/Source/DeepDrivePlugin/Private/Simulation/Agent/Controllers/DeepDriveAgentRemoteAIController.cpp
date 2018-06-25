@@ -2,8 +2,10 @@
 
 #include "DeepDrivePluginPrivatePCH.h"
 #include "Public/Simulation/Agent/Controllers/DeepDriveAgentRemoteAIController.h"
-
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
+#include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
+
+#include "Components/SplineComponent.h"
 
 ADeepDriveAgentRemoteAIController::ADeepDriveAgentRemoteAIController()
 {
@@ -16,6 +18,15 @@ void ADeepDriveAgentRemoteAIController::SetControlValues(float steering, float t
 		m_Agent->SetControlValues(steering, throttle, brake, handbrake);
 }
 
+bool ADeepDriveAgentRemoteAIController::Activate(ADeepDriveAgent &agent)
+{
+	if (m_Track)
+	{
+		m_Track->registerAgent(agent, m_Track->GetSpline()->FindInputKeyClosestToWorldLocation(agent.GetActorLocation()));
+	}
+
+	return ADeepDriveAgentControllerBase::Activate(agent);
+}
 
 bool ADeepDriveAgentRemoteAIController::ResetAgent()
 {
@@ -27,4 +38,10 @@ bool ADeepDriveAgentRemoteAIController::ResetAgent()
 		res = true;
 	}
 	return res;
+}
+
+
+void ADeepDriveAgentRemoteAIController::Configure(const FDeepDriveRemoteAIControllerConfiguration &Configuration, int32 StartPositionSlot)
+{
+	m_Track = Configuration.Track;
 }

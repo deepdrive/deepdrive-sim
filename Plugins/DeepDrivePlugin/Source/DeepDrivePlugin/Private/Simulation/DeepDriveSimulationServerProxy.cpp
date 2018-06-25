@@ -17,11 +17,12 @@ DeepDriveSimulationServerProxy::DeepDriveSimulationServerProxy(ADeepDriveSimulat
 {
 }
 
-bool DeepDriveSimulationServerProxy::initialize(const FString &ipAddress, int32 port)
+bool DeepDriveSimulationServerProxy::initialize(const FString &ipAddress, int32 port, UWorld *world)
 {
 	m_isActive = false;
 	if(DeepDriveServer::GetInstance().RegisterProxy(*this, ipAddress, static_cast<uint16> (port)))
 	{
+		DeepDriveServer::GetInstance().setWorld(world);
 		m_isActive = true;
 		UE_LOG(LogDeepDriveSimulationServerProxy, Log, TEXT("Server Proxy registered"));
 	}
@@ -92,6 +93,8 @@ void DeepDriveSimulationServerProxy::SetAgentControlValues(float steering, float
 {
 	ADeepDriveAgentControllerBase *agentCtrl = m_isActive ? m_DeepDriveSim.getCurrentAgentController() : 0;
 
-	if(agentCtrl)
+	if (agentCtrl)
+	{
 		agentCtrl->SetControlValues(steering, throttle, brake, handbrake);
+	}
 }

@@ -5,6 +5,24 @@
 #include "Simulation/Agent/DeepDriveAgentControllerBase.h"
 #include "DeepDriveAgentRemoteAIController.generated.h"
 
+class ADeepDriveSplineTrack;
+
+USTRUCT(BlueprintType)
+struct FDeepDriveRemoteAIControllerConfiguration
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
+	FString		ConfigurationName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
+	ADeepDriveSplineTrack	*Track;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
+	TArray<float>	StartDistances;
+
+};
+
 /**
  * 
  */
@@ -17,8 +35,17 @@ public:
 
 	ADeepDriveAgentRemoteAIController();
 
+	virtual bool Activate(ADeepDriveAgent &agent);
+
 	virtual void SetControlValues(float steering, float throttle, float brake, bool handbrake);
 
 	virtual bool ResetAgent();
-	
+
+	UFUNCTION(BlueprintCallable, Category = "Configuration")
+	void Configure(const FDeepDriveRemoteAIControllerConfiguration &Configuration, int32 StartPositionSlot);
+
+private:
+
+	ADeepDriveSplineTrack						*m_Track = 0;
+
 };

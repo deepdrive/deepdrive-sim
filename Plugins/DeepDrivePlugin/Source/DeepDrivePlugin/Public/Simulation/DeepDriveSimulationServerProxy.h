@@ -8,6 +8,7 @@
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveSimulationServerProxy, Log, All);
 
 class ADeepDriveSimulation;
+class UWorld;
 
 class DeepDriveSimulationServerProxy	:	public IDeepDriveServerProxy
 {
@@ -15,7 +16,7 @@ public:
 
 	DeepDriveSimulationServerProxy(ADeepDriveSimulation &deepDriveSim);
 
-	bool initialize(const FString &ipAddress, int32 port);
+	bool initialize(const FString &ipAddress, int32 port, UWorld *world);
 
 	void update( float DeltaSeconds );
 

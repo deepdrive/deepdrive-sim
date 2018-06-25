@@ -4,6 +4,7 @@
 #include "Private/Server/DeepDriveServer.h"
 #include "Private/Server/DeepDriveConnectionListener.h"
 #include "Private/Server/DeepDriveClientConnection.h"
+#include "Private/Capture/DeepDriveCapture.h"
 
 #include "Public/Server/IDeepDriveServerProxy.h"
 #include "Public/Server/Messages/DeepDriveServerConfigurationMessages.h"
