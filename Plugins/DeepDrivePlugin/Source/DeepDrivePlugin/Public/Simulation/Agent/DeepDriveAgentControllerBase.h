@@ -8,7 +8,9 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveAgentControllerBase, Log, All);
 
+class ADeepDriveSimulation;
 class ADeepDriveAgent;
+class USplineComponent;
 
 /**
  * 
@@ -45,6 +47,7 @@ protected:
 	void resetAgentPosOnSpline(ADeepDriveAgent &agent, USplineComponent *spline, float distance);
 	float getClosestDistanceOnSpline(USplineComponent *spline, const FVector &location);
 
+	ADeepDriveSimulation				*m_DeepDriveSimulation = 0;
 	ADeepDriveAgent						*m_Agent = 0;
 
 	FString								m_ControllerName = "DeepDriveAgentControllerBase";

@@ -72,6 +72,7 @@ void ADeepDriveSimulation::BeginPlay()
 	Super::BeginPlay();
 	
 	SetTickableWhenPaused(true);
+	m_RandomStream = FRandomStream(Seed);
 
 	m_curAgent = spawnAgent(InitialControllerMode, InitialConfigurationSlot, StartPositionSlot);
 	if(m_curAgent)
@@ -328,7 +329,7 @@ ADeepDriveAgentControllerBase* ADeepDriveSimulation::spawnController(EDeepDriveA
 {
 	ADeepDriveAgentControllerBase *controller = 0;
 
-	controller = ControllerCreators.Contains(mode) ? ControllerCreators[mode]->CreateAgentController(configSlot, startPosSlot) : 0;
+	controller = ControllerCreators.Contains(mode) ? ControllerCreators[mode]->CreateAgentController(configSlot, startPosSlot, this) : 0;
 
 	UE_LOG(LogDeepDriveSimulation, Log, TEXT("spawnController has it %c -> %p"), ControllerCreators.Contains(mode) ? 'T' :'F', controller );
 

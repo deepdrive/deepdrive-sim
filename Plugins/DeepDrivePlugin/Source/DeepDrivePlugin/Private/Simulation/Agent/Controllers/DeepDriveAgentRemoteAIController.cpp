@@ -2,6 +2,7 @@
 
 #include "DeepDrivePluginPrivatePCH.h"
 #include "Public/Simulation/Agent/Controllers/DeepDriveAgentRemoteAIController.h"
+#include "Public/Simulation/DeepDriveSimulation.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 #include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
 
@@ -41,8 +42,16 @@ bool ADeepDriveAgentRemoteAIController::ResetAgent()
 }
 
 
-void ADeepDriveAgentRemoteAIController::Configure(const FDeepDriveRemoteAIControllerConfiguration &Configuration, int32 StartPositionSlot)
+void ADeepDriveAgentRemoteAIController::Configure(const FDeepDriveRemoteAIControllerConfiguration &Configuration, int32 StartPositionSlot, ADeepDriveSimulation* DeepDriveSimulation)
 {
+	m_DeepDriveSimulation = DeepDriveSimulation;
 	m_Track = Configuration.Track;
-	m_StartDistance = StartPositionSlot < Configuration.StartDistances.Num() ? Configuration.StartDistances[StartPositionSlot] : 0.0f;
+	if (StartPositionSlot >= 0)
+	{
+		m_StartDistance = StartPositionSlot < Configuration.StartDistances.Num() ? Configuration.StartDistances[StartPositionSlot] : 0.0f;
+	}
+	else
+	{
+		m_StartDistance = -1.0f;
+	}
 }

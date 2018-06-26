@@ -6,6 +6,7 @@
 #include "DeepDriveAgentRemoteAIController.generated.h"
 
 class ADeepDriveSplineTrack;
+class ADeepDriveSimulation;
 
 USTRUCT(BlueprintType)
 struct FDeepDriveRemoteAIControllerConfiguration
@@ -42,7 +43,7 @@ public:
 	virtual bool ResetAgent();
 
 	UFUNCTION(BlueprintCallable, Category = "Configuration")
-	void Configure(const FDeepDriveRemoteAIControllerConfiguration &Configuration, int32 StartPositionSlot);
+	void Configure(const FDeepDriveRemoteAIControllerConfiguration &Configuration, int32 StartPositionSlot, ADeepDriveSimulation* DeepDriveSimulation);
 
 private:
 

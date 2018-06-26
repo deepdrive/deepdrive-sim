@@ -10,7 +10,7 @@ DEFINE_LOG_CATEGORY(LogDeepDriveSplineTrack);
 ADeepDriveSplineTrack::ADeepDriveSplineTrack()
 	:	SplineTrack(0)
 {
-	SplineTrack = CreateDefaultSubobject<USplineComponent>(TEXT("SplneTrack"));
+	SplineTrack = CreateDefaultSubobject<USplineComponent>(TEXT("SplineTrack"));
 	RootComponent = SplineTrack;
 
 	PrimaryActorTick.bCanEverTick = true;

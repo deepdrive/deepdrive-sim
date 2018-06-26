@@ -88,6 +88,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FreeCamera)
 	ADeepDriveSimulationFreeCamera	*FreeCamera = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Configuration)
+	int32	Seed;
+
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void MoveForward(float AxisValue);
 
@@ -121,6 +124,8 @@ public:
 	ADeepDriveAgentControllerBase* getCurrentAgentController() const;
 	TArray<UCaptureSinkComponentBase*>& getCaptureSinks();
 
+	FRandomStream& getRandomStream();
+
 private:
 
 	ADeepDriveAgent* spawnAgent(EDeepDriveAgentControlMode mode, int32 configSlot, int32 startPosSlot);
@@ -142,6 +147,8 @@ private:
 	EDeepDriveAgentCameraType				m_curCameraType = EDeepDriveAgentCameraType::NONE;
 	float									m_OrbitCameraPitch = 0.0f;
 	float									m_OrbitCameraYaw = 0.0f;
+
+	FRandomStream							m_RandomStream;
 };
 
 
@@ -158,4 +165,9 @@ inline ADeepDriveAgentControllerBase* ADeepDriveSimulation::getCurrentAgentContr
 inline TArray<UCaptureSinkComponentBase*>& ADeepDriveSimulation::getCaptureSinks()
 {
 	return m_CaptureSinks;
+}
+
+inline FRandomStream& ADeepDriveSimulation::getRandomStream()
+{
+	return m_RandomStream;
 }

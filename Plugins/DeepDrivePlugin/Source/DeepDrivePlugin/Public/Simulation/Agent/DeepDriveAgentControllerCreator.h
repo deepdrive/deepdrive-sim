@@ -19,7 +19,7 @@ public:
 	ADeepDriveAgentControllerBase* CreateController(const FDeepDriveControllerData &ControllerData);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Controller")
-	ADeepDriveAgentControllerBase* CreateAgentController(int32 ConfigurationSlot, int32 StartPositionSlot);
+	ADeepDriveAgentControllerBase* CreateAgentController(int32 ConfigurationSlot, int32 StartPositionSlot, ADeepDriveSimulation* DeepDriveSim );
 
 
 };
