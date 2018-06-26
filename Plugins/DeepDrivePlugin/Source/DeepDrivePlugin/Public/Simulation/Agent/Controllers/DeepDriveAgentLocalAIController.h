@@ -133,9 +133,6 @@ public:
 
 private:
 
-	void resetAgentPosOnSpline(ADeepDriveAgent &agent);
-	float getClosestDistanceOnSpline(const FVector &location);
-
 	DeepDriveAgentLocalAIStateMachine			m_StateMachine;
 	DeepDriveAgentLocalAIStateMachineContext	*m_StateMachineCtx = 0;
 	
@@ -149,7 +146,6 @@ private:
 	float										m_StartDistance = 0.0f;
 	float										m_DesiredSpeed;
 
-	USplineComponent							*m_Spline = 0;
 	float										m_SafetyDistanceFactor = 1.0f;
 	float										m_BrakingDeceleration = 800.0f;
 

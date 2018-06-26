@@ -42,6 +42,9 @@ public:
 
 protected:
 
+	void resetAgentPosOnSpline(ADeepDriveAgent &agent, USplineComponent *spline, float distance);
+	float getClosestDistanceOnSpline(USplineComponent *spline, const FVector &location);
+
 	ADeepDriveAgent						*m_Agent = 0;
 
 	FString								m_ControllerName = "DeepDriveAgentControllerBase";

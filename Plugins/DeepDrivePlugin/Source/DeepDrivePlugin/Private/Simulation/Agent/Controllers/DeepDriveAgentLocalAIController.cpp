@@ -55,8 +55,7 @@ bool ADeepDriveAgentLocalAIController::Activate(ADeepDriveAgent &agent)
 
 		if (m_SpeedController && m_SteeringController)
 		{
-			m_Spline = m_Track->GetSpline();
-			resetAgentPosOnSpline(agent);
+			resetAgentPosOnSpline(agent, m_Track->GetSpline(), m_StartDistance);
 
 			UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("ADeepDriveAgentSplineController::Activate Successfully initialized"));
 		}
@@ -65,7 +64,7 @@ bool ADeepDriveAgentLocalAIController::Activate(ADeepDriveAgent &agent)
 		UE_LOG(LogDeepDriveAgentLocalAIController, Error, TEXT("ADeepDriveAgentSplineController::Activate Didn't find spline"));
 
 
-	const bool activated = m_Spline != 0 && ADeepDriveAgentControllerBase::Activate(agent);
+	const bool activated = m_Track != 0 && ADeepDriveAgentControllerBase::Activate(agent);
 
 	if (activated)
 	{
@@ -90,7 +89,7 @@ bool ADeepDriveAgentLocalAIController::ResetAgent()
 	{
 		UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Reset Agent") );
 		m_Agent->reset();
-		resetAgentPosOnSpline(*m_Agent);
+		resetAgentPosOnSpline(*m_Agent, m_Track->GetSpline(), m_StartDistance);
 		return true;
 	}
 	return false;
@@ -118,37 +117,6 @@ void ADeepDriveAgentLocalAIController::Tick( float DeltaSeconds )
 		if(m_StateMachineCtx)
 			m_StateMachine.update(*m_StateMachineCtx, DeltaSeconds);
 	}
-}
-
-
-void ADeepDriveAgentLocalAIController::resetAgentPosOnSpline(ADeepDriveAgent &agent)
-{
-	FVector agentLocation = m_StartDistance > 0.0f ? (m_Spline->GetLocationAtDistanceAlongSpline(m_StartDistance, ESplineCoordinateSpace::World) + FVector(0.0f, 0.0f, 200.0f)) : agent.GetActorLocation();
-	float curDistanceOnSpline = getClosestDistanceOnSpline(agentLocation);
-	FVector curPosOnSpline = m_Spline->GetLocationAtDistanceAlongSpline(curDistanceOnSpline, ESplineCoordinateSpace::World);
-	curPosOnSpline.Z = agentLocation.Z + 50.0f;
-
-	FQuat quat = m_Spline->GetQuaternionAtDistanceAlongSpline(curDistanceOnSpline, ESplineCoordinateSpace::World);
-
-	FTransform transform(quat.Rotator(), curPosOnSpline, FVector(1.0f, 1.0f, 1.0f));
-
-	agent.SetActorTransform(transform, false, 0, ETeleportType::TeleportPhysics);
-}
-
-float ADeepDriveAgentLocalAIController::getClosestDistanceOnSpline(const FVector &location)
-{
-	float distance = 0.0f;
-
-	const float closestKey = m_Spline->FindInputKeyClosestToWorldLocation(location);
-
-	const int32 index0 = floor(closestKey);
-	const int32 index1 = floor(closestKey + 1.0f);
-
-	const float dist0 = m_Spline->GetDistanceAlongSplineAtSplinePoint(index0);
-	const float dist1 = m_Spline->GetDistanceAlongSplineAtSplinePoint(index1);
-
-
-	return FMath::Lerp(dist0, dist1, closestKey - static_cast<float> (index0));
 }
 
 #if 0
@@ -423,7 +391,7 @@ void ADeepDriveAgentLocalAIController::OnDebugTrigger()
 	else
 	{
 		FVector agentLocation = m_Agent->GetActorLocation();
-		const float curKey = m_Spline->FindInputKeyClosestToWorldLocation(agentLocation);
+		const float curKey = m_Track->GetSpline()->FindInputKeyClosestToWorldLocation(agentLocation);
 
 		UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Current key: %f"), curKey);
 

@@ -49,6 +49,36 @@ bool ADeepDriveAgentControllerBase::ResetAgent()
 	return res;
 }
 
+void ADeepDriveAgentControllerBase::resetAgentPosOnSpline(ADeepDriveAgent &agent, USplineComponent *spline, float distance)
+{
+	FVector agentLocation = spline->GetLocationAtDistanceAlongSpline(distance, ESplineCoordinateSpace::World) + FVector(0.0f, 0.0f, 200.0f);
+	float curDistanceOnSpline = getClosestDistanceOnSpline(spline, agentLocation);
+	FVector curPosOnSpline = spline->GetLocationAtDistanceAlongSpline(curDistanceOnSpline, ESplineCoordinateSpace::World);
+	curPosOnSpline.Z = agentLocation.Z + 50.0f;
+
+	FQuat quat = spline->GetQuaternionAtDistanceAlongSpline(curDistanceOnSpline, ESplineCoordinateSpace::World);
+
+	FTransform transform(quat.Rotator(), curPosOnSpline, FVector(1.0f, 1.0f, 1.0f));
+
+	agent.SetActorTransform(transform, false, 0, ETeleportType::TeleportPhysics);
+}
+
+float ADeepDriveAgentControllerBase::getClosestDistanceOnSpline(USplineComponent *spline, const FVector &location)
+{
+	float distance = 0.0f;
+
+	const float closestKey = spline->FindInputKeyClosestToWorldLocation(location);
+
+	const int32 index0 = floor(closestKey);
+	const int32 index1 = floor(closestKey + 1.0f);
+
+	const float dist0 = spline->GetDistanceAlongSplineAtSplinePoint(index0);
+	const float dist1 = spline->GetDistanceAlongSplineAtSplinePoint(index1);
+
+
+	return FMath::Lerp(dist0, dist1, closestKey - static_cast<float> (index0));
+}
+
 void ADeepDriveAgentControllerBase::OnCheckpointReached()
 {
 }

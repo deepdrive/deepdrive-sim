@@ -177,10 +177,11 @@ void ADeepDriveAgent::OnLapFinished()
 
 void ADeepDriveAgent::reset()
 {
+	/*
 	UE_LOG(LogDeepDriveAgent, Log, TEXT("Try to reset agent to %s"), *(m_ResetTransform.ToString()));
 	SetActorTransform(m_ResetTransform, false, 0, ETeleportType::TeleportPhysics);
-
 	SetControlValues(0.0f, 0.0f, 0.0f, false);
+	*/
 }
 
 float ADeepDriveAgent::getSpeed() const

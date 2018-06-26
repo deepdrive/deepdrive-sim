@@ -23,9 +23,10 @@ bool ADeepDriveAgentRemoteAIController::Activate(ADeepDriveAgent &agent)
 	if (m_Track)
 	{
 		m_Track->registerAgent(agent, m_Track->GetSpline()->FindInputKeyClosestToWorldLocation(agent.GetActorLocation()));
+		resetAgentPosOnSpline(agent, m_Track->GetSpline(), m_StartDistance);
 	}
 
-	return ADeepDriveAgentControllerBase::Activate(agent);
+	return m_Track && ADeepDriveAgentControllerBase::Activate(agent);
 }
 
 bool ADeepDriveAgentRemoteAIController::ResetAgent()
@@ -33,8 +34,7 @@ bool ADeepDriveAgentRemoteAIController::ResetAgent()
 	bool res = false;
 	if(m_Agent)
 	{
-		m_Agent->reset();
-
+		resetAgentPosOnSpline(*m_Agent, m_Track->GetSpline(), m_StartDistance);
 		res = true;
 	}
 	return res;
@@ -44,4 +44,5 @@ bool ADeepDriveAgentRemoteAIController::ResetAgent()
 void ADeepDriveAgentRemoteAIController::Configure(const FDeepDriveRemoteAIControllerConfiguration &Configuration, int32 StartPositionSlot)
 {
 	m_Track = Configuration.Track;
+	m_StartDistance = StartPositionSlot < Configuration.StartDistances.Num() ? Configuration.StartDistances[StartPositionSlot] : 0.0f;
 }
