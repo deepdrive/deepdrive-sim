@@ -21,13 +21,21 @@ void ADeepDriveAgentRemoteAIController::SetControlValues(float steering, float t
 
 bool ADeepDriveAgentRemoteAIController::Activate(ADeepDriveAgent &agent)
 {
-	if (m_Track)
+	if (m_Track && m_DeepDriveSimulation)
 	{
 		m_Track->registerAgent(agent, m_Track->GetSpline()->FindInputKeyClosestToWorldLocation(agent.GetActorLocation()));
-		resetAgentPosOnSpline(agent, m_Track->GetSpline(), m_StartDistance);
+
+		if(m_StartDistance < 0.0f)
+		{
+			m_StartDistance = m_Track->getRandomDistanceAlongTrack(m_DeepDriveSimulation->getRandomStream());
+			UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentRemoteAIController::Activate random start distance %f"), m_StartDistance);
+		}
+
+		if(m_StartDistance >= 0.0f)
+			resetAgentPosOnSpline(agent, m_Track->GetSpline(), m_StartDistance);
 	}
 
-	return m_Track && ADeepDriveAgentControllerBase::Activate(agent);
+	return m_StartDistance >= 0.0f && m_Track && ADeepDriveAgentControllerBase::Activate(agent);
 }
 
 bool ADeepDriveAgentRemoteAIController::ResetAgent()
@@ -46,12 +54,5 @@ void ADeepDriveAgentRemoteAIController::Configure(const FDeepDriveRemoteAIContro
 {
 	m_DeepDriveSimulation = DeepDriveSimulation;
 	m_Track = Configuration.Track;
-	if (StartPositionSlot >= 0)
-	{
-		m_StartDistance = StartPositionSlot < Configuration.StartDistances.Num() ? Configuration.StartDistances[StartPositionSlot] : 0.0f;
-	}
-	else
-	{
-		m_StartDistance = -1.0f;
-	}
+	m_StartDistance = StartPositionSlot >= 0 && StartPositionSlot < Configuration.StartDistances.Num() ? Configuration.StartDistances[StartPositionSlot] : -1.0f;
 }

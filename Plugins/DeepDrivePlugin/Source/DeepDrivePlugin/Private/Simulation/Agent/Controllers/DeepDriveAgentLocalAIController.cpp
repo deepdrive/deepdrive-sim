@@ -3,6 +3,7 @@
 #include "DeepDrivePluginPrivatePCH.h"
 #include "DeepDriveAgentLocalAIController.h"
 #include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
+#include "Public/Simulation/DeepDriveSimulation.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 #include "Private/Simulation/Agent/Controllers/DeepDriveAgentSpeedController.h"
 #include "Private/Simulation/Agent/Controllers/DeepDriveAgentSteeringController.h"
@@ -26,22 +27,7 @@ ADeepDriveAgentLocalAIController::ADeepDriveAgentLocalAIController()
 
 bool ADeepDriveAgentLocalAIController::Activate(ADeepDriveAgent &agent)
 {
-	if (m_Track == 0)
-	{
-		TArray<AActor*> tracks;
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ADeepDriveSplineTrack::StaticClass(), tracks);
-		for(auto &t : tracks)
-		{
-			if(t->ActorHasTag(FName("MainTrack")))
-			{
-				UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("LogDeepDriveAgentLocalAIController::Activate Found main track") );
-				m_Track = Cast<ADeepDriveSplineTrack>(t);
-				break;
-			}
-		}
-	}
-
-	if (m_Track)
+	if (m_Track && m_DeepDriveSimulation)
 	{
 		m_Track->registerAgent(agent, m_Track->GetSpline()->FindInputKeyClosestToWorldLocation(agent.GetActorLocation()));
 
@@ -55,7 +41,14 @@ bool ADeepDriveAgentLocalAIController::Activate(ADeepDriveAgent &agent)
 
 		if (m_SpeedController && m_SteeringController)
 		{
-			resetAgentPosOnSpline(agent, m_Track->GetSpline(), m_StartDistance);
+			if(m_StartDistance < 0.0f)
+			{
+				m_StartDistance = m_Track->getRandomDistanceAlongTrack(m_DeepDriveSimulation->getRandomStream());
+				UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentLocalAIController::Activate random start distance %f"), m_StartDistance);
+			}
+
+			if(m_StartDistance >= 0.0f)
+				resetAgentPosOnSpline(agent, m_Track->GetSpline(), m_StartDistance);
 
 			UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("ADeepDriveAgentSplineController::Activate Successfully initialized"));
 		}
@@ -64,7 +57,7 @@ bool ADeepDriveAgentLocalAIController::Activate(ADeepDriveAgent &agent)
 		UE_LOG(LogDeepDriveAgentLocalAIController, Error, TEXT("ADeepDriveAgentSplineController::Activate Didn't find spline"));
 
 
-	const bool activated = m_Track != 0 && ADeepDriveAgentControllerBase::Activate(agent);
+	const bool activated = m_StartDistance >= 0 && m_Track != 0 && ADeepDriveAgentControllerBase::Activate(agent);
 
 	if (activated)
 	{
@@ -96,13 +89,14 @@ bool ADeepDriveAgentLocalAIController::ResetAgent()
 }
 
 
-void ADeepDriveAgentLocalAIController::Configure(const FDeepDriveLocalAIControllerConfiguration &Configuration, int32 StartPositionSlot)
+void ADeepDriveAgentLocalAIController::Configure(const FDeepDriveLocalAIControllerConfiguration &Configuration, int32 StartPositionSlot, ADeepDriveSimulation* DeepDriveSimulation)
 {
 	m_Configuration = Configuration;
+	m_DeepDriveSimulation = DeepDriveSimulation;
 
 	m_DesiredSpeed = FMath::RandRange(Configuration.SpeedRange.X, Configuration.SpeedRange.Y);
 	m_Track = Configuration.Track;
-	m_StartDistance = Configuration.StartDistances[StartPositionSlot];
+	m_StartDistance = StartPositionSlot >= 0 && StartPositionSlot < Configuration.StartDistances.Num() ? Configuration.StartDistances[StartPositionSlot] : -1.0f;
 	m_SafetyDistanceFactor = Configuration.SafetyDistanceFactor;
 }
 

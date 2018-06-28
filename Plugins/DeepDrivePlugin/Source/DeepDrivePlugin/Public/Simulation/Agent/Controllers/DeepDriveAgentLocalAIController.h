@@ -13,6 +13,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveAgentLocalAIController, Log, All);
 class DeepDriveAgentSpeedController;
 class DeepDriveAgentSteeringController;
 class ADeepDriveSplineTrack;
+class ADeepDriveSimulation;
 
 USTRUCT(BlueprintType)
 struct FDeepDriveLocalAIControllerConfiguration
@@ -110,7 +111,7 @@ public:
 	virtual void OnDebugTrigger();
 
 	UFUNCTION(BlueprintCallable, Category = "Configuration")
-	void Configure(const FDeepDriveLocalAIControllerConfiguration &Configuration, int32 StartPositionSlot);
+	void Configure(const FDeepDriveLocalAIControllerConfiguration &Configuration, int32 StartPositionSlot, ADeepDriveSimulation* DeepDriveSimulation);
 
 	//float calculateOvertakingScore();
 	//float calculateOvertakingScore(int32 maxAgentsToOvertake, float overtakingSpeed, ADeepDriveAgent* &finalAgent);

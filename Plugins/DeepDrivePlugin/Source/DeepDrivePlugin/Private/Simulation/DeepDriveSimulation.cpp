@@ -233,6 +233,46 @@ void ADeepDriveSimulation::SelectCamera(EDeepDriveAgentCameraType CameraType)
 	}
 }
 
+void ADeepDriveSimulation::switchToCamera(EDeepDriveAgentCameraType type)
+{
+	APlayerCameraManager *cameraMgr = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+	if (cameraMgr)
+	{
+		AActor *camActor = 0;
+
+		if (m_curAgent)
+		{
+			m_curAgent->ActivateCamera(type);
+
+			if (type == EDeepDriveAgentCameraType::FREE_CAMERA)
+			{
+				if (FreeCamera)
+				{
+					FTransform agentTransform = m_curAgent->GetActorTransform();
+					FreeCamera->SetActorTransform(FTransform(agentTransform.Rotator(), agentTransform.GetLocation() + FVector(0.0f, 0.0f, 200.0f), agentTransform.GetScale3D()));
+					camActor = FreeCamera;
+				}
+			}
+			else
+			{
+				camActor = m_curAgent;
+			}
+
+			if (camActor)
+			{
+				FViewTargetTransitionParams transitionParams;
+				transitionParams.BlendTime = 0.0f;
+				transitionParams.BlendFunction = VTBlend_Linear;
+				transitionParams.BlendExp = 0.0f;
+				transitionParams.bLockOutgoing = false;
+				cameraMgr->SetViewTarget(camActor, transitionParams);
+
+				m_curCameraType = type;
+			}
+		}
+	}
+}
+
 void ADeepDriveSimulation::SelectMode(EDeepDriveAgentControlMode Mode)
 {
 	if(Mode != m_curAgentMode)
@@ -257,6 +297,20 @@ void ADeepDriveSimulation::SelectMode(EDeepDriveAgentControlMode Mode)
 	}
 }
 
+void ADeepDriveSimulation::NextAgent()
+{
+	switchToAgent((m_curAgentIndex + 1) % m_Agents.Num());
+}
+
+void ADeepDriveSimulation::PreviousAgent()
+{
+	int32 index = m_curAgentIndex - 1;
+	if(index < 0)
+		index = m_Agents.Num() - 1;
+
+	switchToAgent(index);
+}
+
 bool ADeepDriveSimulation::resetAgent()
 {
 	return m_curAgentController ? m_curAgentController->ResetAgent() : false;
@@ -269,6 +323,7 @@ ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(EDeepDriveAgentControlMode mod
 
 	if(agent)
 	{
+		m_Agents.Add(agent);
 		agent->setResetTransform(transform);
 
 		ADeepDriveAgentControllerBase *controller = spawnController(mode, configSlot, startPosSlot);
@@ -303,6 +358,7 @@ void ADeepDriveSimulation::spawnAdditionalAgents()
 
 		if (agent)
 		{
+			m_Agents.Add(agent);
 			agent->setResetTransform(transform);
 
 			ADeepDriveAgentControllerBase *controller = spawnController(data.Mode, data.ConfigurationSlot, data.StartPositionSlot);
@@ -336,6 +392,19 @@ ADeepDriveAgentControllerBase* ADeepDriveSimulation::spawnController(EDeepDriveA
 	return controller;
 }
 
+void ADeepDriveSimulation::switchToAgent(int32 index)
+{
+	if(index >= 0 && index < m_Agents.Num())
+	{
+		m_curAgent->DeactivateCameras();
+		m_curAgent = m_Agents[index];
+		switchToCamera(m_curCameraType);
+		m_curAgentController = Cast<ADeepDriveAgentControllerBase> (m_curAgent->GetController());
+
+		m_curAgentIndex = index;
+	}
+}
+
 void ADeepDriveSimulation::OnDebugTrigger()
 {
 	if (m_curAgent)
@@ -343,3 +412,4 @@ void ADeepDriveSimulation::OnDebugTrigger()
 		m_curAgent->OnDebugTrigger();
 	}
 }
+

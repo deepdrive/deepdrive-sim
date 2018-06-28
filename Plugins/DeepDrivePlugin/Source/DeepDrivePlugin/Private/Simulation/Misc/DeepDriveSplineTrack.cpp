@@ -22,13 +22,20 @@ ADeepDriveSplineTrack::~ADeepDriveSplineTrack()
 {
 }
 
-void ADeepDriveSplineTrack::BeginPlay()
+void ADeepDriveSplineTrack::PostInitializeComponents()
 {
-	Super::BeginPlay();
+	Super::PostInitializeComponents();
 
 	SetActorTickEnabled(true);
+
 	PrimaryActorTick.TickGroup = TG_PrePhysics;
 	m_TrackLength = SplineTrack->GetSplineLength();
+
+	m_RandomSlotCount = FGenericPlatformMath::FloorToInt(m_TrackLength / RandomSlotDistance);
+	m_remainingSlots = m_RandomSlotCount;
+
+	UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("Track %s Length %f Slot Count %d"), *(GetName()), m_TrackLength, m_RandomSlotCount );
+
 }
 
 void ADeepDriveSplineTrack::Tick(float DeltaTime)
@@ -274,3 +281,28 @@ float ADeepDriveSplineTrack::getDistance(float key)
 	return FMath::Lerp(dist0, dist1, key - static_cast<float> (index0));
 }
 
+float ADeepDriveSplineTrack::getRandomDistanceAlongTrack(FRandomStream &randomStream)
+{
+	float distance = -1.0f;
+
+	if(m_remainingSlots > 0)
+	{
+		int32 randomSlot = 0;
+
+		do
+		{
+			randomSlot = randomStream.RandRange(0, m_RandomSlotCount);
+		} while(m_RandomSlots.Contains(randomSlot) == true);
+
+		m_RandomSlots.Add(randomSlot);
+		--m_remainingSlots;
+
+		distance = static_cast<float> (randomSlot) * RandomSlotDistance;
+
+		UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("Random distance %f on %s remaining %d"), distance, *(GetName()), m_remainingSlots);
+	}
+
+	SplineTrack->GetLocationAtDistanceAlongSpline( 200.0f, ESplineCoordinateSpace::World);
+
+	return distance;
+}

@@ -109,6 +109,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void SelectMode(EDeepDriveAgentControlMode Mode);
 
+	UFUNCTION(BlueprintCallable, Category = "Spectator")
+	void NextAgent();
+
+	UFUNCTION(BlueprintCallable, Category = "Spectator")
+	void PreviousAgent();
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "Agents")
 	void OnAgentSpawned(ADeepDriveAgent *SpawnedAgent);
 
@@ -134,13 +140,19 @@ private:
 
 	ADeepDriveAgentControllerBase* spawnController(EDeepDriveAgentControlMode mode, int32 configSlot, int32 startPosSlot);
 
+	void switchToAgent(int32 index);
+	void switchToCamera(EDeepDriveAgentCameraType type);
+
 	bool									m_isActive = false;
 	DeepDriveSimulationServerProxy			*m_ServerProxy = 0;
 	DeepDriveSimulationCaptureProxy			*m_CaptureProxy = 0;
 	TArray<UCaptureSinkComponentBase*>		m_CaptureSinks;
 
+	TArray<ADeepDriveAgent*>				m_Agents;
+	int32									m_curAgentIndex = 0;
 	ADeepDriveAgent							*m_curAgent = 0;
 	EDeepDriveAgentControlMode				m_curAgentMode = EDeepDriveAgentControlMode::NONE;
+
 
 	ADeepDriveAgentControllerBase			*m_curAgentController = 0;
 

@@ -44,10 +44,9 @@ public:
 
 	~ADeepDriveSplineTrack();
 
-	virtual void BeginPlay() override;
+	virtual void PostInitializeComponents() override;
 
 	virtual void Tick(float DeltaTime) override;
-
 
 	void setBaseLocation(const FVector &baseLocation);
 
@@ -70,6 +69,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Track")
 	ADeepDriveSplineTrack	*OppositeTrack = 0;
 
+	UPROPERTY(EditAnywhere, Category = "Track")
+	float	RandomSlotDistance = 2000.0f;
+
+	float getRandomDistanceAlongTrack(FRandomStream &randomStream);
+
+
 protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Track")
@@ -90,6 +95,10 @@ private:
 	TArray<AgentData>				m_RegisteredAgents;
 
 	float							m_TrackLength;
+
+	int32							m_RandomSlotCount = 0;
+	int32							m_remainingSlots = 0;
+	TSet<int32>						m_RandomSlots;
 };
 
 inline USplineComponent* ADeepDriveSplineTrack::GetSpline()
