@@ -405,6 +405,17 @@ void ADeepDriveSimulation::switchToAgent(int32 index)
 	}
 }
 
+FRandomStream& ADeepDriveSimulation::acquireRandomStream(const FName &RandomStreamId)
+{
+	if(m_RandomStreams.Contains(RandomStreamId) == false)
+	{
+		m_RandomStreams.Add(RandomStreamId, FRandomStream(Seed));
+		UE_LOG(LogDeepDriveSimulation, Log, TEXT("Creating new random stream for %s"), *(RandomStreamId.ToString()));
+	}
+
+	return m_RandomStreams[RandomStreamId];
+}
+
 void ADeepDriveSimulation::OnDebugTrigger()
 {
 	if (m_curAgent)

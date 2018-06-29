@@ -121,6 +121,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Agents")
 	void OnCurrentAgentChanged(ADeepDriveAgent *CurrentAgent);
 
+	UFUNCTION(BlueprintCallable, Category = "Misc")
+	FRandomStream& acquireRandomStream(const FName &RandomStreamId);
+
 	UFUNCTION(BlueprintCallable, Category = "Agents")
 	void OnDebugTrigger();
 
@@ -161,6 +164,8 @@ private:
 	float									m_OrbitCameraYaw = 0.0f;
 
 	FRandomStream							m_RandomStream;
+
+	TMap<FName, FRandomStream>				m_RandomStreams;
 };
 
 
