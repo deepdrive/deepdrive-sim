@@ -4,6 +4,7 @@
 #include "DeepDriveSplineTrack.h"
 #include "Runtime/Engine/Classes/Components/SplineComponent.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
+#include "Public/Simulation/Misc/DeepDriveRandomStream.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveSplineTrack);
 
@@ -303,6 +304,32 @@ float ADeepDriveSplineTrack::getRandomDistanceAlongTrack(FRandomStream &randomSt
 	}
 
 	SplineTrack->GetLocationAtDistanceAlongSpline( 200.0f, ESplineCoordinateSpace::World);
+
+	return distance;
+}
+
+float ADeepDriveSplineTrack::getRandomDistanceAlongTrack(UDeepDriveRandomStream &randomStream)
+{
+	float distance = -1.0f;
+
+	if (m_remainingSlots > 0)
+	{
+		int32 randomSlot = 0;
+
+		do
+		{
+			randomSlot = randomStream.RandomInteger(m_RandomSlotCount);
+		} while (m_RandomSlots.Contains(randomSlot) == true);
+
+		m_RandomSlots.Add(randomSlot);
+		--m_remainingSlots;
+
+		distance = static_cast<float> (randomSlot) * RandomSlotDistance;
+
+		UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("Random distance %f on %s remaining %d"), distance, *(GetName()), m_remainingSlots);
+	}
+
+	SplineTrack->GetLocationAtDistanceAlongSpline(200.0f, ESplineCoordinateSpace::World);
 
 	return distance;
 }

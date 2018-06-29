@@ -10,6 +10,7 @@
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 #include "Public/Simulation/Agent/DeepDriveAgentControllerCreator.h"
 #include "Public/Simulation/Misc/DeepDriveSimulationFreeCamera.h"
+#include "Public/Simulation/Misc/DeepDriveRandomStream.h"
 
 #include "Public/CaptureSink/CaptureSinkComponentBase.h"
 
@@ -20,6 +21,11 @@ ADeepDriveSimulation::ADeepDriveSimulation()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+}
+
+ADeepDriveSimulation::~ADeepDriveSimulation()
+{
 
 }
 
@@ -112,6 +118,13 @@ void ADeepDriveSimulation::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		m_isActive = false;
 		UE_LOG(LogDeepDriveSimulation, Log, TEXT("DeepDriveSimulation [%s] unregistered"), *(GetFullName()));
 	}
+
+	for (auto &itm : m_RandomStreams)
+	{
+		if(itm.Value->IsValidLowLevel())
+			itm.Value->ConditionalBeginDestroy();
+	}
+	m_RandomStreams.Empty();
 }
 
 
@@ -405,15 +418,17 @@ void ADeepDriveSimulation::switchToAgent(int32 index)
 	}
 }
 
-FRandomStream& ADeepDriveSimulation::acquireRandomStream(const FName &RandomStreamId)
+UDeepDriveRandomStream* ADeepDriveSimulation::GetRandomStream(const FName &RandomStreamId)
 {
-	if(m_RandomStreams.Contains(RandomStreamId) == false)
+	if (m_RandomStreams.Contains(RandomStreamId) == false)
 	{
-		m_RandomStreams.Add(RandomStreamId, FRandomStream(Seed));
+		UDeepDriveRandomStream *stream = NewObject<UDeepDriveRandomStream>();
+		m_RandomStreams.Add(RandomStreamId, TSharedPtr<UDeepDriveRandomStream> (stream) );
 		UE_LOG(LogDeepDriveSimulation, Log, TEXT("Creating new random stream for %s"), *(RandomStreamId.ToString()));
+		return stream;
 	}
 
-	return m_RandomStreams[RandomStreamId];
+	return m_RandomStreams[RandomStreamId].Get();
 }
 
 void ADeepDriveSimulation::OnDebugTrigger()

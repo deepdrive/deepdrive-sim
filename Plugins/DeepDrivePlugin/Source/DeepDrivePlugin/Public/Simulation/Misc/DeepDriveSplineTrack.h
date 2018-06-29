@@ -10,7 +10,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveSplineTrack, Log, All);
 
 class USplineComponent;
 class ADeepDriveAgent;
-
+class UDeepDriveRandomStream;
 
 /**
  * 
@@ -74,6 +74,7 @@ public:
 
 	float getRandomDistanceAlongTrack(FRandomStream &randomStream);
 
+	float getRandomDistanceAlongTrack(UDeepDriveRandomStream &randomStream);
 
 protected:
 

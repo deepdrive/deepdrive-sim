@@ -19,6 +19,7 @@ class ADeepDriveAgentControllerBase;
 class UCaptureSinkComponentBase;
 class ADeepDriveSimulationFreeCamera;
 class ADeepDriveSplineTrack;
+class UDeepDriveRandomStream;
 
 USTRUCT(BlueprintType)
 struct FDeepDriveAdditionalAgentData
@@ -46,6 +47,8 @@ class DEEPDRIVEPLUGIN_API ADeepDriveSimulation	:	public AActor
 public:	
 	// Sets default values for this actor's properties
 	ADeepDriveSimulation();
+
+	~ADeepDriveSimulation();
 
 	// Called when the game starts or when spawned
 	virtual void PreInitializeComponents() override;
@@ -122,7 +125,7 @@ public:
 	void OnCurrentAgentChanged(ADeepDriveAgent *CurrentAgent);
 
 	UFUNCTION(BlueprintCallable, Category = "Misc")
-	FRandomStream& acquireRandomStream(const FName &RandomStreamId);
+	UDeepDriveRandomStream* GetRandomStream(const FName &RandomStreamId);
 
 	UFUNCTION(BlueprintCallable, Category = "Agents")
 	void OnDebugTrigger();
@@ -132,8 +135,6 @@ public:
 	ADeepDriveAgent* getCurrentAgent() const;
 	ADeepDriveAgentControllerBase* getCurrentAgentController() const;
 	TArray<UCaptureSinkComponentBase*>& getCaptureSinks();
-
-	FRandomStream& getRandomStream();
 
 private:
 
@@ -165,7 +166,7 @@ private:
 
 	FRandomStream							m_RandomStream;
 
-	TMap<FName, FRandomStream>				m_RandomStreams;
+	TMap<FName, TSharedPtr<UDeepDriveRandomStream> >		m_RandomStreams;
 };
 
 
@@ -182,9 +183,4 @@ inline ADeepDriveAgentControllerBase* ADeepDriveSimulation::getCurrentAgentContr
 inline TArray<UCaptureSinkComponentBase*>& ADeepDriveSimulation::getCaptureSinks()
 {
 	return m_CaptureSinks;
-}
-
-inline FRandomStream& ADeepDriveSimulation::getRandomStream()
-{
-	return m_RandomStream;
 }

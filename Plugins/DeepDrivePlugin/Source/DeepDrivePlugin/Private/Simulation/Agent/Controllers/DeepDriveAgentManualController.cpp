@@ -3,8 +3,11 @@
 #include "DeepDrivePluginPrivatePCH.h"
 #include "Public/Simulation/Agent/Controllers/DeepDriveAgentManualController.h"
 #include "Public/Simulation/DeepDriveSimulation.h"
+#include "Public/Simulation/Misc/DeepDriveRandomStream.h"
+#include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
 
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
+#include "Components/SplineComponent.h"
 
 ADeepDriveAgentManualController::ADeepDriveAgentManualController()
 {
@@ -19,7 +22,7 @@ bool ADeepDriveAgentManualController::Activate(ADeepDriveAgent &agent)
 
 		if(m_StartDistance < 0.0f)
 		{
-			m_StartDistance = m_Track->getRandomDistanceAlongTrack(m_DeepDriveSimulation->getRandomStream());
+			m_StartDistance = m_Track->getRandomDistanceAlongTrack(*m_DeepDriveSimulation->GetRandomStream(FName("AgentPlacement")));
 			UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentRemoteAIController::Activate random start distance %f"), m_StartDistance);
 		}
 
