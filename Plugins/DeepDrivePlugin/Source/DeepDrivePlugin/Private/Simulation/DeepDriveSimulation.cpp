@@ -123,6 +123,7 @@ void ADeepDriveSimulation::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	{
 		if(itm.Value->IsValidLowLevel())
 			itm.Value->ConditionalBeginDestroy();
+		itm.Value = 0;
 	}
 	m_RandomStreams.Empty();
 }
@@ -423,12 +424,12 @@ UDeepDriveRandomStream* ADeepDriveSimulation::GetRandomStream(const FName &Rando
 	if (m_RandomStreams.Contains(RandomStreamId) == false)
 	{
 		UDeepDriveRandomStream *stream = NewObject<UDeepDriveRandomStream>();
-		m_RandomStreams.Add(RandomStreamId, TSharedPtr<UDeepDriveRandomStream> (stream) );
+		m_RandomStreams.Add(RandomStreamId, stream );
 		UE_LOG(LogDeepDriveSimulation, Log, TEXT("Creating new random stream for %s"), *(RandomStreamId.ToString()));
 		return stream;
 	}
 
-	return m_RandomStreams[RandomStreamId].Get();
+	return m_RandomStreams[RandomStreamId];
 }
 
 void ADeepDriveSimulation::OnDebugTrigger()

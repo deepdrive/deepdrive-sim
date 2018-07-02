@@ -166,7 +166,8 @@ private:
 
 	FRandomStream							m_RandomStream;
 
-	TMap<FName, TSharedPtr<UDeepDriveRandomStream> >		m_RandomStreams;
+	UPROPERTY()
+	TMap<FName, UDeepDriveRandomStream*>	m_RandomStreams;
 };
 
 
