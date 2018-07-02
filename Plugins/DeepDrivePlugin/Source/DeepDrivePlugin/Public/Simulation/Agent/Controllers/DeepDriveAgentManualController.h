@@ -47,7 +47,4 @@ public:
 
 private:
 
-	ADeepDriveSplineTrack						*m_Track = 0;
-	float										m_StartDistance = 0.0f;
-
 };

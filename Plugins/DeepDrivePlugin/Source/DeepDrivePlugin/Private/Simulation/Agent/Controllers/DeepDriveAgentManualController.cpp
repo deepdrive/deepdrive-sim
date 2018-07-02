@@ -16,21 +16,7 @@ ADeepDriveAgentManualController::ADeepDriveAgentManualController()
 
 bool ADeepDriveAgentManualController::Activate(ADeepDriveAgent &agent)
 {
-	if (m_Track && m_DeepDriveSimulation)
-	{
-		m_Track->registerAgent(agent, m_Track->GetSpline()->FindInputKeyClosestToWorldLocation(agent.GetActorLocation()));
-
-		if(m_StartDistance < 0.0f)
-		{
-			m_StartDistance = m_Track->getRandomDistanceAlongTrack(*m_DeepDriveSimulation->GetRandomStream(FName("AgentPlacement")));
-			UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentRemoteAIController::Activate random start distance %f"), m_StartDistance);
-		}
-
-		if(m_StartDistance >= 0.0f)
-			resetAgentPosOnSpline(agent, m_Track->GetSpline(), m_StartDistance);
-	}
-
-	return m_StartDistance >= 0.0f && m_Track && ADeepDriveAgentControllerBase::Activate(agent);
+	return initAgentOnTrack(agent) && ADeepDriveAgentControllerBase::Activate(agent);
 }
 
 void ADeepDriveAgentManualController::MoveForward(float axisValue)

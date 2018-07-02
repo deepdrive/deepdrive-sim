@@ -11,6 +11,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveAgentControllerBase, Log, All);
 class ADeepDriveSimulation;
 class ADeepDriveAgent;
 class USplineComponent;
+class ADeepDriveSplineTrack;
 
 /**
  * 
@@ -42,16 +43,27 @@ public:
 
 	const FString& getControllerName() const;
 
+	bool updateAgentOnTrack();
+
 protected:
 
+	bool initAgentOnTrack(ADeepDriveAgent &agent);
+	
 	void resetAgentPosOnSpline(ADeepDriveAgent &agent, USplineComponent *spline, float distance);
 	float getClosestDistanceOnSpline(USplineComponent *spline, const FVector &location);
 
 	ADeepDriveSimulation				*m_DeepDriveSimulation = 0;
 	ADeepDriveAgent						*m_Agent = 0;
 
+	ADeepDriveSplineTrack				*m_Track = 0;
+	float								m_StartDistance = 0.0f;
+	const float							m_LapDistanceThreshold = 500.0f;
+
 	FString								m_ControllerName = "DeepDriveAgentControllerBase";
 	bool								m_isGameDriving = false;
+
+	bool								m_LapStarted = false;
+
 };
 
 

@@ -3,6 +3,7 @@
 #include "DeepDrivePluginPrivatePCH.h"
 #include "Public/Simulation/Agent/DeepDriveAgentControllerBase.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
+#include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveAgentControllerBase);
 
@@ -46,6 +47,52 @@ bool ADeepDriveAgentControllerBase::ResetAgent()
 		m_Agent->reset();
 		res = true;
 	}
+	return res;
+}
+
+bool ADeepDriveAgentControllerBase::initAgentOnTrack(ADeepDriveAgent &agent)
+{
+	bool res = false;
+	if(m_Track && m_DeepDriveSimulation)
+	{
+		m_Track->registerAgent(agent, m_Track->GetSpline()->FindInputKeyClosestToWorldLocation(agent.GetActorLocation()));
+		if(m_StartDistance < 0.0f)
+		{
+			m_StartDistance = m_Track->getRandomDistanceAlongTrack(*m_DeepDriveSimulation->GetRandomStream(FName("AgentPlacement")));
+			UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentControllerBase::initAgentOnTrack random start distance %f"), m_StartDistance);
+		}
+
+		if(m_StartDistance >= 0.0f)
+		{
+			resetAgentPosOnSpline(agent, m_Track->GetSpline(), m_StartDistance);
+			res = true;
+			UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentControllerBase::initAgentOnTrack Successfully initialized"));
+		}
+	}
+	return res;
+}
+
+bool ADeepDriveAgentControllerBase::updateAgentOnTrack()
+{
+	bool res = false;
+
+	if(m_Track)
+	{
+		const float curDistanceOnSpline = getClosestDistanceOnSpline(m_Track->GetSpline(), m_Agent->GetActorLocation());
+
+		if(m_LapStarted)
+		{
+			const float delta = curDistanceOnSpline - m_StartDistance;
+			res = delta > 0.0f && delta < m_LapDistanceThreshold;
+			if(res)
+				m_LapStarted = false;
+		}
+		else if(curDistanceOnSpline > (m_StartDistance + m_LapDistanceThreshold))
+		{
+			m_LapStarted = true;
+		}
+	}
+
 	return res;
 }
 

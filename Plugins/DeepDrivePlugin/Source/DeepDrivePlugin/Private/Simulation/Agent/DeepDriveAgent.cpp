@@ -52,6 +52,15 @@ void ADeepDriveAgent::Tick( float DeltaSeconds )
 		m_AngularAcceleration = (m_AngularVelocity - m_prevVelocity) / DeltaSeconds;
 		m_prevAngularVelocity = m_AngularAcceleration;
 	}
+
+	if(m_AgentController == 0)
+		m_AgentController = Cast<ADeepDriveAgentControllerBase>(GetController());
+
+	if(m_AgentController && m_AgentController->updateAgentOnTrack())
+	{
+		++m_NumberOfLaps;
+		UE_LOG(LogDeepDriveAgent, Log, TEXT("Laps finished %d"), m_NumberOfLaps );
+	}
 }
 
 int32 ADeepDriveAgent::RegisterCaptureCamera(float fieldOfView, int32 captureWidth, int32 captureHeight, FVector relativePosition, FVector relativeRotation, const FString &label)
@@ -162,17 +171,10 @@ void ADeepDriveAgent::SetOrbitCameraRotation(float pitch, float yaw)
 
 void ADeepDriveAgent::OnLapStart()
 {
-	m_LapStarted = true;
 }
 
 void ADeepDriveAgent::OnLapFinished()
 {
-	if(m_LapStarted)
-	{
-		++m_NumberOfLaps;
-		UE_LOG(LogDeepDriveAgent, Log, TEXT("Laps finished %d"), m_NumberOfLaps );
-		m_LapStarted = false;
-	}
 }
 
 void ADeepDriveAgent::reset()

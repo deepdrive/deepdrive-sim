@@ -136,6 +136,8 @@ private:
 	ADeepDriveAgent						*m_PrevAgent = 0;
 	float								m_DistanceToPrevAgent = 0.0f;
 
+	ADeepDriveAgentControllerBase		*m_AgentController = 0;
+
 	TArray<UCaptureCameraComponent*>	m_CaptureCameras;
 	
 	float								m_curSteering = 0.0f;
@@ -155,7 +157,6 @@ private:
 	USplineComponent					*m_CenterOfTrackSpline = 0;
 	bool								m_isGameDriving;
 	int32								m_NumberOfLaps = 0;
-	bool								m_LapStarted = false;
 
 	static int32						s_nextAgentId;
 };

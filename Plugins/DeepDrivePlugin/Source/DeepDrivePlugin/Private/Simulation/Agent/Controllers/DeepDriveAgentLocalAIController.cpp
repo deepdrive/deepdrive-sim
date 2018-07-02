@@ -28,10 +28,10 @@ ADeepDriveAgentLocalAIController::ADeepDriveAgentLocalAIController()
 
 bool ADeepDriveAgentLocalAIController::Activate(ADeepDriveAgent &agent)
 {
-	if (m_Track && m_DeepDriveSimulation)
-	{
-		m_Track->registerAgent(agent, m_Track->GetSpline()->FindInputKeyClosestToWorldLocation(agent.GetActorLocation()));
+	bool activated = false;
 
+	if (initAgentOnTrack(agent))
+	{
 		m_SpeedController = new DeepDriveAgentSpeedController(m_Configuration.PIDThrottle, m_Configuration.PIDBrake);
 		m_SpeedController->initialize(agent, *m_Track, m_Configuration.SafetyDistanceFactor);
 
@@ -42,37 +42,24 @@ bool ADeepDriveAgentLocalAIController::Activate(ADeepDriveAgent &agent)
 
 		if (m_SpeedController && m_SteeringController)
 		{
-			if(m_StartDistance < 0.0f)
+			activated = m_StartDistance >= 0 && m_Track != 0 && ADeepDriveAgentControllerBase::Activate(agent);
+			if (activated)
 			{
-				m_StartDistance = m_Track->getRandomDistanceAlongTrack(*m_DeepDriveSimulation->GetRandomStream(FName("AgentPlacement")));
-				UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentLocalAIController::Activate random start distance %f"), m_StartDistance);
+				m_StateMachineCtx = new DeepDriveAgentLocalAIStateMachineContext(*this, agent, *m_SpeedController, *m_SteeringController, m_Configuration);
+
+				m_StateMachine.registerState(new DeepDriveAgentCruiseState(m_StateMachine));
+				m_StateMachine.registerState(new DeepDriveAgentPullOutState(m_StateMachine));
+				m_StateMachine.registerState(new DeepDriveAgentPullBackInState(m_StateMachine));
+				m_StateMachine.registerState(new DeepDriveAgentPassingState(m_StateMachine));
+				m_StateMachine.registerState(new DeepDriveAgentPullInState(m_StateMachine));
+				m_StateMachine.registerState(new DeepDriveAgentAbortOvertakingState(m_StateMachine));
+
+				m_StateMachine.setNextState("Cruise");
 			}
-
-			if(m_StartDistance >= 0.0f)
-				resetAgentPosOnSpline(agent, m_Track->GetSpline(), m_StartDistance);
-
-			UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("ADeepDriveAgentSplineController::Activate Successfully initialized"));
 		}
 	}
 	else
 		UE_LOG(LogDeepDriveAgentLocalAIController, Error, TEXT("ADeepDriveAgentSplineController::Activate Didn't find spline"));
-
-
-	const bool activated = m_StartDistance >= 0 && m_Track != 0 && ADeepDriveAgentControllerBase::Activate(agent);
-
-	if (activated)
-	{
-		m_StateMachineCtx = new DeepDriveAgentLocalAIStateMachineContext(*this, agent, *m_SpeedController, *m_SteeringController, m_Configuration);
-
-		m_StateMachine.registerState(new DeepDriveAgentCruiseState(m_StateMachine));
-		m_StateMachine.registerState(new DeepDriveAgentPullOutState(m_StateMachine));
-		m_StateMachine.registerState(new DeepDriveAgentPullBackInState(m_StateMachine));
-		m_StateMachine.registerState(new DeepDriveAgentPassingState(m_StateMachine));
-		m_StateMachine.registerState(new DeepDriveAgentPullInState(m_StateMachine));
-		m_StateMachine.registerState(new DeepDriveAgentAbortOvertakingState(m_StateMachine));
-
-		m_StateMachine.setNextState("Cruise");
-	}
 
 	return activated;
 }
@@ -113,107 +100,6 @@ void ADeepDriveAgentLocalAIController::Tick( float DeltaSeconds )
 			m_StateMachine.update(*m_StateMachineCtx, DeltaSeconds);
 	}
 }
-
-#if 0
-float ADeepDriveAgentLocalAIController::calculateOvertakingScore()
-{
-	float score = -1.0f;
-
-	float distanceToNextAgent = -1.0f;
-	ADeepDriveAgent *nextAgent = m_Agent->getNextAgent(&distanceToNextAgent);
-
-	if(nextAgent)
-	{
-		//UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("calculateOvertakingScore: Agent %d dist %f"), m_Agent->getAgentId(), distanceToNextAgent);
-
-		if (distanceToNextAgent <= m_Configuration.MinPullOutDistance)
-		{
-			score = 1.0f;
-		}
-
-		if (nextAgent->getSpeedKmh() < m_Configuration.MinSpeedDifference)
-			score -= 1.0f;
-
-		float nextButOneDist = -1.0f;
-		ADeepDriveAgent *nextButOne = nextAgent->getNextAgent(&nextButOneDist);
-		if (nextButOne != m_Agent)
-		{
-			if (nextButOne && nextButOneDist < m_Configuration.GapBetweenAgents)
-				score -= 1.0f;
-		}
-
-	}
-
-	return score;
-}
-
-float ADeepDriveAgentLocalAIController::calculateOvertakingScore(int32 maxAgentsToOvertake, float overtakingSpeed, ADeepDriveAgent* &finalAgent)
-{
-	float score = -1.0f;
-	finalAgent = 0;
-
-	float distanceToNextAgent = -1.0f;
-	ADeepDriveAgent *nextAgent = m_Agent->getNextAgent(&distanceToNextAgent);
-	if (nextAgent && distanceToNextAgent <= m_Configuration.MinPullOutDistance)
-	{
-		score = 1.0f;
-		while(maxAgentsToOvertake > 0 && nextAgent)
-		{
-			const float speedDiff = (overtakingSpeed - nextAgent->getSpeedKmh());
-			if ( speedDiff < m_Configuration.MinSpeedDifference)
-			{
-				break;
-			}
-
-			float nextButOneDist = -1.0f;
-			ADeepDriveAgent *nextButOne = nextAgent->getNextAgent(&nextButOneDist);
-
-			if(nextButOne == 0 || nextButOneDist > m_Configuration.GapBetweenAgents)
-				finalAgent = nextAgent;
-
-			if	(	nextButOne == m_Agent
-				||	nextButOneDist > 3.0f * m_Configuration.GapBetweenAgents
-				)
-				break;
-
-			nextAgent = nextAgent->getNextAgent(&distanceToNextAgent);
-			--maxAgentsToOvertake;
-			score *= 0.9f;
-		}
-	}
-
-	return finalAgent ? score : -1.0f;
-}
-
-float ADeepDriveAgentLocalAIController::calculateAbortOvertakingScore()
-{
-	float score = 0.0f;
-
-	return score;
-}
-
-bool ADeepDriveAgentLocalAIController::hasPassed(ADeepDriveAgent *other, float minDistance)
-{
-	bool hasPassed = false;
-
-	float dist2Prev = -1.0f;
-	ADeepDriveAgent *prevAgent = m_Agent->getPrevAgent(-1.0f, &dist2Prev);
-
-	if(prevAgent == other)
-	{
-		FVector dir = m_Agent->GetActorLocation() - prevAgent->GetActorLocation();
-		dir.Normalize();
-
-		if(FVector::DotProduct(prevAgent->GetActorForwardVector(), dir) > 0.5f)
-		{
-			hasPassed = dist2Prev >= minDistance;
-		}
-	}
-
-	return hasPassed;
-}
-
-#endif
 
 float ADeepDriveAgentLocalAIController::getPassedDistance(ADeepDriveAgent *other)
 {
@@ -325,44 +211,6 @@ float ADeepDriveAgentLocalAIController::computeOppositeTrackClearance(float over
 	}
 	return res;
 }
-
-#if 0
-bool ADeepDriveAgentLocalAIController::isOppositeTrackClear(float distance, float duration)
-{
-	bool res = true;
-
-	if(m_OppositeTrack)
-	{
-		ADeepDriveAgent *prevAgent;
-		float distanceToPrev = 0.0f;
-
-		m_OppositeTrack->getPreviousAgent(m_Agent->GetActorLocation(), prevAgent, distanceToPrev);
-		if(prevAgent)
-		{
-			if(duration > 0.0f)
-			{
-				const float coveredDist = duration * prevAgent->getSpeed();
-				distance += coveredDist;
-			}
-			res = distance < distanceToPrev;
-		}
-	}
-	return res;
-}
-
-float ADeepDriveAgentLocalAIController::calculateSafetyDistance(float *curDistance)
-{
-	float safetyDistance = -1.0f;
-	ADeepDriveAgent *nextAgent = m_Agent->getNextAgent(curDistance);
-	if (nextAgent)
-	{
-		const float curSpeed = m_Agent->getSpeed();
-		safetyDistance = m_SafetyDistanceFactor * curSpeed * curSpeed / (2.0f * m_BrakingDeceleration);
-	}
-
-	return safetyDistance;
-}
-#endif
 
 float ADeepDriveAgentLocalAIController::calculateSafetyDistance()
 {
