@@ -21,6 +21,8 @@ public:
 
 	~DeepDriveAgentSteeringController();
 
+	void reset();
+
 	void initialize(ADeepDriveAgent &agent, ADeepDriveSplineTrack &track);
 
 	void update(float dT, float desiredSpeed, float offset);

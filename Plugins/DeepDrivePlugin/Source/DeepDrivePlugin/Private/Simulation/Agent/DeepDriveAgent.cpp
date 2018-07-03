@@ -15,8 +15,12 @@ int32 ADeepDriveAgent::s_nextAgentId = 1;
 ADeepDriveAgent::ADeepDriveAgent()
 {
 	m_AgentId = s_nextAgentId++;
+
+	ChaseCameraStick = CreateDefaultSubobject<USpringArmComponent>(TEXT("ChaseCameraStick"));
+	ChaseCameraStick->SetupAttachment(GetRootComponent());
+
 	ChaseCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ChaseCamera"));
-	ChaseCamera->SetupAttachment(GetRootComponent());
+	ChaseCamera->SetupAttachment(ChaseCameraStick);
 
 	InteriorCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("InteriorCamera"));
 	InteriorCamera->SetupAttachment(GetRootComponent());
@@ -179,11 +183,11 @@ void ADeepDriveAgent::OnLapFinished()
 
 void ADeepDriveAgent::reset()
 {
-	/*
-	UE_LOG(LogDeepDriveAgent, Log, TEXT("Try to reset agent to %s"), *(m_ResetTransform.ToString()));
-	SetActorTransform(m_ResetTransform, false, 0, ETeleportType::TeleportPhysics);
-	SetControlValues(0.0f, 0.0f, 0.0f, false);
-	*/
+	m_NumberOfLaps = 0;
+	GetVehicleMovementComponent()->SetThrottleInput(0.0f);
+	GetVehicleMovementComponent()->SetSteeringInput(0.0f);
+	GetVehicleMovementComponent()->SetBrakeInput(1.0f);
+	GetVehicleMovementComponent()->StopMovementImmediately();
 }
 
 float ADeepDriveAgent::getSpeed() const

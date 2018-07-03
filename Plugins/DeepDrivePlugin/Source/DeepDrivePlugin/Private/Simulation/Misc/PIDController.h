@@ -14,6 +14,8 @@ public:
 
 	PIDController(float kp, float ki, float kd);
 
+	void reset();
+
 	float advance(float dT, float curE);
 
 private:

@@ -26,6 +26,12 @@ void DeepDriveAgentSpeedController::initialize(ADeepDriveAgent &agent, ADeepDriv
 	m_SafetyDistanceFactor = safetyDistanceFactor;
 }
 
+void DeepDriveAgentSpeedController::reset()
+{
+	m_ThrottlePIDCtrl.reset();
+	m_BrakePIDCtrl.reset();
+	m_curThrottle = 0.0f;
+}
 
 void DeepDriveAgentSpeedController::update(float dT, float desiredSpeed)
 {

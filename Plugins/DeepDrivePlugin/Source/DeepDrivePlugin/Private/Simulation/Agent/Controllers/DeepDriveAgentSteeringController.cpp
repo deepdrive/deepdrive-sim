@@ -24,6 +24,13 @@ void DeepDriveAgentSteeringController::initialize(ADeepDriveAgent &agent, ADeepD
 	m_Track = &track;
 }
 
+void DeepDriveAgentSteeringController::reset()
+{
+	m_SteeringPIDCtrl.reset();
+	m_curSteering = 0.0f;
+	m_desiredSteering = 0.0f;
+}
+
 
 void DeepDriveAgentSteeringController::update(float dT, float desiredSpeed, float offset)
 {

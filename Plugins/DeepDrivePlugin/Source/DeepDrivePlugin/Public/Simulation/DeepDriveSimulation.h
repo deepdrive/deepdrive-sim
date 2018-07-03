@@ -94,6 +94,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Configuration)
 	int32	Seed;
 
+	UFUNCTION(BlueprintCallable, Category = "Simulation")
+	void ResetSimulation();
+
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void MoveForward(float AxisValue);
 
@@ -164,9 +167,7 @@ private:
 	float									m_OrbitCameraPitch = 0.0f;
 	float									m_OrbitCameraYaw = 0.0f;
 
-	FRandomStream							m_RandomStream;
-
-	UPROPERTY()
+	UPROPERTY( /* Prevents garbage collection */)
 	TMap<FName, UDeepDriveRandomStream*>	m_RandomStreams;
 };
 

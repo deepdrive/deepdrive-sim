@@ -11,8 +11,17 @@ PIDController::PIDController(float kp, float ki, float kd)
 	,	m_prevE(0.0f)
 	,	m_SumE(0.0f)
 {
+	reset();
+}
+
+void PIDController::reset()
+{
 	for (signed i = 0; i < HistoryLength; ++i)
 		m_History[i] = 0.0f;
+	m_prevE = 0.0f;
+	m_SumE = 0.0f;
+	m_lastHistoryIndex = 0;
+	m_nextHistoryIndex = 1;
 }
 
 float PIDController::advance(float dT, float curE)

@@ -33,6 +33,8 @@ public:
 
 	void brake(float strength);
 
+	void reset();
+
 private:
 
 	ADeepDriveAgent					*m_Agent = 0;

@@ -111,6 +111,9 @@ public:
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = Cameras)
+	USpringArmComponent					*ChaseCameraStick = 0;
+	
+	UPROPERTY(EditDefaultsOnly, Category = Cameras)
 	UCameraComponent					*ChaseCamera = 0;
 	
 	UPROPERTY(EditDefaultsOnly, Category = Cameras)

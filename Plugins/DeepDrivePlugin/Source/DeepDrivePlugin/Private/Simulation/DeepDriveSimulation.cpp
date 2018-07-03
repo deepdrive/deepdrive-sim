@@ -78,7 +78,6 @@ void ADeepDriveSimulation::BeginPlay()
 	Super::BeginPlay();
 	
 	SetTickableWhenPaused(true);
-	m_RandomStream = FRandomStream(Seed);
 
 	m_curAgent = spawnAgent(InitialControllerMode, InitialConfigurationSlot, StartPositionSlot);
 	if(m_curAgent)
@@ -143,6 +142,17 @@ void ADeepDriveSimulation::Tick( float DeltaTime )
 			m_ServerProxy->update(DeltaTime);
 	}
 }
+
+void ADeepDriveSimulation::ResetSimulation()
+{
+	for(auto &agent : m_Agents)
+	{
+		ADeepDriveAgentControllerBase *controller = Cast<ADeepDriveAgentControllerBase> (agent->GetController());
+		if(controller)
+			controller->ResetAgent();
+	}
+}
+
 
 void ADeepDriveSimulation::MoveForward(float AxisValue)
 {
