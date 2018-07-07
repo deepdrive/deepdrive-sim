@@ -1,6 +1,7 @@
 from __future__ import print_function
 
 import argparse
+import glob
 import os
 from subprocess import Popen, PIPE
 from pathlib import Path
@@ -30,6 +31,15 @@ def run_command(cmd, cwd=None, env=None):
     return result
 
 
+def get_egg_file(module_name):
+    def f(packages):
+        return glob.glob(
+            os.path.join(os.path.dirname(os.path.dirname(sys.executable)),
+                         'lib', 'python*', packages, module_name + '.egg-link'))
+
+    return f('site-packages') or f('dist-packages')
+
+
 def main(build_type):
     unreal_root = str(Path(DIR).parent.parent.parent.parent.parent)
     print('Unreal root %s' % unreal_root)
@@ -43,6 +53,11 @@ def main(build_type):
     ext_root = os.path.dirname(DIR)
     print('PYPY_USERNAME is %s' % env.get('PYPI_USERNAME'))
     if build_type == 'dev':
+        egg_file = get_egg_file('deepdrive')
+        if egg_file:
+            print('Removing ', egg_file)
+            os.remove(egg_file[0])
+
         try:
             run_command('%s -m pip uninstall --yes '    % py + config.PACKAGE_NAME, env=env, cwd=ext_root)
         except Exception as e:
