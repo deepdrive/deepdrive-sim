@@ -12,6 +12,9 @@ DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveSimulation, Log, All);
 
 class DeepDriveSimulationCaptureProxy;
 class DeepDriveSimulationServerProxy;
+class DeepDriveSimulationStateMachine;
+
+class DeepDriveSimulationRunningState;
 
 class ADeepDriveAgent;
 class ADeepDriveAgentControllerCreator;
@@ -20,6 +23,40 @@ class UCaptureSinkComponentBase;
 class ADeepDriveSimulationFreeCamera;
 class ADeepDriveSplineTrack;
 class UDeepDriveRandomStream;
+
+USTRUCT(BlueprintType)
+struct FDeepDriveRandomStreamData
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	bool	ReSeedOnReset = true;
+
+	FDeepDriveRandomStreamData()
+		:	ReSeedOnReset(true)
+		,	RandomStream(0)
+	{	}
+
+	FDeepDriveRandomStreamData(UDeepDriveRandomStream *randomStream, bool reseedOnReset)
+		:	ReSeedOnReset(reseedOnReset)
+		,	RandomStream(randomStream)
+	{	}
+
+	void setRandomStream(UDeepDriveRandomStream *randomStream)
+	{
+		RandomStream = randomStream;
+	}
+
+	UDeepDriveRandomStream* getRandomStream()
+	{
+		return RandomStream;
+	}
+
+private:
+
+	UPROPERTY()
+	UDeepDriveRandomStream		*RandomStream = 0;
+};
 
 USTRUCT(BlueprintType)
 struct FDeepDriveAdditionalAgentData
@@ -42,8 +79,10 @@ struct FDeepDriveAdditionalAgentData
 UCLASS()
 class DEEPDRIVEPLUGIN_API ADeepDriveSimulation	:	public AActor
 {
+	friend class DeepDriveSimulationRunningState;
+
 	GENERATED_BODY()
-	
+
 public:	
 	// Sets default values for this actor's properties
 	ADeepDriveSimulation();
@@ -91,8 +130,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FreeCamera)
 	ADeepDriveSimulationFreeCamera	*FreeCamera = 0;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Configuration)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Randomness)
 	int32	Seed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Randomness)
+	TMap<FName, FDeepDriveRandomStreamData>	RandomStreams;
 
 	UFUNCTION(BlueprintCallable, Category = "Simulation")
 	void ResetSimulation();
@@ -128,6 +170,9 @@ public:
 	void OnCurrentAgentChanged(ADeepDriveAgent *CurrentAgent);
 
 	UFUNCTION(BlueprintCallable, Category = "Misc")
+	void RegisterRandomStream(const FName &RandomStreamId, bool ReseedOnReset);
+
+	UFUNCTION(BlueprintCallable, Category = "Misc")
 	UDeepDriveRandomStream* GetRandomStream(const FName &RandomStreamId);
 
 	UFUNCTION(BlueprintCallable, Category = "Agents")
@@ -138,6 +183,8 @@ public:
 	ADeepDriveAgent* getCurrentAgent() const;
 	ADeepDriveAgentControllerBase* getCurrentAgentController() const;
 	TArray<UCaptureSinkComponentBase*>& getCaptureSinks();
+
+	void initializeAgents();
 
 private:
 
@@ -151,6 +198,7 @@ private:
 	void switchToCamera(EDeepDriveAgentCameraType type);
 
 	bool									m_isActive = false;
+	DeepDriveSimulationStateMachine			*m_StateMachine = 0;
 	DeepDriveSimulationServerProxy			*m_ServerProxy = 0;
 	DeepDriveSimulationCaptureProxy			*m_CaptureProxy = 0;
 	TArray<UCaptureSinkComponentBase*>		m_CaptureSinks;
@@ -166,9 +214,6 @@ private:
 	EDeepDriveAgentCameraType				m_curCameraType = EDeepDriveAgentCameraType::NONE;
 	float									m_OrbitCameraPitch = 0.0f;
 	float									m_OrbitCameraYaw = 0.0f;
-
-	UPROPERTY( /* Prevents garbage collection */)
-	TMap<FName, UDeepDriveRandomStream*>	m_RandomStreams;
 };
 
 

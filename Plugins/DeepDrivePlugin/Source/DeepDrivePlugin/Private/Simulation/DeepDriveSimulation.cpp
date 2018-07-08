@@ -2,6 +2,9 @@
 
 #include "DeepDrivePluginPrivatePCH.h"
 #include "DeepDriveSimulation.h"
+#include "Private/Simulation/DeepDriveSimulationStateMachine.h"
+#include "Private/Simulation/States/DeepDriveSimulationInitializeState.h"
+#include "Private/Simulation/States/DeepDriveSimulationRunningState.h"
 
 #include "Private/Server/DeepDriveServer.h"
 #include "Public/Simulation/DeepDriveSimulationServerProxy.h"
@@ -60,6 +63,24 @@ void ADeepDriveSimulation::PreInitializeComponents()
 			&&	m_CaptureProxy
 			)
 		{
+			m_StateMachine = new DeepDriveSimulationStateMachine();
+
+			if (m_StateMachine)
+			{
+				m_StateMachine->registerState(new DeepDriveSimulationInitializeState(*m_StateMachine));
+				m_StateMachine->registerState(new DeepDriveSimulationRunningState(*m_StateMachine));
+			}
+
+			for (auto &rsd : RandomStreams)
+			{
+				UDeepDriveRandomStream *randomStream = NewObject<UDeepDriveRandomStream>();
+				if (randomStream)
+				{
+					randomStream->initialize(Seed);
+					rsd.Value.setRandomStream(randomStream);
+				}
+			}
+
 			m_isActive = true;
 			UE_LOG(LogDeepDriveSimulation, Log, TEXT("DeepDriveSimulation [%s] activated"), *(GetFullName()));
 		}
@@ -71,35 +92,16 @@ void ADeepDriveSimulation::PreInitializeComponents()
 
 }
 
-
 // Called when the game starts or when spawned
 void ADeepDriveSimulation::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	SetTickableWhenPaused(true);
 
-	m_curAgent = spawnAgent(InitialControllerMode, InitialConfigurationSlot, StartPositionSlot);
-	if(m_curAgent)
+	if (m_StateMachine)
 	{
-		OnCurrentAgentChanged(m_curAgent);
-
-		m_curAgentController = Cast<ADeepDriveAgentControllerBase> (m_curAgent->GetController());
-
-		SelectCamera(EDeepDriveAgentCameraType::CHASE_CAMERA);
-
-		const TSet < UActorComponent * > &components = GetComponents();
-		for(auto &comp : components)
-		{
-			UCaptureSinkComponentBase *captureSinkComp = Cast<UCaptureSinkComponentBase> (comp);
-			if(captureSinkComp)
-			{
-				m_CaptureSinks.Add(captureSinkComp);
-				UE_LOG(LogDeepDriveSimulation, Log, TEXT("Found sink %s"), *(captureSinkComp->getName()));
-			}
-		}
+		SetTickableWhenPaused(true);
+		m_StateMachine->setNextState("Initialize");
 	}
-
 }
 
 void ADeepDriveSimulation::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -117,14 +119,6 @@ void ADeepDriveSimulation::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		m_isActive = false;
 		UE_LOG(LogDeepDriveSimulation, Log, TEXT("DeepDriveSimulation [%s] unregistered"), *(GetFullName()));
 	}
-
-	for (auto &itm : m_RandomStreams)
-	{
-		if(itm.Value->IsValidLowLevel())
-			itm.Value->ConditionalBeginDestroy();
-		itm.Value = 0;
-	}
-	m_RandomStreams.Empty();
 }
 
 
@@ -133,13 +127,11 @@ void ADeepDriveSimulation::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
+	if (m_StateMachine)
+		m_StateMachine->update(*this, DeltaTime);
+
 	if (m_isActive)
 	{
-		if(m_CaptureProxy)
-			m_CaptureProxy->update(DeltaTime);
-
-		if(m_ServerProxy)
-			m_ServerProxy->update(DeltaTime);
 	}
 }
 
@@ -340,6 +332,30 @@ bool ADeepDriveSimulation::resetAgent()
 	return m_curAgentController ? m_curAgentController->ResetAgent() : false;
 }
 
+void ADeepDriveSimulation::initializeAgents()
+{
+	m_curAgent = spawnAgent(InitialControllerMode, InitialConfigurationSlot, StartPositionSlot);
+	if (m_curAgent)
+	{
+		OnCurrentAgentChanged(m_curAgent);
+
+		m_curAgentController = Cast<ADeepDriveAgentControllerBase>(m_curAgent->GetController());
+
+		SelectCamera(EDeepDriveAgentCameraType::CHASE_CAMERA);
+
+		const TSet < UActorComponent * > &components = GetComponents();
+		for (auto &comp : components)
+		{
+			UCaptureSinkComponentBase *captureSinkComp = Cast<UCaptureSinkComponentBase>(comp);
+			if (captureSinkComp)
+			{
+				m_CaptureSinks.Add(captureSinkComp);
+				UE_LOG(LogDeepDriveSimulation, Log, TEXT("Found sink %s"), *(captureSinkComp->getName()));
+			}
+		}
+	}
+}
+
 ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(EDeepDriveAgentControlMode mode, int32 configSlot, int32 startPosSlot)
 {
 	FTransform transform = GetActorTransform();
@@ -429,17 +445,22 @@ void ADeepDriveSimulation::switchToAgent(int32 index)
 	}
 }
 
+void ADeepDriveSimulation::RegisterRandomStream(const FName &RandomStreamId, bool ReseedOnReset)
+{
+	if (RandomStreams.Contains(RandomStreamId) == false)
+	{
+		UDeepDriveRandomStream *randomStream = NewObject<UDeepDriveRandomStream>();
+		if (randomStream)
+		{
+			randomStream->initialize(Seed);
+			RandomStreams.Add(RandomStreamId, FDeepDriveRandomStreamData(randomStream, ReseedOnReset));
+		}
+	}
+}
+
 UDeepDriveRandomStream* ADeepDriveSimulation::GetRandomStream(const FName &RandomStreamId)
 {
-	if (m_RandomStreams.Contains(RandomStreamId) == false)
-	{
-		UDeepDriveRandomStream *stream = NewObject<UDeepDriveRandomStream>();
-		m_RandomStreams.Add(RandomStreamId, stream );
-		UE_LOG(LogDeepDriveSimulation, Log, TEXT("Creating new random stream for %s"), *(RandomStreamId.ToString()));
-		return stream;
-	}
-
-	return m_RandomStreams[RandomStreamId];
+	return RandomStreams.Contains(RandomStreamId) ? RandomStreams[RandomStreamId].getRandomStream() : 0;
 }
 
 void ADeepDriveSimulation::OnDebugTrigger()
