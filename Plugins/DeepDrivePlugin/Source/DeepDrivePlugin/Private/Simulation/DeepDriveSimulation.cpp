@@ -5,6 +5,7 @@
 #include "Private/Simulation/DeepDriveSimulationStateMachine.h"
 #include "Private/Simulation/States/DeepDriveSimulationInitializeState.h"
 #include "Private/Simulation/States/DeepDriveSimulationRunningState.h"
+#include "Private/Simulation/States/DeepDriveSimulationResetState.h"
 
 #include "Private/Server/DeepDriveServer.h"
 #include "Public/Simulation/DeepDriveSimulationServerProxy.h"
@@ -46,7 +47,7 @@ void ADeepDriveSimulation::PreInitializeComponents()
 			&&	simu != this
 			)
 		{
-			if (simu->m_isActive)
+			if (simu->isActive())
 			{
 				alreadyRegistered = true;
 				UE_LOG(LogDeepDriveSimulation, Log, TEXT("Another Simulation [%s] is already registered"), *(simu->GetFullName()));
@@ -69,6 +70,7 @@ void ADeepDriveSimulation::PreInitializeComponents()
 			{
 				m_StateMachine->registerState(new DeepDriveSimulationInitializeState(*m_StateMachine));
 				m_StateMachine->registerState(new DeepDriveSimulationRunningState(*m_StateMachine));
+				m_StateMachine->registerState(new DeepDriveSimulationResetState(*m_StateMachine));
 			}
 
 			for (auto &rsd : RandomStreams)
@@ -81,7 +83,6 @@ void ADeepDriveSimulation::PreInitializeComponents()
 				}
 			}
 
-			m_isActive = true;
 			UE_LOG(LogDeepDriveSimulation, Log, TEXT("DeepDriveSimulation [%s] activated"), *(GetFullName()));
 		}
 		else
@@ -108,7 +109,7 @@ void ADeepDriveSimulation::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
-	if (m_isActive)
+	if (isActive())
 	{
 		if(m_CaptureProxy)
 			m_CaptureProxy->shutdown();
@@ -116,7 +117,6 @@ void ADeepDriveSimulation::EndPlay(const EEndPlayReason::Type EndPlayReason)
 		if(m_ServerProxy)
 			m_ServerProxy->shutdown();
 
-		m_isActive = false;
 		UE_LOG(LogDeepDriveSimulation, Log, TEXT("DeepDriveSimulation [%s] unregistered"), *(GetFullName()));
 	}
 }
@@ -129,20 +129,12 @@ void ADeepDriveSimulation::Tick( float DeltaTime )
 
 	if (m_StateMachine)
 		m_StateMachine->update(*this, DeltaTime);
-
-	if (m_isActive)
-	{
-	}
 }
 
 void ADeepDriveSimulation::ResetSimulation()
 {
-	for(auto &agent : m_Agents)
-	{
-		ADeepDriveAgentControllerBase *controller = Cast<ADeepDriveAgentControllerBase> (agent->GetController());
-		if(controller)
-			controller->ResetAgent();
-	}
+	if(m_StateMachine)
+		m_StateMachine->setNextState("Reset");
 }
 
 

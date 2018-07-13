@@ -15,6 +15,7 @@ class DeepDriveSimulationServerProxy;
 class DeepDriveSimulationStateMachine;
 
 class DeepDriveSimulationRunningState;
+class DeepDriveSimulationReseState;
 
 class ADeepDriveAgent;
 class ADeepDriveAgentControllerCreator;
@@ -80,6 +81,7 @@ UCLASS()
 class DEEPDRIVEPLUGIN_API ADeepDriveSimulation	:	public AActor
 {
 	friend class DeepDriveSimulationRunningState;
+	friend class DeepDriveSimulationResetState;
 
 	GENERATED_BODY()
 
@@ -188,6 +190,8 @@ public:
 
 private:
 
+	bool isActive() const;
+
 	ADeepDriveAgent* spawnAgent(EDeepDriveAgentControlMode mode, int32 configSlot, int32 startPosSlot);
 
 	void spawnAdditionalAgents();
@@ -197,7 +201,6 @@ private:
 	void switchToAgent(int32 index);
 	void switchToCamera(EDeepDriveAgentCameraType type);
 
-	bool									m_isActive = false;
 	DeepDriveSimulationStateMachine			*m_StateMachine = 0;
 	DeepDriveSimulationServerProxy			*m_ServerProxy = 0;
 	DeepDriveSimulationCaptureProxy			*m_CaptureProxy = 0;
@@ -216,6 +219,10 @@ private:
 	float									m_OrbitCameraYaw = 0.0f;
 };
 
+inline bool ADeepDriveSimulation::isActive() const
+{
+	return m_StateMachine != 0;
+}
 
 inline ADeepDriveAgent* ADeepDriveSimulation::getCurrentAgent() const
 {
