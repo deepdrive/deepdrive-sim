@@ -142,11 +142,12 @@ void DeepDriveClientConnection::registerClient(const deepdrive::server::MessageH
 	response.granted_master_role = m_isMaster ? 1 : 0;
 
 	const FString contentPath = FPaths::ConvertRelativePathToFull(FPaths::ProjectContentDir());
-	const FString versionPath = FPaths::Combine(contentPath, "Data", "VERSION");
+	const FString versionPath = FPaths::Combine(contentPath, FString("Data"), FString("VERSION"));
 	FString buildTimeStamp;
 	FFileHelper::LoadFileToString(buildTimeStamp, *versionPath);
 
 	strncpy(response.server_protocol_version, TCHAR_TO_ANSI(*buildTimeStamp), RegisterClientResponse::ServerProtocolStringSize - 1);
+	UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] ServerProtocolVersion:  %s"), m_ClientId, *(buildTimeStamp));
 
 	USharedMemCaptureSinkComponent *sharedMemSink = DeepDriveCapture::GetInstance().getSharedMemorySink();
 	if (sharedMemSink)

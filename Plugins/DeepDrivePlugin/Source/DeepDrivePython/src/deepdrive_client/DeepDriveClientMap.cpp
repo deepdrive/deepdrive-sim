@@ -11,7 +11,7 @@ static ClientMap g_Clients;
 
 void addClient(uint32 clientId, DeepDriveClient *client)
 {
-
+	g_Clients[clientId] = client;
 }
 
 DeepDriveClient* getClient(uint32 clientId)
