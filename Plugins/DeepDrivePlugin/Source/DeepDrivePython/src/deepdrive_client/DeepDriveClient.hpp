@@ -40,6 +40,10 @@ public:
 	const char* getSharedMemoryName() const;
 	uint32 getSharedMemorySize() const;
 
+	uint32 getClientId() const;
+
+	IP4ClientSocket& getSocket();
+
 	uint32							m_ClientId = 0;
 	bool							m_isMaster = false;
 
@@ -68,4 +72,14 @@ inline const char* DeepDriveClient::getSharedMemoryName() const
 inline uint32 DeepDriveClient::getSharedMemorySize() const
 {
 	return m_SharedMemorySize;
+}
+
+inline uint32 DeepDriveClient::getClientId() const
+{
+	return m_ClientId;
+}
+
+inline IP4ClientSocket& DeepDriveClient::getSocket()
+{
+	return m_Socket;
 }

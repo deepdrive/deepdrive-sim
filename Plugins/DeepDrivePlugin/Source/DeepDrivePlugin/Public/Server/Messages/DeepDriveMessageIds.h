@@ -22,6 +22,10 @@ enum class MessageId	:	uint32
 	/*
 		Configuration
 	*/
+	InitializeSimulationRequest,
+	InitializeSimulationResponse,
+	SetSunSimulationRequest,
+	SetSunSimulationResponse,
 	RegisterCaptureCameraRequest,
 	RegisterCaptureCameraResponse,
 	SetCapturePatternRequest,

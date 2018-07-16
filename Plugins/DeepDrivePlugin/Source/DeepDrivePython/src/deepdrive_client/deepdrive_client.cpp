@@ -3,16 +3,16 @@
 #include "Engine.h"
 
 #include "deepdrive_client/DeepDriveClient.hpp"
+#include "deepdrive_client/DeepDriveClientMap.hpp"
 #include "common/ClientErrorCode.hpp"
+
+#include "deepdrive_simulation/DeepDriveSimulation.hpp"
 
 #include "common/NumPyUtils.h"
 
 #include "numpy/arrayobject.h"
 
 #include <iostream>
-#include <map>
-
-typedef std::map<uint32, DeepDriveClient*>		ClientMap;
 
 static PyObject *DeepDriveClientError;
 static PyObject *ConnectionLostError;
@@ -20,15 +20,6 @@ static PyObject *NotConnectedError;
 static PyObject *TimeOutError;
 static PyObject *ClientDoesntExistError;
 static PyObject *UnknownError;
-
-static ClientMap g_Clients;
-
-static DeepDriveClient* getClient(uint32 clientId)
-{
-	ClientMap::iterator cIt = g_Clients.find(clientId);
-	DeepDriveClient *client = cIt != g_Clients.end() ? cIt->second : 0;
-	return client;
-}
 
 static PyObject* handleError(int32 errorCode)
 {
@@ -92,7 +83,7 @@ static PyObject* deepdrive_client_create(PyObject *self, PyObject *args)
 					PyDict_SetItem(ret, PyUnicode_FromString("client_id"), PyLong_FromUnsignedLong(clientId));
 					if(clientId)
 					{
-						g_Clients[clientId] = client;
+						addClient(clientId, client);
 						PyDict_SetItem(ret, PyUnicode_FromString("granted_master_role"),
 							PyLong_FromUnsignedLong(client->m_isMaster));
 						PyDict_SetItem(ret, PyUnicode_FromString("shared_memory_size"),
@@ -137,18 +128,7 @@ static PyObject* deepdrive_client_close(PyObject *self, PyObject *args)
 
 	if(ok && clientId > 0)
 	{
-		ClientMap::iterator cIt = g_Clients.find(clientId);
-		if(cIt != g_Clients.end())
-		{
-			DeepDriveClient *client = cIt->second;
-			if(client)
-			{
-				client->close();
-				delete client;
-			}
-			g_Clients.erase(cIt);
-		}
-		else
+		if(!removeClient(clientId))
 		{
 			PyErr_SetString(ClientDoesntExistError, "Client doesn't exist");
 			return 0;
@@ -481,20 +461,97 @@ static PyObject* deepdrive_client_get_shared_memory(PyObject *self, PyObject *ar
 
 	if(ok && clientId > 0)
 	{
-		ClientMap::iterator cIt = g_Clients.find(clientId);
-		if(cIt != g_Clients.end())
+		DeepDriveClient *client = getClient(clientId);
+		if(client)
 		{
-			DeepDriveClient *client = cIt->second;
-			if(client)
-			{
-				return Py_BuildValue("(si)", client->getSharedMemoryName(), client->getSharedMemorySize());
-			}
+			return Py_BuildValue("(si)", client->getSharedMemoryName(), client->getSharedMemorySize());
 		}
 	}
 
 	return Py_BuildValue("");
 }
 
+/*	Initialize simulation
+ *
+ *	@param	uint32		Client id
+ *	@param	uint32		Seed
+ *	@param	number		Global time dilation
+ *	@param	number		Agent starting location
+ *	@return	True, if successfully, otherwise false
+*/
+static PyObject* simulation_initialize(PyObject *self, PyObject *args, PyObject *keyWords)
+{
+	uint32 res = 0;
+
+	uint32 clientId = 0;
+	uint32 seed = 0;
+	float timeDilation = 1.0f;
+	float startLocation = -1.0f; 
+
+	char *keyWordList[] = {"client_id", "seed", "time_dilation", "agent_start_location", NULL};
+	int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "I|Iff", keyWordList, &clientId, &seed, &timeDilation, &startLocation);
+	if(ok)
+	{
+		DeepDriveClient *client = getClient(clientId);
+		if	(	client
+			&&	client->isConnected()
+			)
+		{
+			const int32 initRes = 1;// DeepDriveSimulation::initialize(*client, seed, timeDilation, startLocation);
+			if(initRes >= 0)
+				res = static_cast<uint32> (initRes);
+			else
+				return handleError(initRes);
+		}
+	}
+	else
+		std::cout << "Wrong arguments\n";
+
+	return Py_BuildValue("i", res);
+}
+
+/*	Set sun simulation
+ *
+ *	@param	uint32		Client id
+ *	@param	uint32		Month
+ *	@param	uint32		Day
+ *	@param	uint32		Hour
+ *	@param	uint32		Minute
+ *	@param	uint32		Simulation speed in simulation seconds per realtime seconds
+ *	@return	True, if successfully, otherwise false
+*/
+static PyObject* simulation_set_sun_simulation(PyObject *self, PyObject *args, PyObject *keyWords)
+{
+	uint32 res = 0;
+
+	uint32 clientId = 0;
+	uint32 month = 8;
+	uint32 day = 1;
+	uint32 hour = 11;
+	uint32 minute = 30;
+	uint32 speed = 0;
+
+	char *keyWordList[] = {"month", "day", "hour", "minute", "speed", NULL};
+	int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "I|IIIII", keyWordList, &clientId, &month, &day, &hour, &minute, &speed);
+	if(ok)
+	{
+		DeepDriveClient *client = getClient(clientId);
+		if	(	client
+			&&	client->isConnected()
+			)
+		{
+			const int32 initRes = 1;// DeepDriveSimulation::setSunSimulation(*client, month, day, minute, hour, speed);
+			if(initRes >= 0)
+				res = static_cast<uint32> (initRes);
+			else
+				return handleError(initRes);
+		}
+	}
+	else
+		std::cout << "Wrong arguments\n";
+
+	return Py_BuildValue("i", res);
+}
 
 static PyMethodDef DeepDriveClientMethods[] =	{	{"create", deepdrive_client_create, METH_VARARGS, "Creates a new client which tries to connect to DeepDriveServer"}
 												,	{"close", deepdrive_client_close, METH_VARARGS, "Closes an existing client connection and frees all depending resources"}
@@ -507,6 +564,8 @@ static PyMethodDef DeepDriveClientMethods[] =	{	{"create", deepdrive_client_crea
 												,	{"activate_synchronous_stepping", (PyCFunction) deepdrive_client_activate_synchronous_stepping, METH_VARARGS, "Send control value set to server"}
 												,	{"deactivate_synchronous_stepping", (PyCFunction) deepdrive_client_deactivate_synchronous_stepping, METH_VARARGS, "Send control value set to server"}
 												,	{"advance_synchronous_stepping", (PyCFunction) deepdrive_client_advance_synchronous_stepping, METH_VARARGS | METH_KEYWORDS, "Send control value set to server"}
+												,	{"initialize", (PyCFunction) simulation_set_sun_simulation, METH_VARARGS | METH_KEYWORDS, "Reset environmnent and tries to open a connection to shared memory"}
+												,	{"set_sun_simulation", (PyCFunction) simulation_initialize, METH_VARARGS | METH_KEYWORDS, "set sun simulation"}
 												,	{NULL,     NULL,             0,            NULL}        /* Sentinel */
 												};
 
