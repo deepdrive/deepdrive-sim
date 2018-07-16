@@ -479,7 +479,7 @@ static PyObject* deepdrive_client_get_shared_memory(PyObject *self, PyObject *ar
  *	@param	number		Agent starting location
  *	@return	True, if successfully, otherwise false
 */
-static PyObject* simulation_initialize(PyObject *self, PyObject *args, PyObject *keyWords)
+static PyObject* initialize_simulation(PyObject *self, PyObject *args, PyObject *keyWords)
 {
 	uint32 res = 0;
 
@@ -520,7 +520,7 @@ static PyObject* simulation_initialize(PyObject *self, PyObject *args, PyObject 
  *	@param	uint32		Simulation speed in simulation seconds per realtime seconds
  *	@return	True, if successfully, otherwise false
 */
-static PyObject* simulation_set_sun_simulation(PyObject *self, PyObject *args, PyObject *keyWords)
+static PyObject* set_sun_simulation(PyObject *self, PyObject *args, PyObject *keyWords)
 {
 	uint32 res = 0;
 
@@ -564,8 +564,8 @@ static PyMethodDef DeepDriveClientMethods[] =	{	{"create", deepdrive_client_crea
 												,	{"activate_synchronous_stepping", (PyCFunction) deepdrive_client_activate_synchronous_stepping, METH_VARARGS, "Send control value set to server"}
 												,	{"deactivate_synchronous_stepping", (PyCFunction) deepdrive_client_deactivate_synchronous_stepping, METH_VARARGS, "Send control value set to server"}
 												,	{"advance_synchronous_stepping", (PyCFunction) deepdrive_client_advance_synchronous_stepping, METH_VARARGS | METH_KEYWORDS, "Send control value set to server"}
-												,	{"initialize", (PyCFunction) simulation_set_sun_simulation, METH_VARARGS | METH_KEYWORDS, "Reset environmnent and tries to open a connection to shared memory"}
-												,	{"set_sun_simulation", (PyCFunction) simulation_initialize, METH_VARARGS | METH_KEYWORDS, "set sun simulation"}
+												,	{"initialize_simulation", (PyCFunction) initialize_simulation, METH_VARARGS | METH_KEYWORDS, "Reset environmnent and tries to open a connection to shared memory"}
+												,	{"set_sun_simulation", (PyCFunction) set_sun_simulation, METH_VARARGS | METH_KEYWORDS, "set sun simulation"}
 												,	{NULL,     NULL,             0,            NULL}        /* Sentinel */
 												};
 
