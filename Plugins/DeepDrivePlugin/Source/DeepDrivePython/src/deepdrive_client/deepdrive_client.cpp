@@ -7,7 +7,7 @@
 #include "common/ClientErrorCode.hpp"
 
 #include "deepdrive_simulation/DeepDriveSimulation.hpp"
-#include "deepdrive_simulation//PySimulationConfigurationObject.h"
+#include "deepdrive_simulation/PySimulationGraphicsSettingsObject.h"
 
 #include "common/NumPyUtils.h"
 
@@ -46,21 +46,31 @@ static PyObject* handleError(int32 errorCode)
 /*	Create a new client, tries to connect to specified DeepDriveServer
  *
  *	@param	address		IP4 address of server
+ *	@param	uint32		Port
  *	@param	uint32		Request master role
+ *	@param	uint32		Seed
+ *	@param	number		Global time dilation
+ *	@param	number		Agent starting location
+ *	@param	object		Graphics configuration
  *
  *	@return	Client id, 0 in case of error
 */
-static PyObject* deepdrive_client_create(PyObject *self, PyObject *args)
+static PyObject* deepdrive_client_create(PyObject *self, PyObject *args, PyObject *keyWords)
 {
 	deepdrive::server::RegisterClientResponse res;
 
-	uint32 clientId = 0;
 	PyObject *ret = PyDict_New();
 
 	const char *ipStr;
 	uint32 port = 0;
-	int32 ok = PyArg_ParseTuple(args, "s|i", &ipStr, &port);
+	bool request_master_role = true;
+	uint32 seed = 0;
+	float timeDilation = 1.0f;
+	float startLocation = -1.0f; 
+	PyObject *graphicsCfg = 0;
 
+	char *keyWordList[] = {"ip_address", "port", "request_master_role", "seed", "time_dilation", "agent_start_location", "graphics_configuration", NULL};
+	int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "I|IffO", keyWordList, &ipStr, &port, &request_master_role, &seed, &timeDilation, &startLocation, &graphicsCfg);
 	if(ok && port > 0 && port < 65536)
 	{
 		IP4Address ip4Address;
@@ -76,10 +86,10 @@ static PyObject* deepdrive_client_create(PyObject *self, PyObject *args)
 			{
 				std::cout << "Successfully connected to " << ip4Address.toStr(true) << "\n";
 				deepdrive::server::RegisterClientResponse registerClientResponse;
-				const int32 res = client->registerClient(registerClientResponse);
+				const int32 res = client->registerClient(registerClientResponse, seed, timeDilation, startLocation, *(reinterpret_cast<PySimulationGraphicsSettingsObject*> (graphicsCfg)));
 				if(res >= 0)
 				{
-					clientId = registerClientResponse.client_id;
+					uint32 clientId = registerClientResponse.client_id;
 					std::cout << "Client id is " << std::to_string(clientId) << "\n";
 					PyDict_SetItem(ret, PyUnicode_FromString("client_id"), PyLong_FromUnsignedLong(clientId));
 					if(clientId)
@@ -478,6 +488,7 @@ static PyObject* deepdrive_client_get_shared_memory(PyObject *self, PyObject *ar
  *	@param	uint32		Seed
  *	@param	number		Global time dilation
  *	@param	number		Agent starting location
+ *	@param	object		Graphics configuration
  *	@return	True, if successfully, otherwise false
 */
 static PyObject* initialize_simulation(PyObject *self, PyObject *args, PyObject *keyWords)
@@ -488,10 +499,13 @@ static PyObject* initialize_simulation(PyObject *self, PyObject *args, PyObject 
 	uint32 seed = 0;
 	float timeDilation = 1.0f;
 	float startLocation = -1.0f; 
+	PyObject *graphicsCfg = 0;
 
-	char *keyWordList[] = {"client_id", "seed", "time_dilation", "agent_start_location", NULL};
-	int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "I|Iff", keyWordList, &clientId, &seed, &timeDilation, &startLocation);
-	if(ok)
+	char *keyWordList[] = {"client_id", "seed", "time_dilation", "agent_start_location", "graphics_configuration", NULL};
+	int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "I|IffO", keyWordList, &clientId, &seed, &timeDilation, &startLocation, &graphicsCfg);
+	if	(	ok
+		//&&	PyObject_TypeCheck(graphicsCfg, &PySimulationGraphicsSettingsType)
+		)
 	{
 		DeepDriveClient *client = getClient(clientId);
 		if	(	client
@@ -554,7 +568,7 @@ static PyObject* set_sun_simulation(PyObject *self, PyObject *args, PyObject *ke
 	return Py_BuildValue("i", res);
 }
 
-static PyMethodDef DeepDriveClientMethods[] =	{	{"create", deepdrive_client_create, METH_VARARGS, "Creates a new client which tries to connect to DeepDriveServer"}
+static PyMethodDef DeepDriveClientMethods[] =	{	{"create", (PyCFunction) deepdrive_client_create, METH_VARARGS | METH_KEYWORDS, "Creates a new client which tries to connect to DeepDriveServer"}
 												,	{"close", deepdrive_client_close, METH_VARARGS, "Closes an existing client connection and frees all depending resources"}
 												,	{"register_camera", (PyCFunction) deepdrive_client_register_camera, METH_VARARGS | METH_KEYWORDS, "Register a capture camera"}
 												,	{"get_shared_memory", deepdrive_client_get_shared_memory, METH_VARARGS, "Get shared memory name and size for client"}
@@ -588,7 +602,7 @@ PyMODINIT_FUNC PyInit_deepdrive_client(void)
 
 	import_array();
 
-	if (PyType_Ready(&PySimulationConfigurationType) < 0)
+	if (PyType_Ready(&PySimulationGraphicsSettingsType) < 0)
 		return 0;
 
 
@@ -619,8 +633,8 @@ PyMODINIT_FUNC PyInit_deepdrive_client(void)
 		Py_INCREF(UnknownError);
 		PyModule_AddObject(m, "unknown_error", UnknownError);
 
-		Py_INCREF(&PySimulationConfigurationType);
-		PyModule_AddObject(m, "SimulationConfiguration", (PyObject *)&PySimulationConfigurationType);
+		Py_INCREF(&PySimulationGraphicsSettingsType);
+		PyModule_AddObject(m, "SimulationGraphicsSettings", (PyObject *)&PySimulationGraphicsSettingsType);
 
 		// Py_INCREF(&PyDeepDriveClientRegisterClientRequestType);
 		// PyModule_AddObject(m, "RegisterClientRequest", (PyObject *)&PyDeepDriveClientRegisterClientRequestType);

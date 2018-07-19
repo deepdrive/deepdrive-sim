@@ -180,6 +180,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Agents")
 	void OnDebugTrigger();
 
+	void configure(uint32 seed, float timeDilation, float startLocation, SimulationGraphicsSettings &graphicsSettings);
 	bool resetAgent();
 	
 	ADeepDriveAgent* getCurrentAgent() const;

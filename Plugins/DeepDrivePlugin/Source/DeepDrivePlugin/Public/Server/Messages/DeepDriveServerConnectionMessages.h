@@ -18,6 +18,10 @@ struct RegisterClientRequest	:	public MessageHeader
 	uint32				client_protocol_version;
 	uint32				request_master_role;
 
+	uint32				seed;
+	float				timeDilation;
+	float				startLocation;
+	
 };
 
 struct RegisterClientResponse	:	public MessageHeader

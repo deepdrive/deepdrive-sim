@@ -319,6 +319,11 @@ void ADeepDriveSimulation::PreviousAgent()
 	switchToAgent(index);
 }
 
+void ADeepDriveSimulation::configure(uint32 seed, float timeDilation, float startLocation, SimulationGraphicsSettings &graphicsSettings)
+{
+
+}
+
 bool ADeepDriveSimulation::resetAgent()
 {
 	return m_curAgentController ? m_curAgentController->ResetAgent() : false;

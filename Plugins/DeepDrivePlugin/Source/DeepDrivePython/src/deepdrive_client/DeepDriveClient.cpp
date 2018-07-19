@@ -20,7 +20,7 @@ DeepDriveClient::~DeepDriveClient()
 
 }
 
-int32 DeepDriveClient::registerClient(deepdrive::server::RegisterClientResponse &response)
+int32 DeepDriveClient::registerClient(deepdrive::server::RegisterClientResponse &response, uint32 seed, float timeDilation, float startLocation, PySimulationGraphicsSettingsObject &graphicsSettings)
 {
 	uint32 clientId = 0;
 

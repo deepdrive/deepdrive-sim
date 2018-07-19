@@ -7,27 +7,48 @@
 
 namespace deepdrive { namespace server {
 
-struct InitializeSimulationRequest : public MessageHeader
+struct SimulationGraphicsSettings
 {
-	InitializeSimulationRequest(uint32 clientId, uint32 _seed, float timeDilation, float agentStartLocation)
-		: MessageHeader(MessageId::InitializeSimulationRequest, sizeof(InitializeSimulationRequest))
+	bool			is_fullscreen;
+	bool			vsync_enabled;
+	
+	uint32			resolution_width;
+	uint32			resolution_height;
+	float			resolution_scale;
+
+	uint8			texture_quality;
+	uint8			shadow_quality;
+	uint8			effect_quality;
+	uint8			post_process_level;
+	uint8			motion_blur_quality;
+	uint8			view_distance;
+	uint8			ambient_occlusion;
+};
+
+struct ConfigureSimulationRequest : public MessageHeader
+{
+	ConfigureSimulationRequest(uint32 clientId, uint32 _seed, float timeDilation, float agentStartLocation)
+		: MessageHeader(MessageId::ConfigureSimulationRequest, sizeof(ConfigureSimulationRequest))
 		, client_id(clientId)
 		, seed(_seed)
 		, time_dilation(timeDilation)
 		, agent_start_location(agentStartLocation)
+		, graphics_settings()
 	{
 	}
 
-	uint32			client_id;
-	uint32			seed;
-	float			time_dilation;
-	float			agent_start_location;
+	uint32							client_id;
+	uint32							seed;
+	float							time_dilation;
+	float							agent_start_location;
+
+	SimulationGraphicsSettings		graphics_settings;
 };
 
-struct InitializeSimulationResponse : public MessageHeader
+struct ConfigureSimulationResponse : public MessageHeader
 {
-	InitializeSimulationResponse(bool _initialized = false)
-		: MessageHeader(MessageId::InitializeSimulationResponse, sizeof(InitializeSimulationResponse))
+	ConfigureSimulationResponse(bool _initialized = false)
+		: MessageHeader(MessageId::ConfigureSimulationResponse, sizeof(ConfigureSimulationResponse))
 		, initialized(_initialized ? 1 : 0)
 	{	}
 

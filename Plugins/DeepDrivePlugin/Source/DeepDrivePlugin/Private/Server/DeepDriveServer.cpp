@@ -49,6 +49,9 @@ DeepDriveServer::DeepDriveServer()
 	m_MessageHandlers[deepdrive::server::MessageId::ActivateSynchronousSteppingRequest] = std::bind(&DeepDriveServer::activateSynchronousStepping, this, std::placeholders::_1);
 	m_MessageHandlers[deepdrive::server::MessageId::DeactivateSynchronousSteppingRequest] = std::bind(&DeepDriveServer::deactivateSynchronousStepping, this, std::placeholders::_1);
 	m_MessageHandlers[deepdrive::server::MessageId::AdvanceSynchronousSteppingRequest] = std::bind(&DeepDriveServer::advanceSynchronousStepping, this, std::placeholders::_1);
+
+	m_MessageHandlers[deepdrive::server::MessageId::ConfigureSimulationRequest] = std::bind(&DeepDriveServer::activateSynchronousStepping, this, std::placeholders::_1);
+
 }
 
 DeepDriveServer::~DeepDriveServer()

@@ -3,6 +3,7 @@
 
 #include "Runtime/Sockets/Public/IPAddress.h"
 
+struct SimulationGraphicsSettings;
 
 class IDeepDriveServerProxy
 {
@@ -22,5 +23,7 @@ public:
 	virtual void ResetAgent() = 0;
 
 	virtual void SetAgentControlValues(float steering, float throttle, float brake, bool handbrake) = 0;
+
+	virtual void ConfigureSimulation(uint32 seed, float timeDilation, float startLocation, SimulationGraphicsSettings &graphicsSettings) = 0;
 
 };

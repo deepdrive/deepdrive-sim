@@ -98,3 +98,8 @@ void DeepDriveSimulationServerProxy::SetAgentControlValues(float steering, float
 		agentCtrl->SetControlValues(steering, throttle, brake, handbrake);
 	}
 }
+
+void DeepDriveSimulationServerProxy::ConfigureSimulation(uint32 seed, float timeDilation, float startLocation, SimulationGraphicsSettings &graphicsSettings)
+{
+	m_DeepDriveSim.configure(seed, timeDilation, startLocation, graphicsSettings);
+}
