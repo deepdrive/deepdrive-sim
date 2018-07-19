@@ -7,6 +7,7 @@
 #include "common/ClientErrorCode.hpp"
 
 #include "deepdrive_simulation/DeepDriveSimulation.hpp"
+#include "deepdrive_simulation//PySimulationConfigurationObject.h"
 
 #include "common/NumPyUtils.h"
 
@@ -587,6 +588,10 @@ PyMODINIT_FUNC PyInit_deepdrive_client(void)
 
 	import_array();
 
+	if (PyType_Ready(&PySimulationConfigurationType) < 0)
+		return 0;
+
+
 	PyObject *m  = PyModule_Create(&deepdrive_client_module);
 	if (m)
 	{
@@ -614,6 +619,8 @@ PyMODINIT_FUNC PyInit_deepdrive_client(void)
 		Py_INCREF(UnknownError);
 		PyModule_AddObject(m, "unknown_error", UnknownError);
 
+		Py_INCREF(&PySimulationConfigurationType);
+		PyModule_AddObject(m, "SimulationConfiguration", (PyObject *)&PySimulationConfigurationType);
 
 		// Py_INCREF(&PyDeepDriveClientRegisterClientRequestType);
 		// PyModule_AddObject(m, "RegisterClientRequest", (PyObject *)&PyDeepDriveClientRegisterClientRequestType);
