@@ -51,7 +51,7 @@ static PyObject* handleError(int32 errorCode)
  *	@param	uint32		Seed
  *	@param	number		Global time dilation
  *	@param	number		Agent starting location
- *	@param	object		Graphics configuration
+ *	@param	object		Graphics settings
  *
  *	@return	Client id, 0 in case of error
 */
@@ -67,10 +67,10 @@ static PyObject* deepdrive_client_create(PyObject *self, PyObject *args, PyObjec
 	uint32 seed = 0;
 	float timeDilation = 1.0f;
 	float startLocation = -1.0f; 
-	PyObject *graphicsCfg = 0;
+	PyObject *graphicsSettings = 0;
 
-	char *keyWordList[] = {"ip_address", "port", "request_master_role", "seed", "time_dilation", "agent_start_location", "graphics_configuration", NULL};
-	int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "I|IffO", keyWordList, &ipStr, &port, &request_master_role, &seed, &timeDilation, &startLocation, &graphicsCfg);
+	char *keyWordList[] = {"ip_address", "port", "request_master_role", "seed", "time_dilation", "agent_start_location", "graphics_settings", NULL};
+	int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "sI|pIffO!", keyWordList, &ipStr, &port, &request_master_role, &seed, &timeDilation, &startLocation, &PySimulationGraphicsSettingsType, &graphicsSettings);
 	if(ok && port > 0 && port < 65536)
 	{
 		IP4Address ip4Address;
@@ -78,6 +78,8 @@ static PyObject* deepdrive_client_create(PyObject *self, PyObject *args, PyObjec
 		if(ip4Address.set(ipStr, port))
 		{
 			std::cout << "Address successfully parsed " << ip4Address.toStr(true) << "\n";
+			std::cout << "Seed " <<  seed << " time dilation " << timeDilation << "\n";
+			std::cout << "gfx settings " <<  graphicsSettings << "\n";
 
 			DeepDriveClient *client = new DeepDriveClient(ip4Address);
 			if	(	client
@@ -86,7 +88,7 @@ static PyObject* deepdrive_client_create(PyObject *self, PyObject *args, PyObjec
 			{
 				std::cout << "Successfully connected to " << ip4Address.toStr(true) << "\n";
 				deepdrive::server::RegisterClientResponse registerClientResponse;
-				const int32 res = client->registerClient(registerClientResponse, seed, timeDilation, startLocation, *(reinterpret_cast<PySimulationGraphicsSettingsObject*> (graphicsCfg)));
+				const int32 res = client->registerClient(registerClientResponse, request_master_role, seed, timeDilation, startLocation, reinterpret_cast<PySimulationGraphicsSettingsObject*> (graphicsSettings));
 				if(res >= 0)
 				{
 					uint32 clientId = registerClientResponse.client_id;

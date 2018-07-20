@@ -10,8 +10,10 @@ def cleanUp(clientId):
 	deepdrive_capture.close()
 	deepdrive_client.close(clientId)
 
+gfxSettings = deepdrive_client.SimulationGraphicsSettings();
+gfxSettings.resolution_height = 720;
 
-client = deepdrive_client.create('127.0.0.1', 9876)
+client = deepdrive_client.create('127.0.0.1', 9876, seed=6543, graphics_settings=gfxSettings)
 
 
 if client != None and 'client_id' in client:

@@ -50,8 +50,6 @@ DeepDriveServer::DeepDriveServer()
 	m_MessageHandlers[deepdrive::server::MessageId::DeactivateSynchronousSteppingRequest] = std::bind(&DeepDriveServer::deactivateSynchronousStepping, this, std::placeholders::_1);
 	m_MessageHandlers[deepdrive::server::MessageId::AdvanceSynchronousSteppingRequest] = std::bind(&DeepDriveServer::advanceSynchronousStepping, this, std::placeholders::_1);
 
-	m_MessageHandlers[deepdrive::server::MessageId::ConfigureSimulationRequest] = std::bind(&DeepDriveServer::activateSynchronousStepping, this, std::placeholders::_1);
-
 }
 
 DeepDriveServer::~DeepDriveServer()
@@ -117,7 +115,7 @@ void DeepDriveServer::UnregisterProxy(IDeepDriveServerProxy &proxy)
 	}
 }
 
-uint32 DeepDriveServer::registerClient(DeepDriveClientConnection *client, bool &isMaster)
+uint32 DeepDriveServer::registerClient(DeepDriveClientConnection *client, bool &isMaster, const deepdrive::server::SimulationConfiguration &simulationCfg, const deepdrive::server::SimulationGraphicsSettings &gfxSettings)
 {
 	FScopeLock lock(&m_ClientMutex);
 	const uint32 clientId = m_nextClientId++;
@@ -126,7 +124,16 @@ uint32 DeepDriveServer::registerClient(DeepDriveClientConnection *client, bool &
 	if (isMaster)
 	{
 		if (m_MasterClientId == 0)
+		{
 			m_MasterClientId = clientId;
+
+			if(m_Proxy)
+			{
+				m_Proxy->ConfigureSimulation(simulationCfg, gfxSettings);
+			}
+			else
+				UE_LOG(LogDeepDriveServer, Error, TEXT("DeepDriveServer::registerClient No proxy available") );
+		}
 		else
 			isMaster = false;
 	}

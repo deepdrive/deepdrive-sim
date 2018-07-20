@@ -25,6 +25,12 @@ class ADeepDriveSimulationFreeCamera;
 class ADeepDriveSplineTrack;
 class UDeepDriveRandomStream;
 
+namespace deepdrive { namespace server {
+struct SimulationConfiguration;
+struct SimulationGraphicsSettings;
+} }
+
+
 USTRUCT(BlueprintType)
 struct FDeepDriveRandomStreamData
 {
@@ -180,7 +186,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Agents")
 	void OnDebugTrigger();
 
-	void configure(uint32 seed, float timeDilation, float startLocation, SimulationGraphicsSettings &graphicsSettings);
+	void configure(const deepdrive::server::SimulationConfiguration &configuration, const deepdrive::server::SimulationGraphicsSettings &graphicsSettings);
 	bool resetAgent();
 	
 	ADeepDriveAgent* getCurrentAgent() const;

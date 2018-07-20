@@ -11,6 +11,8 @@
 #include "Public/Simulation/DeepDriveSimulationServerProxy.h"
 #include "Public/Simulation/DeepDriveSimulationCaptureProxy.h"
 
+#include "Public/Server/Messages/DeepDriveServerSimulation.h"
+
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 #include "Public/Simulation/Agent/DeepDriveAgentControllerCreator.h"
 #include "Public/Simulation/Misc/DeepDriveSimulationFreeCamera.h"
@@ -319,9 +321,9 @@ void ADeepDriveSimulation::PreviousAgent()
 	switchToAgent(index);
 }
 
-void ADeepDriveSimulation::configure(uint32 seed, float timeDilation, float startLocation, SimulationGraphicsSettings &graphicsSettings)
+void ADeepDriveSimulation::configure(const deepdrive::server::SimulationConfiguration &configuration, const deepdrive::server::SimulationGraphicsSettings &graphicsSettings)
 {
-
+	UE_LOG(LogDeepDriveSimulation, Log, TEXT("DeepDriveSimulation resolution %dx%d seed %d"), graphicsSettings.resolution_width, graphicsSettings.resolution_height, configuration.seed);
 }
 
 bool ADeepDriveSimulation::resetAgent()

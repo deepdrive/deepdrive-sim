@@ -19,7 +19,10 @@ public:
 
 	~DeepDriveClient();
 
-	int32 registerClient(deepdrive::server::RegisterClientResponse &response, uint32 seed, float timeDilation, float startLocation, PySimulationGraphicsSettingsObject &graphicsSettings);
+	int32 registerClient	(	deepdrive::server::RegisterClientResponse &response
+							,	bool requestMasterRole, uint32 seed, float timeDilation, float startLocation
+							,	PySimulationGraphicsSettingsObject *graphicsSettings
+							);
 
 	void close();
 

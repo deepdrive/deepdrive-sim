@@ -2,7 +2,7 @@
 #pragma once
 
 #include "Public/Server/Messages/DeepDriveServerMessageHeader.h"
-
+#include "Public/Server/Messages/DeepDriveServerSimulation.h"
 
 namespace deepdrive { namespace server {
 
@@ -13,15 +13,16 @@ struct RegisterClientRequest	:	public MessageHeader
 		:	MessageHeader(MessageId::RegisterClientRequest, sizeof(RegisterClientRequest))
 		,	client_protocol_version(1)
 		,	request_master_role(master ? 1 : 0)
+		,	configuration()
+		,	graphics_settings()
 	{	}
 
-	uint32				client_protocol_version;
-	uint32				request_master_role;
+	uint32						client_protocol_version;
+	uint32						request_master_role;
 
-	uint32				seed;
-	float				timeDilation;
-	float				startLocation;
-	
+	SimulationConfiguration		configuration;
+
+	SimulationGraphicsSettings	graphics_settings;
 };
 
 struct RegisterClientResponse	:	public MessageHeader

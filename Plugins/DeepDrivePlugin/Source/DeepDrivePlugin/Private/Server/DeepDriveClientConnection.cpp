@@ -131,11 +131,14 @@ void DeepDriveClientConnection::handleClientRequest(const deepdrive::server::Mes
 void DeepDriveClientConnection::registerClient(const deepdrive::server::MessageHeader &message, bool isMaster)
 {
 	const RegisterClientRequest &regClient = static_cast<const RegisterClientRequest &> (message);
+	const deepdrive::server::SimulationConfiguration &cfg = regClient.configuration;
+	const deepdrive::server::SimulationGraphicsSettings &gfxSettings = regClient.graphics_settings;
 
 	m_isMaster = regClient.request_master_role > 0 ? true : false;
-	m_ClientId = DeepDriveServer::GetInstance().registerClient(this, m_isMaster);
+	m_ClientId = DeepDriveServer::GetInstance().registerClient(this, m_isMaster, cfg, gfxSettings);
 
 	UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] Client wants to register reqMaster %c isMaster %c"), m_ClientId, regClient.request_master_role ? 'T' : 'F', m_isMaster ? 'T' : 'F');
+
 
 	RegisterClientResponse response;
 	response.client_id = m_ClientId;

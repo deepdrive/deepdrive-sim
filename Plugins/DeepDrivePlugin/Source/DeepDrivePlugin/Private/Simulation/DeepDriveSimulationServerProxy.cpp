@@ -99,7 +99,7 @@ void DeepDriveSimulationServerProxy::SetAgentControlValues(float steering, float
 	}
 }
 
-void DeepDriveSimulationServerProxy::ConfigureSimulation(uint32 seed, float timeDilation, float startLocation, SimulationGraphicsSettings &graphicsSettings)
+void DeepDriveSimulationServerProxy::ConfigureSimulation(const deepdrive::server::SimulationConfiguration &cfg, const deepdrive::server::SimulationGraphicsSettings &graphicsSettings)
 {
-	m_DeepDriveSim.configure(seed, timeDilation, startLocation, graphicsSettings);
+	m_DeepDriveSim.configure(cfg, graphicsSettings);
 }

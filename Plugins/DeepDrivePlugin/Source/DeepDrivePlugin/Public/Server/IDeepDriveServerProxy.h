@@ -3,7 +3,10 @@
 
 #include "Runtime/Sockets/Public/IPAddress.h"
 
+namespace deepdrive { namespace server {
+struct SimulationConfiguration;
 struct SimulationGraphicsSettings;
+} }
 
 class IDeepDriveServerProxy
 {
@@ -24,6 +27,6 @@ public:
 
 	virtual void SetAgentControlValues(float steering, float throttle, float brake, bool handbrake) = 0;
 
-	virtual void ConfigureSimulation(uint32 seed, float timeDilation, float startLocation, SimulationGraphicsSettings &graphicsSettings) = 0;
+	virtual void ConfigureSimulation(const deepdrive::server::SimulationConfiguration &cfg, const deepdrive::server::SimulationGraphicsSettings &graphicsSettings) = 0;
 
 };
