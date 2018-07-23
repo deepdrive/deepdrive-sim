@@ -47,7 +47,9 @@ enum class MessageId	:	uint32
 	DeactivateSynchronousSteppingRequest,
 	DeactivateSynchronousSteppingResponse,
 	AdvanceSynchronousSteppingRequest,
-	AdvanceSynchronousSteppingResponse
+	AdvanceSynchronousSteppingResponse,
+	ResetSimulationRequest,
+	ResetSimulationResponse
 
 };
 	

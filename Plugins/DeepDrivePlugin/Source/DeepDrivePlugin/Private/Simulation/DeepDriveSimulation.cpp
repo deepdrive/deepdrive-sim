@@ -325,6 +325,10 @@ void ADeepDriveSimulation::configure(const deepdrive::server::SimulationConfigur
 {
 	UE_LOG(LogDeepDriveSimulation, Log, TEXT("DeepDriveSimulation resolution %dx%d seed %d"), graphicsSettings.resolution_width, graphicsSettings.resolution_height, configuration.seed);
 
+	Seed = configuration.seed;
+	for(auto &rsd : RandomStreams)
+		rsd.Value.getRandomStream()->initialize(Seed);
+
 	for (auto &agent : m_Agents)
 	{
 		agent->getAgentController()->OnConfigureSimulation(configuration);
@@ -342,6 +346,13 @@ void ADeepDriveSimulation::applyGraphicsSettings(const deepdrive::server::Simula
 		gameSettings->SetVSyncEnabled(gfxSettings.vsync_enabled > 0);
 
 		gameSettings->SetResolutionScaleNormalized(gfxSettings.resolution_scale);
+
+		gameSettings->SetTextureQuality(gfxSettings.texture_quality);
+		gameSettings->SetShadowQuality(gfxSettings.shadow_quality);
+		gameSettings->SetVisualEffectQuality(gfxSettings.effect_quality);		
+		gameSettings->SetPostProcessingQuality(gfxSettings.post_process_level);
+		gameSettings->SetViewDistanceQuality(gfxSettings.view_distance);
+
 	}
 }
 

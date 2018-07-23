@@ -20,6 +20,8 @@ public:
 
 	~DeepDriveSimulation();
 
+	static int32 resetSimulation(DeepDriveClient &client, float timeDilation, float startLocation, PySimulationGraphicsSettingsObject *graphicsSettings);
+
 	static int32 setSunSimulation(DeepDriveClient &client, uint32 month, uint32 day, uint32 minute, uint32 hour, uint32 speed);
 
 private:

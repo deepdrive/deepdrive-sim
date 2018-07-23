@@ -484,48 +484,45 @@ static PyObject* deepdrive_client_get_shared_memory(PyObject *self, PyObject *ar
 	return Py_BuildValue("");
 }
 
-/*	Initialize simulation
+/*	Reset simulation
  *
- *	@param	uint32		Client id
- *	@param	uint32		Seed
+ *	@param	uint32		Client Id
  *	@param	number		Global time dilation
  *	@param	number		Agent starting location
- *	@param	object		Graphics configuration
- *	@return	True, if successfully, otherwise false
+ *	@param	object		Graphics settings
+ *
 */
-static PyObject* initialize_simulation(PyObject *self, PyObject *args, PyObject *keyWords)
+static PyObject* deepdrive_client_reset_simulation(PyObject *self, PyObject *args, PyObject *keyWords)
 {
-	uint32 res = 0;
-
 	uint32 clientId = 0;
-	uint32 seed = 0;
+
 	float timeDilation = 1.0f;
 	float startLocation = -1.0f; 
-	PyObject *graphicsCfg = 0;
+	PyObject *graphicsSettings = 0;
 
-	char *keyWordList[] = {"client_id", "seed", "time_dilation", "agent_start_location", "graphics_configuration", NULL};
-	int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "I|IffO", keyWordList, &clientId, &seed, &timeDilation, &startLocation, &graphicsCfg);
-	if	(	ok
-		//&&	PyObject_TypeCheck(graphicsCfg, &PySimulationGraphicsSettingsType)
-		)
+	char *keyWordList[] = {"client_id", "time_dilation", "agent_start_location", "graphics_settings", NULL};
+	int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "I|ffO!", keyWordList, &timeDilation, &startLocation, &PySimulationGraphicsSettingsType, &graphicsSettings);
+	if(ok)
 	{
 		DeepDriveClient *client = getClient(clientId);
-		if	(	client
-			&&	client->isConnected()
-			)
+		if(client)
 		{
-			const int32 initRes = 1;// DeepDriveSimulation::initialize(*client, seed, timeDilation, startLocation);
-			if(initRes >= 0)
-				res = static_cast<uint32> (initRes);
-			else
-				return handleError(initRes);
+			DeepDriveSimulation::resetSimulation(*client, timeDilation, startLocation, reinterpret_cast<PySimulationGraphicsSettingsObject*> (graphicsSettings));
+		}
+		else
+		{
+			PyErr_SetString(ClientDoesntExistError, "Client doesn't exist");
+			return 0;
 		}
 	}
 	else
+	{
 		std::cout << "Wrong arguments\n";
+	}
 
-	return Py_BuildValue("i", res);
+	return Py_BuildValue("");
 }
+
 
 /*	Set sun simulation
  *
@@ -581,7 +578,6 @@ static PyMethodDef DeepDriveClientMethods[] =	{	{"create", (PyCFunction) deepdri
 												,	{"activate_synchronous_stepping", (PyCFunction) deepdrive_client_activate_synchronous_stepping, METH_VARARGS, "Send control value set to server"}
 												,	{"deactivate_synchronous_stepping", (PyCFunction) deepdrive_client_deactivate_synchronous_stepping, METH_VARARGS, "Send control value set to server"}
 												,	{"advance_synchronous_stepping", (PyCFunction) deepdrive_client_advance_synchronous_stepping, METH_VARARGS | METH_KEYWORDS, "Send control value set to server"}
-												,	{"initialize_simulation", (PyCFunction) initialize_simulation, METH_VARARGS | METH_KEYWORDS, "Reset environmnent and tries to open a connection to shared memory"}
 												,	{"set_sun_simulation", (PyCFunction) set_sun_simulation, METH_VARARGS | METH_KEYWORDS, "set sun simulation"}
 												,	{NULL,     NULL,             0,            NULL}        /* Sentinel */
 												};
