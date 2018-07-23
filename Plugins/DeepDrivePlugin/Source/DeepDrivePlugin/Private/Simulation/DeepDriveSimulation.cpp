@@ -324,6 +324,25 @@ void ADeepDriveSimulation::PreviousAgent()
 void ADeepDriveSimulation::configure(const deepdrive::server::SimulationConfiguration &configuration, const deepdrive::server::SimulationGraphicsSettings &graphicsSettings)
 {
 	UE_LOG(LogDeepDriveSimulation, Log, TEXT("DeepDriveSimulation resolution %dx%d seed %d"), graphicsSettings.resolution_width, graphicsSettings.resolution_height, configuration.seed);
+
+	for (auto &agent : m_Agents)
+	{
+		agent->getAgentController()->OnConfigureSimulation(configuration);
+	}
+
+	applyGraphicsSettings(graphicsSettings);
+}
+
+void ADeepDriveSimulation::applyGraphicsSettings(const deepdrive::server::SimulationGraphicsSettings &gfxSettings)
+{
+	UGameUserSettings *gameSettings = UGameUserSettings::GetGameUserSettings();
+	if (gameSettings)
+	{
+		gameSettings->SetFullscreenMode(gfxSettings.is_fullscreen > 0 ? EWindowMode::Fullscreen : EWindowMode::Windowed);
+		gameSettings->SetVSyncEnabled(gfxSettings.vsync_enabled > 0);
+
+		gameSettings->SetResolutionScaleNormalized(gfxSettings.resolution_scale);
+	}
 }
 
 bool ADeepDriveSimulation::resetAgent()

@@ -36,6 +36,8 @@ public:
 
 	ADeepDriveAgentRemoteAIController();
 
+	virtual void OnConfigureSimulation(const deepdrive::server::SimulationConfiguration &configuration);
+
 	virtual bool Activate(ADeepDriveAgent &agent);
 
 	virtual void SetControlValues(float steering, float throttle, float brake, bool handbrake);

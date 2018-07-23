@@ -13,6 +13,11 @@ class ADeepDriveAgent;
 class USplineComponent;
 class ADeepDriveSplineTrack;
 
+namespace deepdrive { namespace server {
+struct SimulationConfiguration;
+} }
+
+
 /**
  * 
  */
@@ -25,6 +30,8 @@ public:
 
 	~ADeepDriveAgentControllerBase();
 
+	virtual void OnConfigureSimulation(const deepdrive::server::SimulationConfiguration &configuration);
+
 	virtual bool Activate(ADeepDriveAgent &agent);
 
 	virtual void Deactivate();
@@ -35,7 +42,7 @@ public:
 	
 	virtual void SetControlValues(float steering, float throttle, float brake, bool handbrake);
 	
-	virtual bool ResetAgent();
+	virtual bool ResetAgent( /* const deepdrive::server::SimulationConfiguration &configuration */);
 	
 	virtual void OnCheckpointReached();
 

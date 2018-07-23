@@ -1,15 +1,22 @@
 
 
 #include "DeepDrivePluginPrivatePCH.h"
+
+#include "Public/Simulation/DeepDriveSimulation.h"
 #include "Public/Simulation/Agent/DeepDriveAgentControllerBase.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 #include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
+#include "Runtime/Engine/Classes/Components/SplineComponent.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveAgentControllerBase);
 
 ADeepDriveAgentControllerBase::~ADeepDriveAgentControllerBase()
 {
 	UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("~ADeepDriveAgentControllerBase: %p sayz bye"), this );
+}
+
+void ADeepDriveAgentControllerBase::OnConfigureSimulation(const deepdrive::server::SimulationConfiguration &configuration)
+{
 }
 
 bool ADeepDriveAgentControllerBase::Activate(ADeepDriveAgent &agent)

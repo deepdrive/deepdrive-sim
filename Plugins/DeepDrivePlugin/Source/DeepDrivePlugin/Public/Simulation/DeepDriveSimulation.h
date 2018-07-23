@@ -208,6 +208,8 @@ private:
 	void switchToAgent(int32 index);
 	void switchToCamera(EDeepDriveAgentCameraType type);
 
+	void applyGraphicsSettings(const deepdrive::server::SimulationGraphicsSettings &gfxSettings);
+
 	DeepDriveSimulationStateMachine			*m_StateMachine = 0;
 	DeepDriveSimulationServerProxy			*m_ServerProxy = 0;
 	DeepDriveSimulationCaptureProxy			*m_CaptureProxy = 0;

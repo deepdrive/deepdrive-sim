@@ -7,12 +7,25 @@
 #include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
 #include "Public/Simulation/Misc/DeepDriveRandomStream.h"
 
+#include "Public/Server/Messages/DeepDriveServerSimulation.h"
+
 #include "Components/SplineComponent.h"
 
 ADeepDriveAgentRemoteAIController::ADeepDriveAgentRemoteAIController()
 {
 	m_ControllerName = "Remote AI Controller";
 }
+
+void ADeepDriveAgentRemoteAIController::OnConfigureSimulation(const deepdrive::server::SimulationConfiguration &configuration)
+{
+	UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentRemoteAIController Reconfigure %f"), configuration.agent_start_location);
+	if (m_Agent)
+	{
+		m_StartDistance = configuration.agent_start_location;
+		initAgentOnTrack(*m_Agent);
+	}
+}
+
 
 void ADeepDriveAgentRemoteAIController::SetControlValues(float steering, float throttle, float brake, bool handbrake)
 {
