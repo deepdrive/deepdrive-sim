@@ -46,6 +46,7 @@ bool DeepDriveClientConnection::Init()
 																							if (isMaster)
 																								DeepDriveServer::GetInstance().enqueueMessage(message.clone());
 																						};
+
 	m_MessageHandlers[deepdrive::server::MessageId::RegisterCaptureCameraRequest] = forward2Server;
 	m_MessageHandlers[deepdrive::server::MessageId::RequestAgentControlRequest] = forward2Server;
 	m_MessageHandlers[deepdrive::server::MessageId::ReleaseAgentControlRequest] = forward2Server;
@@ -55,6 +56,8 @@ bool DeepDriveClientConnection::Init()
 	m_MessageHandlers[deepdrive::server::MessageId::ActivateSynchronousSteppingRequest] = forward2Server;
 	m_MessageHandlers[deepdrive::server::MessageId::DeactivateSynchronousSteppingRequest] = forward2Server;
 	m_MessageHandlers[deepdrive::server::MessageId::AdvanceSynchronousSteppingRequest] = forward2Server;
+
+	m_MessageHandlers[deepdrive::server::MessageId::ResetSimulationRequest] = forward2Server;
 
 	m_MessageAssembler.m_HandleMessage.BindRaw(this, &DeepDriveClientConnection::handleClientRequest);
 	return m_Socket != 0;
