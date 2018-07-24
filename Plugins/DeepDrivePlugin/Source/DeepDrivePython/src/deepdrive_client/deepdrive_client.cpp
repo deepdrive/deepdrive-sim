@@ -492,7 +492,7 @@ static PyObject* deepdrive_client_get_shared_memory(PyObject *self, PyObject *ar
  *	@param	object		Graphics settings
  *
 */
-static PyObject* deepdrive_client_reset_simulation(PyObject *self, PyObject *args, PyObject *keyWords)
+static PyObject* reset_simulation(PyObject *self, PyObject *args, PyObject *keyWords)
 {
 	uint32 clientId = 0;
 
@@ -501,9 +501,10 @@ static PyObject* deepdrive_client_reset_simulation(PyObject *self, PyObject *arg
 	PyObject *graphicsSettings = 0;
 
 	char *keyWordList[] = {"client_id", "time_dilation", "agent_start_location", "graphics_settings", NULL};
-	int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "I|ffO!", keyWordList, &timeDilation, &startLocation, &PySimulationGraphicsSettingsType, &graphicsSettings);
+	int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "I|ffO!", keyWordList, &clientId, &timeDilation, &startLocation, &PySimulationGraphicsSettingsType, &graphicsSettings);
 	if(ok)
 	{
+		std::cout << "Reset simulation clientId " << clientId << " \n";
 		DeepDriveClient *client = getClient(clientId);
 		if(client)
 		{
@@ -578,6 +579,7 @@ static PyMethodDef DeepDriveClientMethods[] =	{	{"create", (PyCFunction) deepdri
 												,	{"activate_synchronous_stepping", (PyCFunction) deepdrive_client_activate_synchronous_stepping, METH_VARARGS, "Send control value set to server"}
 												,	{"deactivate_synchronous_stepping", (PyCFunction) deepdrive_client_deactivate_synchronous_stepping, METH_VARARGS, "Send control value set to server"}
 												,	{"advance_synchronous_stepping", (PyCFunction) deepdrive_client_advance_synchronous_stepping, METH_VARARGS | METH_KEYWORDS, "Send control value set to server"}
+												,	{"reset_simulation", (PyCFunction) reset_simulation, METH_VARARGS | METH_KEYWORDS, "Reset simulation"}
 												,	{"set_sun_simulation", (PyCFunction) set_sun_simulation, METH_VARARGS | METH_KEYWORDS, "set sun simulation"}
 												,	{NULL,     NULL,             0,            NULL}        /* Sentinel */
 												};

@@ -50,6 +50,8 @@ DeepDriveServer::DeepDriveServer()
 	m_MessageHandlers[deepdrive::server::MessageId::DeactivateSynchronousSteppingRequest] = std::bind(&DeepDriveServer::deactivateSynchronousStepping, this, std::placeholders::_1);
 	m_MessageHandlers[deepdrive::server::MessageId::AdvanceSynchronousSteppingRequest] = std::bind(&DeepDriveServer::advanceSynchronousStepping, this, std::placeholders::_1);
 
+	m_MessageHandlers[deepdrive::server::MessageId::ResetSimulationRequest] = std::bind(&DeepDriveServer::resetSimulation, this, std::placeholders::_1);
+
 }
 
 DeepDriveServer::~DeepDriveServer()
@@ -129,7 +131,7 @@ uint32 DeepDriveServer::registerClient(DeepDriveClientConnection *client, bool &
 
 			if(m_Proxy)
 			{
-				m_Proxy->ConfigureSimulation(simulationCfg, gfxSettings);
+				m_Proxy->ConfigureSimulation(simulationCfg, gfxSettings, true);
 			}
 			else
 				UE_LOG(LogDeepDriveServer, Error, TEXT("DeepDriveServer::registerClient No proxy available") );
@@ -437,6 +439,25 @@ void DeepDriveServer::advanceSynchronousStepping(const deepdrive::server::Messag
 			}
 			else
 				client->enqueueResponse(new deepdrive::server::AdvanceSynchronousSteppingResponse(-1));
+		}
+	}
+}
+
+void DeepDriveServer::resetSimulation(const deepdrive::server::MessageHeader &message)
+{
+	if (m_Clients.Num() > 0)
+	{
+		const deepdrive::server::ResetSimulationRequest &req = static_cast<const deepdrive::server::ResetSimulationRequest&> (message);
+		DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
+		if (client)
+		{
+			if(client->isMaster())
+			{
+				m_Proxy->ConfigureSimulation(req.configuration, req.graphics_settings, false);
+				UE_LOG(LogDeepDriveServer, Log, TEXT("DeepDriveServer::resetSimulation") );
+			}
+			else
+				client->enqueueResponse(new deepdrive::server::ResetSimulationResponse(false));
 		}
 	}
 }

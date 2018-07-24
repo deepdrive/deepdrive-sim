@@ -15,7 +15,7 @@ ADeepDriveAgentControllerBase::~ADeepDriveAgentControllerBase()
 	UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("~ADeepDriveAgentControllerBase: %p sayz bye"), this );
 }
 
-void ADeepDriveAgentControllerBase::OnConfigureSimulation(const deepdrive::server::SimulationConfiguration &configuration)
+void ADeepDriveAgentControllerBase::OnConfigureSimulation(const deepdrive::server::SimulationConfiguration &configuration, bool initialConfiguration)
 {
 }
 

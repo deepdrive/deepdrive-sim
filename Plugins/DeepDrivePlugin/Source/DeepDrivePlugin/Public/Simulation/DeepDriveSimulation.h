@@ -186,7 +186,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Agents")
 	void OnDebugTrigger();
 
-	void configure(const deepdrive::server::SimulationConfiguration &configuration, const deepdrive::server::SimulationGraphicsSettings &graphicsSettings);
+	void configure(const deepdrive::server::SimulationConfiguration &configuration, const deepdrive::server::SimulationGraphicsSettings &graphicsSettings, bool initialConfiguration);
 	bool resetAgent();
 	
 	ADeepDriveAgent* getCurrentAgent() const;

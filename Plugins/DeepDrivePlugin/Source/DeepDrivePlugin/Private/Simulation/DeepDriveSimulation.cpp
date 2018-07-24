@@ -321,17 +321,21 @@ void ADeepDriveSimulation::PreviousAgent()
 	switchToAgent(index);
 }
 
-void ADeepDriveSimulation::configure(const deepdrive::server::SimulationConfiguration &configuration, const deepdrive::server::SimulationGraphicsSettings &graphicsSettings)
+void ADeepDriveSimulation::configure(const deepdrive::server::SimulationConfiguration &configuration, const deepdrive::server::SimulationGraphicsSettings &graphicsSettings, bool initialConfiguration)
 {
 	UE_LOG(LogDeepDriveSimulation, Log, TEXT("DeepDriveSimulation resolution %dx%d seed %d"), graphicsSettings.resolution_width, graphicsSettings.resolution_height, configuration.seed);
 
-	Seed = configuration.seed;
+	if(initialConfiguration)
+		Seed = configuration.seed;
 	for(auto &rsd : RandomStreams)
-		rsd.Value.getRandomStream()->initialize(Seed);
+	{
+		if(initialConfiguration || rsd.Value.ReSeedOnReset)
+			rsd.Value.getRandomStream()->initialize(Seed);
+	}
 
 	for (auto &agent : m_Agents)
 	{
-		agent->getAgentController()->OnConfigureSimulation(configuration);
+		agent->getAgentController()->OnConfigureSimulation(configuration, initialConfiguration);
 	}
 
 	applyGraphicsSettings(graphicsSettings);

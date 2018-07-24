@@ -27,6 +27,6 @@ public:
 
 	virtual void SetAgentControlValues(float steering, float throttle, float brake, bool handbrake) = 0;
 
-	virtual void ConfigureSimulation(const deepdrive::server::SimulationConfiguration &cfg, const deepdrive::server::SimulationGraphicsSettings &graphicsSettings) = 0;
+	virtual void ConfigureSimulation(const deepdrive::server::SimulationConfiguration &cfg, const deepdrive::server::SimulationGraphicsSettings &graphicsSettings, bool initialConfiguration) = 0;
 
 };

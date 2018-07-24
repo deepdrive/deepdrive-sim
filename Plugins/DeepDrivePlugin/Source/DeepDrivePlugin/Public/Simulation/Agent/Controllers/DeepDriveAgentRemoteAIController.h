@@ -36,7 +36,7 @@ public:
 
 	ADeepDriveAgentRemoteAIController();
 
-	virtual void OnConfigureSimulation(const deepdrive::server::SimulationConfiguration &configuration);
+	virtual void OnConfigureSimulation(const deepdrive::server::SimulationConfiguration &configuration, bool initialConfiguration);
 
 	virtual bool Activate(ADeepDriveAgent &agent);
 

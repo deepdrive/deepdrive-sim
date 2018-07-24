@@ -49,7 +49,7 @@ if client != None and 'client_id' in client:
 				print('Taking over control .....')
 				ctrlAcquired = deepdrive_client.request_agent_control(clientId)
 				print(reqCounter, ': Control acquired', ctrlAcquired)
-				counter = 50
+				counter = 25
 				while counter > 0:
 					snapshot = deepdrive_capture.step()
 					if snapshot:
@@ -63,8 +63,12 @@ if client != None and 'client_id' in client:
 					time.sleep(0.05)
 					counter -= 1
 
-				print('Resetting agent .....')
-				deepdrive_client.reset_agent(clientId)
+				# print('Resetting agent .....')
+				# deepdrive_client.reset_agent(clientId)
+				
+				print('Resetting simulation .....')
+				deepdrive_client.reset_simulation(clientId, agent_start_location=1000)
+
 				print(reqCounter, ': Releasing control .....')
 				deepdrive_client.release_agent_control(clientId)
 				print('------------------------')
