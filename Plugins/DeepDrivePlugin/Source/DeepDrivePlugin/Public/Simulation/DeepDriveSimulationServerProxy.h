@@ -42,6 +42,8 @@ public:
 
 	virtual void ConfigureSimulation(const deepdrive::server::SimulationConfiguration &cfg, const deepdrive::server::SimulationGraphicsSettings &graphicsSettings, bool initialConfiguration);
 
+	virtual void SetSunSimulation(const deepdrive::server::SunSimulationSettings &sunSimSettings);
+
 private:
 
 	ADeepDriveSimulation 			&m_DeepDriveSim;

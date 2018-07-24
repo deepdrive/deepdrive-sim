@@ -108,6 +108,7 @@ private:
 	void advanceSynchronousStepping(const deepdrive::server::MessageHeader &message);
 
 	void resetSimulation(const deepdrive::server::MessageHeader &message);
+	void setSunSimulation(const deepdrive::server::MessageHeader &message);
 
 	void onCaptureFinished(int32 seqNr);
 

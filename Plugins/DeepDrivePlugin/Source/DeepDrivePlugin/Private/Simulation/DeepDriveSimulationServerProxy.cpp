@@ -103,3 +103,7 @@ void DeepDriveSimulationServerProxy::ConfigureSimulation(const deepdrive::server
 {
 	m_DeepDriveSim.configure(cfg, graphicsSettings, initialConfiguration);
 }
+
+void DeepDriveSimulationServerProxy::SetSunSimulation(const deepdrive::server::SunSimulationSettings &sunSimSettings)
+{
+}

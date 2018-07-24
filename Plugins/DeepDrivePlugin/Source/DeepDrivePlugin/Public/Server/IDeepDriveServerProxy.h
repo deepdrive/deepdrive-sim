@@ -6,6 +6,7 @@
 namespace deepdrive { namespace server {
 struct SimulationConfiguration;
 struct SimulationGraphicsSettings;
+struct SunSimulationSettings;
 } }
 
 class IDeepDriveServerProxy
@@ -29,4 +30,5 @@ public:
 
 	virtual void ConfigureSimulation(const deepdrive::server::SimulationConfiguration &cfg, const deepdrive::server::SimulationGraphicsSettings &graphicsSettings, bool initialConfiguration) = 0;
 
+	virtual void SetSunSimulation(const deepdrive::server::SunSimulationSettings &sunSimSettings) = 0;
 };

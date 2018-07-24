@@ -51,6 +51,7 @@ DeepDriveServer::DeepDriveServer()
 	m_MessageHandlers[deepdrive::server::MessageId::AdvanceSynchronousSteppingRequest] = std::bind(&DeepDriveServer::advanceSynchronousStepping, this, std::placeholders::_1);
 
 	m_MessageHandlers[deepdrive::server::MessageId::ResetSimulationRequest] = std::bind(&DeepDriveServer::resetSimulation, this, std::placeholders::_1);
+	m_MessageHandlers[deepdrive::server::MessageId::ResetSimulationRequest] = std::bind(&DeepDriveServer::resetSimulation, this, std::placeholders::_1);
 
 }
 
@@ -454,10 +455,35 @@ void DeepDriveServer::resetSimulation(const deepdrive::server::MessageHeader &me
 			if(client->isMaster())
 			{
 				m_Proxy->ConfigureSimulation(req.configuration, req.graphics_settings, false);
-				UE_LOG(LogDeepDriveServer, Log, TEXT("DeepDriveServer::resetSimulation") );
+				client->enqueueResponse(new deepdrive::server::ResetSimulationResponse(true));
 			}
 			else
 				client->enqueueResponse(new deepdrive::server::ResetSimulationResponse(false));
+		}
+	}
+}
+
+void DeepDriveServer::setSunSimulation(const deepdrive::server::MessageHeader &message)
+{
+	if (m_Clients.Num() > 0)
+	{
+		const deepdrive::server::SetSunSimulationRequest &req = static_cast<const deepdrive::server::SetSunSimulationRequest&> (message);
+		DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
+		if (client)
+		{
+			if (client->isMaster())
+			{
+				deepdrive::server::SunSimulationSettings sunSimSettings;
+				sunSimSettings.month = req.month;
+				sunSimSettings.day = req.day;
+				sunSimSettings.hour = req.hour;
+				sunSimSettings.minute = req.minute;
+				m_Proxy->SetSunSimulation(sunSimSettings);
+				UE_LOG(LogDeepDriveServer, Log, TEXT("DeepDriveServer::resetSimulation"));
+				client->enqueueResponse(new deepdrive::server::SetSunSimulationResponse(true));
+			}
+			else
+				client->enqueueResponse(new deepdrive::server::SetSunSimulationResponse(false));
 		}
 	}
 }

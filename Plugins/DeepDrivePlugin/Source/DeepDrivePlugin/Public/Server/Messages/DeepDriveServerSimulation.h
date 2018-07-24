@@ -30,4 +30,15 @@ struct SimulationGraphicsSettings
 	uint8			ambient_occlusion = 3;
 };
 
+struct SunSimulationSettings
+{
+	uint16			month = 8;
+	uint16			day = 1;
+	uint16			hour = 11;
+	uint16			minute = 30;
+
+	uint32			speed = 0;
+};
+
+
 } }	// namespaces
