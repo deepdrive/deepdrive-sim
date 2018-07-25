@@ -106,4 +106,5 @@ void DeepDriveSimulationServerProxy::ConfigureSimulation(const deepdrive::server
 
 void DeepDriveSimulationServerProxy::SetSunSimulation(const deepdrive::server::SunSimulationSettings &sunSimSettings)
 {
+	m_DeepDriveSim.SetSunSimulation(sunSimSettings.month, sunSimSettings.day, sunSimSettings.hour, sunSimSettings.minute, sunSimSettings.speed);
 }

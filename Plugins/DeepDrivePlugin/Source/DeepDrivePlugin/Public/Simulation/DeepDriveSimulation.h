@@ -177,6 +177,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Agents")
 	void OnCurrentAgentChanged(ADeepDriveAgent *CurrentAgent);
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Simulation")
+	void SetSunSimulation(int32 Month, int32 Day, int32 Hour, int32 Minute, int32 Speed);
+
 	UFUNCTION(BlueprintCallable, Category = "Misc")
 	void RegisterRandomStream(const FName &RandomStreamId, bool ReseedOnReset);
 
