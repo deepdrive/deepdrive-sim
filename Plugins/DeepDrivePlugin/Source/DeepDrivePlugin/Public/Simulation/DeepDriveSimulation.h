@@ -25,10 +25,8 @@ class ADeepDriveSimulationFreeCamera;
 class ADeepDriveSplineTrack;
 class UDeepDriveRandomStream;
 
-namespace deepdrive { namespace server {
 struct SimulationConfiguration;
 struct SimulationGraphicsSettings;
-} }
 
 
 USTRUCT(BlueprintType)
@@ -178,7 +176,7 @@ public:
 	void OnCurrentAgentChanged(ADeepDriveAgent *CurrentAgent);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Simulation")
-	void SetSunSimulation(int32 Month, int32 Day, int32 Hour, int32 Minute, int32 Speed);
+	void SetDateAndTime(int32 Year, int32 Month, int32 Day, int32 Hour, int32 Minute);
 
 	UFUNCTION(BlueprintCallable, Category = "Misc")
 	void RegisterRandomStream(const FName &RandomStreamId, bool ReseedOnReset);
@@ -189,7 +187,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Agents")
 	void OnDebugTrigger();
 
-	void configure(const deepdrive::server::SimulationConfiguration &configuration, const deepdrive::server::SimulationGraphicsSettings &graphicsSettings, bool initialConfiguration);
+	void configure(const SimulationConfiguration &configuration, const SimulationGraphicsSettings &graphicsSettings, bool initialConfiguration);
 	bool resetAgent();
 	
 	ADeepDriveAgent* getCurrentAgent() const;
@@ -211,7 +209,7 @@ private:
 	void switchToAgent(int32 index);
 	void switchToCamera(EDeepDriveAgentCameraType type);
 
-	void applyGraphicsSettings(const deepdrive::server::SimulationGraphicsSettings &gfxSettings);
+	void applyGraphicsSettings(const SimulationGraphicsSettings &gfxSettings);
 
 	DeepDriveSimulationStateMachine			*m_StateMachine = 0;
 	DeepDriveSimulationServerProxy			*m_ServerProxy = 0;

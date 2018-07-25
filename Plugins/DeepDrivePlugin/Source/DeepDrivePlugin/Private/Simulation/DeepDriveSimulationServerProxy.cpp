@@ -5,7 +5,7 @@
 #include "Public/Simulation/DeepDriveSimulation.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 #include "Public/Simulation/Agent/DeepDriveAgentControllerBase.h"
-
+#include "Public/Simulation/DeepDriveSimulationTypes.h"
 
 #include "Private/Server/DeepDriveServer.h"
 
@@ -99,12 +99,12 @@ void DeepDriveSimulationServerProxy::SetAgentControlValues(float steering, float
 	}
 }
 
-void DeepDriveSimulationServerProxy::ConfigureSimulation(const deepdrive::server::SimulationConfiguration &cfg, const deepdrive::server::SimulationGraphicsSettings &graphicsSettings, bool initialConfiguration)
+void DeepDriveSimulationServerProxy::ConfigureSimulation(const SimulationConfiguration &cfg, const SimulationGraphicsSettings &graphicsSettings, bool initialConfiguration)
 {
 	m_DeepDriveSim.configure(cfg, graphicsSettings, initialConfiguration);
 }
 
-void DeepDriveSimulationServerProxy::SetSunSimulation(const deepdrive::server::SunSimulationSettings &sunSimSettings)
+void DeepDriveSimulationServerProxy::SetSunSimulation(const SunSimulationSettings &sunSimSettings)
 {
-	m_DeepDriveSim.SetSunSimulation(sunSimSettings.month, sunSimSettings.day, sunSimSettings.hour, sunSimSettings.minute, sunSimSettings.speed);
+	m_DeepDriveSim.SetDateAndTime(sunSimSettings.year, sunSimSettings.month, sunSimSettings.day, sunSimSettings.hour, sunSimSettings.minute);
 }

@@ -2,8 +2,8 @@
 #include "deepdrive_simulation/DeepDriveSimulation.hpp"
 #include "deepdrive_simulation/PySimulationGraphicsSettingsObject.h"
 #include "deepdrive_client/DeepDriveClient.hpp"
-#include "Public/Server/Messages/DeepDriveServerConfigurationMessages.h"
-#include "Public/Server/Messages/DeepDriveServerControlMessages.h"
+
+#include "Public/Server/Messages/DeepDriveServerSimulationMessages.h"
 
 #include "socket/IP4ClientSocket.hpp"
 
@@ -21,14 +21,14 @@ int32 DeepDriveSimulation::resetSimulation(DeepDriveClient &client, float timeDi
 {
 	deepdrive::server::ResetSimulationRequest req(client.getClientId());
 
-	deepdrive::server::SimulationConfiguration &cfg = req.configuration;
+	SimulationConfiguration &cfg = req.configuration;
 	cfg.seed = 0;
 	cfg.time_dilation = timeDilation;
 	cfg.agent_start_location = startLocation;
 
 	if(graphicsSettings)
 	{
-		deepdrive::server::SimulationGraphicsSettings &gfxSettings = req.graphics_settings;
+		SimulationGraphicsSettings &gfxSettings = req.graphics_settings;
 
 		gfxSettings.is_fullscreen = graphicsSettings->is_fullscreen;
 		gfxSettings.vsync_enabled = graphicsSettings->vsync_enabled;

@@ -44,7 +44,7 @@ class BmpSaveHandler	:	public IImageSaveHandler
 public:
 
 	BmpSaveHandler();
-	~BmpSaveHandler();
+	virtual ~BmpSaveHandler();
 
 	virtual bool save(const FString &fileName, const Image &img);
 

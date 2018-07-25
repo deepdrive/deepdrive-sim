@@ -11,7 +11,7 @@
 #include "Public/Simulation/DeepDriveSimulationServerProxy.h"
 #include "Public/Simulation/DeepDriveSimulationCaptureProxy.h"
 
-#include "Public/Server/Messages/DeepDriveServerSimulation.h"
+#include "Public/Simulation/DeepDriveSimulationTypes.h"
 
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 #include "Public/Simulation/Agent/DeepDriveAgentControllerCreator.h"
@@ -321,7 +321,7 @@ void ADeepDriveSimulation::PreviousAgent()
 	switchToAgent(index);
 }
 
-void ADeepDriveSimulation::configure(const deepdrive::server::SimulationConfiguration &configuration, const deepdrive::server::SimulationGraphicsSettings &graphicsSettings, bool initialConfiguration)
+void ADeepDriveSimulation::configure(const SimulationConfiguration &configuration, const SimulationGraphicsSettings &graphicsSettings, bool initialConfiguration)
 {
 	UE_LOG(LogDeepDriveSimulation, Log, TEXT("DeepDriveSimulation resolution %dx%d seed %d"), graphicsSettings.resolution_width, graphicsSettings.resolution_height, configuration.seed);
 
@@ -341,7 +341,7 @@ void ADeepDriveSimulation::configure(const deepdrive::server::SimulationConfigur
 	applyGraphicsSettings(graphicsSettings);
 }
 
-void ADeepDriveSimulation::applyGraphicsSettings(const deepdrive::server::SimulationGraphicsSettings &gfxSettings)
+void ADeepDriveSimulation::applyGraphicsSettings(const SimulationGraphicsSettings &gfxSettings)
 {
 	UGameUserSettings *gameSettings = UGameUserSettings::GetGameUserSettings();
 	if (gameSettings)

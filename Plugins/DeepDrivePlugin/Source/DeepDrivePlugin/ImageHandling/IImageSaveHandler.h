@@ -14,6 +14,9 @@ class IImageSaveHandler
 {
 public:
 
+	virtual ~IImageSaveHandler()
+		{	}
+	
 	virtual bool save(const FString &fileName, const Image &img) = 0;
 
 };

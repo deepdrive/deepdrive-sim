@@ -30,14 +30,14 @@ int32 DeepDriveClient::registerClient	(	deepdrive::server::RegisterClientRespons
 
 	deepdrive::server::RegisterClientRequest req(requestMasterRole);
 
-	deepdrive::server::SimulationConfiguration &cfg = req.configuration;
+	SimulationConfiguration &cfg = req.configuration;
 	cfg.seed = seed;
 	cfg.time_dilation = timeDilation;
 	cfg.agent_start_location = startLocation;
 
 	if(graphicsSettings)
 	{
-		deepdrive::server::SimulationGraphicsSettings &gfxSettings = req.graphics_settings;
+		SimulationGraphicsSettings &gfxSettings = req.graphics_settings;
 
 		gfxSettings.is_fullscreen = graphicsSettings->is_fullscreen;
 		gfxSettings.vsync_enabled = graphicsSettings->vsync_enabled;

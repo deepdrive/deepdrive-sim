@@ -23,9 +23,10 @@ class UWorld;
 namespace deepdrive { namespace server {
 struct MessageHeader;
 
+} }
+
 struct SimulationGraphicsSettings;
 struct SimulationConfiguration;
-} }
 
 /**
  * 
@@ -72,7 +73,7 @@ public:
 
 	void UnregisterProxy(IDeepDriveServerProxy &proxy);
 
-	uint32 registerClient(DeepDriveClientConnection *client, bool &isMaster, const deepdrive::server::SimulationConfiguration &simulationCfg, const deepdrive::server::SimulationGraphicsSettings &gfxSettings);
+	uint32 registerClient(DeepDriveClientConnection *client, bool &isMaster, const SimulationConfiguration &simulationCfg, const SimulationGraphicsSettings &gfxSettings);
 
 	void unregisterClient(uint32 clientId);
 

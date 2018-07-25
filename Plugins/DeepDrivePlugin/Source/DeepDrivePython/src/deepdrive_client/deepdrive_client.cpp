@@ -525,29 +525,29 @@ static PyObject* reset_simulation(PyObject *self, PyObject *args, PyObject *keyW
 }
 
 
-/*	Set sun simulation
+/*	Set date and time for simulation
  *
  *	@param	uint32		Client id
+ *	@param	uint32		Year
  *	@param	uint32		Month
  *	@param	uint32		Day
  *	@param	uint32		Hour
  *	@param	uint32		Minute
- *	@param	uint32		Simulation speed in simulation seconds per realtime seconds
  *	@return	True, if successfully, otherwise false
 */
-static PyObject* set_sun_simulation(PyObject *self, PyObject *args, PyObject *keyWords)
+static PyObject* set_simulation_date_and_time(PyObject *self, PyObject *args, PyObject *keyWords)
 {
 	uint32 res = 0;
 
 	uint32 clientId = 0;
+	uint32 year = 2011;
 	uint32 month = 8;
 	uint32 day = 1;
 	uint32 hour = 11;
 	uint32 minute = 30;
-	uint32 speed = 0;
 
-	char *keyWordList[] = {"month", "day", "hour", "minute", "speed", NULL};
-	int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "I|IIIII", keyWordList, &clientId, &month, &day, &hour, &minute, &speed);
+	char *keyWordList[] = {"year", "month", "day", "hour", "minute", NULL};
+	int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "I|IIIII", keyWordList, &clientId, &year, &month, &day, &hour, &minute);
 	if(ok)
 	{
 		DeepDriveClient *client = getClient(clientId);
@@ -568,6 +568,23 @@ static PyObject* set_sun_simulation(PyObject *self, PyObject *args, PyObject *ke
 	return Py_BuildValue("i", res);
 }
 
+/*	Set date and time for simulation
+ *
+ *	@param	uint32		Client id
+ *	@param	uint32		Year
+ *	@param	uint32		Month
+ *	@param	uint32		Day
+ *	@param	uint32		Hour
+ *	@param	uint32		Minute
+ *	@return	True, if successfully, otherwise false
+*/
+static PyObject* set_sun_simulation_speed(PyObject *self, PyObject *args)
+{
+	uint32 res = 0;
+
+	return Py_BuildValue("i", res);
+}
+
 static PyMethodDef DeepDriveClientMethods[] =	{	{"create", (PyCFunction) deepdrive_client_create, METH_VARARGS | METH_KEYWORDS, "Creates a new client which tries to connect to DeepDriveServer"}
 												,	{"close", deepdrive_client_close, METH_VARARGS, "Closes an existing client connection and frees all depending resources"}
 												,	{"register_camera", (PyCFunction) deepdrive_client_register_camera, METH_VARARGS | METH_KEYWORDS, "Register a capture camera"}
@@ -580,7 +597,8 @@ static PyMethodDef DeepDriveClientMethods[] =	{	{"create", (PyCFunction) deepdri
 												,	{"deactivate_synchronous_stepping", (PyCFunction) deepdrive_client_deactivate_synchronous_stepping, METH_VARARGS, "Send control value set to server"}
 												,	{"advance_synchronous_stepping", (PyCFunction) deepdrive_client_advance_synchronous_stepping, METH_VARARGS | METH_KEYWORDS, "Send control value set to server"}
 												,	{"reset_simulation", (PyCFunction) reset_simulation, METH_VARARGS | METH_KEYWORDS, "Reset simulation"}
-												,	{"set_sun_simulation", (PyCFunction) set_sun_simulation, METH_VARARGS | METH_KEYWORDS, "set sun simulation"}
+												,	{"set_simulation_date_and_time", (PyCFunction) set_simulation_date_and_time, METH_VARARGS | METH_KEYWORDS, "Set date and time for simulation"}
+												,	{"set_sun_simulation_speed", (PyCFunction) set_sun_simulation_speed, METH_VARARGS, "Set speed for sun simulation"}
 												,	{NULL,     NULL,             0,            NULL}        /* Sentinel */
 												};
 

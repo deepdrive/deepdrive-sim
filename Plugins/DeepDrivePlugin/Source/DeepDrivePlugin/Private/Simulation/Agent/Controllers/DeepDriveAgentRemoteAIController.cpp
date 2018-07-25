@@ -7,7 +7,7 @@
 #include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
 #include "Public/Simulation/Misc/DeepDriveRandomStream.h"
 
-#include "Public/Server/Messages/DeepDriveServerSimulation.h"
+#include "Public/Simulation/DeepDriveSimulationTypes.h"
 
 #include "Components/SplineComponent.h"
 
@@ -16,7 +16,7 @@ ADeepDriveAgentRemoteAIController::ADeepDriveAgentRemoteAIController()
 	m_ControllerName = "Remote AI Controller";
 }
 
-void ADeepDriveAgentRemoteAIController::OnConfigureSimulation(const deepdrive::server::SimulationConfiguration &configuration, bool initialConfiguration)
+void ADeepDriveAgentRemoteAIController::OnConfigureSimulation(const SimulationConfiguration &configuration, bool initialConfiguration)
 {
 	UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentRemoteAIController Reconfigure %f"), configuration.agent_start_location);
 	if (m_Agent)

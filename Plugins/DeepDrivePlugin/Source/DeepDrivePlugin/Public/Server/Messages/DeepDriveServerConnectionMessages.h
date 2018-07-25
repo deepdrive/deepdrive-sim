@@ -2,7 +2,7 @@
 #pragma once
 
 #include "Public/Server/Messages/DeepDriveServerMessageHeader.h"
-#include "Public/Server/Messages/DeepDriveServerSimulation.h"
+#include "Public/Simulation/DeepDriveSimulationTypes.h"
 
 namespace deepdrive { namespace server {
 

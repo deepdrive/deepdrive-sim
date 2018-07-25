@@ -9,6 +9,7 @@
 #include "Public/Server/IDeepDriveServerProxy.h"
 #include "Public/Server/Messages/DeepDriveServerConfigurationMessages.h"
 #include "Public/Server/Messages/DeepDriveServerControlMessages.h"
+#include "Public/Server/Messages/DeepDriveServerSimulationMessages.h"
 
 #include "Runtime/Networking/Public/Interfaces/IPv4/IPv4SubnetMask.h"
 #include "Runtime/Networking/Public/Interfaces/IPv4/IPv4Address.h"
@@ -118,7 +119,7 @@ void DeepDriveServer::UnregisterProxy(IDeepDriveServerProxy &proxy)
 	}
 }
 
-uint32 DeepDriveServer::registerClient(DeepDriveClientConnection *client, bool &isMaster, const deepdrive::server::SimulationConfiguration &simulationCfg, const deepdrive::server::SimulationGraphicsSettings &gfxSettings)
+uint32 DeepDriveServer::registerClient(DeepDriveClientConnection *client, bool &isMaster, const SimulationConfiguration &simulationCfg, const SimulationGraphicsSettings &gfxSettings)
 {
 	FScopeLock lock(&m_ClientMutex);
 	const uint32 clientId = m_nextClientId++;
@@ -473,7 +474,7 @@ void DeepDriveServer::setSunSimulation(const deepdrive::server::MessageHeader &m
 		{
 			if (client->isMaster())
 			{
-				deepdrive::server::SunSimulationSettings sunSimSettings;
+				SunSimulationSettings sunSimSettings;
 				sunSimSettings.month = req.month;
 				sunSimSettings.day = req.day;
 				sunSimSettings.hour = req.hour;

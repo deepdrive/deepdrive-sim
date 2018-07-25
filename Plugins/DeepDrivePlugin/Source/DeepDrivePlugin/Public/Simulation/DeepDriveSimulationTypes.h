@@ -3,8 +3,6 @@
 
 #include "Engine.h"
 
-namespace deepdrive { namespace server {
-
 struct SimulationConfiguration
 {
 	uint32			seed = 0;
@@ -32,13 +30,10 @@ struct SimulationGraphicsSettings
 
 struct SunSimulationSettings
 {
+	uint16			year = 2011;
 	uint16			month = 8;
 	uint16			day = 1;
 	uint16			hour = 11;
 	uint16			minute = 30;
-
-	uint32			speed = 0;
 };
 
-
-} }	// namespaces
