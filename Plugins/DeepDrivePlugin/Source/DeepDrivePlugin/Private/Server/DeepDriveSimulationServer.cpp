@@ -76,18 +76,20 @@ uint32 DeepDriveSimulationServer::Run()
 FSocket* DeepDriveSimulationServer::listen()
 {
 	FSocket *socket = 0;
-
-	if(!m_isListening)
+	if (m_ListenSocket)
 	{
-		m_isListening = m_ListenSocket->Listen(1);
-		UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("DeepDriveSimulationServer::Run Socket is listening %c"), m_isListening ? 'T' : 'F');
-	}
+		if (!m_isListening)
+		{
+			m_isListening = m_ListenSocket->Listen(1);
+			UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("DeepDriveSimulationServer::Run Socket is listening %c"), m_isListening ? 'T' : 'F');
+		}
 
-	bool pending = false;
-	if (m_ListenSocket->HasPendingConnection(pending) && pending)
-	{
-		TSharedRef<FInternetAddr> remoteAddress = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateInternetAddr();
-		socket = m_ListenSocket->Accept(*remoteAddress, FString("DeepDriveClient"));
+		bool pending = false;
+		if (m_ListenSocket->HasPendingConnection(pending) && pending)
+		{
+			TSharedRef<FInternetAddr> remoteAddress = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateInternetAddr();
+			socket = m_ListenSocket->Accept(*remoteAddress, FString("DeepDriveClient"));
+		}
 	}
 	return socket;
 }

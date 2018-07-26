@@ -109,11 +109,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Capture)
 	float CaptureInterval = 0.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SimulationConnection)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SimulationServer)
 	FString		SimulationIPAddress;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SimulationConnection)
-	int32		SimulationPort = 9876;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SimulationServer)
+	int32		SimulationPort = 9009;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ClientConnections)
 	FString		ClientsIPAddress;
