@@ -4,6 +4,7 @@
 #include "Private/Server/DeepDriveServer.h"
 #include "Private/Server/DeepDriveConnectionListener.h"
 #include "Private/Server/DeepDriveClientConnection.h"
+#include "Private/Server/DeepDriveSimulationServer.h"
 #include "Private/Capture/DeepDriveCapture.h"
 
 #include "Public/Server/IDeepDriveServerProxy.h"
@@ -60,36 +61,23 @@ DeepDriveServer::~DeepDriveServer()
 {
 }
 
-bool DeepDriveServer::RegisterProxy(IDeepDriveServerProxy &proxy, const FString &ipAddress, uint16 port)
+bool DeepDriveServer::RegisterProxy(IDeepDriveServerProxy &proxy, const FString &simIpAddress, uint16 simPort, const FString &clientIpAddress, uint16 clientPort)
 {
 	bool registered = false;
 
-	bool isValid = false;
-	int32 ipParts[4];
+	bool isSimIpValid = false;
+	bool isClientIpValid = false;
+	int32 simIpParts[4];
+	int32 clientIpParts[4];
 
-	TArray<FString> parts;
-	if (ipAddress.ParseIntoArray(parts, TEXT("."), 1) == 4)
-	{
-		ipParts[0] = FCString::Atoi(*parts[0]);
-		ipParts[1] = FCString::Atoi(*parts[1]);
-		ipParts[2] = FCString::Atoi(*parts[2]);
-		ipParts[3] = FCString::Atoi(*parts[3]);
+	isSimIpValid = convertIpAddress(simIpAddress, simIpParts);
+	isClientIpValid = convertIpAddress(clientIpAddress, clientIpParts);
 
-		if (	ipParts[0] >= 0 && ipParts[0] <= 255
-			&&	ipParts[1] >= 0 && ipParts[1] <= 255
-			&&	ipParts[2] >= 0 && ipParts[2] <= 255
-			&&	ipParts[3] >= 0 && ipParts[3] <= 255
-			)
-		{
-			isValid = true;
-		}
-
-	}
-
-	if(isValid)
+	if(isSimIpValid && isClientIpValid)
 	{
 		m_Proxy = &proxy;
-		m_ConnectionListener = new DeepDriveConnectionListener(ipParts[0], ipParts[1], ipParts[2], ipParts[3], port);
+		m_SimulationServer = new DeepDriveSimulationServer(simIpParts[0], simIpParts[1], simIpParts[2], simIpParts[3], simPort);
+		//m_ConnectionListener = new DeepDriveConnectionListener(clientIpParts[0], clientIpParts[1], clientIpParts[2], clientIpParts[3], clientPort);
 
 		m_MessageQueue.Empty();
 		m_SteppingClient = 0;
@@ -515,6 +503,30 @@ void  DeepDriveServer::enqueueMessage(deepdrive::server::MessageHeader *message)
 		m_MessageQueue.Enqueue(message);
 }
 
+bool DeepDriveServer::convertIpAddress(const FString &ipAddress, int32 *ipParts)
+{
+	bool isValid = false;
+
+	TArray<FString> parts;
+	if (ipAddress.ParseIntoArray(parts, TEXT("."), 1) == 4)
+	{
+		ipParts[0] = FCString::Atoi(*parts[0]);
+		ipParts[1] = FCString::Atoi(*parts[1]);
+		ipParts[2] = FCString::Atoi(*parts[2]);
+		ipParts[3] = FCString::Atoi(*parts[3]);
+
+		if (	ipParts[0] >= 0 && ipParts[0] <= 255
+			&&	ipParts[1] >= 0 && ipParts[1] <= 255
+			&&	ipParts[2] >= 0 && ipParts[2] <= 255
+			&&	ipParts[3] >= 0 && ipParts[3] <= 255
+			)
+		{
+			isValid = true;
+		}
+
+	}
+	return isValid;
+}
 
 #if 0
 

@@ -109,11 +109,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Capture)
 	float CaptureInterval = 0.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Server)
-	FString		IPAddress;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SimulationConnection)
+	FString		SimulationIPAddress;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Server)
-	int32		Port = 9876;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = SimulationConnection)
+	int32		SimulationPort = 9876;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ClientConnections)
+	FString		ClientsIPAddress;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ClientConnections)
+	int32		ClientsPort = 9876;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
 	TSubclassOf<ADeepDriveAgent>	Agent;

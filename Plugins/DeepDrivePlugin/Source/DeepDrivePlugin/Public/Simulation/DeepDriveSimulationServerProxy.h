@@ -16,7 +16,7 @@ public:
 
 	DeepDriveSimulationServerProxy(ADeepDriveSimulation &deepDriveSim);
 
-	bool initialize(const FString &ipAddress, int32 port, UWorld *world);
+	bool initialize(const FString &simIPAddress, int32 simPort, const FString &clientIPAddress, int32 clientPort, UWorld *world);
 
 	void update( float DeltaSeconds );
 

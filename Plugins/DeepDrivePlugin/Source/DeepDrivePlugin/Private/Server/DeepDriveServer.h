@@ -11,6 +11,7 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveServer, Log, All);
 
+class DeepDriveSimulationServer;
 class DeepDriveConnectionListener;
 class DeepDriveClientConnection;
 class ADeepDriveServerProxy;
@@ -69,7 +70,7 @@ public:
 
 	void setWorld(UWorld *world);
 
-	bool RegisterProxy(IDeepDriveServerProxy &proxy, const FString &ipAddress, uint16 port);
+	bool RegisterProxy(IDeepDriveServerProxy &proxy, const FString &simIpAddress, uint16 simPort, const FString &clientIpAddress, uint16 clientPort);
 
 	void UnregisterProxy(IDeepDriveServerProxy &proxy);
 
@@ -113,6 +114,9 @@ private:
 
 	void onCaptureFinished(int32 seqNr);
 
+	bool convertIpAddress(const FString &ipAddress, int32 *ipParts);
+
+	DeepDriveSimulationServer		*m_SimulationServer = 0;
 	DeepDriveConnectionListener		*m_ConnectionListener = 0;
 
 	IDeepDriveServerProxy			*m_Proxy = 0;

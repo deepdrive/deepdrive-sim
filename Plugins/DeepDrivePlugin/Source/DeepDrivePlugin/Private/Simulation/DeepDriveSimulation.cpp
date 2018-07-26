@@ -62,7 +62,7 @@ void ADeepDriveSimulation::PreInitializeComponents()
 	{
 		m_ServerProxy = new DeepDriveSimulationServerProxy(*this);
 		m_CaptureProxy = new DeepDriveSimulationCaptureProxy(*this, CaptureInterval);
-		if	(	m_ServerProxy && m_ServerProxy->initialize(IPAddress, Port, GetWorld())
+		if	(	m_ServerProxy && m_ServerProxy->initialize(SimulationIPAddress, SimulationPort, ClientsIPAddress, ClientsPort, GetWorld())
 			&&	m_CaptureProxy
 			)
 		{
