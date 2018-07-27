@@ -16,10 +16,9 @@
 DEFINE_LOG_CATEGORY(LogDeepDriveSimulationServer);
 
 DeepDriveSimulationServer::DeepDriveSimulationServer(uint8 a, uint8 b, uint8 c, uint8 d, uint16 port)
+	:	DeepDriveConnectionThread("DeepDriveSimulationServer")
 {
 	UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("DeepDriveSimulationServer listening on %d.%d.%d.%d:%d"), a, b, c, d, port);
-
-	m_WorkerThread = FRunnableThread::Create(this, TEXT("DeepDriveSimulationServer") , 0, TPri_Normal);
 
 	FIPv4Endpoint endpoint(FIPv4Address(a, b, c, d), port);
 	m_ListenSocket = FTcpSocketBuilder(TEXT("DeepDriveSimulationServer_Listen")).AsReusable().BoundToEndpoint(endpoint).Listening(8);
@@ -35,14 +34,14 @@ DeepDriveSimulationServer::~DeepDriveSimulationServer()
 
 bool DeepDriveSimulationServer::Init()
 {
+	UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("DeepDriveSimulationServer::Init") );
+	m_State = Listening;
 	return true;
 }
 
 uint32 DeepDriveSimulationServer::Run()
 {
-	UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("DeepDriveSimulationServer::Run Started") );
-
-	m_State = Listening;
+	UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("DeepDriveSimulationServer Started"));
 
 	while (!m_isStopped)
 	{
@@ -62,11 +61,10 @@ uint32 DeepDriveSimulationServer::Run()
 			case Connected:
 				break;
 		}
-
 		FPlatformProcess::Sleep(0.05f);
 	}
 
-	UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("DeepDriveSimulationServer::Run Finished"));
+	UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("DeepDriveSimulationServer Finished"));
 
 	shutdown();
 
@@ -81,14 +79,15 @@ FSocket* DeepDriveSimulationServer::listen()
 		if (!m_isListening)
 		{
 			m_isListening = m_ListenSocket->Listen(1);
-			UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("DeepDriveSimulationServer::Run Socket is listening %c"), m_isListening ? 'T' : 'F');
+			UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("DeepDriveSimulationServer Socket is listening %c"), m_isListening ? 'T' : 'F');
 		}
 
 		bool pending = false;
 		if (m_ListenSocket->HasPendingConnection(pending) && pending)
 		{
 			TSharedRef<FInternetAddr> remoteAddress = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateInternetAddr();
-			socket = m_ListenSocket->Accept(*remoteAddress, FString("DeepDriveClient"));
+			UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("DeepDriveSimulationServer Incoming connection from %s"), *(remoteAddress->ToString(true)) );
+			socket = m_ListenSocket->Accept(*remoteAddress, FString("DeepDriveSimulationServer"));
 		}
 	}
 	return socket;
@@ -101,7 +100,6 @@ void DeepDriveSimulationServer::checkForMessages()
 	{
 		if (pendingSize)
 		{
-			#if 0
 			if (resizeReceiveBuffer(pendingSize))
 			{
 				int32 bytesRead = 0;
@@ -109,26 +107,12 @@ void DeepDriveSimulationServer::checkForMessages()
 				{
 					// UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] Received %d bytes: %d"), m_ClientId, bytesRead, bytesRead > 4 ? *(reinterpret_cast<uint32*>(m_ReceiveBuffer)) : 0);
 					m_MessageAssembler.add(m_ReceiveBuffer, bytesRead);
-					sleepTime = 0.0f;
 				}
 			}
-			#endif
 		}
 	}
 }
 
-
-void DeepDriveSimulationServer::Stop()
-{
-	UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("DeepDriveSimulationServer::Stop"));
-	shutdown();
-}
-
-
-void DeepDriveSimulationServer::terminate()
-{
-	m_isStopped = true;
-}
 
 void DeepDriveSimulationServer::shutdown()
 {

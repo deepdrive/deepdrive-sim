@@ -77,6 +77,8 @@ bool DeepDriveServer::RegisterProxy(IDeepDriveServerProxy &proxy, const FString 
 	{
 		m_Proxy = &proxy;
 		m_SimulationServer = new DeepDriveSimulationServer(simIpParts[0], simIpParts[1], simIpParts[2], simIpParts[3], simPort);
+		if(m_SimulationServer)
+			m_SimulationServer->start();
 		m_ConnectionListener = new DeepDriveConnectionListener(clientIpParts[0], clientIpParts[1], clientIpParts[2], clientIpParts[3], clientPort);
 
 		m_MessageQueue.Empty();
@@ -95,7 +97,7 @@ void DeepDriveServer::UnregisterProxy(IDeepDriveServerProxy &proxy)
 	{
 		if (m_SimulationServer)
 		{
-			m_SimulationServer->terminate();
+			m_SimulationServer->Stop();
 		}
 
 		if (m_ConnectionListener)

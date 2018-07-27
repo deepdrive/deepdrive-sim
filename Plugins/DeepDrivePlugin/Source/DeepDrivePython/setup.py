@@ -27,6 +27,13 @@ sources_client =    [   'src/deepdrive_client/deepdrive_client.cpp'
                     ,   'src/common/NumPyUtils.cpp'
                     ]
 
+sources_simulation =    [   'src/deepdrive_simulation/deepdrive_simulation.cpp'
+                        ,   'src/deepdrive_simulation/DeepdriveSimulation.cpp'
+                        ,   'src/socket/IP4Address.cpp'
+                        ,   'src/socket/IP4ClientSocket.cpp'
+                        ,   'src/common/NumPyUtils.cpp'
+                        ]
+
 
 includes =	[	'./'
             ,   'src'
@@ -65,6 +72,12 @@ deepdrive_client_module = Extension     (   'deepdrive_client'
                                         ,   define_macros=macros
                                         )
 
+deepdrive_simulation_module = Extension     (   'deepdrive_simulation'
+                                        ,   sources = sources_simulation
+                                        ,   extra_compile_args=compiler_args
+                                        ,   define_macros=macros
+                                        )
+
 setup	(   name=config.PACKAGE_NAME
         ,   version=os.environ['DEEPDRIVE_VERSION']
         ,   url='https://github.com/deepdrive/deepdrive-sim'
@@ -72,7 +85,7 @@ setup	(   name=config.PACKAGE_NAME
         ,   author_email='developers@deepdrive.io'
         ,   license='MIT'
         ,   description='Python interface to vehicle simulation running in Unreal'
-        ,   ext_modules=[deepdrive_capture_module, deepdrive_client_module]
+        ,   ext_modules=[deepdrive_capture_module, deepdrive_client_module, deepdrive_simulation_module]
         ,   include_dirs=includes
         ,   install_requires=['numpy']
         )

@@ -12,7 +12,7 @@
 #include <map>
 #include <functional>
 
-DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveConnection, Log, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveConnectionThread, Log, All);
 
 namespace deepdrive { namespace server {
 struct MessageHeader;
@@ -23,7 +23,7 @@ class FSocket;
 /**
  * 
  */
-class DeepDriveConnection	:	public FRunnable
+class DeepDriveConnectionThread	:	public FRunnable
 {
 	typedef TQueue<deepdrive::server::MessageHeader*, EQueueMode::Mpsc>	MessageQueue;
 
@@ -32,34 +32,24 @@ class DeepDriveConnection	:	public FRunnable
 
 public:
 
-	DeepDriveConnection(FSocket *socket);
+	DeepDriveConnectionThread(const FString &threadName);
 
-	~DeepDriveConnection();
+	~DeepDriveConnectionThread();
 
-	virtual bool Init();
-	virtual uint32 Run();
+	void start();
+
 	virtual void Stop();
 	virtual void Exit();
 
 	void enqueueResponse(deepdrive::server::MessageHeader *message);
 
-	bool isMaster() const;
+protected:
 
-private:
-
-	void shutdown();
-
-	void handleClientRequest(const deepdrive::server::MessageHeader &message);
-
-	void registerClient(const deepdrive::server::MessageHeader &message, bool isMaster);
-
-	void unregisterClient(const deepdrive::server::MessageHeader &message, bool isMaster);
+	virtual void shutdown();
 
 	bool resizeReceiveBuffer(uint32 minSize);
 
-	FSocket								*m_Socket = 0;
-	uint32								m_ClientId = 0;
-
+	FString								m_ThreadName;
 	FRunnableThread						*m_WorkerThread = 0;
 
 	MessageQueue						m_ResponseQueue;
@@ -71,14 +61,5 @@ private:
 
 	DeepDriveMessageAssembler			m_MessageAssembler;
 
-	bool								m_isMaster = false;
-
-	MessageHandlers						m_MessageHandlers;
-
 };
 
-
-inline bool DeepDriveConnection::isMaster() const
-{
-	return m_isMaster;
-}

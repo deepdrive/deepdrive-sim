@@ -2,8 +2,7 @@
 
 #pragma once
 
-#include "Engine.h"
-#include "Runtime/Core/Public/HAL/Runnable.h"
+#include "Private/Server/DeepDriveConnectionThread.h"
 
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveSimulationServer, Log, All);
@@ -11,19 +10,18 @@ DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveSimulationServer, Log, All);
 /**
  * 
  */
-class DeepDriveSimulationServer	:	public FRunnable
+class DeepDriveSimulationServer	:	public DeepDriveConnectionThread
 {
 public:
 
 	DeepDriveSimulationServer(uint8 a, uint8 b, uint8 c, uint8 d, uint16 port);
 
-	~DeepDriveSimulationServer();
+	virtual ~DeepDriveSimulationServer();
 
 	virtual bool Init();
 	virtual uint32 Run();
-	virtual void Stop();
 
-	void terminate();
+	virtual float execute();
 
 private:
 
@@ -39,9 +37,6 @@ private:
 	void checkForMessages();
 
 	void shutdown();
-
-	FRunnableThread					*m_WorkerThread = 0;
-	bool							m_isStopped = false;
 
 	FSocket							*m_ListenSocket = 0;
 	bool							m_isListening = false;

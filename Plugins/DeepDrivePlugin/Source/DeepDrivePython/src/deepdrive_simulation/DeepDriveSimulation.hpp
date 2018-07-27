@@ -8,7 +8,6 @@
 
 #include "Public/Server/Messages/DeepDriveServerConfigurationMessages.h"
 
-class DeepDriveClient;
 struct PySimulationGraphicsSettingsObject;
 
 class DeepDriveSimulation
@@ -16,14 +15,16 @@ class DeepDriveSimulation
 
 public:
 
-	DeepDriveSimulation();
+	DeepDriveSimulation(const IP4Address &ip4Address);
 
 	~DeepDriveSimulation();
 
-	static int32 resetSimulation(DeepDriveClient &client, float timeDilation, float startLocation, PySimulationGraphicsSettingsObject *graphicsSettings);
+	static int32 resetSimulation(float timeDilation, float startLocation, PySimulationGraphicsSettingsObject *graphicsSettings);
 
-	static int32 setSunSimulation(DeepDriveClient &client, uint32 month, uint32 day, uint32 minute, uint32 hour, uint32 speed);
+	static int32 setSunSimulation(uint32 month, uint32 day, uint32 minute, uint32 hour, uint32 speed);
 
 private:
+
+	IP4ClientSocket					m_Socket;
 
 };

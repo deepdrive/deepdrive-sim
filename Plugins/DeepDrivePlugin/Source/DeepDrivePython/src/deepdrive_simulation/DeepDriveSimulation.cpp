@@ -1,7 +1,6 @@
 
 #include "deepdrive_simulation/DeepDriveSimulation.hpp"
 #include "deepdrive_simulation/PySimulationGraphicsSettingsObject.h"
-#include "deepdrive_client/DeepDriveClient.hpp"
 
 #include "Public/Server/Messages/DeepDriveServerSimulationMessages.h"
 
@@ -9,16 +8,19 @@
 
 #include <iostream>
 
-DeepDriveSimulation::DeepDriveSimulation()
+DeepDriveSimulation::DeepDriveSimulation(const IP4Address &ip4Address)
+	:	m_Socket()
 {
+	m_Socket.connect(ip4Address);
 }
 
 DeepDriveSimulation::~DeepDriveSimulation()
 {
 }
 
-int32 DeepDriveSimulation::resetSimulation(DeepDriveClient &client, float timeDilation, float startLocation, PySimulationGraphicsSettingsObject *graphicsSettings)
+int32 DeepDriveSimulation::resetSimulation(float timeDilation, float startLocation, PySimulationGraphicsSettingsObject *graphicsSettings)
 {
+#if 0
 	deepdrive::server::ResetSimulationRequest req(client.getClientId());
 
 	SimulationConfiguration &cfg = req.configuration;
@@ -63,10 +65,14 @@ int32 DeepDriveSimulation::resetSimulation(DeepDriveClient &client, float timeDi
 	}
 
 	return res;
+#endif
+
+	return 0;
 }
 
-int32 DeepDriveSimulation::setSunSimulation(DeepDriveClient &client, uint32 month, uint32 day, uint32 minute, uint32 hour, uint32 speed)
+int32 DeepDriveSimulation::setSunSimulation(uint32 month, uint32 day, uint32 minute, uint32 hour, uint32 speed)
 {
+#if 0
 	deepdrive::server::SetSunSimulationRequest	req(client.getClientId(), month, day, hour, minute, speed);
 	IP4ClientSocket &socket = client.getSocket();
 
@@ -86,4 +92,6 @@ int32 DeepDriveSimulation::setSunSimulation(DeepDriveClient &client, uint32 mont
 	}
 
 	return res;
+#endif
+	return 0;
 }

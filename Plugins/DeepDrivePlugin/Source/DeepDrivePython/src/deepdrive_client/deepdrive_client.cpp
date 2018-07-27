@@ -48,10 +48,6 @@ static PyObject* handleError(int32 errorCode)
  *	@param	address		IP4 address of server
  *	@param	uint32		Port
  *	@param	uint32		Request master role
- *	@param	uint32		Seed
- *	@param	number		Global time dilation
- *	@param	number		Agent starting location
- *	@param	object		Graphics settings
  *
  *	@return	Client id, 0 in case of error
 */
@@ -64,13 +60,9 @@ static PyObject* deepdrive_client_create(PyObject *self, PyObject *args, PyObjec
 	const char *ipStr;
 	uint32 port = 0;
 	bool request_master_role = true;
-	uint32 seed = 0;
-	float timeDilation = 1.0f;
-	float startLocation = -1.0f; 
-	PyObject *graphicsSettings = 0;
 
-	char *keyWordList[] = {"ip_address", "port", "request_master_role", "seed", "time_dilation", "agent_start_location", "graphics_settings", NULL};
-	int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "sI|pIffO!", keyWordList, &ipStr, &port, &request_master_role, &seed, &timeDilation, &startLocation, &PySimulationGraphicsSettingsType, &graphicsSettings);
+	char *keyWordList[] = {"ip_address", "port", "request_master_role", NULL};
+	int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "sI|p", keyWordList, &ipStr, &port, &request_master_role);
 	if(ok && port > 0 && port < 65536)
 	{
 		IP4Address ip4Address;
@@ -78,8 +70,6 @@ static PyObject* deepdrive_client_create(PyObject *self, PyObject *args, PyObjec
 		if(ip4Address.set(ipStr, port))
 		{
 			std::cout << "Address successfully parsed " << ip4Address.toStr(true) << "\n";
-			std::cout << "Seed " <<  seed << " time dilation " << timeDilation << "\n";
-			std::cout << "gfx settings " <<  graphicsSettings << "\n";
 
 			DeepDriveClient *client = new DeepDriveClient(ip4Address);
 			if	(	client
@@ -88,7 +78,7 @@ static PyObject* deepdrive_client_create(PyObject *self, PyObject *args, PyObjec
 			{
 				std::cout << "Successfully connected to " << ip4Address.toStr(true) << "\n";
 				deepdrive::server::RegisterClientResponse registerClientResponse;
-				const int32 res = client->registerClient(registerClientResponse, request_master_role, seed, timeDilation, startLocation, reinterpret_cast<PySimulationGraphicsSettingsObject*> (graphicsSettings));
+				const int32 res = client->registerClient(registerClientResponse, request_master_role);
 				if(res >= 0)
 				{
 					uint32 clientId = registerClientResponse.client_id;
@@ -484,107 +474,6 @@ static PyObject* deepdrive_client_get_shared_memory(PyObject *self, PyObject *ar
 	return Py_BuildValue("");
 }
 
-/*	Reset simulation
- *
- *	@param	uint32		Client Id
- *	@param	number		Global time dilation
- *	@param	number		Agent starting location
- *	@param	object		Graphics settings
- *
-*/
-static PyObject* reset_simulation(PyObject *self, PyObject *args, PyObject *keyWords)
-{
-	uint32 clientId = 0;
-
-	float timeDilation = 1.0f;
-	float startLocation = -1.0f; 
-	PyObject *graphicsSettings = 0;
-
-	char *keyWordList[] = {"client_id", "time_dilation", "agent_start_location", "graphics_settings", NULL};
-	int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "I|ffO!", keyWordList, &clientId, &timeDilation, &startLocation, &PySimulationGraphicsSettingsType, &graphicsSettings);
-	if(ok)
-	{
-		std::cout << "Reset simulation clientId " << clientId << " \n";
-		DeepDriveClient *client = getClient(clientId);
-		if(client)
-		{
-			DeepDriveSimulation::resetSimulation(*client, timeDilation, startLocation, reinterpret_cast<PySimulationGraphicsSettingsObject*> (graphicsSettings));
-		}
-		else
-		{
-			PyErr_SetString(ClientDoesntExistError, "Client doesn't exist");
-			return 0;
-		}
-	}
-	else
-	{
-		std::cout << "Wrong arguments\n";
-	}
-
-	return Py_BuildValue("");
-}
-
-
-/*	Set date and time for simulation
- *
- *	@param	uint32		Client id
- *	@param	uint32		Year
- *	@param	uint32		Month
- *	@param	uint32		Day
- *	@param	uint32		Hour
- *	@param	uint32		Minute
- *	@return	True, if successfully, otherwise false
-*/
-static PyObject* set_simulation_date_and_time(PyObject *self, PyObject *args, PyObject *keyWords)
-{
-	uint32 res = 0;
-
-	uint32 clientId = 0;
-	uint32 year = 2011;
-	uint32 month = 8;
-	uint32 day = 1;
-	uint32 hour = 11;
-	uint32 minute = 30;
-
-	char *keyWordList[] = {"year", "month", "day", "hour", "minute", NULL};
-	int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "I|IIIII", keyWordList, &clientId, &year, &month, &day, &hour, &minute);
-	if(ok)
-	{
-		DeepDriveClient *client = getClient(clientId);
-		if	(	client
-			&&	client->isConnected()
-			)
-		{
-			const int32 initRes = 1;// DeepDriveSimulation::setSunSimulation(*client, month, day, minute, hour, speed);
-			if(initRes >= 0)
-				res = static_cast<uint32> (initRes);
-			else
-				return handleError(initRes);
-		}
-	}
-	else
-		std::cout << "Wrong arguments\n";
-
-	return Py_BuildValue("i", res);
-}
-
-/*	Set date and time for simulation
- *
- *	@param	uint32		Client id
- *	@param	uint32		Year
- *	@param	uint32		Month
- *	@param	uint32		Day
- *	@param	uint32		Hour
- *	@param	uint32		Minute
- *	@return	True, if successfully, otherwise false
-*/
-static PyObject* set_sun_simulation_speed(PyObject *self, PyObject *args)
-{
-	uint32 res = 0;
-
-	return Py_BuildValue("i", res);
-}
-
 static PyMethodDef DeepDriveClientMethods[] =	{	{"create", (PyCFunction) deepdrive_client_create, METH_VARARGS | METH_KEYWORDS, "Creates a new client which tries to connect to DeepDriveServer"}
 												,	{"close", deepdrive_client_close, METH_VARARGS, "Closes an existing client connection and frees all depending resources"}
 												,	{"register_camera", (PyCFunction) deepdrive_client_register_camera, METH_VARARGS | METH_KEYWORDS, "Register a capture camera"}
@@ -596,9 +485,6 @@ static PyMethodDef DeepDriveClientMethods[] =	{	{"create", (PyCFunction) deepdri
 												,	{"activate_synchronous_stepping", (PyCFunction) deepdrive_client_activate_synchronous_stepping, METH_VARARGS, "Send control value set to server"}
 												,	{"deactivate_synchronous_stepping", (PyCFunction) deepdrive_client_deactivate_synchronous_stepping, METH_VARARGS, "Send control value set to server"}
 												,	{"advance_synchronous_stepping", (PyCFunction) deepdrive_client_advance_synchronous_stepping, METH_VARARGS | METH_KEYWORDS, "Send control value set to server"}
-												,	{"reset_simulation", (PyCFunction) reset_simulation, METH_VARARGS | METH_KEYWORDS, "Reset simulation"}
-												,	{"set_simulation_date_and_time", (PyCFunction) set_simulation_date_and_time, METH_VARARGS | METH_KEYWORDS, "Set date and time for simulation"}
-												,	{"set_sun_simulation_speed", (PyCFunction) set_sun_simulation_speed, METH_VARARGS, "Set speed for sun simulation"}
 												,	{NULL,     NULL,             0,            NULL}        /* Sentinel */
 												};
 
@@ -619,10 +505,6 @@ PyMODINIT_FUNC PyInit_deepdrive_client(void)
 	std::cout << "###### ><> ><> PyInit_deepdrive_client <>< <>< ######\n";
 
 	import_array();
-
-	if (PyType_Ready(&PySimulationGraphicsSettingsType) < 0)
-		return 0;
-
 
 	PyObject *m  = PyModule_Create(&deepdrive_client_module);
 	if (m)
