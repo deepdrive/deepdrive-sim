@@ -5,6 +5,10 @@
 #include "GameFramework/Actor.h"
 
 #include "Public/Simulation/DeepDriveSimulationDefines.h"
+#include "Public/Server/Messages/DeepDriveMessageIds.h"
+
+#include <map>
+#include <functional>
 
 #include "DeepDriveSimulation.generated.h"
 
@@ -13,6 +17,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveSimulation, Log, All);
 class DeepDriveSimulationCaptureProxy;
 class DeepDriveSimulationServerProxy;
 class DeepDriveSimulationStateMachine;
+class DeepDriveSimulationServer;
 
 class DeepDriveSimulationRunningState;
 class DeepDriveSimulationReseState;
@@ -28,6 +33,9 @@ class UDeepDriveRandomStream;
 struct SimulationConfiguration;
 struct SimulationGraphicsSettings;
 
+namespace deepdrive { namespace server {
+struct MessageHeader;
+} }
 
 USTRUCT(BlueprintType)
 struct FDeepDriveRandomStreamData
@@ -193,6 +201,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Agents")
 	void OnDebugTrigger();
 
+	void enqueueMessage(deepdrive::server::MessageHeader *message);
+
 	void configure(const SimulationConfiguration &configuration, const SimulationGraphicsSettings &graphicsSettings, bool initialConfiguration);
 	bool resetAgent();
 	
@@ -204,7 +214,14 @@ public:
 
 private:
 
+	typedef TQueue<deepdrive::server::MessageHeader*> MessageQueue;
+
+	typedef std::function< void(const deepdrive::server::MessageHeader&) > HandleMessageFuncPtr;
+	typedef std::map<deepdrive::server::MessageId, HandleMessageFuncPtr>	MessageHandlers;
+
 	bool isActive() const;
+
+	void configure_(const deepdrive::server::MessageHeader& message);
 
 	ADeepDriveAgent* spawnAgent(EDeepDriveAgentControlMode mode, int32 configSlot, int32 startPosSlot);
 
@@ -218,9 +235,14 @@ private:
 	void applyGraphicsSettings(const SimulationGraphicsSettings &gfxSettings);
 
 	DeepDriveSimulationStateMachine			*m_StateMachine = 0;
+	DeepDriveSimulationServer				*m_SimulationServer = 0;
 	DeepDriveSimulationServerProxy			*m_ServerProxy = 0;
 	DeepDriveSimulationCaptureProxy			*m_CaptureProxy = 0;
 	TArray<UCaptureSinkComponentBase*>		m_CaptureSinks;
+
+	MessageQueue							m_MessageQueue;
+	MessageHandlers							m_MessageHandlers;
+
 
 	TArray<ADeepDriveAgent*>				m_Agents;
 	int32									m_curAgentIndex = 0;

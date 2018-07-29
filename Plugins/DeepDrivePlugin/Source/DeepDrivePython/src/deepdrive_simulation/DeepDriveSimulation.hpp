@@ -19,12 +19,22 @@ public:
 
 	~DeepDriveSimulation();
 
-	static int32 resetSimulation(float timeDilation, float startLocation, PySimulationGraphicsSettingsObject *graphicsSettings);
+	int32 configureSimulation(uint32 seed, float timeDilation, float startLocation, PySimulationGraphicsSettingsObject *graphicsSettings);
 
-	static int32 setSunSimulation(uint32 month, uint32 day, uint32 minute, uint32 hour, uint32 speed);
+	int32 resetSimulation(float timeDilation, float startLocation, PySimulationGraphicsSettingsObject *graphicsSettings);
+
+	int32 setSunSimulation(uint32 month, uint32 day, uint32 minute, uint32 hour, uint32 speed);
+
+	bool isConnected() const;
 
 private:
 
 	IP4ClientSocket					m_Socket;
 
 };
+
+
+inline bool DeepDriveSimulation::isConnected() const
+{
+	return m_Socket.isConnected();
+}

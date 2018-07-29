@@ -3,7 +3,8 @@
 #include "DeepDrivePluginPrivatePCH.h"
 #include "DeepDriveSimulationServer.h"
 
-#include "Private/Server/DeepDriveServer.h"
+#include "Public/Simulation/DeepDriveSimulation.h"
+#include "Public/Server/Messages/DeepDriveServerMessageHeader.h"
 
 #include "Runtime/Networking/Public/Interfaces/IPv4/IPv4SubnetMask.h"
 #include "Runtime/Networking/Public/Interfaces/IPv4/IPv4Address.h"
@@ -15,16 +16,17 @@
 
 DEFINE_LOG_CATEGORY(LogDeepDriveSimulationServer);
 
-DeepDriveSimulationServer::DeepDriveSimulationServer(uint8 a, uint8 b, uint8 c, uint8 d, uint16 port)
-	:	DeepDriveConnectionThread("DeepDriveSimulationServer")
+DeepDriveSimulationServer::DeepDriveSimulationServer(ADeepDriveSimulation &simulation, int32 ipParts[4], uint16 port)
+:	DeepDriveConnectionThread("DeepDriveSimulationServer")
+,	m_Simulation(simulation)
 {
-	UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("DeepDriveSimulationServer listening on %d.%d.%d.%d:%d"), a, b, c, d, port);
+	UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("DeepDriveSimulationServer listening on %d.%d.%d.%d:%d"), ipParts[0], ipParts[1], ipParts[2], ipParts[3], port);
 
-	FIPv4Endpoint endpoint(FIPv4Address(a, b, c, d), port);
+	FIPv4Endpoint endpoint(FIPv4Address(ipParts[0], ipParts[1], ipParts[2], ipParts[3]), port);
 	m_ListenSocket = FTcpSocketBuilder(TEXT("DeepDriveSimulationServer_Listen")).AsReusable().BoundToEndpoint(endpoint).Listening(8);
 
 	if(!m_ListenSocket)
-		UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("PANIC: Couldn't create Listening socket on %d.%d.%d.%d:%d"), a, b, c, d, port);
+		UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("PANIC: Couldn't create Listening socket on %d.%d.%d.%d:%d"), ipParts[0], ipParts[1], ipParts[2], ipParts[3], port);
 }
 
 DeepDriveSimulationServer::~DeepDriveSimulationServer()
@@ -36,6 +38,9 @@ bool DeepDriveSimulationServer::Init()
 {
 	UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("DeepDriveSimulationServer::Init") );
 	m_State = Listening;
+
+	m_MessageAssembler.m_HandleMessage.BindRaw(this, &DeepDriveSimulationServer::handleMessage);
+
 	return true;
 }
 
@@ -45,6 +50,7 @@ uint32 DeepDriveSimulationServer::Run()
 
 	while (!m_isStopped)
 	{
+		float sleepTime = 0.05f;
 		switch(m_State)
 		{
 			case Idle:
@@ -59,9 +65,25 @@ uint32 DeepDriveSimulationServer::Run()
 				break;
 
 			case Connected:
+				checkForMessages();
+				{
+					deepdrive::server::MessageHeader *response = 0;
+					if (m_ResponseQueue.Dequeue(response)
+						&& response
+						)
+					{
+						int32 bytesSent = 0;
+						m_Socket->Send(reinterpret_cast<uint8*> (response), response->message_size, bytesSent);
+						// UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] %d bytes sent back"), m_ClientId, bytesSent);
+
+						FMemory::Free(response);
+						sleepTime = 0.001f;
+					}
+
+				}
 				break;
 		}
-		FPlatformProcess::Sleep(0.05f);
+		FPlatformProcess::Sleep(sleepTime);
 	}
 
 	UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("DeepDriveSimulationServer Finished"));
@@ -69,6 +91,10 @@ uint32 DeepDriveSimulationServer::Run()
 	shutdown();
 
 	return 0;
+}
+
+void DeepDriveSimulationServer::enqueueResponse(deepdrive::server::MessageHeader *message)
+{
 }
 
 FSocket* DeepDriveSimulationServer::listen()
@@ -113,6 +139,10 @@ void DeepDriveSimulationServer::checkForMessages()
 	}
 }
 
+void DeepDriveSimulationServer::handleMessage(const deepdrive::server::MessageHeader &message)
+{
+	m_Simulation.enqueueMessage(message.clone());
+}
 
 void DeepDriveSimulationServer::shutdown()
 {

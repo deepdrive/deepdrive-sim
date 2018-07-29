@@ -49,6 +49,7 @@ if platform == "linux" or platform == "linux2":
     macros.append(('DEEPDRIVE_PLATFORM_LINUX', None))
     sources_capture.append(SRC_DIR + '/DeepDrivePlugin/Private/SharedMemory/SharedMemoryImpl_Linux.cpp')
     sources_client.append('src/socket/IP4ClientSocketImpl_Linux.cpp')
+    sources_simulation.append('src/socket/IP4ClientSocketImpl_Linux.cpp')
     compiler_args.append('-std=c++11')
 elif platform == "darwin":
     # MacOs
@@ -58,6 +59,7 @@ elif platform == "win32":
     macros.append(('DEEPDRIVE_PLATFORM_WINDOWS', None))
     sources_capture.append(SRC_DIR + '/DeepDrivePlugin/Private/SharedMemory/SharedMemoryImpl_Windows.cpp')
     sources_client.append('src/socket/IP4ClientSocketImpl_Windows.cpp')
+    sources_simulation.append('src/socket/IP4ClientSocketImpl_Windows.cpp')
     print('Detected Windows platform')
 
 deepdrive_capture_module = Extension	(	'deepdrive_capture'

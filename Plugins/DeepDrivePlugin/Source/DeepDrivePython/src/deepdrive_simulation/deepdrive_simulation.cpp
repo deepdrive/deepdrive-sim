@@ -9,6 +9,8 @@
 
 #include <iostream>
 
+static DeepDriveSimulation *g_DeepDriveSimulation = 0;
+
 static PyObject *DeepDriveClientError;
 static PyObject *ConnectionLostError;
 static PyObject *NotConnectedError;
@@ -50,8 +52,7 @@ static PyObject* handleError(int32 errorCode)
 */
 static PyObject* deepdrive_simulation_connect(PyObject *self, PyObject *args, PyObject *keyWords)
 {
-	PyObject *ret = PyDict_New();
-
+	uint32 res = 0;
 	const char *ipStr;
 	uint32 port = 0;
 	uint32 seed = 0;
@@ -67,56 +68,49 @@ static PyObject* deepdrive_simulation_connect(PyObject *self, PyObject *args, Py
 
 		if(ip4Address.set(ipStr, port))
 		{
-			std::cout << "Address successfully parsed " << ip4Address.toStr(true) << "\n";
-			std::cout << "Seed " <<  seed << " time dilation " << timeDilation << "\n";
-			std::cout << "gfx settings " <<  graphicsSettings << "\n";
-
-#if 0
-			DeepDriveClient *client = new DeepDriveClient(ip4Address);
-			if	(	client
-				&& 	client->isConnected()
-				)
+			if(g_DeepDriveSimulation == 0)
 			{
-				std::cout << "Successfully connected to " << ip4Address.toStr(true) << "\n";
-				deepdrive::server::RegisterClientResponse registerClientResponse;
-				const int32 res = client->registerClient(registerClientResponse, request_master_role, seed, timeDilation, startLocation, reinterpret_cast<PySimulationGraphicsSettingsObject*> (graphicsSettings));
-				if(res >= 0)
+				g_DeepDriveSimulation = new DeepDriveSimulation(ip4Address);
+				std::cout << "Created DeepDriveSimulation\n";
+
+				if(g_DeepDriveSimulation && g_DeepDriveSimulation->isConnected())
 				{
-					uint32 clientId = registerClientResponse.client_id;
-					std::cout << "Client id is " << std::to_string(clientId) << "\n";
-					PyDict_SetItem(ret, PyUnicode_FromString("client_id"), PyLong_FromUnsignedLong(clientId));
-					if(clientId)
-					{
-						addClient(clientId, client);
-						PyDict_SetItem(ret, PyUnicode_FromString("granted_master_role"),
-							PyLong_FromUnsignedLong(client->m_isMaster));
-						PyDict_SetItem(ret, PyUnicode_FromString("shared_memory_size"),
-							PyLong_FromUnsignedLong(client->m_SharedMemorySize));
-						PyDict_SetItem(ret, PyUnicode_FromString("max_supported_cameras"),
-							PyLong_FromUnsignedLong(client->m_MaxSupportedCameras));
-						PyDict_SetItem(ret, PyUnicode_FromString("max_capture_resolution"),
-							PyLong_FromUnsignedLong(client->m_MaxCaptureResolution));
-						PyDict_SetItem(ret, PyUnicode_FromString("inactivity_timeout_ms"),
-						 	PyLong_FromUnsignedLong(client->m_InactivityTimeout));
-						PyDict_SetItem(ret, PyUnicode_FromString("shared_memory_name"),
-							PyUnicode_FromString(client->m_SharedMemoryName.c_str()));
-						PyDict_SetItem(ret, PyUnicode_FromString("server_protocol_version"),
-							PyUnicode_FromString(client->m_ServerProtocolVersion.c_str()));
-					}
+					const int32 configureRes = g_DeepDriveSimulation->configureSimulation(seed, timeDilation, startLocation, reinterpret_cast<PySimulationGraphicsSettingsObject*> (graphicsSettings));
+					if(configureRes < 0)
+						handleError(configureRes);
+					else
+						res = 1;
 				}
-				else
-					return handleError(res);
+
 			}
 			else
-				std::cout << "Couldn't connect to " << ip4Address.toStr(true) << "\n";
-#endif
+				std::cout << "Already connected\n";
 		}
 		else
-			std::cout << ipStr << " doesnt appear to be a valid IP4 address\n";
+			std::cout << ipStr << " doesn't appear to be a valid IP4 address\n";
 	}
 	else
 		std::cout << "Wrong arguments\n";
-	return ret;
+
+	return Py_BuildValue("i", res);
+}
+
+/*	Disconnect to simulation server
+ *
+*/
+static PyObject* deepdriuve_simulation_disconnect(PyObject *self, PyObject *args)
+{
+	if(g_DeepDriveSimulation)
+	{
+		if(g_DeepDriveSimulation)
+			g_DeepDriveSimulation->disconnect();
+
+		delete g_DeepDriveSimulation;
+		g_DeepDriveSimulation = 0;
+	}
+
+
+	return 0;
 }
 
 /*	Reset simulation

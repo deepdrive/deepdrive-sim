@@ -6,6 +6,27 @@
 
 namespace deepdrive { namespace server {
 
+struct ConfigureSimulationRequest : public MessageHeader
+{
+	ConfigureSimulationRequest()
+		: MessageHeader(MessageId::ConfigureSimulationRequest, sizeof(ConfigureSimulationRequest))
+	{	}
+
+	SimulationConfiguration		configuration;
+
+	SimulationGraphicsSettings	graphics_settings;
+};
+
+struct ConfigureSimulationResponse : public MessageHeader
+{
+	ConfigureSimulationResponse(bool _success = false)
+		: MessageHeader(MessageId::ConfigureSimulationResponse, sizeof(ConfigureSimulationResponse))
+		, success(_success ? 1 : 0)
+	{	}
+
+	uint32		success;
+};
+
 struct ResetSimulationRequest : public MessageHeader
 {
 	ResetSimulationRequest(uint32 clientId)

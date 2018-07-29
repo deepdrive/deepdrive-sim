@@ -7,6 +7,12 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveSimulationServer, Log, All);
 
+namespace deepdrive { namespace server {
+struct MessageHeader;
+} }
+
+class ADeepDriveSimulation;
+
 /**
  * 
  */
@@ -14,14 +20,14 @@ class DeepDriveSimulationServer	:	public DeepDriveConnectionThread
 {
 public:
 
-	DeepDriveSimulationServer(uint8 a, uint8 b, uint8 c, uint8 d, uint16 port);
+	DeepDriveSimulationServer(ADeepDriveSimulation &simulation, int32 ipParts[4], uint16 port);
 
 	virtual ~DeepDriveSimulationServer();
 
 	virtual bool Init();
 	virtual uint32 Run();
 
-	virtual float execute();
+	void enqueueResponse(deepdrive::server::MessageHeader *message);
 
 private:
 
@@ -36,12 +42,18 @@ private:
 
 	void checkForMessages();
 
+	void handleMessage(const deepdrive::server::MessageHeader &message);
+
 	void shutdown();
 
+	ADeepDriveSimulation			&m_Simulation;
 	FSocket							*m_ListenSocket = 0;
 	bool							m_isListening = false;
 
 	FSocket							*m_Socket = 0;
 
 	State							m_State = Idle;
+
+	typedef TQueue<deepdrive::server::MessageHeader*, EQueueMode::Mpsc>	MessageQueue;
+	MessageQueue						m_ResponseQueue;
 };

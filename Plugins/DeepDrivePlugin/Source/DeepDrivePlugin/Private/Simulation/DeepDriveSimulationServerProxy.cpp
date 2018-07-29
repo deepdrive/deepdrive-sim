@@ -17,10 +17,12 @@ DeepDriveSimulationServerProxy::DeepDriveSimulationServerProxy(ADeepDriveSimulat
 {
 }
 
-bool DeepDriveSimulationServerProxy::initialize(const FString &simIPAddress, int32 simPort, const FString &clientIPAddress, int32 clientPort, UWorld *world)
+bool DeepDriveSimulationServerProxy::initialize(const FString &clientIPAddress, int32 clientPort, UWorld *world)
 {
 	m_isActive = false;
-	if(DeepDriveServer::GetInstance().RegisterProxy(*this, simIPAddress, static_cast<uint16> (simPort), clientIPAddress, static_cast<uint16> (clientPort)))
+	if	(	clientPort > 0 && clientPort <= 65535
+		&&	DeepDriveServer::GetInstance().RegisterProxy(*this, clientIPAddress, static_cast<uint16> (clientPort))
+		)
 	{
 		DeepDriveServer::GetInstance().setWorld(world);
 		m_isActive = true;

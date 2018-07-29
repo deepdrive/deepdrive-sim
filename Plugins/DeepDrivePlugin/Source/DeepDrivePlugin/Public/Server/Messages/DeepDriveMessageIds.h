@@ -22,8 +22,6 @@ enum class MessageId	:	uint32
 	/*
 		Configuration
 	*/
-	SetSunSimulationRequest,
-	SetSunSimulationResponse,
 	RegisterCaptureCameraRequest,
 	RegisterCaptureCameraResponse,
 	SetCapturePatternRequest,
@@ -48,8 +46,18 @@ enum class MessageId	:	uint32
 	DeactivateSynchronousSteppingResponse,
 	AdvanceSynchronousSteppingRequest,
 	AdvanceSynchronousSteppingResponse,
+
+
+	/*
+		Simulation
+	*/
+
+	ConfigureSimulationRequest,
+	ConfigureSimulationResponse,
 	ResetSimulationRequest,
-	ResetSimulationResponse
+	ResetSimulationResponse,
+	SetSunSimulationRequest,
+	SetSunSimulationResponse
 
 };
 	

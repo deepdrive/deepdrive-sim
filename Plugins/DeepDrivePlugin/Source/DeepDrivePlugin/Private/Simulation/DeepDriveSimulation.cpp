@@ -2,6 +2,7 @@
 
 #include "DeepDrivePluginPrivatePCH.h"
 #include "DeepDriveSimulation.h"
+#include "Private/Server/DeepDriveSimulationServer.h"
 #include "Private/Simulation/DeepDriveSimulationStateMachine.h"
 #include "Private/Simulation/States/DeepDriveSimulationInitializeState.h"
 #include "Private/Simulation/States/DeepDriveSimulationRunningState.h"
@@ -10,6 +11,7 @@
 #include "Private/Server/DeepDriveServer.h"
 #include "Public/Simulation/DeepDriveSimulationServerProxy.h"
 #include "Public/Simulation/DeepDriveSimulationCaptureProxy.h"
+#include "Public/Server/Messages/DeepDriveServerSimulationMessages.h"
 
 #include "Public/Simulation/DeepDriveSimulationTypes.h"
 
@@ -27,6 +29,8 @@ ADeepDriveSimulation::ADeepDriveSimulation()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	m_MessageHandlers[deepdrive::server::MessageId::ConfigureSimulationRequest] = std::bind(&ADeepDriveSimulation::configure_, this, std::placeholders::_1);
 
 }
 
@@ -60,9 +64,19 @@ void ADeepDriveSimulation::PreInitializeComponents()
 
 	if (!alreadyRegistered)
 	{
+		int32 ipParts[4];
+		if	(	DeepDriveServer::convertIpAddress(SimulationIPAddress, ipParts)
+			&&	SimulationPort > 0 && SimulationPort <= 65535
+			)
+		{
+			m_SimulationServer = new DeepDriveSimulationServer(*this, ipParts, static_cast<uint16> (SimulationPort));
+			if (m_SimulationServer)
+				m_SimulationServer->start();
+		}
+
 		m_ServerProxy = new DeepDriveSimulationServerProxy(*this);
 		m_CaptureProxy = new DeepDriveSimulationCaptureProxy(*this, CaptureInterval);
-		if	(	m_ServerProxy && m_ServerProxy->initialize(SimulationIPAddress, SimulationPort, ClientsIPAddress, ClientsPort, GetWorld())
+		if	(	m_ServerProxy && m_ServerProxy->initialize(ClientsIPAddress, ClientsPort, GetWorld())
 			&&	m_CaptureProxy
 			)
 		{
@@ -113,6 +127,9 @@ void ADeepDriveSimulation::EndPlay(const EEndPlayReason::Type EndPlayReason)
 
 	if (isActive())
 	{
+		if (m_SimulationServer)
+			m_SimulationServer->Stop();
+
 		if(m_CaptureProxy)
 			m_CaptureProxy->shutdown();
 
@@ -128,6 +145,18 @@ void ADeepDriveSimulation::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void ADeepDriveSimulation::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
+
+	deepdrive::server::MessageHeader *message = 0;
+	if (m_MessageQueue.Dequeue(message)
+		&& message
+		)
+	{
+		MessageHandlers::iterator fIt = m_MessageHandlers.find(message->message_id);
+		if (fIt != m_MessageHandlers.end())
+			fIt->second(*message);
+
+		FMemory::Free(message);
+	}
 
 	if (m_StateMachine)
 		m_StateMachine->update(*this, DeltaTime);
@@ -319,6 +348,30 @@ void ADeepDriveSimulation::PreviousAgent()
 		index = m_Agents.Num() - 1;
 
 	switchToAgent(index);
+}
+
+void ADeepDriveSimulation::enqueueMessage(deepdrive::server::MessageHeader *message)
+{
+	if (message)
+		m_MessageQueue.Enqueue(message);
+}
+
+void ADeepDriveSimulation::configure_(const deepdrive::server::MessageHeader& message)
+{
+	const deepdrive::server::ConfigureSimulationRequest &req = static_cast<const deepdrive::server::ConfigureSimulationRequest&> (message);
+	const SimulationConfiguration &configuration = req.configuration;
+	const SimulationGraphicsSettings &graphicsSettings = req.graphics_settings;
+
+	Seed = configuration.seed;
+	for (auto &rsd : RandomStreams)
+		rsd.Value.getRandomStream()->initialize(Seed);
+
+	for (auto &agent : m_Agents)
+	{
+		agent->getAgentController()->OnConfigureSimulation(configuration, true);
+	}
+
+	applyGraphicsSettings(graphicsSettings);
 }
 
 void ADeepDriveSimulation::configure(const SimulationConfiguration &configuration, const SimulationGraphicsSettings &graphicsSettings, bool initialConfiguration)

@@ -4,7 +4,6 @@
 #include "Private/Server/DeepDriveServer.h"
 #include "Private/Server/DeepDriveConnectionListener.h"
 #include "Private/Server/DeepDriveClientConnection.h"
-#include "Private/Server/DeepDriveSimulationServer.h"
 #include "Private/Capture/DeepDriveCapture.h"
 
 #include "Public/Server/IDeepDriveServerProxy.h"
@@ -61,24 +60,15 @@ DeepDriveServer::~DeepDriveServer()
 {
 }
 
-bool DeepDriveServer::RegisterProxy(IDeepDriveServerProxy &proxy, const FString &simIpAddress, uint16 simPort, const FString &clientIpAddress, uint16 clientPort)
+bool DeepDriveServer::RegisterProxy(IDeepDriveServerProxy &proxy, const FString &clientIpAddress, uint16 clientPort)
 {
 	bool registered = false;
 
-	bool isSimIpValid = false;
-	bool isClientIpValid = false;
-	int32 simIpParts[4];
 	int32 clientIpParts[4];
 
-	isSimIpValid = convertIpAddress(simIpAddress, simIpParts);
-	isClientIpValid = convertIpAddress(clientIpAddress, clientIpParts);
-
-	if(isSimIpValid && isClientIpValid)
+	if(convertIpAddress(clientIpAddress, clientIpParts))
 	{
 		m_Proxy = &proxy;
-		m_SimulationServer = new DeepDriveSimulationServer(simIpParts[0], simIpParts[1], simIpParts[2], simIpParts[3], simPort);
-		if(m_SimulationServer)
-			m_SimulationServer->start();
 		m_ConnectionListener = new DeepDriveConnectionListener(clientIpParts[0], clientIpParts[1], clientIpParts[2], clientIpParts[3], clientPort);
 
 		m_MessageQueue.Empty();
@@ -95,11 +85,6 @@ void DeepDriveServer::UnregisterProxy(IDeepDriveServerProxy &proxy)
 {
 	if (m_Proxy == &proxy)
 	{
-		if (m_SimulationServer)
-		{
-			m_SimulationServer->Stop();
-		}
-
 		if (m_ConnectionListener)
 		{
 			m_ConnectionListener->terminate();
