@@ -82,5 +82,26 @@ struct SetDateAndTimeResponse : public MessageHeader
 };
 
 
+struct SetSunSimulationSpeedRequest : public MessageHeader
+{
+	SetSunSimulationSpeedRequest(uint32 _speed)
+		: MessageHeader(MessageId::SetSunSimulationSpeedRequest, sizeof(SetSunSimulationSpeedRequest))
+		, speed(_speed)
+	{
+	}
+
+	uint32			speed;
+};
+
+
+struct SetSunSimulationSpeedResponse : public MessageHeader
+{
+	SetSunSimulationSpeedResponse(bool _result = false)
+		: MessageHeader(MessageId::SetSunSimulationSpeedResponse, sizeof(SetSunSimulationSpeedResponse))
+		, result(_result ? 1 : 0)
+	{	}
+
+	uint32		result;
+};
 
 } }	// namespaces

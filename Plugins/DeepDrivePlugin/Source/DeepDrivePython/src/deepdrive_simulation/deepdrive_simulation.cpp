@@ -194,17 +194,32 @@ static PyObject* set_date_and_time(PyObject *self, PyObject *args, PyObject *key
 
 /*	Set date and time for simulation
  *
- *	@param	uint32		Client id
- *	@param	uint32		Year
- *	@param	uint32		Month
- *	@param	uint32		Day
- *	@param	uint32		Hour
- *	@param	uint32		Minute
+ *	@param	uint32		Speed in simulation seconds per real-time seconds
  *	@return	True, if successfully, otherwise false
 */
-static PyObject* set_sun_simulation_speed(PyObject *self, PyObject *args)
+static PyObject* set_sun_simulation_speed(PyObject *self, PyObject *args, PyObject *keyWords)
 {
 	uint32 res = 0;
+
+	if(g_DeepDriveSimulation)
+	{
+		uint32 speed = 0;
+
+		char *keyWordList[] = {"speed", NULL};
+		int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "|I", keyWordList, &speed);
+		if(ok)
+		{
+			const int32 initRes = g_DeepDriveSimulation->setSpeed(speed);
+			if(initRes >= 0)
+				res = static_cast<uint32> (initRes);
+			else
+				return handleError(initRes);
+		}
+		else
+			std::cout << "Wrong arguments\n";
+	}
+	else
+		std::cout << "Not connect to Simulation server\n";
 
 	return Py_BuildValue("i", res);
 }
@@ -212,7 +227,7 @@ static PyObject* set_sun_simulation_speed(PyObject *self, PyObject *args)
 static PyMethodDef DeepDriveClientMethods[] =	{	{"connect", (PyCFunction) deepdrive_simulation_connect, METH_VARARGS | METH_KEYWORDS, "Creates a new client which tries to connect to DeepDriveServer"}
 												,	{"reset_simulation", (PyCFunction) reset_simulation, METH_VARARGS | METH_KEYWORDS, "Reset simulation"}
 												,	{"set_date_and_time", (PyCFunction) set_date_and_time, METH_VARARGS | METH_KEYWORDS, "Set date and time for simulation"}
-												,	{"set_sun_simulation_speed", (PyCFunction) set_sun_simulation_speed, METH_VARARGS, "Set speed for sun simulation"}
+												,	{"set_sun_simulation_speed", (PyCFunction) set_sun_simulation_speed, METH_VARARGS | METH_KEYWORDS, "Set speed for sun simulation"}
 												,	{NULL,     NULL,             0,            NULL}        /* Sentinel */
 												};
 

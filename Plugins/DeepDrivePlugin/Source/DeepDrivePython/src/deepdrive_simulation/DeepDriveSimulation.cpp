@@ -145,3 +145,29 @@ int32 DeepDriveSimulation::setDateAndTime(uint32 year, uint32 month, uint32 day,
 
 	return res;
 }
+
+int32 DeepDriveSimulation::setSpeed(uint32 speed)
+{
+	deepdrive::server::SetSunSimulationSpeedRequest	req(speed);
+
+	int32 res = m_Socket.send(&req, sizeof(req));
+	if(res >= 0)
+	{
+		std::cout << "SetSunSimulationSpeedRequest sent\n";
+
+		deepdrive::server::SetSunSimulationSpeedResponse response;
+		if(m_Socket.receive(&response, sizeof(response), 1000))
+		{
+			res = static_cast<int32> (response.result);
+			std::cout << "SetSunSimulationSpeedResponse received\n";
+		}
+		else
+		{
+			std::cout << "Waiting for SetSunSimulationSpeedResponse, time out\n";
+			res = TIME_OUT;
+		}
+	}
+
+	return res;
+}
+
