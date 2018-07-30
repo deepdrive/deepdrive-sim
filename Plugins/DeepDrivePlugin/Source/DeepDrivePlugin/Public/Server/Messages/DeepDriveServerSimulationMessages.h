@@ -52,4 +52,35 @@ struct ResetSimulationResponse : public MessageHeader
 };
 
 
+struct SetDateAndTimeRequest : public MessageHeader
+{
+	SetDateAndTimeRequest(uint32 _year, uint32 _month, uint32 _day, uint32 _hour, uint32 _minute)
+		: MessageHeader(MessageId::SetDateAndTimeRequest, sizeof(SetDateAndTimeRequest))
+		, year(_year)
+		, month(_month)
+		, day(_day)
+		, hour(_hour)
+		, minute(_minute)
+	{
+	}
+
+	uint32			year;
+	uint32			month;
+	uint32			day;
+	uint32			hour;
+	uint32			minute;
+};
+
+struct SetDateAndTimeResponse : public MessageHeader
+{
+	SetDateAndTimeResponse(bool _result = false)
+		: MessageHeader(MessageId::SetDateAndTimeResponse, sizeof(SetDateAndTimeResponse))
+		, result(_result ? 1 : 0)
+	{	}
+
+	uint32		result;
+};
+
+
+
 } }	// namespaces

@@ -7,37 +7,6 @@
 
 namespace deepdrive { namespace server {
 
-struct SetSunSimulationRequest : public MessageHeader
-{
-	SetSunSimulationRequest(uint32 clientId, uint32 _month, uint32 _day, uint32 _hour, uint32 _minute, uint32 _speed)
-		: MessageHeader(MessageId::SetSunSimulationRequest, sizeof(SetSunSimulationRequest))
-		, client_id(clientId)
-		, month(_month)
-		, day(_day)
-		, hour(_hour)
-		, minute(_minute)
-		, speed(_speed)
-	{
-	}
-
-	uint32			client_id;
-	uint32			month;
-	uint32			day;
-	uint32			hour;
-	uint32			minute;
-	uint32			speed;
-};
-
-struct SetSunSimulationResponse : public MessageHeader
-{
-	SetSunSimulationResponse(bool _result = false)
-		: MessageHeader(MessageId::SetSunSimulationResponse, sizeof(SetSunSimulationResponse))
-		, result(_result ? 1 : 0)
-	{	}
-
-	uint32		result;
-};
-
 struct RegisterCaptureCameraRequest	:	public MessageHeader
 {
 	RegisterCaptureCameraRequest(uint32 clientId, float hFoV, uint16 captureWidth, uint16 captureHeight, const char *label)

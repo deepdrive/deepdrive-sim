@@ -17,8 +17,6 @@ DeepDriveSimulation::DeepDriveSimulation(const IP4Address &ip4Address)
 
 DeepDriveSimulation::~DeepDriveSimulation()
 {
-	if(m_Socket.isConnected())
-		 m_Socket.disconnect();
 }
 
 
@@ -123,28 +121,27 @@ int32 DeepDriveSimulation::resetSimulation(float timeDilation, float startLocati
 	return 0;
 }
 
-int32 DeepDriveSimulation::setSunSimulation(uint32 month, uint32 day, uint32 minute, uint32 hour, uint32 speed)
+int32 DeepDriveSimulation::setDateAndTime(uint32 year, uint32 month, uint32 day, uint32 minute, uint32 hour)
 {
-#if 0
-	deepdrive::server::SetSunSimulationRequest	req(client.getClientId(), month, day, hour, minute, speed);
-	IP4ClientSocket &socket = client.getSocket();
+	deepdrive::server::SetDateAndTimeRequest	req(year, month, day, hour, minute);
 
-	int32 res = socket.send(&req, sizeof(req));
+	int32 res = m_Socket.send(&req, sizeof(req));
 	if(res >= 0)
 	{
-		std::cout << "SetSunSimulationRequest sent\n";
+		std::cout << "SetDateAndTimeRequest sent\n";
 
-		deepdrive::server::SetSunSimulationResponse response;
-		if(socket.receive(&response, sizeof(response), 1000))
+		deepdrive::server::SetDateAndTimeResponse response;
+		if(m_Socket.receive(&response, sizeof(response), 1000))
 		{
 			res = static_cast<int32> (response.result);
-			std::cout << "SetSunSimulationResponse received " << client.getClientId() << " " << res << "\n";
+			std::cout << "SetDateAndTimeResponse received\n";
 		}
 		else
-			std::cout << "Waiting for SetSunSimulationRequest, time out\n";
+		{
+			std::cout << "Waiting for SetDateAndTimeResponse, time out\n";
+			res = TIME_OUT;
+		}
 	}
 
 	return res;
-#endif
-	return 0;
 }

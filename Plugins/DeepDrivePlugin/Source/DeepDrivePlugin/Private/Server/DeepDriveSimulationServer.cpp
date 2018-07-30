@@ -95,6 +95,10 @@ uint32 DeepDriveSimulationServer::Run()
 
 void DeepDriveSimulationServer::enqueueResponse(deepdrive::server::MessageHeader *message)
 {
+	if (message)
+	{
+		m_ResponseQueue.Enqueue(message);
+	}
 }
 
 FSocket* DeepDriveSimulationServer::listen()

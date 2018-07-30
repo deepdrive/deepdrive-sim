@@ -30,7 +30,8 @@ ADeepDriveSimulation::ADeepDriveSimulation()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	m_MessageHandlers[deepdrive::server::MessageId::ConfigureSimulationRequest] = std::bind(&ADeepDriveSimulation::configure_, this, std::placeholders::_1);
+	m_MessageHandlers[deepdrive::server::MessageId::ConfigureSimulationRequest] = std::bind(&ADeepDriveSimulation::_configure, this, std::placeholders::_1);
+	m_MessageHandlers[deepdrive::server::MessageId::SetDateAndTimeRequest] = std::bind(&ADeepDriveSimulation::_setDateAndTime, this, std::placeholders::_1);
 
 }
 
@@ -356,8 +357,10 @@ void ADeepDriveSimulation::enqueueMessage(deepdrive::server::MessageHeader *mess
 		m_MessageQueue.Enqueue(message);
 }
 
-void ADeepDriveSimulation::configure_(const deepdrive::server::MessageHeader& message)
+void ADeepDriveSimulation::_configure(const deepdrive::server::MessageHeader& message)
 {
+	UE_LOG(LogDeepDriveSimulation, Log, TEXT("DeepDriveSimulation configure") );
+
 	const deepdrive::server::ConfigureSimulationRequest &req = static_cast<const deepdrive::server::ConfigureSimulationRequest&> (message);
 	const SimulationConfiguration &configuration = req.configuration;
 	const SimulationGraphicsSettings &graphicsSettings = req.graphics_settings;
@@ -372,6 +375,19 @@ void ADeepDriveSimulation::configure_(const deepdrive::server::MessageHeader& me
 	}
 
 	applyGraphicsSettings(graphicsSettings);
+
+	m_SimulationServer->enqueueResponse( new deepdrive::server::ConfigureSimulationResponse(true) );
+}
+
+void ADeepDriveSimulation::_setDateAndTime(const deepdrive::server::MessageHeader& message)
+{
+	const deepdrive::server::SetDateAndTimeRequest &req = static_cast<const deepdrive::server::SetDateAndTimeRequest&> (message);
+
+	UE_LOG(LogDeepDriveSimulation, Log, TEXT("DeepDriveSimulation Set Date/Time to %d/%d/%d - %d/%d"), req.year, req.month, req.day, req.hour, req.minute );
+
+	SetDateAndTime(req.year, req.month, req.day, req.hour, req.minute);
+
+	m_SimulationServer->enqueueResponse( new deepdrive::server::SetDateAndTimeResponse(true) );
 }
 
 void ADeepDriveSimulation::configure(const SimulationConfiguration &configuration, const SimulationGraphicsSettings &graphicsSettings, bool initialConfiguration)

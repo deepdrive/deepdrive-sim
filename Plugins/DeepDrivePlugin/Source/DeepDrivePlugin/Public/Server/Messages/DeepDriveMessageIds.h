@@ -56,8 +56,8 @@ enum class MessageId	:	uint32
 	ConfigureSimulationResponse,
 	ResetSimulationRequest,
 	ResetSimulationResponse,
-	SetSunSimulationRequest,
-	SetSunSimulationResponse
+	SetDateAndTimeRequest,
+	SetDateAndTimeResponse
 
 };
 	

@@ -23,7 +23,7 @@ public:
 
 	int32 resetSimulation(float timeDilation, float startLocation, PySimulationGraphicsSettingsObject *graphicsSettings);
 
-	int32 setSunSimulation(uint32 month, uint32 day, uint32 minute, uint32 hour, uint32 speed);
+	int32 setDateAndTime(uint32 year, uint32 month, uint32 day, uint32 minute, uint32 hour);
 
 	bool isConnected() const;
 

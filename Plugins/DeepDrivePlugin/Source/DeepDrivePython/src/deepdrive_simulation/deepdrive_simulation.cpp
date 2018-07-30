@@ -102,9 +102,6 @@ static PyObject* deepdriuve_simulation_disconnect(PyObject *self, PyObject *args
 {
 	if(g_DeepDriveSimulation)
 	{
-		if(g_DeepDriveSimulation)
-			g_DeepDriveSimulation->disconnect();
-
 		delete g_DeepDriveSimulation;
 		g_DeepDriveSimulation = 0;
 	}
@@ -157,7 +154,6 @@ static PyObject* reset_simulation(PyObject *self, PyObject *args, PyObject *keyW
 
 /*	Set date and time for simulation
  *
- *	@param	uint32		Client id
  *	@param	uint32		Year
  *	@param	uint32		Month
  *	@param	uint32		Day
@@ -165,37 +161,34 @@ static PyObject* reset_simulation(PyObject *self, PyObject *args, PyObject *keyW
  *	@param	uint32		Minute
  *	@return	True, if successfully, otherwise false
 */
-static PyObject* set_simulation_date_and_time(PyObject *self, PyObject *args, PyObject *keyWords)
+static PyObject* set_date_and_time(PyObject *self, PyObject *args, PyObject *keyWords)
 {
 	uint32 res = 0;
-#if 0
 
-	uint32 clientId = 0;
-	uint32 year = 2011;
-	uint32 month = 8;
-	uint32 day = 1;
-	uint32 hour = 11;
-	uint32 minute = 30;
-
-	char *keyWordList[] = {"year", "month", "day", "hour", "minute", NULL};
-	int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "I|IIIII", keyWordList, &clientId, &year, &month, &day, &hour, &minute);
-	if(ok)
+	if(g_DeepDriveSimulation)
 	{
-		DeepDriveClient *client = getClient(clientId);
-		if	(	client
-			&&	client->isConnected()
-			)
+		uint32 year = 2011;
+		uint32 month = 8;
+		uint32 day = 1;
+		uint32 hour = 11;
+		uint32 minute = 30;
+
+		char *keyWordList[] = {"year", "month", "day", "hour", "minute", NULL};
+		int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "|IIIII", keyWordList, &year, &month, &day, &hour, &minute);
+		if(ok)
 		{
-			const int32 initRes = 1;// DeepDriveSimulation::setSunSimulation(*client, month, day, minute, hour, speed);
+			const int32 initRes = g_DeepDriveSimulation->setDateAndTime(year, month, day, minute, hour);
 			if(initRes >= 0)
 				res = static_cast<uint32> (initRes);
 			else
 				return handleError(initRes);
 		}
+		else
+			std::cout << "Wrong arguments\n";
 	}
 	else
-		std::cout << "Wrong arguments\n";
-#endif
+		std::cout << "Not connect to Simulation server\n";
+
 	return Py_BuildValue("i", res);
 }
 
@@ -218,7 +211,7 @@ static PyObject* set_sun_simulation_speed(PyObject *self, PyObject *args)
 
 static PyMethodDef DeepDriveClientMethods[] =	{	{"connect", (PyCFunction) deepdrive_simulation_connect, METH_VARARGS | METH_KEYWORDS, "Creates a new client which tries to connect to DeepDriveServer"}
 												,	{"reset_simulation", (PyCFunction) reset_simulation, METH_VARARGS | METH_KEYWORDS, "Reset simulation"}
-												,	{"set_simulation_date_and_time", (PyCFunction) set_simulation_date_and_time, METH_VARARGS | METH_KEYWORDS, "Set date and time for simulation"}
+												,	{"set_date_and_time", (PyCFunction) set_date_and_time, METH_VARARGS | METH_KEYWORDS, "Set date and time for simulation"}
 												,	{"set_sun_simulation_speed", (PyCFunction) set_sun_simulation_speed, METH_VARARGS, "Set speed for sun simulation"}
 												,	{NULL,     NULL,             0,            NULL}        /* Sentinel */
 												};

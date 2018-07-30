@@ -221,7 +221,8 @@ private:
 
 	bool isActive() const;
 
-	void configure_(const deepdrive::server::MessageHeader& message);
+	void _configure(const deepdrive::server::MessageHeader& message);
+	void _setDateAndTime(const deepdrive::server::MessageHeader& message);
 
 	ADeepDriveAgent* spawnAgent(EDeepDriveAgentControlMode mode, int32 configSlot, int32 startPosSlot);
 
