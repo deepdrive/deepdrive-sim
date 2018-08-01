@@ -3,6 +3,7 @@
 #include "DeepDrivePluginPrivatePCH.h"
 #include "DeepDriveSimulation.h"
 #include "Private/Server/DeepDriveSimulationServer.h"
+#include "Private/Simulation/DeepDriveSimulationMessageHandler.h"
 #include "Private/Simulation/DeepDriveSimulationStateMachine.h"
 #include "Private/Simulation/States/DeepDriveSimulationInitializeState.h"
 #include "Private/Simulation/States/DeepDriveSimulationRunningState.h"
@@ -11,7 +12,6 @@
 #include "Private/Server/DeepDriveServer.h"
 #include "Public/Simulation/DeepDriveSimulationServerProxy.h"
 #include "Public/Simulation/DeepDriveSimulationCaptureProxy.h"
-#include "Public/Server/Messages/DeepDriveServerSimulationMessages.h"
 
 #include "Public/Simulation/DeepDriveSimulationTypes.h"
 
@@ -29,9 +29,6 @@ ADeepDriveSimulation::ADeepDriveSimulation()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
-	m_MessageHandlers[deepdrive::server::MessageId::ConfigureSimulationRequest] = std::bind(&ADeepDriveSimulation::_configure, this, std::placeholders::_1);
-	m_MessageHandlers[deepdrive::server::MessageId::SetDateAndTimeRequest] = std::bind(&ADeepDriveSimulation::_setDateAndTime, this, std::placeholders::_1);
 
 }
 
@@ -72,7 +69,10 @@ void ADeepDriveSimulation::PreInitializeComponents()
 		{
 			m_SimulationServer = new DeepDriveSimulationServer(*this, ipParts, static_cast<uint16> (SimulationPort));
 			if (m_SimulationServer)
+			{
 				m_SimulationServer->start();
+				m_MessageHandler = new DeepDriveSimulationMessageHandler(*this, *m_SimulationServer);
+			}
 		}
 
 		m_ServerProxy = new DeepDriveSimulationServerProxy(*this);
@@ -147,17 +147,8 @@ void ADeepDriveSimulation::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
-	deepdrive::server::MessageHeader *message = 0;
-	if (m_MessageQueue.Dequeue(message)
-		&& message
-		)
-	{
-		MessageHandlers::iterator fIt = m_MessageHandlers.find(message->message_id);
-		if (fIt != m_MessageHandlers.end())
-			fIt->second(*message);
-
-		FMemory::Free(message);
-	}
+	if(m_MessageHandler)
+		m_MessageHandler->handleMessages();
 
 	if (m_StateMachine)
 		m_StateMachine->update(*this, DeltaTime);
@@ -354,60 +345,12 @@ void ADeepDriveSimulation::PreviousAgent()
 void ADeepDriveSimulation::enqueueMessage(deepdrive::server::MessageHeader *message)
 {
 	if (message)
-		m_MessageQueue.Enqueue(message);
-}
-
-void ADeepDriveSimulation::_configure(const deepdrive::server::MessageHeader& message)
-{
-	UE_LOG(LogDeepDriveSimulation, Log, TEXT("DeepDriveSimulation configure") );
-
-	const deepdrive::server::ConfigureSimulationRequest &req = static_cast<const deepdrive::server::ConfigureSimulationRequest&> (message);
-	const SimulationConfiguration &configuration = req.configuration;
-	const SimulationGraphicsSettings &graphicsSettings = req.graphics_settings;
-
-	Seed = configuration.seed;
-	for (auto &rsd : RandomStreams)
-		rsd.Value.getRandomStream()->initialize(Seed);
-
-	for (auto &agent : m_Agents)
 	{
-		agent->getAgentController()->OnConfigureSimulation(configuration, true);
+	 	if(m_MessageHandler)
+	 		m_MessageHandler->enqueueMessage(*message);
+	 	else
+			FMemory::Free(message);
 	}
-
-	applyGraphicsSettings(graphicsSettings);
-
-	m_SimulationServer->enqueueResponse( new deepdrive::server::ConfigureSimulationResponse(true) );
-}
-
-void ADeepDriveSimulation::_setDateAndTime(const deepdrive::server::MessageHeader& message)
-{
-	const deepdrive::server::SetDateAndTimeRequest &req = static_cast<const deepdrive::server::SetDateAndTimeRequest&> (message);
-
-	UE_LOG(LogDeepDriveSimulation, Log, TEXT("DeepDriveSimulation Set Date/Time to %d/%d/%d - %d/%d"), req.year, req.month, req.day, req.hour, req.minute );
-
-	SetDateAndTime(req.year, req.month, req.day, req.hour, req.minute);
-
-	m_SimulationServer->enqueueResponse( new deepdrive::server::SetDateAndTimeResponse(true) );
-}
-
-void ADeepDriveSimulation::configure(const SimulationConfiguration &configuration, const SimulationGraphicsSettings &graphicsSettings, bool initialConfiguration)
-{
-	UE_LOG(LogDeepDriveSimulation, Log, TEXT("DeepDriveSimulation resolution %dx%d seed %d"), graphicsSettings.resolution_width, graphicsSettings.resolution_height, configuration.seed);
-
-	if(initialConfiguration)
-		Seed = configuration.seed;
-	for(auto &rsd : RandomStreams)
-	{
-		if(initialConfiguration || rsd.Value.ReSeedOnReset)
-			rsd.Value.getRandomStream()->initialize(Seed);
-	}
-
-	for (auto &agent : m_Agents)
-	{
-		agent->getAgentController()->OnConfigureSimulation(configuration, initialConfiguration);
-	}
-
-	applyGraphicsSettings(graphicsSettings);
 }
 
 void ADeepDriveSimulation::applyGraphicsSettings(const SimulationGraphicsSettings &gfxSettings)
@@ -425,6 +368,10 @@ void ADeepDriveSimulation::applyGraphicsSettings(const SimulationGraphicsSetting
 		gameSettings->SetVisualEffectQuality(gfxSettings.effect_quality);		
 		gameSettings->SetPostProcessingQuality(gfxSettings.post_process_level);
 		gameSettings->SetViewDistanceQuality(gfxSettings.view_distance);
+
+		UE_LOG(LogDeepDriveSimulation, Log, TEXT("DeepDriveSimulation Texture Quality %d"), gfxSettings.texture_quality);
+
+		gameSettings->ApplySettings(false);
 
 	}
 }

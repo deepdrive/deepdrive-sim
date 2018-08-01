@@ -21,7 +21,9 @@ public:
 
 	int32 configureSimulation(uint32 seed, float timeDilation, float startLocation, PySimulationGraphicsSettingsObject *graphicsSettings);
 
-	int32 resetSimulation(float timeDilation, float startLocation, PySimulationGraphicsSettingsObject *graphicsSettings);
+	int32 resetSimulation(float timeDilation, float startLocation);
+
+	int32 setGraphicsSettings(PySimulationGraphicsSettingsObject *graphicsSettings);
 
 	int32 setDateAndTime(uint32 year, uint32 month, uint32 day, uint32 minute, uint32 hour);
 	

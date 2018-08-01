@@ -43,7 +43,7 @@ public:
 	void EnableSimulation(bool Enabled);
 
 	UFUNCTION(BlueprintCallable, Category = "SunSimulation")
-	void SetSimulationSpeed(int32 MinutesPerSecond);
+	void SetSimulationSpeed(int32 SpeedInSeconds);
 
 private:
 
@@ -90,7 +90,7 @@ private:
 	FDateTime				m_desiredDateTime;
 	FTimespan				m_curTimeSpan = FTimespan::Zero();
 
-	int32					m_MinutesPerSecond = 0;
+	int32					m_SpeedInSeconds = 0;
 
 	enum SimulationMode
 	{

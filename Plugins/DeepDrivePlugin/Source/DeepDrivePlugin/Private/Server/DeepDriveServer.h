@@ -25,9 +25,6 @@ struct MessageHeader;
 
 } }
 
-struct SimulationGraphicsSettings;
-struct SimulationConfiguration;
-
 /**
  * 
  */
@@ -73,7 +70,7 @@ public:
 
 	void UnregisterProxy(IDeepDriveServerProxy &proxy);
 
-	uint32 registerClient(DeepDriveClientConnection *client, bool &isMaster, const SimulationConfiguration &simulationCfg, const SimulationGraphicsSettings &gfxSettings);
+	uint32 registerClient(DeepDriveClientConnection *client, bool &isMaster);
 
 	void unregisterClient(uint32 clientId);
 

@@ -5,7 +5,6 @@
 #include "GameFramework/Actor.h"
 
 #include "Public/Simulation/DeepDriveSimulationDefines.h"
-#include "Public/Server/Messages/DeepDriveMessageIds.h"
 
 #include <map>
 #include <functional>
@@ -18,6 +17,7 @@ class DeepDriveSimulationCaptureProxy;
 class DeepDriveSimulationServerProxy;
 class DeepDriveSimulationStateMachine;
 class DeepDriveSimulationServer;
+class DeepDriveSimulationMessageHandler;
 
 class DeepDriveSimulationRunningState;
 class DeepDriveSimulationReseState;
@@ -30,7 +30,6 @@ class ADeepDriveSimulationFreeCamera;
 class ADeepDriveSplineTrack;
 class UDeepDriveRandomStream;
 
-struct SimulationConfiguration;
 struct SimulationGraphicsSettings;
 
 namespace deepdrive { namespace server {
@@ -94,6 +93,7 @@ class DEEPDRIVEPLUGIN_API ADeepDriveSimulation	:	public AActor
 {
 	friend class DeepDriveSimulationRunningState;
 	friend class DeepDriveSimulationResetState;
+	friend class DeepDriveSimulationMessageHandler;
 
 	GENERATED_BODY()
 
@@ -192,6 +192,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Simulation")
 	void SetDateAndTime(int32 Year, int32 Month, int32 Day, int32 Hour, int32 Minute);
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Simulation")
+	void SetSunSimulationSpeed(int32 Speed);
+
 	UFUNCTION(BlueprintCallable, Category = "Misc")
 	void RegisterRandomStream(const FName &RandomStreamId, bool ReseedOnReset);
 
@@ -203,7 +206,6 @@ public:
 
 	void enqueueMessage(deepdrive::server::MessageHeader *message);
 
-	void configure(const SimulationConfiguration &configuration, const SimulationGraphicsSettings &graphicsSettings, bool initialConfiguration);
 	bool resetAgent();
 	
 	ADeepDriveAgent* getCurrentAgent() const;
@@ -214,15 +216,7 @@ public:
 
 private:
 
-	typedef TQueue<deepdrive::server::MessageHeader*> MessageQueue;
-
-	typedef std::function< void(const deepdrive::server::MessageHeader&) > HandleMessageFuncPtr;
-	typedef std::map<deepdrive::server::MessageId, HandleMessageFuncPtr>	MessageHandlers;
-
 	bool isActive() const;
-
-	void _configure(const deepdrive::server::MessageHeader& message);
-	void _setDateAndTime(const deepdrive::server::MessageHeader& message);
 
 	ADeepDriveAgent* spawnAgent(EDeepDriveAgentControlMode mode, int32 configSlot, int32 startPosSlot);
 
@@ -237,13 +231,10 @@ private:
 
 	DeepDriveSimulationStateMachine			*m_StateMachine = 0;
 	DeepDriveSimulationServer				*m_SimulationServer = 0;
+	DeepDriveSimulationMessageHandler		*m_MessageHandler = 0;
 	DeepDriveSimulationServerProxy			*m_ServerProxy = 0;
 	DeepDriveSimulationCaptureProxy			*m_CaptureProxy = 0;
 	TArray<UCaptureSinkComponentBase*>		m_CaptureSinks;
-
-	MessageQueue							m_MessageQueue;
-	MessageHandlers							m_MessageHandlers;
-
 
 	TArray<ADeepDriveAgent*>				m_Agents;
 	int32									m_curAgentIndex = 0;

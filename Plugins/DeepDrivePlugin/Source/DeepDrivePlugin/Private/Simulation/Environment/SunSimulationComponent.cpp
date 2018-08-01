@@ -194,12 +194,12 @@ void USunSimulationComponent::prepareTimespan(float duration)
 
 void USunSimulationComponent::EnableSimulation(bool Enabled)
 {
+	/*
 	if(Enabled)
 	{
 		if(m_SimulationMode != Continous)
 		{
-			int32 seconds = static_cast<float> (m_MinutesPerSecond * 60.0f);
-			m_curTimeSpan = FTimespan(0, 0, seconds);
+			m_curTimeSpan = FTimespan(0, 0, m_SpeedInSeconds);
 			m_SimulationMode = Continous;
 		}
 	}
@@ -207,15 +207,23 @@ void USunSimulationComponent::EnableSimulation(bool Enabled)
 	{
 		m_SimulationMode = Idle;
 	}
+	*/
 }
 
-void USunSimulationComponent::SetSimulationSpeed(int32 MinutesPerSecond)
+void USunSimulationComponent::SetSimulationSpeed(int32 SpeedInSeconds)
 {
-	m_MinutesPerSecond = MinutesPerSecond;
-	if (m_SimulationMode == Continous)
+	if(SpeedInSeconds > 0)
 	{
-		int32 seconds = static_cast<float> (m_MinutesPerSecond * 60.0f);
-		m_curTimeSpan = FTimespan(0, 0, seconds);
+		m_SpeedInSeconds = SpeedInSeconds;
+		m_curTimeSpan = FTimespan(0, 0, m_SpeedInSeconds);
+		m_SimulationMode = Continous;
+		UE_LOG(LogSunSimulationComponent, Log, TEXT("Set Sun simulation speed to %d"), m_SpeedInSeconds);
+	}
+	else
+	{
+		m_curTimeSpan = FTimespan();
+		m_SimulationMode = Idle;
+		UE_LOG(LogSunSimulationComponent, Log, TEXT("Stop Sun movement"));
 	}
 }
 

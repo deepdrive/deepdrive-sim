@@ -100,13 +100,3 @@ void DeepDriveSimulationServerProxy::SetAgentControlValues(float steering, float
 		agentCtrl->SetControlValues(steering, throttle, brake, handbrake);
 	}
 }
-
-void DeepDriveSimulationServerProxy::ConfigureSimulation(const SimulationConfiguration &cfg, const SimulationGraphicsSettings &graphicsSettings, bool initialConfiguration)
-{
-	m_DeepDriveSim.configure(cfg, graphicsSettings, initialConfiguration);
-}
-
-void DeepDriveSimulationServerProxy::SetSunSimulation(const SunSimulationSettings &sunSimSettings)
-{
-	m_DeepDriveSim.SetDateAndTime(sunSimSettings.year, sunSimSettings.month, sunSimSettings.day, sunSimSettings.hour, sunSimSettings.minute);
-}

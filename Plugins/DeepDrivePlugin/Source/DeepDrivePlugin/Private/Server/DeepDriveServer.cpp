@@ -9,7 +9,6 @@
 #include "Public/Server/IDeepDriveServerProxy.h"
 #include "Public/Server/Messages/DeepDriveServerConfigurationMessages.h"
 #include "Public/Server/Messages/DeepDriveServerControlMessages.h"
-#include "Public/Server/Messages/DeepDriveServerSimulationMessages.h"
 
 #include "Runtime/Networking/Public/Interfaces/IPv4/IPv4SubnetMask.h"
 #include "Runtime/Networking/Public/Interfaces/IPv4/IPv4Address.h"
@@ -97,7 +96,7 @@ void DeepDriveServer::UnregisterProxy(IDeepDriveServerProxy &proxy)
 	}
 }
 
-uint32 DeepDriveServer::registerClient(DeepDriveClientConnection *client, bool &isMaster, const SimulationConfiguration &simulationCfg, const SimulationGraphicsSettings &gfxSettings)
+uint32 DeepDriveServer::registerClient(DeepDriveClientConnection *client, bool &isMaster)
 {
 	FScopeLock lock(&m_ClientMutex);
 	const uint32 clientId = m_nextClientId++;
@@ -108,13 +107,6 @@ uint32 DeepDriveServer::registerClient(DeepDriveClientConnection *client, bool &
 		if (m_MasterClientId == 0)
 		{
 			m_MasterClientId = clientId;
-
-			if(m_Proxy)
-			{
-				m_Proxy->ConfigureSimulation(simulationCfg, gfxSettings, true);
-			}
-			else
-				UE_LOG(LogDeepDriveServer, Error, TEXT("DeepDriveServer::registerClient No proxy available") );
 		}
 		else
 			isMaster = false;

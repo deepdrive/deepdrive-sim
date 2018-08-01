@@ -40,10 +40,6 @@ public:
 
 	virtual void SetAgentControlValues(float steering, float throttle, float brake, bool handbrake);
 
-	virtual void ConfigureSimulation(const SimulationConfiguration &cfg, const SimulationGraphicsSettings &graphicsSettings, bool initialConfiguration);
-
-	virtual void SetSunSimulation(const SunSimulationSettings &sunSimSettings);
-
 private:
 
 	ADeepDriveSimulation 			&m_DeepDriveSim;

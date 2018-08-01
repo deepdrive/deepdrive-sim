@@ -12,22 +12,25 @@ connected = deepdrive_simulation.connect('127.0.0.1', 9009)
 if connected:
 	print('Connected ...')
 
-	gfxSettings = deepdrive_simulation.SimulationGraphicsSettings();
-	gfxSettings.shadow_quality = 0
-	hour = 9
+	time.sleep(1)
+	deepdrive_simulation.set_sun_simulation_speed(1000)
+	hour = 5
+	speed = 10000
 
 	try:
 		mainCounter = 100000
 		while mainCounter > 0:
-			deepdrive_simulation.set_date_and_time(hour=hour)
-			deepdrive_simulation.set_graphics_settings(gfxSettings)
-			#hour = hour + 1
+			#deepdrive_simulation.set_date_and_time(hour=hour)
+			deepdrive_simulation.set_sun_simulation_speed(speed)
+			deepdrive_simulation.reset_simulation()
+			if speed > 0:
+				speed = 0
+			else:
+				speed = 10000
+			hour = hour + 1
 			if hour > 23:
 				hour = 0
-			gfxSettings.shadow_quality = gfxSettings.shadow_quality + 1
-			if gfxSettings.shadow_quality > 5:
-				gfxSettings.shadow_quality = 0;
-			time.sleep(3)
+			time.sleep(1)
 
 	except KeyboardInterrupt:
 		cleanUp()

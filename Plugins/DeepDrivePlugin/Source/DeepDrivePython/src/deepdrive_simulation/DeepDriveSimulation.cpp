@@ -69,15 +69,39 @@ int32 DeepDriveSimulation::configureSimulation(uint32 seed, float timeDilation, 
 	return res;
 }
 
-int32 DeepDriveSimulation::resetSimulation(float timeDilation, float startLocation, PySimulationGraphicsSettingsObject *graphicsSettings)
+int32 DeepDriveSimulation::resetSimulation(float timeDilation, float startLocation)
 {
-#if 0
-	deepdrive::server::ResetSimulationRequest req(client.getClientId());
+	deepdrive::server::ResetSimulationRequest req;
 
 	SimulationConfiguration &cfg = req.configuration;
 	cfg.seed = 0;
 	cfg.time_dilation = timeDilation;
 	cfg.agent_start_location = startLocation;
+
+	int32 res = m_Socket.send(&req, sizeof(req));
+	if(res >= 0)
+	{
+		std::cout << "ResetSimulationRequest sent\n";
+
+		deepdrive::server::ResetSimulationResponse response;
+		if(m_Socket.receive(&response, sizeof(response), 1000))
+		{
+			res = static_cast<int32> (response.result);
+			std::cout << "ResetSimulationResponse received\n";
+		}
+		else
+		{
+			std::cout << "Waiting for ResetSimulationResponse, time out\n";
+			res = TIME_OUT;
+		}
+	}
+
+	return res;
+}
+
+int32 DeepDriveSimulation::setGraphicsSettings(PySimulationGraphicsSettingsObject *graphicsSettings)
+{
+	deepdrive::server::SetGraphicsSettingsRequest req;
 
 	if(graphicsSettings)
 	{
@@ -98,27 +122,25 @@ int32 DeepDriveSimulation::resetSimulation(float timeDilation, float startLocati
 	}
 
 
-	IP4ClientSocket &socket = client.getSocket();
-
-	int32 res = socket.send(&req, sizeof(req));
+	int32 res = m_Socket.send(&req, sizeof(req));
 	if(res >= 0)
 	{
-		std::cout << "ResetSimulationRequest sent\n";
+		std::cout << "SetGraphicsSettingsRequest sent\n";
 
-		deepdrive::server::ResetSimulationResponse response;
-		if(socket.receive(&response, sizeof(response), 1000))
+		deepdrive::server::SetGraphicsSettingsResponse response;
+		if(m_Socket.receive(&response, sizeof(response), 1000))
 		{
-			res = static_cast<int32> (response.reset);
-			std::cout << "ResetSimulationResponse received " << client.getClientId() << " " << res << "\n";
+			res = static_cast<int32> (response.result);
+			std::cout << "SetGraphicsSettingsResponse received \n";
 		}
 		else
-			std::cout << "Waiting for ResetSimulationResponse, time out\n";
+		{
+			res = ClientErrorCode::TIME_OUT;
+			std::cout << "Waiting for SetGraphicsSettingsResponse, time out\n";
+		}
 	}
 
 	return res;
-#endif
-
-	return 0;
 }
 
 int32 DeepDriveSimulation::setDateAndTime(uint32 year, uint32 month, uint32 day, uint32 minute, uint32 hour)

@@ -29,26 +29,40 @@ struct ConfigureSimulationResponse : public MessageHeader
 
 struct ResetSimulationRequest : public MessageHeader
 {
-	ResetSimulationRequest(uint32 clientId)
+	ResetSimulationRequest()
 		: MessageHeader(MessageId::ResetSimulationRequest, sizeof(ResetSimulationRequest))
-		, client_id(clientId)
 	{	}
 
-	uint32						client_id;
-
 	SimulationConfiguration		configuration;
-
-	SimulationGraphicsSettings	graphics_settings;
 };
 
 struct ResetSimulationResponse : public MessageHeader
 {
-	ResetSimulationResponse(bool _reset = false)
+	ResetSimulationResponse(bool _result = false)
 		: MessageHeader(MessageId::ResetSimulationResponse, sizeof(ResetSimulationResponse))
-		, reset(_reset ? 1 : 0)
+		, result(_result ? 1 : 0)
 	{	}
 
-	uint32		reset;
+	uint32		result;
+};
+
+struct SetGraphicsSettingsRequest : public MessageHeader
+{
+	SetGraphicsSettingsRequest()
+		: MessageHeader(MessageId::SetGraphicsSettingsRequest, sizeof(SetGraphicsSettingsRequest))
+	{	}
+
+	SimulationGraphicsSettings	graphics_settings;
+};
+
+struct SetGraphicsSettingsResponse : public MessageHeader
+{
+	SetGraphicsSettingsResponse(bool _result = false)
+		: MessageHeader(MessageId::SetGraphicsSettingsResponse, sizeof(SetGraphicsSettingsResponse))
+		, result(_result ? 1 : 0)
+	{	}
+
+	uint32		result;
 };
 
 

@@ -57,7 +57,7 @@ static PyObject* deepdrive_simulation_connect(PyObject *self, PyObject *args, Py
 	uint32 port = 0;
 	uint32 seed = 0;
 	float timeDilation = 1.0f;
-	float startLocation = -1.0f; 
+	float startLocation = -1.0f;
 	PyObject *graphicsSettings = 0;
 
 	char *keyWordList[] = {"ip_address", "port", "seed", "time_dilation", "agent_start_location", "graphics_settings", NULL};
@@ -115,40 +115,69 @@ static PyObject* deepdriuve_simulation_disconnect(PyObject *self, PyObject *args
  *	@param	uint32		Client Id
  *	@param	number		Global time dilation
  *	@param	number		Agent starting location
- *	@param	object		Graphics settings
  *
 */
 static PyObject* reset_simulation(PyObject *self, PyObject *args, PyObject *keyWords)
 {
-#if 0
-	uint32 clientId = 0;
+	uint32 res = 0;
 
-	float timeDilation = 1.0f;
-	float startLocation = -1.0f; 
-	PyObject *graphicsSettings = 0;
-
-	char *keyWordList[] = {"client_id", "time_dilation", "agent_start_location", "graphics_settings", NULL};
-	int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "I|ffO!", keyWordList, &clientId, &timeDilation, &startLocation, &PySimulationGraphicsSettingsType, &graphicsSettings);
-	if(ok)
+	if(g_DeepDriveSimulation)
 	{
-		std::cout << "Reset simulation clientId " << clientId << " \n";
-		DeepDriveClient *client = getClient(clientId);
-		if(client)
+		float timeDilation = 1.0f;
+		float startLocation = -1.0f; 
+
+		char *keyWordList[] = {"time_dilation", "agent_start_location", NULL};
+		int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "|ff", keyWordList, &timeDilation, &startLocation);
+		if(ok)
 		{
-			DeepDriveSimulation::resetSimulation(*client, timeDilation, startLocation, reinterpret_cast<PySimulationGraphicsSettingsObject*> (graphicsSettings));
+			const int32 requestRes = g_DeepDriveSimulation->resetSimulation(timeDilation, startLocation);
+			if(requestRes >= 0)
+				res = static_cast<uint32> (requestRes);
+			else
+				return handleError(requestRes);
 		}
 		else
 		{
-			PyErr_SetString(ClientDoesntExistError, "Client doesn't exist");
-			return 0;
+			std::cout << "Wrong arguments\n";
 		}
 	}
 	else
+		std::cout << "Not connect to Simulation server\n";
+
+	return Py_BuildValue("i", res);
+}
+
+/*	Set graphics settings
+ *
+ *	@param	object		Graphics settings
+ *
+*/
+static PyObject* set_graphics_settings(PyObject *self, PyObject *args)
+{
+	uint32 res = 0;
+
+	if(g_DeepDriveSimulation)
 	{
-		std::cout << "Wrong arguments\n";
+		PyObject *graphicsSettings = 0;
+
+		int32 ok = PyArg_ParseTuple(args, "O!", &PySimulationGraphicsSettingsType, &graphicsSettings);
+		if(ok)
+		{
+			const int32 requestRes = g_DeepDriveSimulation->setGraphicsSettings(reinterpret_cast<PySimulationGraphicsSettingsObject*> (graphicsSettings));
+			if(requestRes >= 0)
+				res = static_cast<uint32> (requestRes);
+			else
+				return handleError(requestRes);
+		}
+		else
+		{
+			std::cout << "Wrong arguments\n";
+		}
 	}
-#endif
-	return Py_BuildValue("");
+	else
+		std::cout << "Not connect to Simulation server\n";
+
+	return Py_BuildValue("i", res);
 }
 
 
@@ -177,11 +206,11 @@ static PyObject* set_date_and_time(PyObject *self, PyObject *args, PyObject *key
 		int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "|IIIII", keyWordList, &year, &month, &day, &hour, &minute);
 		if(ok)
 		{
-			const int32 initRes = g_DeepDriveSimulation->setDateAndTime(year, month, day, minute, hour);
-			if(initRes >= 0)
-				res = static_cast<uint32> (initRes);
+			const int32 requestRes = g_DeepDriveSimulation->setDateAndTime(year, month, day, minute, hour);
+			if(requestRes >= 0)
+				res = static_cast<uint32> (requestRes);
 			else
-				return handleError(initRes);
+				return handleError(requestRes);
 		}
 		else
 			std::cout << "Wrong arguments\n";
@@ -226,6 +255,7 @@ static PyObject* set_sun_simulation_speed(PyObject *self, PyObject *args, PyObje
 
 static PyMethodDef DeepDriveClientMethods[] =	{	{"connect", (PyCFunction) deepdrive_simulation_connect, METH_VARARGS | METH_KEYWORDS, "Creates a new client which tries to connect to DeepDriveServer"}
 												,	{"reset_simulation", (PyCFunction) reset_simulation, METH_VARARGS | METH_KEYWORDS, "Reset simulation"}
+												,	{"set_graphics_settings", set_graphics_settings, METH_VARARGS, "Set graphics settings"}
 												,	{"set_date_and_time", (PyCFunction) set_date_and_time, METH_VARARGS | METH_KEYWORDS, "Set date and time for simulation"}
 												,	{"set_sun_simulation_speed", (PyCFunction) set_sun_simulation_speed, METH_VARARGS | METH_KEYWORDS, "Set speed for sun simulation"}
 												,	{NULL,     NULL,             0,            NULL}        /* Sentinel */
