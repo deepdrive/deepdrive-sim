@@ -21,14 +21,14 @@ sources_capture =	[	SRC_DIR + '/DeepDrivePlugin/Private/SharedMemory/SharedMemor
 sources_client =    [   'src/deepdrive_client/deepdrive_client.cpp'
                     ,   'src/deepdrive_client/DeepDriveClient.cpp'
                     ,   'src/deepdrive_client/DeepDriveClientMap.cpp'
-                    ,   'src/deepdrive_simulation/DeepdriveSimulation.cpp'
+                    ,   'src/deepdrive_simulation/DeepDriveSimulation.cpp'
                     ,   'src/socket/IP4Address.cpp'
                     ,   'src/socket/IP4ClientSocket.cpp'
                     ,   'src/common/NumPyUtils.cpp'
                     ]
 
 sources_simulation =    [   'src/deepdrive_simulation/deepdrive_simulation.cpp'
-                        ,   'src/deepdrive_simulation/DeepdriveSimulation.cpp'
+                        ,   'src/deepdrive_simulation/DeepDriveSimulation.cpp'
                         ,   'src/socket/IP4Address.cpp'
                         ,   'src/socket/IP4ClientSocket.cpp'
                         ,   'src/common/NumPyUtils.cpp'

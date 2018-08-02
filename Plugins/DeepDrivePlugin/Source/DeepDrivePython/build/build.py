@@ -12,7 +12,7 @@ import sys
 DIR = os.path.dirname(os.path.realpath(__file__))
 
 
-def run_command(cmd, cwd=None, env=None):
+def run_command(cmd, cwd=None, env=None, log_filename=None, err_filename=None, err_token=None):
     print('running %s' % cmd)
     if not isinstance(cmd, list):
         cmd = cmd.split()
@@ -22,13 +22,30 @@ def run_command(cmd, cwd=None, env=None):
     if not isinstance(result, str):
         result = ''.join(map(chr, result))
     result = result.strip()
+    if not isinstance(err, str):
+        err = ''.join(map(chr, err))
+    err = err.strip()
+
+    if log_filename is not None:
+        with open(log_filename, 'w') as log_file:
+            log_file.write(result)
+            print('wrote build log output to ' + os.path.abspath(log_filename))
+    if err_filename is not None and err:
+        with open(err_filename, 'w') as error_log_file:
+            error_log_file.write(err)
+            print('wrote build error output to ' + os.path.abspath(err_filename))
+    if err_token is not None:
+        log_lines = result.split('\n')
+        err_lines = err.split('\n')
+        error_strings = [s for s in log_lines + err_lines if err_token in s.lower()]
+        if error_strings:
+            print('Errors:\n' + '\n'.join(error_strings))
     print(result)
+
     if p.returncode != 0:
-        if not isinstance(err, str):
-            err = ''.join(map(chr, err))
-        err = err.strip()
         raise RuntimeError(' '.join(cmd) + ' finished with error ' + err)
-    return result
+
+    return result, err
 
 
 def get_egg_file(module_name):
@@ -46,9 +63,9 @@ def main(build_type):
     env = os.environ.copy()
     py = sys.executable
     get_package_version_path = os.path.join(unreal_root, 'Packaging', 'get_package_version.py')
-    env['DEEPDRIVE_VERSION'] = run_command('%s %s' % (py, get_package_version_path))
+    env['DEEPDRIVE_VERSION'], _ = run_command('%s %s' % (py, get_package_version_path))
     env['DEEPDRIVE_BRANCH'] = (env.get('TRAVIS_BRANCH') or env.get('APPVEYOR_REPO_BRANCH') or
-                               run_command(['git', '-C', unreal_root, 'rev-parse', '--abbrev-ref', 'HEAD']))
+                               run_command(['git', '-C', unreal_root, 'rev-parse', '--abbrev-ref', 'HEAD'])[0])
     print('DEEPDRIVE_VERSION is %s' % env['DEEPDRIVE_VERSION'])
     ext_root = os.path.dirname(DIR)
     print('PYPY_USERNAME is %s' % env.get('PYPI_USERNAME'))
@@ -67,13 +84,12 @@ def main(build_type):
         except Exception as e:
             print('Best effort uninstall method 2 of external deepdrive package failed, error was: %s' % str(e))
         try:
-            run_command('%s -m pip install -e . --upgrade --force-reinstall --ignore-installed --no-deps' % py,
-                    env=env, cwd=ext_root)
+            build_dev(env, ext_root, py)
         except Exception as e:
             raise Exception('Error building, is the module imported into a live python process?', e)
 
     elif build_type == 'win_bdist':
-        print(run_command('%s -u setup.py bdist_wheel' % py, env=env, cwd=ext_root))
+        run_command('%s -u setup.py bdist_wheel' % py, env=env, cwd=ext_root)
         if env['DEEPDRIVE_BRANCH'] == 'release':
             scripts_dir = os.path.join(env['PYTHON'], 'Scripts')
             print('DEBUG scripts dir %s' % list(os.listdir(scripts_dir)))
@@ -96,6 +112,19 @@ def main(build_type):
                      env['DOCKER_IMAGE'],
                      env['PRE_CMD'],
                      '/io/DeepDrivePython/build/build-linux-wheels.sh'], env=env, cwd=os.path.dirname(DIR))
+
+
+def build_dev(env, ext_root, py):
+    build_stdout, build_stderr = run_command(
+        '%s -u -m pip install -e . --upgrade --force-reinstall --ignore-installed --no-deps' % py,
+        env=env, cwd=ext_root, log_filename='dev_build_log.txt', err_filename='dev_build_err.txt',
+        err_token='error:')
+
+    log_lines = build_stdout.split('\n')
+    err_lines = build_stderr.split('\n')
+    error_strings = [s for s in log_lines + err_lines if 'error' in s.lower()]
+    if error_strings:
+        print('Errors:\n' + '\n'.join(error_strings))
 
 
 if __name__ == '__main__':
