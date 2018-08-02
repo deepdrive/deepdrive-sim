@@ -115,16 +115,10 @@ def main(build_type):
 
 
 def build_dev(env, ext_root, py):
-    build_stdout, build_stderr = run_command(
+    run_command(
         '%s -u -m pip install -e . --upgrade --force-reinstall --ignore-installed --no-deps' % py,
         env=env, cwd=ext_root, log_filename='dev_build_log.txt', err_filename='dev_build_err.txt',
         err_token='error:')
-
-    log_lines = build_stdout.split('\n')
-    err_lines = build_stderr.split('\n')
-    error_strings = [s for s in log_lines + err_lines if 'error' in s.lower()]
-    if error_strings:
-        print('Errors:\n' + '\n'.join(error_strings))
 
 
 if __name__ == '__main__':
