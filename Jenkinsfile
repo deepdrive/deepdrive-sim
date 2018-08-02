@@ -3,7 +3,7 @@ pipeline {
   stages {
     stage('Package') {
       steps {
-        sh 'env'
+        sh 'Packaging/package.sh'
       }
     }
   }
