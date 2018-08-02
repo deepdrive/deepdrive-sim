@@ -16,14 +16,13 @@ user=${DEEPDRIVE_USER}
 # This needs to change if you are not clearing /Intermediate files in the project every build.
 internal_build_id=8861
 
-# npm install --global trash-cli # because you should never use rm
-trash ${root_dir}/Intermediate
+${root_dir}/clean.sh
 
 cd ${unreal_dir}/Engine/Build/BatchFiles
 
 sudo chown -Rh ${user}:${user} ${root_dir}
 
-# Build project including Deepdrive and DeepdrivePlugin modules
+# Build project including Deepdrive and DeepdrivePlugin modules - TODO: Use Build.sh?
 sudo -u ${user} HOME=/home/${user} ${unreal_dir}/Engine/Binaries/DotNET/UnrealBuildTool.exe DeepDrive Development \
     Linux -project="${root_dir}/DeepDrive.uproject" -editorrecompile -progress -NoHotReloadFromIDE
 
