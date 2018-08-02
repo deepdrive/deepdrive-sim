@@ -56,7 +56,10 @@ public:
 private:
 
 	UPROPERTY()
-	USceneCaptureComponent2D	*m_SceneCapture;
+	USceneCaptureComponent2D	*m_SceneCapture = 0;
+
+	UObject						*m_PostProcessMat = 0;
+
 };
 
 inline int32 UCaptureCameraComponent::getCameraId() const

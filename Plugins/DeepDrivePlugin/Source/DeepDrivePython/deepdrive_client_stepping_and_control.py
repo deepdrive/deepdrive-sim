@@ -10,11 +10,8 @@ def cleanUp(clientId):
 	deepdrive_capture.close()
 	deepdrive_client.close(clientId)
 
-gfxSettings = deepdrive_client.SimulationGraphicsSettings();
-gfxSettings.resolution_height = 720;
-
-client = deepdrive_client.create('127.0.0.1', 9876, seed=6543, graphics_settings=gfxSettings, agent_start_location=34000)
-
+client = deepdrive_client.create('127.0.0.1', 9876)
+print(client)
 
 if client != None and 'client_id' in client:
 	clientId = client['client_id']
@@ -66,9 +63,6 @@ if client != None and 'client_id' in client:
 				# print('Resetting agent .....')
 				# deepdrive_client.reset_agent(clientId)
 				
-				print('Resetting simulation .....')
-				deepdrive_client.reset_simulation(clientId, agent_start_location=1000)
-
 				print(reqCounter, ': Releasing control .....')
 				deepdrive_client.release_agent_control(clientId)
 				print('------------------------')
@@ -85,4 +79,6 @@ if client != None and 'client_id' in client:
 		except deepdrive_client.connection_lost:
 			print('>>>> Connection lost')
 
+else:
+	print('Ohh shit ...')
 

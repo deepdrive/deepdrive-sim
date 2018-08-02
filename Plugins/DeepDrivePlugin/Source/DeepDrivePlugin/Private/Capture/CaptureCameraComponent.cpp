@@ -13,6 +13,11 @@ UCaptureCameraComponent::UCaptureCameraComponent()
 	:	m_SceneCapture(0)
 {
 	bWantsInitializeComponent = true;
+	ConstructorHelpers::FObjectFinder<UMaterial> Material(TEXT("Material'/Game/DeepDrive/Materials/M_PostProcess_Master.M_PostProcess_Master'"));
+
+	m_PostProcessMat = Material.Succeeded() ? Material.Object : 0;
+
+	UE_LOG(DeepDriveCaptureComponent, Log, TEXT("PostProcessMat ==> Found %c ptr %p"), Material.Succeeded() ? 'T' : 'F', m_PostProcessMat);
 }
 
 void UCaptureCameraComponent::Initialize(UTextureRenderTarget2D *RenderTarget, float FoV)
@@ -31,9 +36,17 @@ void UCaptureCameraComponent::Initialize(UTextureRenderTarget2D *RenderTarget, f
 	{
 		SceneRenderTarget = RenderTarget;
 		m_SceneCapture->TextureTarget = RenderTarget;			
-		m_SceneCapture->CaptureSource = ESceneCaptureSource::SCS_SceneColorSceneDepth;
+		//m_SceneCapture->CaptureSource = ESceneCaptureSource::SCS_SceneColorSceneDepth;
+		m_SceneCapture->CaptureSource = ESceneCaptureSource::SCS_FinalColorLDR;
 
 		//m_SceneCapture->HiddenActors.Add(GetOwner());
+
+
+		if(m_PostProcessMat)
+		{
+			UE_LOG(DeepDriveCaptureComponent, Log, TEXT("==> Adding PostProcessMat") );
+			m_SceneCapture->PostProcessSettings.WeightedBlendables.Array.Add( FWeightedBlendable(1.0f, m_PostProcessMat));
+		}
 
 		if(IsCapturingActive)
 		{
