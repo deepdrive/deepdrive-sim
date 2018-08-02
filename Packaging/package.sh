@@ -13,11 +13,24 @@ unreal_dir=${DEEPDRIVE_UNREAL_SOURCE_DIR}
 output_dir=${DEEPDRIVE_PACKAGE_DIR}
 user=${DEEPDRIVE_USER}
 
+# This needs to change if you are not clearing /Intermediate files in the project every build.
+internal_build_id=8861
+
+# npm install --global trash-cli - because you should never use rm
+trash ${root_dir}/Intermediate
+
 cd ${unreal_dir}/Engine/Build/BatchFiles
 
 sudo chown -Rh ${user}:${user} ${root_dir}
+
+sudo -u ${unreal_dir}/Engine/Binaries/DotNET/UnrealBuildTool.exe DeepDrive \
+    -ModuleWithSuffix DeepDrivePlugin ${internal_build_id} Linux Development -editorrecompile \
+    -canskiplink /media/a/data-ext4/jenkins_dir/workspace/deepdrive-sim-package/DeepDrive.uproject
 
 sudo -u ${user} HOME=/home/${user} ./RunUAT.sh -ScriptsForProject=${root_dir}/DeepDrive.uproject BuildCookRun \
     -nocompileeditor -nop4 -project=${root_dir}/DeepDrive.uproject -cook -stage -archive \
     -archivedirectory=${output_dir} -package -clientconfig=Development -ue4exe=UE4Editor -clean -pak -prereqs \
     -nodebuginfo -targetplatform=Linux -build
+
+# npm install --global empty-trash-cli
+# empty-trash??????
