@@ -6,14 +6,18 @@
 
 set -euvo pipefail
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-ROOT_DIR="$(dirname "$DIR")"
-UNREAL_DIR=${DEEPDRIVE_UNREAL_SOURCE_DIR}
-OUTPUT_DIR=${DEEPDRIVE_PACKAGE_DIR}
+dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+root_dir="$(dirname "$dir")"
+echo root dir is ${root_dir}
+unreal_dir=${DEEPDRIVE_UNREAL_SOURCE_DIR}
+output_dir=${DEEPDRIVE_PACKAGE_DIR}
+user=${DEEPDRIVE_USER}
 
-cd ${UNREAL_DIR}/Engine/Build/BatchFiles
+cd ${unreal_dir}/Engine/Build/BatchFiles
 
-./RunUAT.sh -ScriptsForProject=${ROOT_DIR}/DeepDrive.uproject BuildCookRun \
-    -nocompileeditor -nop4 -project=${ROOT_DIR}/DeepDrive.uproject -cook -stage -archive \
-    -archivedirectory=${OUTPUT_DIR} -package -clientconfig=Development -ue4exe=UE4Editor -clean -pak -prereqs \
+su ${user}
+
+./RunUAT.sh -ScriptsForProject=${root_dir}/DeepDrive.uproject BuildCookRun \
+    -nocompileeditor -nop4 -project=${root_dir}/DeepDrive.uproject -cook -stage -archive \
+    -archivedirectory=${output_dir} -package -clientconfig=Development -ue4exe=UE4Editor -clean -pak -prereqs \
     -nodebuginfo -targetplatform=Linux -build
