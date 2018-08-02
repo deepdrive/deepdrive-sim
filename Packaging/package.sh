@@ -15,6 +15,8 @@ user=${DEEPDRIVE_USER}
 
 cd ${unreal_dir}/Engine/Build/BatchFiles
 
+sudo chown -Rh ${user}:${user} ${root_dir}
+
 sudo -u ${user} HOME=/home/${user} ./RunUAT.sh -ScriptsForProject=${root_dir}/DeepDrive.uproject BuildCookRun \
     -nocompileeditor -nop4 -project=${root_dir}/DeepDrive.uproject -cook -stage -archive \
     -archivedirectory=${output_dir} -package -clientconfig=Development -ue4exe=UE4Editor -clean -pak -prereqs \
