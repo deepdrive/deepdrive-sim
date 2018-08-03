@@ -1,4 +1,4 @@
-numpy==1.14.3
+numpy
 twine
 boto
 wheel

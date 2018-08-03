@@ -73,5 +73,5 @@ setup	(   name=config.PACKAGE_NAME
         ,   description='Python interface to vehicle simulation running in Unreal'
         ,   ext_modules=[deepdrive_capture_module, deepdrive_client_module]
         ,   include_dirs=includes
-        ,   install_requires=['numpy==1.14.3']
+        ,   install_requires=['numpy']
         )
