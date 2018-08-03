@@ -17,13 +17,12 @@ echo "DEEPDRIVE_VERSION is ${DEEPDRIVE_VERSION}"
 
 # Compile wheels
 for PYBIN in  "${py_versions[@]}"; do
-    "${PYBIN}/python" -u -m pip install --no-binary numpy numpy
     "${PYBIN}/pip" install -r /io/DeepDrivePython/dev-requirements.txt
     "${PYBIN}/pip" wheel /io/DeepDrivePython -w wheelhouse/  # Calls setup.py
 done
 
 # Bundle external shared libraries into the wheels
-for whl in wheelhouse/*.whl; do
+for whl in wheelhouse/deepdrive-*.whl; do
     auditwheel repair "$whl" -w /io/wheelhouse/
 done
 

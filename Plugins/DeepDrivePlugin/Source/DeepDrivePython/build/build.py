@@ -4,6 +4,7 @@ import argparse
 import os
 from subprocess import Popen, PIPE
 from pathlib import Path
+from sarge import Capture, run
 
 import config
 import sys
@@ -16,6 +17,13 @@ def run_command(cmd, cwd=None, env=None):
     if not isinstance(cmd, list):
         cmd = cmd.split()
     cmd = filter(None, cmd)  # filter out empty items
+    # TODO: Stream output with sarge
+    # p = capture_both(cmd, stdout=Capture(), async_=True)
+    # while p.returncode is None
+    #     c = p.stdout.read(1)
+    #     result += c
+    #     sys.stdout.write(c)  # stderr combined?
+    # result += p.stdout.read()
     p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=PIPE, cwd=cwd, env=env)
     result, err = p.communicate()
     if not isinstance(result, str):
