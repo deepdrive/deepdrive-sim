@@ -4,7 +4,6 @@ import argparse
 import os
 from subprocess import Popen, PIPE
 from pathlib import Path
-from sarge import Capture, run
 
 import config
 import sys
