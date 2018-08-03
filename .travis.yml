@@ -1,6 +1,6 @@
 language: python
 python:
-  # We build with multiple python versions via docker - this python just runs our build scripts
+  # We build with multiple python versions via docker - this python version just runs our build scripts
   - "3.6"
 notifications:
   email: false

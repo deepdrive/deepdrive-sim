@@ -17,6 +17,11 @@ echo "DEEPDRIVE_VERSION is ${DEEPDRIVE_VERSION}"
 
 # Compile wheels
 for PYBIN in  "${py_versions[@]}"; do
+    # There's an issue with numpy 1.15 that requires compiling numpy from source
+    # https://github.com/numpy/numpy/issues/7570 - sticking to numpy 1.14 for now as it's a much faster build.
+    # If we want 1.15, we can switch to the following
+    # "${PYBIN}/python" -u -m pip install --no-binary numpy numpy
+
     "${PYBIN}/pip" install -r /io/DeepDrivePython/dev-requirements.txt
     "${PYBIN}/pip" wheel /io/DeepDrivePython -w wheelhouse/  # Calls setup.py
 done
