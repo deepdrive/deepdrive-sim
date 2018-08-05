@@ -88,6 +88,7 @@ int32 ADeepDriveAgent::RegisterCaptureCamera(float fieldOfView, int32 captureWid
 			m_CaptureCameras.Add(captureCamCmp);
 
 			OnCaptureCameraAdded(targetTexture, label);
+			//OnCaptureCameraComponentAdded(captureCamCmp);
 
 			camId = captureCamCmp->getCameraId();
 		}

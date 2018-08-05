@@ -13,7 +13,8 @@ UCaptureCameraComponent::UCaptureCameraComponent()
 	:	m_SceneCapture(0)
 {
 	bWantsInitializeComponent = true;
-	ConstructorHelpers::FObjectFinder<UMaterial> Material(TEXT("Material'/Game/DeepDrive/Materials/M_PostProcess_Master.M_PostProcess_Master'"));
+
+	ConstructorHelpers::FObjectFinder<UMaterialInstance> Material(TEXT("Material'/Game/DeepDrive/Materials/M_PostProcess_Inst.M_PostProcess_Inst'"));
 
 	m_PostProcessMat = Material.Succeeded() ? Material.Object : 0;
 
@@ -41,12 +42,15 @@ void UCaptureCameraComponent::Initialize(UTextureRenderTarget2D *RenderTarget, f
 
 		//m_SceneCapture->HiddenActors.Add(GetOwner());
 
-
-		if(m_PostProcessMat)
+		SceneCaptureCmp = m_SceneCapture;
+		if (m_PostProcessMat && m_SceneCapture->PostProcessSettings.WeightedBlendables.Array.Num() == 0)
 		{
-			UE_LOG(DeepDriveCaptureComponent, Log, TEXT("==> Adding PostProcessMat") );
-			m_SceneCapture->PostProcessSettings.WeightedBlendables.Array.Add( FWeightedBlendable(1.0f, m_PostProcessMat));
+			m_SceneCapture->PostProcessSettings.AddBlendable(m_PostProcessMat, 1.0f);
+			UE_LOG(DeepDriveCaptureComponent, Log, TEXT("==> Adding PostProcessMat %d"), m_SceneCapture->PostProcessSettings.WeightedBlendables.Array.Num());
 		}
+
+		//m_SceneCapture->PostProcessSettings.bOverride_ColorSaturationMidtones = true;
+		//m_SceneCapture->PostProcessSettings.ColorSaturationMidtones = FVector4(0.0f, 0.0f, 0.0f, 1.0f);
 
 		if(IsCapturingActive)
 		{
@@ -109,8 +113,12 @@ bool UCaptureCameraComponent::capture(SCaptureRequest &reqData)
 		FTextureRenderTargetResource *sceneSrc = m_SceneCapture ? m_SceneCapture->TextureTarget->GameThread_GetRenderTargetResource() : 0;
 		if (sceneSrc)
 		{
-			if(!CaptureSceneEveryFrame)
+			if (!CaptureSceneEveryFrame)
+			{
+				m_SceneCapture->bCaptureEveryFrame = true;
 				m_SceneCapture->CaptureScene();
+				m_SceneCapture->bCaptureEveryFrame = false;
+			}
 			reqData.capture_source = sceneSrc;
 			reqData.camera_type = CameraType;
 			reqData.camera_id = CameraId;

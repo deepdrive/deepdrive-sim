@@ -37,6 +37,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CaptureCamera")
 	UTextureRenderTarget2D	*SceneRenderTarget;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CaptureCamera")
+	USceneCaptureComponent2D	*SceneCaptureCmp = 0;
+
 	UFUNCTION(BlueprintCallable, Category = "CaptureCamera")
 	void Initialize(UTextureRenderTarget2D *RenderTarget, float FoV);
 
