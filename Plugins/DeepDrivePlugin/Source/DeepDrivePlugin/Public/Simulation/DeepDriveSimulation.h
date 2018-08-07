@@ -36,57 +36,6 @@ namespace deepdrive { namespace server {
 struct MessageHeader;
 } }
 
-USTRUCT(BlueprintType)
-struct FDeepDriveRandomStreamData
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	bool	ReSeedOnReset = true;
-
-	FDeepDriveRandomStreamData()
-		:	ReSeedOnReset(true)
-		,	RandomStream(0)
-	{	}
-
-	FDeepDriveRandomStreamData(UDeepDriveRandomStream *randomStream, bool reseedOnReset)
-		:	ReSeedOnReset(reseedOnReset)
-		,	RandomStream(randomStream)
-	{	}
-
-	void setRandomStream(UDeepDriveRandomStream *randomStream)
-	{
-		RandomStream = randomStream;
-	}
-
-	UDeepDriveRandomStream* getRandomStream()
-	{
-		return RandomStream;
-	}
-
-private:
-
-	UPROPERTY()
-	UDeepDriveRandomStream		*RandomStream = 0;
-};
-
-USTRUCT(BlueprintType)
-struct FDeepDriveAdditionalAgentData
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	TSubclassOf<ADeepDriveAgent>	Agent;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	EDeepDriveAgentControlMode		Mode;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	int32	ConfigurationSlot;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	int32	StartPositionSlot;
-};
 
 UCLASS()
 class DEEPDRIVEPLUGIN_API ADeepDriveSimulation	:	public AActor
@@ -155,6 +104,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Randomness)
 	TMap<FName, FDeepDriveRandomStreamData>	RandomStreams;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ViewModes)
+	TMap<FString, FDeepDriveViewMode>	ViewModes;
 
 	UFUNCTION(BlueprintCallable, Category = "Simulation")
 	void ResetSimulation();

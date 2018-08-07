@@ -9,6 +9,7 @@
 DECLARE_LOG_CATEGORY_EXTERN(DeepDriveCaptureComponent, Log, All);
 
 struct SCaptureRequest;
+struct FDeepDriveViewMode;
 
 /**
  * 
@@ -34,14 +35,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "CaptureCamera")
 	bool	CaptureSceneEveryFrame = false;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CaptureCamera")
-	UTextureRenderTarget2D	*SceneRenderTarget;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "CaptureCamera")
-	USceneCaptureComponent2D	*SceneCaptureCmp = 0;
-
 	UFUNCTION(BlueprintCallable, Category = "CaptureCamera")
-	void Initialize(UTextureRenderTarget2D *RenderTarget, float FoV);
+	void Initialize(UTextureRenderTarget2D *colorRenderTarget, UTextureRenderTarget2D *depthRenderTarget, float FoV);
 
 	UFUNCTION(BlueprintCallable, Category = "CaptureCamera")
 	void Remove();
@@ -56,12 +51,17 @@ public:
 
 	int32 getCameraId() const;
 
+	void setViewMode(const FDeepDriveViewMode *viewMode);
+
 private:
 
 	UPROPERTY()
 	USceneCaptureComponent2D	*m_SceneCapture = 0;
 
-	UObject						*m_PostProcessMat = 0;
+	UPROPERTY()
+	USceneCaptureComponent2D	*m_DepthCapture = 0;
+
+	bool						m_hasValidViewMode = false;
 
 };
 

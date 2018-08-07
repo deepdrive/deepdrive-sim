@@ -71,9 +71,10 @@ int32 ADeepDriveAgent::RegisterCaptureCamera(float fieldOfView, int32 captureWid
 {
 	int32 camId = 0;
 
-	UTextureRenderTarget2D* targetTexture = UKismetRenderingLibrary::CreateRenderTarget2D(GetWorld(), captureWidth, captureHeight, ETextureRenderTargetFormat::RTF_RGBA16f);
+	UTextureRenderTarget2D *colorTexture = UKismetRenderingLibrary::CreateRenderTarget2D(GetWorld(), captureWidth, captureHeight, ETextureRenderTargetFormat::RTF_RGBA16f);
+	UTextureRenderTarget2D *depthTexture = UKismetRenderingLibrary::CreateRenderTarget2D(GetWorld(), captureWidth, captureHeight, ETextureRenderTargetFormat::RTF_R16f);
 
-	if(targetTexture)
+	if(colorTexture && depthTexture)
 	{
 		UCaptureCameraComponent *captureCamCmp = NewObject<UCaptureCameraComponent>(this);
 		if(captureCamCmp)
@@ -83,11 +84,11 @@ int32 ADeepDriveAgent::RegisterCaptureCamera(float fieldOfView, int32 captureWid
 			captureCamCmp->SetRelativeRotation(FRotator(relativeRotation.Y, relativeRotation.Z, relativeRotation.X));
 			captureCamCmp->RegisterComponent();
 
-			captureCamCmp->Initialize(targetTexture, fieldOfView);
+			captureCamCmp->Initialize(colorTexture, depthTexture, fieldOfView);
 
 			m_CaptureCameras.Add(captureCamCmp);
 
-			OnCaptureCameraAdded(targetTexture, label);
+			OnCaptureCameraAdded(colorTexture, label);
 			//OnCaptureCameraComponentAdded(captureCamCmp);
 
 			camId = captureCamCmp->getCameraId();

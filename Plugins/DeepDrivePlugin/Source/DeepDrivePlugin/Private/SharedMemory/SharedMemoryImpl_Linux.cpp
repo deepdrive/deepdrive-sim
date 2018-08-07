@@ -49,7 +49,7 @@ bool SharedMemoryImpl_Linux::create(const FString &name, uint32 maxSize)
 			created = true;
 
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
-			UE_LOG(LogDeepDriveCapture, Log, TEXT("SharedMemoryImpl_Linux::create Shared mem %s with size %d successfully created at %p  sizeof bool %d  sizeof %d"), *(name), maxSize, m_SharedMemoryData, sizeof(bool), sizeof(SharedMemoryData));
+			UE_LOG(LogSharedMemoryImpl_Linux, Log, TEXT("SharedMemoryImpl_Linux::create Shared mem %s with size %d successfully created at %p  sizeof bool %d  sizeof %d"), *(name), maxSize, m_SharedMemoryData, sizeof(bool), sizeof(SharedMemoryData));
 #endif
 			createMutex();
 		}
@@ -72,7 +72,7 @@ void* SharedMemoryImpl_Linux::lockForWriting(int32 waitTimeMS)
         {
             res = &m_SharedMemoryData->data;
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
-//			UE_LOG(LogDeepDriveCapture, Error, TEXT("Locked for writing"));
+//			UE_LOG(LogSharedMemoryImpl_Linux, Error, TEXT("Locked for writing"));
 #else
 //			std::cout << "Locked for writing\n";
 #endif
@@ -80,7 +80,7 @@ void* SharedMemoryImpl_Linux::lockForWriting(int32 waitTimeMS)
         else
         {
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
-//			UE_LOG(LogDeepDriveCapture, Error, TEXT("NOT LOCKED FOR WRITING"));
+//			UE_LOG(LogSharedMemoryImpl_Linux, Error, TEXT("NOT LOCKED FOR WRITING"));
 #else
 //			std::cout << "NOT LOCKED FOR WRITING\n";
 #endif
@@ -128,7 +128,7 @@ bool SharedMemoryImpl_Linux::connect_Impl(const FString &name, uint32 maxSize)
 			if(m_reportConnectionErrors)
 			{
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
-				UE_LOG(LogDeepDriveCapture, Log, TEXT("SharedMemoryImpl_Linux::connect Connected successfully to shared mem %s with size %d"), *(name), maxSize);
+				UE_LOG(LogSharedMemoryImpl_Linux, Log, TEXT("SharedMemoryImpl_Linux::connect Connected successfully to shared mem %s with size %d"), *(name), maxSize);
 #endif
 			}
 		}
@@ -149,7 +149,7 @@ void SharedMemoryImpl_Linux::disconnect()
 		if (munmap(m_SharedMemoryData, sizeof(m_maxSize)) == -1)
 		{
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
-			UE_LOG(LogDeepDriveCapture, Error, TEXT("SharedMemoryImpl_Linux unmapping failed"));
+			UE_LOG(LogSharedMemoryImpl_Linux, Error, TEXT("SharedMemoryImpl_Linux unmapping failed"));
 #else
 			std::cout << "SharedMemoryImpl_Linux unmapping failed\n";
 #endif
@@ -179,7 +179,7 @@ const void* SharedMemoryImpl_Linux::lockForReading(int32 waitTimeMS) const
         {
             res = &m_SharedMemoryData->data;
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
-//			UE_LOG(LogDeepDriveCapture, Error, TEXT("Locked for reading"));
+//			UE_LOG(LogSharedMemoryImpl_Linux, Error, TEXT("Locked for reading"));
 #else
 //			std::cout << "Locked for reading\n";
 #endif
@@ -187,7 +187,7 @@ const void* SharedMemoryImpl_Linux::lockForReading(int32 waitTimeMS) const
         else
         {
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
-//			UE_LOG(LogDeepDriveCapture, Error, TEXT("NOT LOCKED FOR READING"));
+//			UE_LOG(LogSharedMemoryImpl_Linux, Error, TEXT("NOT LOCKED FOR READING"));
 #else
 //			std::cout << "NOT LOCKED FOR READING\n";
 #endif
@@ -230,7 +230,7 @@ SharedMemoryImpl_Linux::SharedMemoryData* SharedMemoryImpl_Linux::createSharedMe
 	if (mmapFd < 0)
 	{
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
-		UE_LOG(LogDeepDriveCapture, Error, TEXT("SharedMemoryImpl_Linux::createSharedMem Open mmapFd failed"));
+		UE_LOG(LogSharedMemoryImpl_Linux, Error, TEXT("SharedMemoryImpl_Linux::createSharedMem Open mmapFd failed"));
 #endif
 		return 0;
 	}
@@ -241,7 +241,7 @@ SharedMemoryImpl_Linux::SharedMemoryData* SharedMemoryImpl_Linux::createSharedMe
 		if (result == -1)
 		{
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
-			UE_LOG(LogDeepDriveCapture, Error, TEXT("SharedMemoryImpl_Linux::createSharedMem lseek failed"));
+			UE_LOG(LogSharedMemoryImpl_Linux, Error, TEXT("SharedMemoryImpl_Linux::createSharedMem lseek failed"));
 #endif
 			close(mmapFd);
 			return 0;
@@ -262,7 +262,7 @@ SharedMemoryImpl_Linux::SharedMemoryData* SharedMemoryImpl_Linux::createSharedMe
 		if (result != 1)
 		{
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
-			UE_LOG(LogDeepDriveCapture, Error, TEXT("SharedMemoryImpl_Linux::createSharedMem write mmapFd failed"));
+			UE_LOG(LogSharedMemoryImpl_Linux, Error, TEXT("SharedMemoryImpl_Linux::createSharedMem write mmapFd failed"));
 #endif
 			close(mmapFd);
 			return 0;
@@ -296,7 +296,7 @@ SharedMemoryImpl_Linux::SharedMemoryData* SharedMemoryImpl_Linux::openSharedMem(
 		if(m_reportConnectionErrors)
 		{
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
-			UE_LOG(LogDeepDriveCapture, Error, TEXT("SharedMemoryImpl_Linux::openSharedMem lseek mmapFd failed"));
+			UE_LOG(LogSharedMemoryImpl_Linux, Error, TEXT("SharedMemoryImpl_Linux::openSharedMem lseek mmapFd failed"));
 #endif
 		}
 		close(mmapFd);
@@ -308,7 +308,7 @@ SharedMemoryImpl_Linux::SharedMemoryData* SharedMemoryImpl_Linux::openSharedMem(
 		if(m_reportConnectionErrors)
 		{
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
-			UE_LOG(LogDeepDriveCapture, Error, TEXT("SharedMemoryImpl_Linux::openSharedMem he file has 0 bytes"));
+			UE_LOG(LogSharedMemoryImpl_Linux, Error, TEXT("SharedMemoryImpl_Linux::openSharedMem he file has 0 bytes"));
 #endif
 		}
 		close(mmapFd);
@@ -322,7 +322,7 @@ SharedMemoryImpl_Linux::SharedMemoryData* SharedMemoryImpl_Linux::openSharedMem(
 		if(m_reportConnectionErrors)
 		{
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
-			UE_LOG(LogDeepDriveCapture, Error, TEXT("SharedMemoryImpl_Linux::openSharedMem mmap failed"));
+			UE_LOG(LogSharedMemoryImpl_Linux, Error, TEXT("SharedMemoryImpl_Linux::openSharedMem mmap failed"));
 #endif
 		}
 		close(mmapFd);
@@ -342,7 +342,7 @@ void SharedMemoryImpl_Linux::createMutex()
 	if(pthread_mutexattr_init(&m_MutexAttr) == -1)
 	{
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
-		UE_LOG(LogDeepDriveCapture, Error, TEXT("SharedMemoryImpl_Linux::createMutex pthread_mutexattr_init() failed"));
+		UE_LOG(LogSharedMemoryImpl_Linux, Error, TEXT("SharedMemoryImpl_Linux::createMutex pthread_mutexattr_init() failed"));
 #endif
 		return;
 	}
@@ -351,7 +351,7 @@ void SharedMemoryImpl_Linux::createMutex()
 	if(pthread_mutexattr_setpshared(&m_MutexAttr, PTHREAD_PROCESS_SHARED) == -1)
 	{
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
-		UE_LOG(LogDeepDriveCapture, Error, TEXT("SharedMemoryImpl_Linux::createMutex pthread_mutexattr_setpshared() failed"));
+		UE_LOG(LogSharedMemoryImpl_Linux, Error, TEXT("SharedMemoryImpl_Linux::createMutex pthread_mutexattr_setpshared() failed"));
 #endif
 		return;
 	}
@@ -359,7 +359,7 @@ void SharedMemoryImpl_Linux::createMutex()
 	if(pthread_mutex_init(&mutex, &m_MutexAttr) == -1)
 	{
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
-		UE_LOG(LogDeepDriveCapture, Error, TEXT("SharedMemoryImpl_Linux::createMutex pthread_mutex_init() failed"));
+		UE_LOG(LogSharedMemoryImpl_Linux, Error, TEXT("SharedMemoryImpl_Linux::createMutex pthread_mutex_init() failed"));
 #endif
 		return;
 	}

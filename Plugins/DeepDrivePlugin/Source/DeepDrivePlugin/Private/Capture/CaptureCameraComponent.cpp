@@ -4,6 +4,7 @@
 #include "Public/Capture/CaptureCameraComponent.h"
 #include "Private/Capture/DeepDriveCapture.h"
 #include "Public/Capture/CaptureDefines.h"
+#include "Public/Simulation/DeepDriveSimulationDefines.h"
 #include "Private/Capture/CaptureJob.h"
 
 
@@ -13,44 +14,31 @@ UCaptureCameraComponent::UCaptureCameraComponent()
 	:	m_SceneCapture(0)
 {
 	bWantsInitializeComponent = true;
-
-	ConstructorHelpers::FObjectFinder<UMaterialInstance> Material(TEXT("Material'/Game/DeepDrive/Materials/M_PostProcess_Inst.M_PostProcess_Inst'"));
-
-	m_PostProcessMat = Material.Succeeded() ? Material.Object : 0;
-
-	UE_LOG(DeepDriveCaptureComponent, Log, TEXT("PostProcessMat ==> Found %c ptr %p"), Material.Succeeded() ? 'T' : 'F', m_PostProcessMat);
 }
 
-void UCaptureCameraComponent::Initialize(UTextureRenderTarget2D *RenderTarget, float FoV)
+void UCaptureCameraComponent::Initialize(UTextureRenderTarget2D *colorRenderTarget, UTextureRenderTarget2D *depthRenderTarget, float FoV)
 {
 	CameraId = DeepDriveCapture::GetInstance().RegisterCaptureComponent(this);
 
 	AActor *owningActor = GetOwner();
-	FString compName = "SceneCaptureComponent_" + FString::FromInt(CameraId);
 
-	m_SceneCapture = NewObject<USceneCaptureComponent2D>(owningActor, FName(*compName));
+	m_SceneCapture = NewObject<USceneCaptureComponent2D>(owningActor, FName( *("ColorCaptureComponent_" + FString::FromInt(CameraId)) ));
 	m_SceneCapture->RegisterComponent();
 
-	UE_LOG(DeepDriveCaptureComponent, Log, TEXT("Scene capture setup for %s at %p"), *(compName), m_SceneCapture);
+	m_DepthCapture = NewObject<USceneCaptureComponent2D>(owningActor, FName( *("DepthCaptureComponent_" + FString::FromInt(CameraId)) ));
+	m_DepthCapture->RegisterComponent();
 
-	if (m_SceneCapture)
+	if (m_SceneCapture && m_DepthCapture)
 	{
-		SceneRenderTarget = RenderTarget;
-		m_SceneCapture->TextureTarget = RenderTarget;			
-		//m_SceneCapture->CaptureSource = ESceneCaptureSource::SCS_SceneColorSceneDepth;
-		m_SceneCapture->CaptureSource = ESceneCaptureSource::SCS_FinalColorLDR;
+		m_SceneCapture->TextureTarget = colorRenderTarget;
+		m_SceneCapture->CaptureSource = ESceneCaptureSource::SCS_SceneColorSceneDepth;
+
+		m_DepthCapture->TextureTarget = depthRenderTarget;
+		m_DepthCapture->CaptureSource = ESceneCaptureSource::SCS_SceneDepth;
+
 
 		//m_SceneCapture->HiddenActors.Add(GetOwner());
 
-		SceneCaptureCmp = m_SceneCapture;
-		if (m_PostProcessMat && m_SceneCapture->PostProcessSettings.WeightedBlendables.Array.Num() == 0)
-		{
-			m_SceneCapture->PostProcessSettings.AddBlendable(m_PostProcessMat, 1.0f);
-			UE_LOG(DeepDriveCaptureComponent, Log, TEXT("==> Adding PostProcessMat %d"), m_SceneCapture->PostProcessSettings.WeightedBlendables.Array.Num());
-		}
-
-		//m_SceneCapture->PostProcessSettings.bOverride_ColorSaturationMidtones = true;
-		//m_SceneCapture->PostProcessSettings.ColorSaturationMidtones = FVector4(0.0f, 0.0f, 0.0f, 1.0f);
 
 		if(IsCapturingActive)
 		{
@@ -115,11 +103,34 @@ bool UCaptureCameraComponent::capture(SCaptureRequest &reqData)
 		{
 			if (!CaptureSceneEveryFrame)
 			{
-				m_SceneCapture->bCaptureEveryFrame = true;
+				if(m_hasValidViewMode)
+					m_SceneCapture->bCaptureEveryFrame = true;
+
 				m_SceneCapture->CaptureScene();
-				m_SceneCapture->bCaptureEveryFrame = false;
+
+				if(m_hasValidViewMode)
+					m_SceneCapture->bCaptureEveryFrame = false;
 			}
-			reqData.capture_source = sceneSrc;
+			reqData.scene_capture_source = sceneSrc;
+
+			FTextureRenderTargetResource *depthSrc = m_hasValidViewMode && m_DepthCapture ? m_DepthCapture->TextureTarget->GameThread_GetRenderTargetResource() : 0;
+			if(depthSrc)
+			{
+				if (!CaptureSceneEveryFrame)
+				{
+					if(m_hasValidViewMode)
+						m_DepthCapture->bCaptureEveryFrame = true;
+
+					m_DepthCapture->CaptureScene();
+
+					if(m_hasValidViewMode)
+						m_DepthCapture->bCaptureEveryFrame = false;
+				}
+				reqData.depth_capture_source = depthSrc;
+			}
+			else
+				reqData.depth_capture_source = 0;
+	
 			reqData.camera_type = CameraType;
 			reqData.camera_id = CameraId;
 			shallCapture = true;
@@ -127,4 +138,25 @@ bool UCaptureCameraComponent::capture(SCaptureRequest &reqData)
 	}
 
 	return shallCapture;
+}
+
+void UCaptureCameraComponent::setViewMode(const FDeepDriveViewMode *viewMode)
+{
+	if(viewMode)
+	{
+		m_SceneCapture->PostProcessSettings = FPostProcessSettings();
+
+		if (viewMode->Material)
+		{
+			m_SceneCapture->PostProcessSettings.AddBlendable(viewMode->Material, 1.0f);
+			m_hasValidViewMode = true;
+		}
+
+		if(m_hasValidViewMode)
+			m_SceneCapture->CaptureSource = ESceneCaptureSource::SCS_FinalColorLDR;
+	}
+	else
+	{
+		m_SceneCapture->CaptureSource = ESceneCaptureSource::SCS_SceneColorSceneDepth;
+	}
 }

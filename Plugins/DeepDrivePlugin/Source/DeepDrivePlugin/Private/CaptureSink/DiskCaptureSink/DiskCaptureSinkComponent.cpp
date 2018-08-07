@@ -27,12 +27,12 @@ void UDiskCaptureSinkComponent::begin(double timestamp, uint32 sequenceNumber, c
 	}
 
 	m_curJobData = new DiskCaptureSinkWorker::SDiskCaptureSinkJobData(timestamp, sequenceNumber, *m_BasePath, CameraTypePaths, BaseFileName);
-	UE_LOG(LogDeepDriveCapture, Log, TEXT("UDiskCaptureSinkComponent::begin seqNr %d %p"), sequenceNumber, m_curJobData);
+	UE_LOG(LogDiskCaptureSinkComponent, Log, TEXT("UDiskCaptureSinkComponent::begin seqNr %d %p"), sequenceNumber, m_curJobData);
 }
 
 void UDiskCaptureSinkComponent::setCaptureBuffer(int32 cameraId, EDeepDriveCameraType cameraType, CaptureBuffer &captureBuffer)
 {
-	UE_LOG(LogDeepDriveCapture, Log, TEXT("UDiskCaptureSinkComponent::setCaptureBuffer %p Id %d"), m_curJobData, cameraId);
+	UE_LOG(LogDiskCaptureSinkComponent, Log, TEXT("UDiskCaptureSinkComponent::setCaptureBuffer %p Id %d"), m_curJobData, cameraId);
 
 	if(m_curJobData)
 	{
@@ -46,7 +46,7 @@ void UDiskCaptureSinkComponent::flush()
 		&&	m_Worker
 		)
 	{
-		UE_LOG(LogDeepDriveCapture, Log, TEXT("UDiskCaptureSinkComponent::flush"));
+		UE_LOG(LogDiskCaptureSinkComponent, Log, TEXT("UDiskCaptureSinkComponent::flush"));
 		m_Worker->process(*m_curJobData);
 	}
 }

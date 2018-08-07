@@ -4,6 +4,8 @@
 #include "Private/Server/DeepDriveSimulationServer.h"
 #include "Public/Server/Messages/DeepDriveServerSimulationMessages.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
+#include "Public/Simulation/Agent/DeepDriveAgentControllerBase.h"
+#include "Public/Simulation/Misc/DeepDriveRandomStream.h"
 
 #include "Public/Simulation/DeepDriveSimulation.h"
 

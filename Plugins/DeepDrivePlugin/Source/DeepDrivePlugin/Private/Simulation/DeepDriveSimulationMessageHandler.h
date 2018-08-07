@@ -5,6 +5,8 @@
 
 #include "Public/Server/Messages/DeepDriveMessageIds.h"
 
+#include <functional>
+#include <map>
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveSimulationMessageHandler, Log, All);
 
@@ -14,6 +16,7 @@ struct MessageHeader;
 
 
 class ADeepDriveSimulation;
+class DeepDriveSimulationServer;
 
 class DeepDriveSimulationMessageHandler
 {

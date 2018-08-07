@@ -3,12 +3,15 @@
 
 #include "Engine.h"
 
+#include "Public/Capture/CaptureDefines.h"
+
 DECLARE_LOG_CATEGORY_EXTERN(LogSharedMemCaptureMessageBuilder, Log, All);
 
 class SharedMemory;
 struct FDeepDriveDataOut;
 struct DeepDriveCaptureMessage;
 struct DeepDriveCaptureCamera;
+class CaptureBuffer;
 
 class SharedMemCaptureMessageBuilder
 {

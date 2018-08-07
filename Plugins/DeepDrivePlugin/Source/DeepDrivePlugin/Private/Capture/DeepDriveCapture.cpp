@@ -4,6 +4,7 @@
 
 #include "Public/Capture/CaptureDefines.h"
 #include "Private/Capture/CaptureJob.h"
+#include "Private/Capture/CaptureBuffer.h"
 
 #include "Public/Capture/CaptureCameraComponent.h"
 #include "Public/Capture/IDeepDriveCaptureProxy.h"
@@ -117,7 +118,7 @@ void DeepDriveCapture::processFinishedJobs()
 
 			for(SCaptureRequest &captureReq : job->capture_requests)
 			{
-				CaptureBuffer *captureBuffer = captureReq.capture_buffer;
+				CaptureBuffer *captureBuffer = captureReq.scene_capture_buffer;
 
 				if(captureBuffer)
 				{
@@ -135,7 +136,7 @@ void DeepDriveCapture::processFinishedJobs()
 
 			for (SCaptureRequest &captureReq : job->capture_requests)
 			{
-				CaptureBuffer *captureBuffer = captureReq.capture_buffer;
+				CaptureBuffer *captureBuffer = captureReq.scene_capture_buffer;
 
 				if (captureBuffer)
 					captureBuffer->release();
@@ -154,8 +155,10 @@ void DeepDriveCapture::processCapturing()
 {
 	SCaptureJob *captureJob = new SCaptureJob;
 
-/*	Capture cycles currently deactivated
-
+/*
+ *	Capture cycles currently deactivated
+*/
+#if 0
 	const TArray< FCaptureCyle > &captureCycles = m_Proxy->CaptureCycles;
 	if (captureCycles.Num())
 	{
@@ -189,7 +192,7 @@ void DeepDriveCapture::processCapturing()
 		}
 	}
 	else
-*/
+#endif
 	{
 		for (auto &captureCmp : m_CaptureComponentMap)
 		{
@@ -245,28 +248,35 @@ void DeepDriveCapture::executeCaptureJob(SCaptureJob &job)
 {
 	for(SCaptureRequest &captureReq : job.capture_requests)
 	{
-		FRHITexture2D *texture = captureReq.capture_source->TextureRHI->GetTexture2D();
-
-		EPixelFormat pixelFormat = texture->GetFormat();
-		uint32 width = texture->GetSizeX();
-		uint32 height = texture->GetSizeY();
-
-		uint32 stride;
-		void *src = RHILockTexture2D(texture, 0, RLM_ReadOnly, stride, false);
-
-		CaptureBuffer *captureBuffer = job.capture_buffer_pool->acquire(pixelFormat, width, height, stride);
-		if(captureBuffer)
-		{
-			FMemory::BigBlockMemcpy(captureBuffer->getBuffer<void>(), src, captureBuffer->getBufferSize());
-		}
-		RHIUnlockTexture2D(texture, 0, false);
-
+		captureReq.scene_capture_buffer = capture(*job.capture_buffer_pool, captureReq.scene_capture_source->TextureRHI->GetTexture2D());
 		// UE_LOG(LogDeepDriveCapture, Log, TEXT("Capturing %d x %d  %p"), width, height, texture);
 
-		captureReq.capture_buffer = captureBuffer;
+		if(captureReq.depth_capture_source)
+		{
+			captureReq.depth_capture_buffer = capture(*job.capture_buffer_pool, captureReq.depth_capture_source->TextureRHI->GetTexture2D());
+		}
+
 	}
 
 	job.result_queue->Enqueue(&job);
+}
+
+CaptureBuffer* DeepDriveCapture::capture(CaptureBufferPool &pool, FRHITexture2D *srcTexture)
+{
+	EPixelFormat pixelFormat = srcTexture->GetFormat();
+	uint32 width = srcTexture->GetSizeX();
+	uint32 height = srcTexture->GetSizeY();
+
+	uint32 stride;
+	void *src = RHILockTexture2D(srcTexture, 0, RLM_ReadOnly, stride, false);
+
+	CaptureBuffer *captureBuffer = pool.acquire(pixelFormat, width, height, stride);
+	if(captureBuffer)
+	{
+		FMemory::BigBlockMemcpy(captureBuffer->getBuffer<void>(), src, captureBuffer->getBufferSize());
+	}
+	RHIUnlockTexture2D(srcTexture, 0, false);
+	return captureBuffer;
 }
 
 

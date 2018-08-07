@@ -1,9 +1,11 @@
 
 #include "DeepDrivePluginPrivatePCH.h"
 #include "Private/CaptureSink/SharedMemSink/SharedMemCaptureMessageBuilder.h"
+#include "Private/Capture/CaptureBuffer.h"
 
 #include "Public/Messages/DeepDriveCaptureMessage.h"
 #include "Public/SharedMemory/SharedMemory.h"
+#include "Public/DeepDriveData.h"
 
 
 DEFINE_LOG_CATEGORY(LogSharedMemCaptureMessageBuilder);

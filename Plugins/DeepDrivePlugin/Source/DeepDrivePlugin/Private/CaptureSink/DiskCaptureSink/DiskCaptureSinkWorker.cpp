@@ -16,7 +16,7 @@ DEFINE_LOG_CATEGORY(LogDiskCaptureSinkWorker);
 DiskCaptureSinkWorker::DiskCaptureSinkWorker()
 	:	CaptureSinkWorkerBase("DiskCaptureSinkWorker")
 {
-	UE_LOG(LogDeepDriveCapture, Log, TEXT("DiskCaptureSinkWorker created"));
+	UE_LOG(LogDiskCaptureSinkWorker, Log, TEXT("DiskCaptureSinkWorker created"));
 }
 
 DiskCaptureSinkWorker::~DiskCaptureSinkWorker()
@@ -33,7 +33,7 @@ bool DiskCaptureSinkWorker::execute(SCaptureSinkJobData &jobData)
 	{
 		const EDeepDriveCameraType camType = captureBufferData.camera_type;
 		const int32 camId = captureBufferData.camera_id;
-		CaptureBuffer *captureBuffer = captureBufferData.capture_buffer;
+		CaptureBuffer *captureBuffer = captureBufferData.scene_capture_buffer;
 
 		FString filePath;
 		FString camTypePath = diskSinkJobData.camera_type_paths.Contains(camType) ? diskSinkJobData.camera_type_paths[camType] : "";
@@ -43,7 +43,7 @@ bool DiskCaptureSinkWorker::execute(SCaptureSinkJobData &jobData)
 		else
 			filePath = FPaths::Combine(diskSinkJobData.base_path, diskSinkJobData.base_file_name) + FString::FromInt(diskSinkJobData.sequence_number) + ".bmp";
 
-		UE_LOG(LogDeepDriveCapture, Log, TEXT("DiskCaptureSinkWorker::execute type %s with id %d to store at %s"), *(CamTypeEnum ? CamTypeEnum->GetNameStringByIndex(static_cast<int32> (camType)) : TEXT("<Invalid Enum>")), camId, *(filePath));
+		UE_LOG(LogDiskCaptureSinkWorker, Log, TEXT("DiskCaptureSinkWorker::execute type %s with id %d to store at %s"), *(CamTypeEnum ? CamTypeEnum->GetNameStringByIndex(static_cast<int32> (camType)) : TEXT("<Invalid Enum>")), camId, *(filePath));
 
 		saveAsBmp(*captureBuffer, filePath);
 

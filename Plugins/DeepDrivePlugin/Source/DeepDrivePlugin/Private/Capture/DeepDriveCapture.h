@@ -76,6 +76,8 @@ private:
 
 	static void executeCaptureJob(SCaptureJob &job);
 
+	static CaptureBuffer* capture(CaptureBufferPool &pool, FRHITexture2D *srcTexture);
+
 	IDeepDriveCaptureProxy			*m_Proxy = 0;
 
 	uint32							m_nextSequenceNumber = 1;
