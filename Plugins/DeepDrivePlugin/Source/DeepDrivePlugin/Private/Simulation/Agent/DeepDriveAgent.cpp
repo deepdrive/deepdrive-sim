@@ -1,5 +1,6 @@
 
 #include "DeepDrivePluginPrivatePCH.h"
+#include "Public/Simulation/DeepDriveSimulation.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 #include "Public/Capture/CaptureCameraComponent.h"
 #include "Components/SplineComponent.h"
@@ -86,12 +87,22 @@ int32 ADeepDriveAgent::RegisterCaptureCamera(float fieldOfView, int32 captureWid
 
 			captureCamCmp->Initialize(colorTexture, depthTexture, fieldOfView);
 
-			m_CaptureCameras.Add(captureCamCmp);
+			camId = captureCamCmp->getCameraId();
+			m_CaptureCameras.Add(camId, captureCamCmp);
+
+			if (m_CaptureCameras.Num() == 1)
+			{
+				if (m_Simulation && m_Simulation->ViewModes.Contains("WorldNormal"))
+				{
+					const FDeepDriveViewMode &viewMode = m_Simulation->ViewModes["WorldNormal"];
+					//viewMode.Material = Material.Succeeded() ? Material.Object : 0;
+					captureCamCmp->setViewMode(&viewMode);
+				}
+			}
 
 			OnCaptureCameraAdded(colorTexture, label);
 			//OnCaptureCameraComponentAdded(captureCamCmp);
 
-			camId = captureCamCmp->getCameraId();
 		}
 	}
 

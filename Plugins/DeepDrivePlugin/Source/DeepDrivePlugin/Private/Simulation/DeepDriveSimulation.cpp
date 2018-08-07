@@ -413,6 +413,7 @@ ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(EDeepDriveAgentControlMode mod
 	if(agent)
 	{
 		m_Agents.Add(agent);
+		agent->initialize(*this);
 		agent->setResetTransform(transform);
 
 		ADeepDriveAgentControllerBase *controller = spawnController(mode, configSlot, startPosSlot);

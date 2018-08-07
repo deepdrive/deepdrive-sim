@@ -12,6 +12,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveAgent, Log, All);
 
 class UCaptureCameraComponent;
 class ADeepDriveAgentControllerBase;
+class ADeepDriveSimulation;
 
 /**
  * 
@@ -24,6 +25,8 @@ class DEEPDRIVEPLUGIN_API ADeepDriveAgent : public AWheeledVehicle
 public:
 
 	ADeepDriveAgent();
+
+	void initialize(ADeepDriveSimulation &sim);
 
 	virtual void BeginPlay() override;
 
@@ -133,6 +136,8 @@ protected:
 
 private:
 
+	ADeepDriveSimulation				*m_Simulation;
+
 	int32								m_AgentId;
 	ADeepDriveAgent						*m_NextAgent = 0;
 	float								m_DistanceToNextAgent = 0.0f;
@@ -141,7 +146,7 @@ private:
 
 	ADeepDriveAgentControllerBase		*m_AgentController = 0;
 
-	TArray<UCaptureCameraComponent*>	m_CaptureCameras;
+	TMap<int32, UCaptureCameraComponent*>	m_CaptureCameras;
 	
 	float								m_curSteering = 0.0f;
 	float								m_curThrottle = 0.0f;
@@ -163,6 +168,11 @@ private:
 
 	static int32						s_nextAgentId;
 };
+
+inline void ADeepDriveAgent::initialize(ADeepDriveSimulation &sim)
+{
+	m_Simulation = &sim;
+}
 
 
 inline void ADeepDriveAgent::setResetTransform(const FTransform &transform)
