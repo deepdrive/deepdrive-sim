@@ -88,7 +88,9 @@ int32 ADeepDriveAgent::RegisterCaptureCamera(float fieldOfView, int32 captureWid
 			captureCamCmp->Initialize(sceneTexture, depthTexture, fieldOfView);
 
 			camId = captureCamCmp->getCameraId();
+			const int32 camIndex = m_CaptureCameras.Num();
 			m_CaptureCameras.Add(camId, captureCamCmp);
+			OnCaptureCameraAdded(camId, camIndex, sceneTexture, label);
 
 			if (m_CaptureCameras.Num() == 1)
 			{
@@ -97,12 +99,11 @@ int32 ADeepDriveAgent::RegisterCaptureCamera(float fieldOfView, int32 captureWid
 					const FDeepDriveViewMode &viewMode = m_Simulation->ViewModes["WorldNormal"];
 					//viewMode.Material = Material.Succeeded() ? Material.Object : 0;
 					captureCamCmp->setViewMode(&viewMode);
+
+					SetDepthTexture(camId, camIndex, depthTexture);
+
 				}
 			}
-
-			OnCaptureCameraAdded(camId, m_CaptureCameras.Num(), sceneTexture, label);
-			//OnCaptureCameraComponentAdded(captureCamCmp);
-
 		}
 	}
 

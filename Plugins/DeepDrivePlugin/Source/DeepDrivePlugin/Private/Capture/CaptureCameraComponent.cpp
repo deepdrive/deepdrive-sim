@@ -43,18 +43,23 @@ void UCaptureCameraComponent::Initialize(UTextureRenderTarget2D *colorRenderTarg
 		if(IsCapturingActive)
 		{
 			m_SceneCapture->Activate();
+			m_DepthCapture->Activate();
 			m_SceneCapture->bCaptureEveryFrame = CaptureSceneEveryFrame;
 			m_SceneCapture->bCaptureOnMovement = CaptureSceneEveryFrame;
 		}
 		else
 		{
 			m_SceneCapture->Deactivate();
+			m_DepthCapture->Deactivate();
 			m_SceneCapture->bCaptureEveryFrame = false;
 			m_SceneCapture->bCaptureOnMovement = false;
 		}
 
 		m_SceneCapture->AttachToComponent(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
 		m_SceneCapture->FOVAngle = FoV;
+
+		m_DepthCapture->AttachToComponent(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
+		m_DepthCapture->FOVAngle = FoV;
 	}
 
 	UE_LOG(DeepDriveCaptureComponent, Log, TEXT("UCaptureCameraComponent::InitializeComponent 0x%p camId %d"), m_SceneCapture, CameraId);
@@ -74,6 +79,8 @@ void UCaptureCameraComponent::ActivateCapturing()
 		m_SceneCapture->Activate();
 		m_SceneCapture->bCaptureEveryFrame = CaptureSceneEveryFrame;
 		m_SceneCapture->bCaptureOnMovement = CaptureSceneEveryFrame;
+
+		m_DepthCapture->Activate();
 	}
 	IsCapturingActive = true;
 }
@@ -86,6 +93,8 @@ void UCaptureCameraComponent::DeactivateCapturing()
 		m_SceneCapture->Deactivate();
 		m_SceneCapture->bCaptureEveryFrame = false;
 		m_SceneCapture->bCaptureOnMovement = false;
+
+		m_DepthCapture->Deactivate();
 	}
 	IsCapturingActive = false;
 }
