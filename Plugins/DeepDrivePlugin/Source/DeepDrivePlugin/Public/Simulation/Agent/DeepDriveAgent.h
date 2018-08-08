@@ -56,7 +56,10 @@ public:
 	void SetInstrumentsVisibility(bool Visible);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "HUD")
-	void OnCaptureCameraAdded(UTextureRenderTarget2D *CaptureTexture, const FString &label);
+	void OnCaptureCameraAdded(int32 CameraId, int32 CameraIndex, UTextureRenderTarget2D *SceneTexture, const FString &label);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "HUD")
+	void SetDepthTexture(int32 CameraId, int32 CameraIndex, UTextureRenderTarget2D *DepthTexture);
 
 	UFUNCTION(BlueprintCallable, Category = "Simulation")
 	void OnLapStart();
