@@ -118,13 +118,14 @@ void DeepDriveCapture::processFinishedJobs()
 
 			for(SCaptureRequest &captureReq : job->capture_requests)
 			{
-				CaptureBuffer *captureBuffer = captureReq.scene_capture_buffer;
+				CaptureBuffer *sceneCaptureBuffer = captureReq.scene_capture_buffer;
+				CaptureBuffer *depthCaptureBuffer = captureReq.depth_capture_buffer;
 
-				if(captureBuffer)
+				if(sceneCaptureBuffer)
 				{
 					for(UCaptureSinkComponentBase* &sink : sinks)
 					{
-						sink->setCaptureBuffer(captureReq.camera_id, captureReq.camera_type, *captureBuffer);
+						sink->setCaptureBuffer(captureReq.camera_id, captureReq.camera_type, *sceneCaptureBuffer, depthCaptureBuffer);
 					}
 				}
 			}
@@ -136,10 +137,13 @@ void DeepDriveCapture::processFinishedJobs()
 
 			for (SCaptureRequest &captureReq : job->capture_requests)
 			{
-				CaptureBuffer *captureBuffer = captureReq.scene_capture_buffer;
+				CaptureBuffer *sceneCaptureBuffer = captureReq.scene_capture_buffer;
+				if (sceneCaptureBuffer)
+					sceneCaptureBuffer->release();
 
-				if (captureBuffer)
-					captureBuffer->release();
+				CaptureBuffer *depthCaptureBuffer = captureReq.depth_capture_buffer;
+				if (depthCaptureBuffer)
+					depthCaptureBuffer->release();
 			}
 
 			m_onCaptureFinished.ExecuteIfBound(job->sequence_number);
@@ -255,7 +259,6 @@ void DeepDriveCapture::executeCaptureJob(SCaptureJob &job)
 		{
 			captureReq.depth_capture_buffer = capture(*job.capture_buffer_pool, captureReq.depth_capture_source->TextureRHI->GetTexture2D());
 		}
-
 	}
 
 	job.result_queue->Enqueue(&job);

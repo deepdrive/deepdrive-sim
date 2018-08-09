@@ -43,7 +43,9 @@ CaptureBuffer::DataType CaptureBuffer::getDataType() const
 {
 	DataType dataType = Undefined;
 
-	if(m_PixelFormat == PF_FloatRGBA)
+	if	(	m_PixelFormat == PF_FloatRGBA
+		||	m_PixelFormat == PF_R16F
+		)
 	{
 		dataType = Float16;
 	}

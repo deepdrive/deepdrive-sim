@@ -499,10 +499,8 @@ static struct PyModuleDef deepdrive_client_module = {
 
 PyMODINIT_FUNC PyInit_deepdrive_client(void)
 {
-	// if (PyType_Ready(&PyDeepDriveClientRegisterClientRequestType) < 0)
-	//	return 0;
-
-	std::cout << "###### ><> ><> PyInit_deepdrive_client <>< <>< ######\n";
+	if (PyType_Ready(&PySimulationGraphicsSettingsType) < 0)
+		return 0;
 
 	import_array();
 
@@ -535,10 +533,13 @@ PyMODINIT_FUNC PyInit_deepdrive_client(void)
 
 		Py_INCREF(&PySimulationGraphicsSettingsType);
 		PyModule_AddObject(m, "SimulationGraphicsSettings", (PyObject *)&PySimulationGraphicsSettingsType);
+/*
+*/
 
 		// Py_INCREF(&PyDeepDriveClientRegisterClientRequestType);
 		// PyModule_AddObject(m, "RegisterClientRequest", (PyObject *)&PyDeepDriveClientRegisterClientRequestType);
 	}
+	std::cout << "###### ><> ><> PyInit_deepdrive_client <>< <>< ######\n";
 
 	return m;
 }

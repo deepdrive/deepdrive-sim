@@ -72,12 +72,12 @@ void SharedMemCaptureMessageBuilder::begin(const FDeepDriveDataOut &deepDriveDat
 	}
 }
 
-void SharedMemCaptureMessageBuilder::addCamera(EDeepDriveCameraType camType, int32 camId, CaptureBuffer &captureBuffer)
+void SharedMemCaptureMessageBuilder::addCamera(EDeepDriveCameraType camType, int32 camId, CaptureBuffer &sceneCaptureBuffer, CaptureBuffer *depthCaptureBuffer)
 {
 	uint32 estimatedSize = sizeof(DeepDriveCaptureCamera);
-	const uint32 width = captureBuffer.getWidth();
-	const uint32 height = captureBuffer.getHeight();
-	const CaptureBuffer::DataType dataType = captureBuffer.getDataType();
+	const uint32 width = sceneCaptureBuffer.getWidth();
+	const uint32 height = sceneCaptureBuffer.getHeight();
+	const CaptureBuffer::DataType dataType = sceneCaptureBuffer.getDataType();
 
 	estimatedSize += width * height * 3 * 2;		// 2 bytes per pixel rgb color buffer
 	estimatedSize += width * height * 2;			// 2 bytes per depth value
@@ -99,7 +99,8 @@ void SharedMemCaptureMessageBuilder::addCamera(EDeepDriveCameraType camType, int
 		curCamera->bytes_per_depth_value = 2;
 		curCamera->depth_offset = width * height * curCamera->bytes_per_pixel;
 
-		const FFloat16 *f16Src = captureBuffer.getBuffer<FFloat16>();
+		const FFloat16 *f16ColSrc = sceneCaptureBuffer.getBuffer<FFloat16>();
+		const FFloat16 *f16DepthSrc = depthCaptureBuffer && depthCaptureBuffer->getDataType() == CaptureBuffer::Float16 ? depthCaptureBuffer->getBuffer<FFloat16>() : 0;
 		FFloat16 *colDst = reinterpret_cast<FFloat16*>( &curCamera->data[0] );
 		FFloat16 *depthDst = colDst + width * height * 3;
 
@@ -108,15 +109,26 @@ void SharedMemCaptureMessageBuilder::addCamera(EDeepDriveCameraType camType, int
 			uint32 ind = 0;
 			for(unsigned x = 0; x < width; x++)
 			{
-				*colDst++ = f16Src[ind++];
-				*colDst++ = f16Src[ind++];
-				*colDst++ = f16Src[ind++];
+				*colDst++ = f16ColSrc[ind++];
+				*colDst++ = f16ColSrc[ind++];
+				*colDst++ = f16ColSrc[ind++];
 
-				depthDst->Set(f16Src[ind++].GetFloat() / 65535.0f);
+				if(f16DepthSrc)
+				{
+					depthDst->Set(f16DepthSrc[x].GetFloat() / 65535.0f);
+
+					// necessary to increase ind for scene src buffer
+					++ind;
+				}
+				else
+					depthDst->Set(f16ColSrc[ind++].GetFloat() / 65535.0f);
+
 				depthDst++;
 			}
 
-			f16Src = reinterpret_cast<const FFloat16*> (reinterpret_cast<const uint8*> (f16Src) + captureBuffer.getStride() );
+			f16ColSrc = reinterpret_cast<const FFloat16*> (reinterpret_cast<const uint8*> (f16ColSrc) + sceneCaptureBuffer.getStride() );
+			if(f16DepthSrc)
+				f16DepthSrc = reinterpret_cast<const FFloat16*> (reinterpret_cast<const uint8*> (f16DepthSrc) + depthCaptureBuffer->getStride() );
 		}
 
 		// calc size for this camera
@@ -147,16 +159,6 @@ void SharedMemCaptureMessageBuilder::flush()
 	{
 		m_Message->message_size = m_MessageSize;
 		m_Message->setMessageId();
-
-#if 0
-		FILE *out = fopen("D:\\tmp\\sm_dump_Unreal.bin", "wb");
-		if (out)
-		{
-			fwrite(m_Message, sizeof(uint8), 512, out);
-			fclose(out);
-		}
-#endif
-
 		m_SharedMem.unlock(m_MessageSize);
 //		UE_LOG(LogSharedMemCaptureMessageBuilder, Log, TEXT("SharedMemCaptureMessageBuilder::flush Flushed message %d msgSize %d"), m_Message->message_id, m_MessageSize);
 	}

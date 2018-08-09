@@ -1,16 +1,25 @@
+
+from PIL import Image
+
 import socket
 import sys
 import time
 
+import numpy
+
 import deepdrive_capture
 import deepdrive_client
+
+
 
 def cleanUp(clientId):
 	deepdrive_client.release_agent_control(clientId)
 	deepdrive_capture.close()
 	deepdrive_client.close(clientId)
 
+print('ksdfjo')
 client = deepdrive_client.create('127.0.0.1', 9876)
+print('ksdfjo')
 print(client)
 
 if client != None and 'client_id' in client:
@@ -20,7 +29,10 @@ if client != None and 'client_id' in client:
 	sharedMem = deepdrive_client.get_shared_memory(clientId)
 	print('SharedMemName:', sharedMem[0], "Size", sharedMem[1])
 
-	deepdrive_client.register_camera(clientId, 60, 1024, 1024, [0.0, 0.0, 200.0], [0, 0, 0], 'MainCamera')
+	cam0Size = (384, 384)
+	deepdrive_client.register_camera(clientId, 60, cam0Size[0], cam0Size[1], [0.0, 0.0, 200.0], [0, 0, 0], 'MainCamera')
+
+	cam0Image = Image.new("RGB", cam0Size )
 
 	deepdrive_client.register_camera(clientId, 60, 512, 256, [0.0, 0.0, 200.0], [0.0, 0.0, 60.0], 'FrontRight')
 	deepdrive_client.register_camera(clientId, 60, 512, 256, [0.0, 0.0, 200.0], [0.0, 0.0, -60.0], 'FrontLeft')
@@ -35,42 +47,27 @@ if client != None and 'client_id' in client:
 		print('Capture connected')
 		print('------------------------')
 		print('')
-		reqCounter = 0
 		try:
-			print('Activating synchronous stepping .....')
-			syncStepping = deepdrive_client.activate_synchronous_stepping(clientId)
-			print('Done', syncStepping)
 
-			mainCounter = 100000
-			while mainCounter > 0:
-				print('Taking over control .....')
-				ctrlAcquired = deepdrive_client.request_agent_control(clientId)
-				print(reqCounter, ': Control acquired', ctrlAcquired)
-				counter = 25
-				while counter > 0:
-					snapshot = deepdrive_capture.step()
-					if snapshot:
-					#	print(snapshot.capture_timestamp, snapshot.sequence_number, snapshot.speed, snapshot.is_game_driving, snapshot.camera_count, len(snapshot.cameras) )
-					#	for c in snapshot.cameras:
-					#		print('Id', c.id, c.capture_width, 'x', c.capture_height)
-						print(snapshot.cameras[0].image_data[0], snapshot.cameras[0].image_data[1], snapshot.cameras[0].image_data[2] )
-						pass
+			while True:
+				snapshot = deepdrive_capture.step()
+				if snapshot:
+				#	print(snapshot.capture_timestamp, snapshot.sequence_number, snapshot.speed, snapshot.is_game_driving, snapshot.camera_count, len(snapshot.cameras) )
+				#	for c in snapshot.cameras:
+				#		print('Id', c.id, c.capture_width, 'x', c.capture_height)
 
-					seqNr = deepdrive_client.advance_synchronous_stepping(clientId, 0.125, 0.2, 1.0, 0.0, 0)
-					print('Advanced', counter, seqNr)
-					time.sleep(0.05)
-					counter -= 1
+					src = snapshot.cameras[0].image_data.astype(numpy.float32)
+					srcInd = 0
+					pixels = cam0Image.load()
+					for i in range(cam0Size[0]):
+						for j in range(cam0Size[1]):
+							pixels[j, i] = (int(src[srcInd] * 255), int(src[srcInd + 1] * 255), int(src[srcInd + 2] * 255))
+							srcInd = srcInd + 3
 
-				# print('Resetting agent .....')
-				# deepdrive_client.reset_agent(clientId)
-				
-				print(reqCounter, ': Releasing control .....')
-				deepdrive_client.release_agent_control(clientId)
-				print('------------------------')
-				print('')
-				time.sleep(3.0)
-				mainCounter = mainCounter - 1
-				reqCounter = reqCounter + 1
+					cam0Image.save('cam0.png')
+					print(snapshot.capture_timestamp)
+
+				time.sleep(0.05)
 
 			cleanUp(clientId)
 
@@ -82,4 +79,3 @@ if client != None and 'client_id' in client:
 
 else:
 	print('Ohh shit ...')
-

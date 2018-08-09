@@ -9,16 +9,18 @@ class CaptureBuffer;
 
 struct SCaptureSinkBufferData
 {
-	SCaptureSinkBufferData(EDeepDriveCameraType camType, int32 camId, CaptureBuffer &sceneCaptureBuffer)
+	SCaptureSinkBufferData(EDeepDriveCameraType camType, int32 camId, CaptureBuffer &sceneCaptureBuffer, CaptureBuffer *depthCaptureBuffer)
 		:	camera_type(camType)
 		,	camera_id(camId)
 		,	scene_capture_buffer(&sceneCaptureBuffer)
+		,	depth_capture_buffer(depthCaptureBuffer)
 	{
 	}
 
 	EDeepDriveCameraType		camera_type;
 	int32						camera_id;
 	CaptureBuffer				*scene_capture_buffer;
+	CaptureBuffer				*depth_capture_buffer;
 };
 
 struct SCaptureSinkJobData

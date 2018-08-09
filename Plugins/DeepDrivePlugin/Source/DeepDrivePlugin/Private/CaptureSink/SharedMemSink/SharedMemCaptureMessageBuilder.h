@@ -22,7 +22,7 @@ public:
 
 	void begin(const FDeepDriveDataOut &deepDriveData, double timestamp, uint32 sequenceNumber);
 
-	void addCamera(EDeepDriveCameraType camType, int32 camId, CaptureBuffer &captureBuffer);
+	void addCamera(EDeepDriveCameraType camType, int32 camId, CaptureBuffer &sceneCaptureBuffer, CaptureBuffer *depthCaptureBuffer);
 
 	void flush();
 

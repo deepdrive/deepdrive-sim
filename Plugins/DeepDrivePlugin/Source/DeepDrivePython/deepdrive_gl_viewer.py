@@ -17,8 +17,12 @@ import ctypes
 
 import numpy
 
-import deepdrive
-import platform
+import socket
+import sys
+import time
+
+import deepdrive_capture
+import deepdrive_client
 
 # Number of the glut window.
 window = 0
@@ -217,33 +221,45 @@ def onKeyPressed(*args):
 def main():
 	global window
 
-	if platform.system() == 'Linux':
-		connected = deepdrive.reset('/tmp/deepdrive_shared_memory', 157286400)
-	elif platform.system() == 'Windows':
-		connected = deepdrive.reset('Local\DeepDriveCapture', 157286400)
+	client = deepdrive_client.create('127.0.0.1', 9876)
+	print(client)
 
-	if connected:
+	if client != None and 'client_id' in client:
+		clientId = client['client_id']
+		sharedMem = deepdrive_client.get_shared_memory(clientId)
+		print('SharedMemName:', sharedMem[0], "Size", sharedMem[1])
 
-		glutInit(sys.argv)
+		deepdrive_client.register_camera(clientId, 60, 1024, 1024, [0.0, 0.0, 200.0], [0, 0, 0], 'MainCamera')
 
-		glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE)
-		glutInitWindowSize(1200, 800)
-		glutInitWindowPosition(0, 0)
-		
-		window = glutCreateWindow(b'DeepDrive viewer')
-		glutDisplayFunc(Render)
-		
-		# Uncomment this line to get full screen.
-		#glutFullScreen()
+		deepdrive_client.register_camera(clientId, 60, 512, 256, [0.0, 0.0, 200.0], [0.0, 0.0, 60.0], 'FrontRight')
+		deepdrive_client.register_camera(clientId, 60, 512, 256, [0.0, 0.0, 200.0], [0.0, 0.0, -60.0], 'FrontLeft')
 
-		glutIdleFunc(Idle)
-		
-		glutReshapeFunc(Resize)
-		glutKeyboardFunc(onKeyPressed)
+		connected = deepdrive_capture.reset(sharedMem[0], sharedMem[1])
+		if connected:
 
-		InitGL(640, 480)
-		glutMainLoop()
+			glutInit(sys.argv)
 
+			glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE)
+			glutInitWindowSize(1200, 800)
+			glutInitWindowPosition(0, 0)
+			
+			window = glutCreateWindow(b'DeepDrive viewer')
+			glutDisplayFunc(Render)
+			
+			# Uncomment this line to get full screen.
+			#glutFullScreen()
+
+			glutIdleFunc(Idle)
+			
+			glutReshapeFunc(Resize)
+			glutKeyboardFunc(onKeyPressed)
+
+			InitGL(640, 480)
+			glutMainLoop()
+
+			deepdrive_client.release_agent_control(clientId)
+			deepdrive_capture.close()
+			deepdrive_client.close(clientId)
 
 print ('Hit ESC key to quit.')
 main()
