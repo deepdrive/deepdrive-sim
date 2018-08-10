@@ -32,10 +32,8 @@ if client != None and 'client_id' in client:
 	cam0Size = (384, 384)
 	deepdrive_client.register_camera(clientId, 60, cam0Size[0], cam0Size[1], [0.0, 0.0, 200.0], [0, 0, 0], 'MainCamera')
 
-	cam0Image = Image.new("RGB", cam0Size )
-
-	deepdrive_client.register_camera(clientId, 60, 512, 256, [0.0, 0.0, 200.0], [0.0, 0.0, 60.0], 'FrontRight')
-	deepdrive_client.register_camera(clientId, 60, 512, 256, [0.0, 0.0, 200.0], [0.0, 0.0, -60.0], 'FrontLeft')
+	#deepdrive_client.register_camera(clientId, 60, 512, 256, [0.0, 0.0, 200.0], [0.0, 0.0, 60.0], 'FrontRight')
+	#deepdrive_client.register_camera(clientId, 60, 512, 256, [0.0, 0.0, 200.0], [0.0, 0.0, -60.0], 'FrontLeft')
 	#deepdrive_client.register_camera(clientId, 60, 512, 256, [0.0, 0.0, 200.0], [0.0, 0.0, 120.0])
 	#deepdrive_client.register_camera(clientId, 60, 512, 256, [0.0, 0.0, 200.0], [0.0, 0.0, -120.0])
 	#deepdrive_client.register_camera(clientId, 60, 512, 256, [0.0, 0.0, 200.0], [0.0, 0.0, 180.0])
@@ -49,6 +47,7 @@ if client != None and 'client_id' in client:
 		print('')
 		try:
 
+			image_id = 0
 			while True:
 				snapshot = deepdrive_capture.step()
 				if snapshot:
@@ -56,15 +55,17 @@ if client != None and 'client_id' in client:
 				#	for c in snapshot.cameras:
 				#		print('Id', c.id, c.capture_width, 'x', c.capture_height)
 
-					src = snapshot.cameras[0].image_data.astype(numpy.float32)
-					srcInd = 0
-					pixels = cam0Image.load()
-					for i in range(cam0Size[0]):
-						for j in range(cam0Size[1]):
-							pixels[j, i] = (int(src[srcInd] * 255), int(src[srcInd + 1] * 255), int(src[srcInd + 2] * 255))
-							srcInd = srcInd + 3
+					src = 255 ** numpy.reshape(snapshot.cameras[0].image_data, (cam0Size[0], cam0Size[0], 3)).astype(numpy.float32)
+					scene_image = Image.fromarray(src.astype(numpy.uint8))
+					scene_image.save('cap0_scene_' + str(image_id) + '.png')
 
-					cam0Image.save('cam0.png')
+					#src = 255 ** snapshot.cameras[0].depth_data.astype(numpy.float32)
+					src = 255 ** numpy.reshape(snapshot.cameras[0].depth_data, (cam0Size[0], cam0Size[0])).astype(numpy.float32)
+					depth_image = Image.fromarray(src.astype(numpy.uint8))
+					depth_image.save('cap0_depth_' + str(image_id) + '.png')
+
+
+					image_id = image_id + 1
 					print(snapshot.capture_timestamp)
 
 				time.sleep(0.05)

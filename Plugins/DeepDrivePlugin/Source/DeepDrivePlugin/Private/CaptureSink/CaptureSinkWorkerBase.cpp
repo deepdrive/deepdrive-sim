@@ -3,6 +3,7 @@
 
 #include "Public/Capture/CaptureDefines.h"
 #include "Private/CaptureSink/CaptureSinkWorkerBase.h"
+#include "Private/Capture/CaptureBuffer.h"
 
 
 CaptureSinkWorkerBase::CaptureSinkWorkerBase(const FString &name)
@@ -39,6 +40,17 @@ uint32 CaptureSinkWorkerBase::Run()
 					)
 			{
 				const bool continueExecuting = execute(*jobData);
+
+				for(auto &data : jobData->captures)
+				{
+					if(data.scene_capture_buffer)
+						data.scene_capture_buffer->release();
+
+					if(data.depth_capture_buffer)
+						data.depth_capture_buffer->release();				
+				}
+
+	
 
 				delete jobData;
 

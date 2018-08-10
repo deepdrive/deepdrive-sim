@@ -9,6 +9,8 @@ class CaptureBuffer;
 
 class CaptureBufferPool
 {
+	friend class CaptureBuffer;
+
 	typedef TArray<CaptureBuffer*>	Buffers;
 
 	struct SBufferSlot
@@ -22,9 +24,9 @@ public:
 
 	CaptureBuffer* acquire(EPixelFormat pixelFormat, uint32 width, uint32 height, uint32 stride);
 
-	void release(CaptureBuffer &buffer);
-
 private:
+
+	void release(CaptureBuffer &buffer);
 
 	void logMemorySize();
 

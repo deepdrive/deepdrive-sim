@@ -5,6 +5,7 @@
 
 CaptureBuffer::CaptureBuffer(CaptureBufferPool &captureBufferPool, EPixelFormat pixelFormat, uint32 width, uint32 height, uint32 stride)
 	:	m_CaptureBufferPool(captureBufferPool)
+	,	m_LockCounter(0)
 	,	m_PixelFormat(pixelFormat)
 	,	m_Width(width)
 	,	m_Height(height)
@@ -36,7 +37,11 @@ bool CaptureBuffer::allocate()
 
 void CaptureBuffer::release()
 {
-	m_CaptureBufferPool.release(*this);
+	m_LockCounter.Add(-1);
+	if(m_LockCounter.GetValue() <= 0)
+	{
+		m_CaptureBufferPool.release(*this);
+	}
 }
 
 CaptureBuffer::DataType CaptureBuffer::getDataType() const
@@ -55,4 +60,9 @@ CaptureBuffer::DataType CaptureBuffer::getDataType() const
 	}
 
 	return dataType;
+}
+
+void CaptureBuffer::addLock()
+{
+	m_LockCounter.Add(1);
 }

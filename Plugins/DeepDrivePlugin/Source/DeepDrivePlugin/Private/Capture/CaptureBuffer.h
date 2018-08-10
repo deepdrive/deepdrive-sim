@@ -23,6 +23,7 @@ public:
 
 	bool allocate();
 
+	void addLock();
 	void release();
 
 	template<class T>
@@ -41,6 +42,8 @@ public:
 private:
 
 	CaptureBufferPool		&m_CaptureBufferPool;
+
+	FThreadSafeCounter		m_LockCounter;
 
 	void					*m_Buffer = 0;
 	EPixelFormat			m_PixelFormat = PF_Unknown;

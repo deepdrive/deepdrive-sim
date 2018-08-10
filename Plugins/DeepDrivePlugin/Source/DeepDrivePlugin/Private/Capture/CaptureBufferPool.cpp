@@ -39,6 +39,8 @@ CaptureBuffer* CaptureBufferPool::acquire(EPixelFormat pixelFormat, uint32 width
 
 	m_Mutex.Unlock();
 
+	if(captureBuffer)
+		captureBuffer->addLock();
 
 	return captureBuffer;
 }

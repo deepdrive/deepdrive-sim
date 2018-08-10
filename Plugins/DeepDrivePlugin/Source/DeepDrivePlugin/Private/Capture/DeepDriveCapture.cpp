@@ -125,7 +125,12 @@ void DeepDriveCapture::processFinishedJobs()
 				{
 					for(UCaptureSinkComponentBase* &sink : sinks)
 					{
-						sink->setCaptureBuffer(captureReq.camera_id, captureReq.camera_type, *sceneCaptureBuffer, depthCaptureBuffer);
+						if(sink->setCaptureBuffer(captureReq.camera_id, captureReq.camera_type, *sceneCaptureBuffer, depthCaptureBuffer))
+						{
+							sceneCaptureBuffer->addLock();
+							if(depthCaptureBuffer)
+								depthCaptureBuffer->addLock();
+						}
 					}
 				}
 			}

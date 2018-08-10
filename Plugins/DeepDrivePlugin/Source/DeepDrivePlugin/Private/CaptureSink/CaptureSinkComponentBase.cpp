@@ -16,9 +16,9 @@ void UCaptureSinkComponentBase::begin(double timestamp, uint32 sequenceNumber, c
 
 }
 
-void UCaptureSinkComponentBase::setCaptureBuffer(int32 cameraId, EDeepDriveCameraType cameraType, CaptureBuffer &sceneCaptureBuffer, CaptureBuffer *depthCaptureBuffer)
+bool UCaptureSinkComponentBase::setCaptureBuffer(int32 cameraId, EDeepDriveCameraType cameraType, CaptureBuffer &sceneCaptureBuffer, CaptureBuffer *depthCaptureBuffer)
 {
-
+	return false;
 }
 
 void UCaptureSinkComponentBase::flush()
