@@ -23,3 +23,7 @@ script:
 - python -u Plugins/DeepDrivePlugin/Source/DeepDrivePython/build/build.py --type linux_bdist
 git:
   depth: 1
+addons:
+  artifacts: true
+    target_paths:
+    - /wheels/${TRAVIS_REPO_SLUG}/${TRAVIS_BUILD_NUMBER}/${TRAVIS_JOB_NUMBER}
