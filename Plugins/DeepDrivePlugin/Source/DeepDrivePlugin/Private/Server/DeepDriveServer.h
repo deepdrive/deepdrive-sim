@@ -109,6 +109,8 @@ private:
 	void deactivateSynchronousStepping(const deepdrive::server::MessageHeader &message);
 	void advanceSynchronousStepping(const deepdrive::server::MessageHeader &message);
 
+	void setViewMode(const deepdrive::server::MessageHeader &message);
+
 	void onCaptureFinished(int32 seqNr);
 
 	DeepDriveConnectionListener		*m_ConnectionListener = 0;

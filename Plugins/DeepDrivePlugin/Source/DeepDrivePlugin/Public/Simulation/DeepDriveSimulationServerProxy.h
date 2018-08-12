@@ -40,6 +40,8 @@ public:
 
 	virtual void SetAgentControlValues(float steering, float throttle, float brake, bool handbrake);
 
+	virtual bool SetViewMode(int32 cameraId, const char *viewMode);
+
 private:
 
 	ADeepDriveSimulation 			&m_DeepDriveSim;

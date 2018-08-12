@@ -36,6 +36,8 @@ public:
 
 	int32 advanceSynchronousStepping(float dT, float steering, float throttle, float brake, uint32 handbrake);
 
+	int32 setViewMode(int32 cameraId, const char *viewMode);
+
 	const char* getSharedMemoryName() const;
 	uint32 getSharedMemorySize() const;
 

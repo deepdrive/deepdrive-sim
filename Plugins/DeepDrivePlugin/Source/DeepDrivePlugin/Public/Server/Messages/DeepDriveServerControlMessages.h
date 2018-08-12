@@ -168,5 +168,43 @@ struct AdvanceSynchronousSteppingResponse :	public MessageHeader
 };
 
 
+struct SetViewModeRequest :	public MessageHeader
+{
+	SetViewModeRequest(uint32 c = 0, int32 camId = 0, const char *viewMode = 0)
+		:	MessageHeader(MessageId::SetViewModeRequest, sizeof(SetViewModeRequest))
+		,	client_id(c)
+		,	camera_id(camId)
+	{
+		char *dst = view_mode;
+		if(viewMode)
+			for(int32 i = ViewModeStringSize - 1; i > 0 && *viewMode; *dst++ = *viewMode++, i++);
+
+		*dst = 0;
+	}
+
+	uint32		client_id;
+	uint32		camera_id;
+
+	enum
+	{
+		ViewModeStringSize = 128
+	};
+
+	char		view_mode[ViewModeStringSize];
+};
+
+
+struct SetViewModeResponse :	public MessageHeader
+{
+	SetViewModeResponse(bool _result = false)
+		:	MessageHeader(MessageId::SetViewModeResponse, sizeof(SetViewModeResponse))
+		,	result(_result ? 1 : 0)
+	{	}
+
+	int32		result;
+
+};
+
+
 
 } }	// namespaces

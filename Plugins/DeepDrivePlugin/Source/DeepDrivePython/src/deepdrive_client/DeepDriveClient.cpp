@@ -248,3 +248,26 @@ int32 DeepDriveClient::advanceSynchronousStepping(float dT, float steering, floa
 	return res;
 }
 
+int32 DeepDriveClient::setViewMode(int32 cameraId, const char *viewMode)
+{
+	int32 res = ClientErrorCode::NOT_CONNECTED;
+	if(m_Socket.isConnected())
+	{
+		deepdrive::server::SetViewModeRequest req(m_ClientId, cameraId, viewMode);
+		res = m_Socket.send(&req, sizeof(req));
+		if(res >= 0)
+		{
+			std::cout << "SetViewModeRequest sent\n";
+
+			deepdrive::server::SetViewModeResponse response;
+			if(m_Socket.receive(&response, sizeof(response)))
+			{
+				res = response.result;
+				std::cout << "SetViewModeResponse received " << m_ClientId << " res " << res << "\n";
+			}
+			else
+				std::cout << "Waiting for SetViewModeResponse, time out\n";
+		}
+	}
+	return res;
+}

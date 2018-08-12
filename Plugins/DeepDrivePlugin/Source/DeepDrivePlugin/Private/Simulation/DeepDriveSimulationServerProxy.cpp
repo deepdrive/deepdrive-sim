@@ -100,3 +100,16 @@ void DeepDriveSimulationServerProxy::SetAgentControlValues(float steering, float
 		agentCtrl->SetControlValues(steering, throttle, brake, handbrake);
 	}
 }
+
+bool DeepDriveSimulationServerProxy::SetViewMode(int32 cameraId, const char *viewMode)
+{
+	bool res = false;
+
+	ADeepDriveAgent *agent = m_DeepDriveSim.getCurrentAgent();
+	if (agent)
+	{
+		res = agent->setViewMode(cameraId, viewMode);
+	}
+
+	return res;
+}
