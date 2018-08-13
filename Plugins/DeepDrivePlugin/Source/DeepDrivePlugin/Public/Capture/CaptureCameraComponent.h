@@ -53,6 +53,8 @@ public:
 
 	void setViewMode(const FDeepDriveViewMode *viewMode);
 
+	UTextureRenderTarget2D* getDepthRenderTexture();
+
 private:
 
 	UPROPERTY()
@@ -61,6 +63,9 @@ private:
 	UPROPERTY()
 	USceneCaptureComponent2D	*m_DepthCapture = 0;
 
+	UPROPERTY()
+	UTextureRenderTarget2D 		*m_DepthRenderTexture = 0;
+
 	bool						m_hasValidViewMode = false;
 
 };
@@ -68,4 +73,9 @@ private:
 inline int32 UCaptureCameraComponent::getCameraId() const
 {
 	return CameraId;
+}
+
+inline UTextureRenderTarget2D* UCaptureCameraComponent::getDepthRenderTexture()
+{
+	return m_DepthRenderTexture;
 }

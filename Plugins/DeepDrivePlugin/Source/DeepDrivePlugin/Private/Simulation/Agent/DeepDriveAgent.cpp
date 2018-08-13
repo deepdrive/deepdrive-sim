@@ -108,19 +108,22 @@ int32 ADeepDriveAgent::RegisterCaptureCamera(float fieldOfView, int32 captureWid
 	return camId;
 }
 
-bool ADeepDriveAgent::setViewMode(int32 cameraId, const char *viewModeName)
+bool ADeepDriveAgent::setViewMode(int32 cameraId, const FString &viewModeName)
 {
 	bool res = false;
 
 	const FDeepDriveViewMode *viewMode = 0;
+
 	
-	if (viewModeName[0])
+	if (viewModeName.IsEmpty() == false)
 	{
 		if (m_Simulation && m_Simulation->ViewModes.Contains(viewModeName))
 		{
 			viewMode = &m_Simulation->ViewModes[viewModeName];
 			res = true;
 		}
+		else
+			UE_LOG(LogDeepDriveAgent, Error, TEXT("ViewMode %s not found"), *(viewModeName) );
 	}
 	else
 		res = true;
@@ -131,20 +134,24 @@ bool ADeepDriveAgent::setViewMode(int32 cameraId, const char *viewModeName)
 		{
 			for (int32 camIndex = 0; camIndex < m_CaptureCameras.Num(); ++camIndex)
 			{
-				m_CaptureCameras[camIndex]->setViewMode(0);
-				SetDepthTexture(cameraId, camIndex, 0);
+				m_CaptureCameras[camIndex]->setViewMode(viewMode);
+				SetDepthTexture(cameraId, camIndex, viewMode ? m_CaptureCameras[camIndex]->getDepthRenderTexture() : 0);
 			}
 		}
 		else
 		{
 			int32 camIndex = findCaptureCamera(cameraId);
+			UE_LOG(LogDeepDriveAgent, Log, TEXT("Camera index %d"), camIndex );
 			if (camIndex >= 0)
 			{
 				m_CaptureCameras[camIndex]->setViewMode(viewMode);
-				SetDepthTexture(cameraId, camIndex, 0);
+				SetDepthTexture(cameraId, camIndex, viewMode ? m_CaptureCameras[camIndex]->getDepthRenderTexture() : 0);
 			}
 			else
+			{
 				res = false;
+				UE_LOG(LogDeepDriveAgent, Error, TEXT("Camera with id %d not found"), cameraId );
+			}
 		}
 	}
 

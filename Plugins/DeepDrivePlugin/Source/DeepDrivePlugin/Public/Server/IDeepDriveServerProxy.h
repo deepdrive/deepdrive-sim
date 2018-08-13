@@ -26,6 +26,6 @@ public:
 
 	virtual void SetAgentControlValues(float steering, float throttle, float brake, bool handbrake) = 0;
 
-	virtual bool SetViewMode(int32 cameraId, const char *viewMode) = 0;
+	virtual bool SetViewMode(int32 cameraId, const FString &viewMode) = 0;
 
 };

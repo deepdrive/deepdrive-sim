@@ -257,7 +257,7 @@ int32 DeepDriveClient::setViewMode(int32 cameraId, const char *viewMode)
 		res = m_Socket.send(&req, sizeof(req));
 		if(res >= 0)
 		{
-			std::cout << "SetViewModeRequest sent\n";
+			std::cout << "SetViewModeRequest sent " << req.view_mode << "\n";
 
 			deepdrive::server::SetViewModeResponse response;
 			if(m_Socket.receive(&response, sizeof(response)))

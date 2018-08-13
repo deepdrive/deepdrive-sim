@@ -35,6 +35,7 @@ void UCaptureCameraComponent::Initialize(UTextureRenderTarget2D *colorRenderTarg
 
 		m_DepthCapture->TextureTarget = depthRenderTarget;
 		m_DepthCapture->CaptureSource = ESceneCaptureSource::SCS_SceneDepth;
+		m_DepthRenderTexture = depthRenderTarget;
 
 
 		//m_SceneCapture->HiddenActors.Add(GetOwner());

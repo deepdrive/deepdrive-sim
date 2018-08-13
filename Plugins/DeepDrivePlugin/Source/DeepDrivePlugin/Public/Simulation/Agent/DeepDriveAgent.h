@@ -79,7 +79,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Agents")
 	void OnDebugTrigger();
 
-	bool setViewMode(int32 cameraId, const char *viewModeName);
+	bool setViewMode(int32 cameraId, const FString &viewModeName);
 
 	float getDistanceToObstacleAhead(float maxDistance);
 

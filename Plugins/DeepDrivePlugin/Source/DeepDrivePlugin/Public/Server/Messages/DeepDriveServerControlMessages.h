@@ -177,7 +177,7 @@ struct SetViewModeRequest :	public MessageHeader
 	{
 		char *dst = view_mode;
 		if(viewMode)
-			for(int32 i = ViewModeStringSize - 1; i > 0 && *viewMode; *dst++ = *viewMode++, i++);
+			for(int32 i = ViewModeStringSize - 1; i > 0 && *viewMode; *dst++ = *viewMode++, i--);
 
 		*dst = 0;
 	}
