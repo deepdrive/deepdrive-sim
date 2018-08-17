@@ -456,7 +456,6 @@ static PyObject* deepdrive_client_advance_synchronous_stepping(PyObject *self, P
 	return Py_BuildValue("i", seqNr);
 }
 
-
 /*	Send control values to server
  *
  *	@param	uint32		Client Id
@@ -480,6 +479,48 @@ static PyObject* deepdrive_client_get_shared_memory(PyObject *self, PyObject *ar
 	return Py_BuildValue("");
 }
 
+
+/*	Advance server by specified time step.
+ *  This is a blocking call waiting until server has advanced so be carefully with size of time step
+ *
+ *	@param	uint32		Client Id
+ *	@param	int32		Camera Id
+ *	@param	string		View mode
+*/
+static PyObject* deepdrive_client_set_view_mode(PyObject *self, PyObject *args, PyObject *keyWords)
+{
+	uint32 clientId = 0;
+	int32 cameraId = -1;
+	const char *viewMode = 0;
+
+	char *keyWordList[] = {"client_id", "camera_id", "view_mode", NULL};
+	int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "I|is", keyWordList, &clientId, &cameraId, &viewMode);
+
+	std::cout << "Set view mode " << clientId << " \n";
+
+	int32 res = 0;
+	if(ok)
+	{
+		DeepDriveClient *client = getClient(clientId);
+		if(client)
+		{
+			res = client->setViewMode(cameraId, viewMode);
+			if(res < 0)
+				return handleError(res);
+		}
+		else
+		{
+			PyErr_SetString(ClientDoesntExistError, "Client doesn't exist");
+			return 0;
+		}
+	}
+	else
+		std::cout << "Wrong arguments\n";
+
+	return Py_BuildValue("i", res);
+}
+
+
 static PyMethodDef DeepDriveClientMethods[] =	{	{"create", (PyCFunction) deepdrive_client_create, METH_VARARGS | METH_KEYWORDS, "Creates a new client which tries to connect to DeepDriveServer"}
 												,	{"close", deepdrive_client_close, METH_VARARGS, "Closes an existing client connection and frees all depending resources"}
 												,	{"register_camera", (PyCFunction) deepdrive_client_register_camera, METH_VARARGS | METH_KEYWORDS, "Register a capture camera"}
@@ -491,6 +532,7 @@ static PyMethodDef DeepDriveClientMethods[] =	{	{"create", (PyCFunction) deepdri
 												,	{"activate_synchronous_stepping", (PyCFunction) deepdrive_client_activate_synchronous_stepping, METH_VARARGS, "Send control value set to server"}
 												,	{"deactivate_synchronous_stepping", (PyCFunction) deepdrive_client_deactivate_synchronous_stepping, METH_VARARGS, "Send control value set to server"}
 												,	{"advance_synchronous_stepping", (PyCFunction) deepdrive_client_advance_synchronous_stepping, METH_VARARGS | METH_KEYWORDS, "Send control value set to server"}
+												,	{"set_view_mode", (PyCFunction) deepdrive_client_set_view_mode, METH_VARARGS | METH_KEYWORDS, "Set specific view mode at a client"}
 												,	{NULL,     NULL,             0,            NULL}        /* Sentinel */
 												};
 

@@ -79,6 +79,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Agents")
 	void OnDebugTrigger();
 
+	bool setViewMode(int32 cameraId, const FString &viewModeName);
+
 	float getDistanceToObstacleAhead(float maxDistance);
 
 	void setIsGameDriving(bool isGameDriving);
@@ -139,6 +141,8 @@ protected:
 
 private:
 
+	int32 findCaptureCamera(int32 id);
+
 	ADeepDriveSimulation				*m_Simulation;
 
 	int32								m_AgentId;
@@ -149,7 +153,7 @@ private:
 
 	ADeepDriveAgentControllerBase		*m_AgentController = 0;
 
-	TMap<int32, UCaptureCameraComponent*>	m_CaptureCameras;
+	TArray< UCaptureCameraComponent*>	m_CaptureCameras;
 	
 	float								m_curSteering = 0.0f;
 	float								m_curThrottle = 0.0f;

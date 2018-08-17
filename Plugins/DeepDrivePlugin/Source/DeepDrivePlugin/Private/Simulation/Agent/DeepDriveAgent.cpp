@@ -89,25 +89,75 @@ int32 ADeepDriveAgent::RegisterCaptureCamera(float fieldOfView, int32 captureWid
 
 			camId = captureCamCmp->getCameraId();
 			const int32 camIndex = m_CaptureCameras.Num();
-			m_CaptureCameras.Add(camId, captureCamCmp);
+			m_CaptureCameras.Add(captureCamCmp);
 			OnCaptureCameraAdded(camId, camIndex, sceneTexture, label);
 
-			if (m_CaptureCameras.Num() == 1)
+			if (m_CaptureCameras.Num() == 1 && false)
 			{
 				if (m_Simulation && m_Simulation->ViewModes.Contains("WorldNormal"))
 				{
 					const FDeepDriveViewMode &viewMode = m_Simulation->ViewModes["WorldNormal"];
 					captureCamCmp->setViewMode(&viewMode);
-
 					SetDepthTexture(camId, camIndex, depthTexture);
-
 				}
 			}
+
 		}
 	}
 
 	return camId;
 }
+
+bool ADeepDriveAgent::setViewMode(int32 cameraId, const FString &viewModeName)
+{
+	bool res = false;
+
+	const FDeepDriveViewMode *viewMode = 0;
+
+	
+	if (viewModeName.IsEmpty() == false)
+	{
+		if (m_Simulation && m_Simulation->ViewModes.Contains(viewModeName))
+		{
+			viewMode = &m_Simulation->ViewModes[viewModeName];
+			res = true;
+		}
+		else
+			UE_LOG(LogDeepDriveAgent, Error, TEXT("ViewMode %s not found"), *(viewModeName) );
+	}
+	else
+		res = true;
+
+	if (res)
+	{
+		if (cameraId < 0)
+		{
+			for (int32 camIndex = 0; camIndex < m_CaptureCameras.Num(); ++camIndex)
+			{
+				m_CaptureCameras[camIndex]->setViewMode(viewMode);
+				SetDepthTexture(cameraId, camIndex, viewMode ? m_CaptureCameras[camIndex]->getDepthRenderTexture() : 0);
+			}
+		}
+		else
+		{
+			int32 camIndex = findCaptureCamera(cameraId);
+			UE_LOG(LogDeepDriveAgent, Log, TEXT("Camera index %d"), camIndex );
+			if (camIndex >= 0)
+			{
+				m_CaptureCameras[camIndex]->setViewMode(viewMode);
+				SetDepthTexture(cameraId, camIndex, viewMode ? m_CaptureCameras[camIndex]->getDepthRenderTexture() : 0);
+			}
+			else
+			{
+				res = false;
+				UE_LOG(LogDeepDriveAgent, Error, TEXT("Camera with id %d not found"), cameraId );
+			}
+		}
+	}
+
+	return res;
+}
+
 
 void ADeepDriveAgent::SetControlValues(float steering, float throttle, float brake, bool handbrake)
 {
@@ -265,7 +315,19 @@ void ADeepDriveAgent::OnDebugTrigger()
 		ctrl->OnDebugTrigger();
 }
 
+
 ADeepDriveAgentControllerBase *ADeepDriveAgent::getAgentController()
 {
 	return Cast<ADeepDriveAgentControllerBase>(GetController());
+}
+
+int32 ADeepDriveAgent::findCaptureCamera(int32 id)
+{
+	int32 index = 0;
+	for (index = 0; index < m_CaptureCameras.Num(); ++index)
+	{
+		if (m_CaptureCameras[index]->getCameraId() == id)
+			break;
+	}
+	return index < m_CaptureCameras.Num() ? index : -1;
 }

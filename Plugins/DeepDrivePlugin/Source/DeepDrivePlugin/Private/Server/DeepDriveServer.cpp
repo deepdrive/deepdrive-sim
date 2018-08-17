@@ -50,6 +50,8 @@ DeepDriveServer::DeepDriveServer()
 	m_MessageHandlers[deepdrive::server::MessageId::DeactivateSynchronousSteppingRequest] = std::bind(&DeepDriveServer::deactivateSynchronousStepping, this, std::placeholders::_1);
 	m_MessageHandlers[deepdrive::server::MessageId::AdvanceSynchronousSteppingRequest] = std::bind(&DeepDriveServer::advanceSynchronousStepping, this, std::placeholders::_1);
 
+	m_MessageHandlers[deepdrive::server::MessageId::SetViewModeRequest] = std::bind(&DeepDriveServer::setViewMode, this, std::placeholders::_1);
+
 }
 
 DeepDriveServer::~DeepDriveServer()
@@ -411,6 +413,28 @@ void DeepDriveServer::advanceSynchronousStepping(const deepdrive::server::Messag
 			}
 			else
 				client->enqueueResponse(new deepdrive::server::AdvanceSynchronousSteppingResponse(-1));
+		}
+	}
+}
+
+void DeepDriveServer::setViewMode(const deepdrive::server::MessageHeader &message)
+{
+	if (m_Clients.Num() > 0)
+	{
+		const deepdrive::server::SetViewModeRequest &req = static_cast<const deepdrive::server::SetViewModeRequest&> (message);
+
+		FString viewMode(ANSI_TO_TCHAR(req.view_mode));
+
+		DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
+		if (client)
+		{
+			if (client->isMaster())
+			{
+				const bool res = m_Proxy->SetViewMode(req.camera_id, viewMode);
+				client->enqueueResponse(new deepdrive::server::SetViewModeResponse(res));
+			}
+			else
+				client->enqueueResponse(new deepdrive::server::SetViewModeResponse(false));
 		}
 	}
 }

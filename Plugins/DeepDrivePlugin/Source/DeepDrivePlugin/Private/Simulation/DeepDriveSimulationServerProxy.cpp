@@ -100,3 +100,20 @@ void DeepDriveSimulationServerProxy::SetAgentControlValues(float steering, float
 		agentCtrl->SetControlValues(steering, throttle, brake, handbrake);
 	}
 }
+
+bool DeepDriveSimulationServerProxy::SetViewMode(int32 cameraId, const FString &viewMode)
+{
+	bool res = false;
+
+	ADeepDriveAgent *agent = m_DeepDriveSim.getCurrentAgent();
+
+	if (agent)
+	{
+		res = agent->setViewMode(cameraId, viewMode);
+	}
+	else
+		UE_LOG(LogDeepDriveSimulationServerProxy, Error, TEXT("DeepDriveSimulationServerProxy::SetViewMode failed, no agent"));
+
+
+	return res;
+}

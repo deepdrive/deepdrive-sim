@@ -57,6 +57,8 @@ bool DeepDriveClientConnection::Init()
 	m_MessageHandlers[deepdrive::server::MessageId::DeactivateSynchronousSteppingRequest] = forward2Server;
 	m_MessageHandlers[deepdrive::server::MessageId::AdvanceSynchronousSteppingRequest] = forward2Server;
 
+	m_MessageHandlers[deepdrive::server::MessageId::SetViewModeRequest] = forward2Server;
+
 	m_MessageAssembler.m_HandleMessage.BindRaw(this, &DeepDriveClientConnection::handleClientRequest);
 	return m_Socket != 0;
 }
