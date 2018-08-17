@@ -231,9 +231,13 @@ static PyObject* deepdrive_client_request_agent_control(PyObject *self, PyObject
 		DeepDriveClient *client = getClient(clientId);
 		if(client)
 		{
-			int32 res = client->requestAgentControl();
+			res = client->requestAgentControl();
+			std::cout << "requestAgentControl res " << res << "\n";
 			if(res < 0)
+			{
+			    std::cout << "handle error res " << res << "\n";
 				return handleError(res);
+			}
 		}
 		else
 		{
@@ -241,6 +245,8 @@ static PyObject* deepdrive_client_request_agent_control(PyObject *self, PyObject
 			return 0;
 		}
 	}
+
+    std::cout << "res in deepdrive_client_request_agent_control" << res << "\n";
 
 	return Py_BuildValue("i", res);
 }
