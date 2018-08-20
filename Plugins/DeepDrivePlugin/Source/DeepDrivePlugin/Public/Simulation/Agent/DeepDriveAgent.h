@@ -133,6 +133,45 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = Cameras)
 	UCameraComponent					*OrbitCamera = 0;
 
+	UPROPERTY(EditDefaultsOnly, Category = Collision)
+	USceneComponent						*CollisionRoot = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category = Collision)
+	UBoxComponent						*CollisionFrontCenter = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category = Collision)
+	UBoxComponent						*CollisionFrontLeft = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category = Collision)
+	UBoxComponent						*CollisionFrontRight = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category = Collision)
+	UBoxComponent						*CollisionFrontSideLeft = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category = Collision)
+	UBoxComponent						*CollisionFrontSideRight = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category = Collision)
+	UBoxComponent						*CollisionSideLeft = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category = Collision)
+	UBoxComponent						*CollisionSideRight = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category = Collision)
+	UBoxComponent						*CollisionBackCenter = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category = Collision)
+	UBoxComponent						*CollisionBackLeft = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category = Collision)
+	UBoxComponent						*CollisionBackRight = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category = Collision)
+	UBoxComponent						*CollisionBackSideLeft = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category = Collision)
+	UBoxComponent						*CollisionBackSideRight = 0;
+
 	UPROPERTY(EditDefaultsOnly, Category = Car)
 	float								FrontBumperDistance = 0.0f;
 

@@ -31,6 +31,26 @@ ADeepDriveAgent::ADeepDriveAgent()
 
 	OrbitCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("OrbitCamera"));
 	OrbitCamera->SetupAttachment(OrbitCameraArm);
+
+	CollisionRoot = CreateDefaultSubobject<USceneComponent>(TEXT("CollisionRoot"));
+	CollisionRoot->SetupAttachment(GetRootComponent());
+
+	UBoxComponent** boxes[] =	{ &CollisionFrontCenter, &CollisionFrontLeft, &CollisionFrontRight, &CollisionFrontSideLeft, &CollisionFrontSideRight
+								, &CollisionSideLeft, &CollisionSideRight, &CollisionBackCenter
+								, &CollisionBackLeft, &CollisionBackRight, &CollisionBackSideLeft, &CollisionBackSideRight
+								};
+
+	FName	names[] =	{ TEXT("CollisionFrontCenter"), TEXT("CollisionFrontLeft"), TEXT("CollisionFrontRight"), TEXT("CollisionFrontSideLeft"), TEXT("CollisionFrontSideRight")
+							, TEXT("CollisionSideLeft"), TEXT("CollisionSideRight"), TEXT("CollisionBackCenter")
+							, TEXT("CollisionBackLeft"), TEXT("CollisionBackRight"), TEXT("CollisionBackSideLeft"), TEXT("CollisionBackSideRight")
+						};
+
+	for (unsigned i = 0; i < sizeof(boxes) / sizeof(UBoxComponent**); ++i)
+	{
+		UBoxComponent *box = CreateDefaultSubobject<UBoxComponent>(names[i]);
+		box->SetupAttachment(CollisionRoot);
+		*(boxes[i]) = box;
+	}
 }
 
 void ADeepDriveAgent::BeginPlay()
