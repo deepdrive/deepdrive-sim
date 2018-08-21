@@ -17,6 +17,9 @@ matrix:
     services:
     - docker
     env: DOCKER_IMAGE=quay.io/pypa/manylinux1_i686 PRE_CMD=linux32
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install -y cppcheck
 install:
 - docker pull $DOCKER_IMAGE
 script:
