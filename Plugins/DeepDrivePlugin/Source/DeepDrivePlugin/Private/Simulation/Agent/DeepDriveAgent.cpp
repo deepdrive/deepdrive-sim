@@ -50,6 +50,8 @@ ADeepDriveAgent::ADeepDriveAgent()
 		UBoxComponent *box = CreateDefaultSubobject<UBoxComponent>(names[i]);
 		box->SetupAttachment(CollisionRoot);
 		*(boxes[i]) = box;
+
+		box->OnComponentBeginOverlap.AddDynamic(this, &ADeepDriveAgent::OnBeginOverlap);
 	}
 }
 
@@ -350,4 +352,10 @@ int32 ADeepDriveAgent::findCaptureCamera(int32 id)
 			break;
 	}
 	return index < m_CaptureCameras.Num() ? index : -1;
+}
+
+void ADeepDriveAgent::OnBeginOverlap(UPrimitiveComponent *OverlappedComponent, AActor *OtherActor, UPrimitiveComponent *OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
+{
+	UE_LOG(LogDeepDriveAgent, Log, TEXT("OnBeginOverlap %s"), *(OtherActor->GetName()) );
+
 }
