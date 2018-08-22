@@ -42,6 +42,8 @@ public:
 	
 	virtual bool ResetAgent( /* const SimulationConfiguration &configuration */);
 	
+	virtual void OnAgentCollision(AActor *OtherActor, const FHitResult &HitResult);
+
 	virtual void OnCheckpointReached();
 
 	virtual void OnDebugTrigger();

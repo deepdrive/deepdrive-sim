@@ -57,6 +57,11 @@ bool ADeepDriveAgentControllerBase::ResetAgent()
 	return res;
 }
 
+void ADeepDriveAgentControllerBase::OnAgentCollision(AActor *OtherActor, const FHitResult &HitResult)
+{
+}
+
+
 bool ADeepDriveAgentControllerBase::initAgentOnTrack(ADeepDriveAgent &agent)
 {
 	bool res = false;
