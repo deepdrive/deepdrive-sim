@@ -166,6 +166,8 @@ public:
 
 	void initializeAgents();
 
+	static FDateTime getSimulationStartTime();
+
 private:
 
 	bool isActive() const;
@@ -199,6 +201,8 @@ private:
 	EDeepDriveAgentCameraType				m_curCameraType = EDeepDriveAgentCameraType::NONE;
 	float									m_OrbitCameraPitch = 0.0f;
 	float									m_OrbitCameraYaw = 0.0f;
+
+	static FDateTime						m_SimulationStartTime;
 };
 
 inline bool ADeepDriveSimulation::isActive() const
@@ -219,4 +223,9 @@ inline ADeepDriveAgentControllerBase* ADeepDriveSimulation::getCurrentAgentContr
 inline TArray<UCaptureSinkComponentBase*>& ADeepDriveSimulation::getCaptureSinks()
 {
 	return m_CaptureSinks;
+}
+
+inline FDateTime ADeepDriveSimulation::getSimulationStartTime()
+{
+	return ADeepDriveSimulation::m_SimulationStartTime;
 }

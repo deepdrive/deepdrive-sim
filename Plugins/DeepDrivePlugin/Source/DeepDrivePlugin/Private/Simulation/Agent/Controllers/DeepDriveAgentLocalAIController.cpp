@@ -20,17 +20,18 @@
 DEFINE_LOG_CATEGORY(LogDeepDriveAgentLocalAIController);
 
 ADeepDriveAgentLocalAIController::ADeepDriveAgentLocalAIController()
+	:	ADeepDriveAgentControllerBase()
 {
 	m_ControllerName = "Local AI Controller";
 	m_isGameDriving = true;
 }
 
 
-bool ADeepDriveAgentLocalAIController::Activate(ADeepDriveAgent &agent)
+bool ADeepDriveAgentLocalAIController::Activate(ADeepDriveAgent &agent, bool keepPosition)
 {
 	bool activated = false;
 
-	if (initAgentOnTrack(agent))
+	if (keepPosition || initAgentOnTrack(agent))
 	{
 		m_SpeedController = new DeepDriveAgentSpeedController(m_Configuration.PIDThrottle, m_Configuration.PIDBrake);
 		m_SpeedController->initialize(agent, *m_Track, m_Configuration.SafetyDistanceFactor);
@@ -42,19 +43,24 @@ bool ADeepDriveAgentLocalAIController::Activate(ADeepDriveAgent &agent)
 
 		if (m_SpeedController && m_SteeringController)
 		{
-			activated = m_StartDistance >= 0 && m_Track != 0 && ADeepDriveAgentControllerBase::Activate(agent);
-			if (activated)
+			if(m_StartDistance >= 0 && m_Track != 0)
 			{
+				activateController(agent);
 				m_StateMachineCtx = new DeepDriveAgentLocalAIStateMachineContext(*this, agent, *m_SpeedController, *m_SteeringController, m_Configuration);
 
-				m_StateMachine.registerState(new DeepDriveAgentCruiseState(m_StateMachine));
-				m_StateMachine.registerState(new DeepDriveAgentPullOutState(m_StateMachine));
-				m_StateMachine.registerState(new DeepDriveAgentPullBackInState(m_StateMachine));
-				m_StateMachine.registerState(new DeepDriveAgentPassingState(m_StateMachine));
-				m_StateMachine.registerState(new DeepDriveAgentPullInState(m_StateMachine));
-				m_StateMachine.registerState(new DeepDriveAgentAbortOvertakingState(m_StateMachine));
+				if(m_StateMachineCtx)
+				{
+					m_StateMachine.registerState(new DeepDriveAgentCruiseState(m_StateMachine));
+					m_StateMachine.registerState(new DeepDriveAgentPullOutState(m_StateMachine));
+					m_StateMachine.registerState(new DeepDriveAgentPullBackInState(m_StateMachine));
+					m_StateMachine.registerState(new DeepDriveAgentPassingState(m_StateMachine));
+					m_StateMachine.registerState(new DeepDriveAgentPullInState(m_StateMachine));
+					m_StateMachine.registerState(new DeepDriveAgentAbortOvertakingState(m_StateMachine));
 
-				m_StateMachine.setNextState("Cruise");
+					m_StateMachine.setNextState("Cruise");
+
+					activated = true;
+				}
 			}
 		}
 	}

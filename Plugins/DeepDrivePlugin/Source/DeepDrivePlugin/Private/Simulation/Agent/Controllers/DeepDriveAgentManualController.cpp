@@ -10,13 +10,20 @@
 #include "Components/SplineComponent.h"
 
 ADeepDriveAgentManualController::ADeepDriveAgentManualController()
+	:	ADeepDriveAgentControllerBase()
 {
 	m_ControllerName = "Manual Controller";
 }
 
-bool ADeepDriveAgentManualController::Activate(ADeepDriveAgent &agent)
+bool ADeepDriveAgentManualController::Activate(ADeepDriveAgent &agent, bool keepPosition)
 {
-	return initAgentOnTrack(agent) && ADeepDriveAgentControllerBase::Activate(agent);
+	bool res = false;
+	if(keepPosition || initAgentOnTrack(agent))
+	{
+		activateController(agent);
+		res = true;
+	}
+	return res;
 }
 
 void ADeepDriveAgentManualController::MoveForward(float axisValue)

@@ -38,11 +38,13 @@ public:
 
 	virtual void OnConfigureSimulation(const SimulationConfiguration &configuration, bool initialConfiguration);
 
-	virtual bool Activate(ADeepDriveAgent &agent);
+	virtual bool Activate(ADeepDriveAgent &agent, bool keepPosition);
 
 	virtual void SetControlValues(float steering, float throttle, float brake, bool handbrake);
 
 	virtual bool ResetAgent();
+
+	virtual void OnAgentCollision(AActor *OtherActor, const FHitResult &HitResult);
 
 	UFUNCTION(BlueprintCallable, Category = "Configuration")
 	void Configure(const FDeepDriveRemoteAIControllerConfiguration &Configuration, int32 StartPositionSlot, ADeepDriveSimulation* DeepDriveSimulation);

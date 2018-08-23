@@ -24,6 +24,8 @@
 
 DEFINE_LOG_CATEGORY(LogDeepDriveSimulation);
 
+FDateTime ADeepDriveSimulation::m_SimulationStartTime;
+
 // Sets default values
 ADeepDriveSimulation::ADeepDriveSimulation()
 {
@@ -115,8 +117,12 @@ void ADeepDriveSimulation::BeginPlay()
 {
 	Super::BeginPlay();
 
+
 	if (m_StateMachine)
 	{
+		// active simulation
+		m_SimulationStartTime = FDateTime::UtcNow();
+
 		SetTickableWhenPaused(true);
 		m_StateMachine->setNextState("Initialize");
 	}
@@ -314,7 +320,7 @@ void ADeepDriveSimulation::SelectMode(EDeepDriveAgentControlMode Mode)
 		ADeepDriveAgentControllerBase *prevController = Cast<ADeepDriveAgentControllerBase> (m_curAgent->GetController());
 
 		if	(	controller
-			&&	controller->Activate(*m_curAgent)
+			&&	controller->Activate(*m_curAgent, true)
 			)
 		{
 			if(prevController)
@@ -421,7 +427,7 @@ ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(EDeepDriveAgentControlMode mod
 		ADeepDriveAgentControllerBase *controller = spawnController(mode, configSlot, startPosSlot);
 		if(controller)
 		{
-			if(controller->Activate(*agent))
+			if(controller->Activate(*agent, false))
 			{
 				m_curAgentMode = mode;
 				OnAgentSpawned(agent);
@@ -456,7 +462,7 @@ void ADeepDriveSimulation::spawnAdditionalAgents()
 			ADeepDriveAgentControllerBase *controller = spawnController(data.Mode, data.ConfigurationSlot, data.StartPositionSlot);
 			if (controller)
 			{
-				if (controller->Activate(*agent))
+				if (controller->Activate(*agent, false))
 				{
 					OnAgentSpawned(agent);
 					UE_LOG(LogDeepDriveSimulation, Log, TEXT("Additional agent spawned, controlled by %s"), *(controller->getControllerName()));

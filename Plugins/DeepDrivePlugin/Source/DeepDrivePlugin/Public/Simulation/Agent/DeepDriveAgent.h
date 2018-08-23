@@ -81,8 +81,6 @@ public:
 
 	bool setViewMode(int32 cameraId, const FString &viewModeName);
 
-	float getDistanceToObstacleAhead(float maxDistance);
-
 	void setIsGameDriving(bool isGameDriving);
 	void reset();
 
@@ -103,6 +101,7 @@ public:
 	float getDistanceAlongRoute() const;
 	float getDistanceToCenterOfTrack() const;
 	bool getIsGameDriving() const;
+	FDateTime getLastCollisionTime();
 
 	float getFrontBumperDistance() const;
 	float getBackBumperDistance() const;

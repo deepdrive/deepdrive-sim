@@ -102,7 +102,7 @@ public:
 
 	virtual void Tick( float DeltaSeconds ) override;
 
-	virtual bool Activate(ADeepDriveAgent &agent);
+	virtual bool Activate(ADeepDriveAgent &agent, bool keepPosition);
 
 	virtual bool ResetAgent();
 

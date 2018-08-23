@@ -12,6 +12,7 @@
 #include "Components/SplineComponent.h"
 
 ADeepDriveAgentRemoteAIController::ADeepDriveAgentRemoteAIController()
+	:	ADeepDriveAgentControllerBase()
 {
 	m_ControllerName = "Remote AI Controller";
 }
@@ -33,9 +34,15 @@ void ADeepDriveAgentRemoteAIController::SetControlValues(float steering, float t
 		m_Agent->SetControlValues(steering, throttle, brake, handbrake);
 }
 
-bool ADeepDriveAgentRemoteAIController::Activate(ADeepDriveAgent &agent)
+bool ADeepDriveAgentRemoteAIController::Activate(ADeepDriveAgent &agent, bool keepPosition)
 {
-	return initAgentOnTrack(agent) && ADeepDriveAgentControllerBase::Activate(agent);
+	bool activated = false;
+	if(keepPosition || initAgentOnTrack(agent))
+	{
+		activateController(agent);
+		activated = true;
+	}
+	return true;
 }
 
 bool ADeepDriveAgentRemoteAIController::ResetAgent()
@@ -48,6 +55,12 @@ bool ADeepDriveAgentRemoteAIController::ResetAgent()
 	}
 	return res;
 }
+
+void ADeepDriveAgentRemoteAIController::OnAgentCollision(AActor *OtherActor, const FHitResult &HitResult)
+{
+	m_lastCollisionTime = FDateTime::UtcNow();
+}
+
 
 
 void ADeepDriveAgentRemoteAIController::Configure(const FDeepDriveRemoteAIControllerConfiguration &Configuration, int32 StartPositionSlot, ADeepDriveSimulation* DeepDriveSimulation)

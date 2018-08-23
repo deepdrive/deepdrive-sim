@@ -63,7 +63,11 @@ struct FDeepDriveDataOut
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	int			LapNumber;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	FDateTime	LastCollisionTime;
+
 };
+
 
 USTRUCT(BlueprintType)
 struct FDeepDriveControlData

@@ -36,7 +36,7 @@ public:
 
 	ADeepDriveAgentManualController();
 
-	virtual bool Activate(ADeepDriveAgent &agent);
+	virtual bool Activate(ADeepDriveAgent &agent, bool keepPosition);
 
 	virtual void MoveForward(float axisValue);
 

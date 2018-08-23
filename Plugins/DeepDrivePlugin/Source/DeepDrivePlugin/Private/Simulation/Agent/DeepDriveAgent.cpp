@@ -315,13 +315,12 @@ float ADeepDriveAgent::getDistanceToCenterOfTrack() const
 	return res;
 }
 
-float ADeepDriveAgent::getDistanceToObstacleAhead(float maxDistance)
+FDateTime ADeepDriveAgent::getLastCollisionTime()
 {
-	float distance = -1.0f;
+	ADeepDriveAgentControllerBase *ctrl = getAgentController();
 
-	return distance;
+	return ctrl ? ctrl->getLastCollisionTime() : FDateTime();
 }
-
 
 void ADeepDriveAgent::OnCheckpointReached()
 {

@@ -26,11 +26,13 @@ class DEEPDRIVEPLUGIN_API ADeepDriveAgentControllerBase : public AController
 	
 public:
 
+	ADeepDriveAgentControllerBase();
+
 	~ADeepDriveAgentControllerBase();
 
 	virtual void OnConfigureSimulation(const SimulationConfiguration &configuration, bool initialConfiguration);
 
-	virtual bool Activate(ADeepDriveAgent &agent);
+	virtual bool Activate(ADeepDriveAgent &agent, bool keepPosition);
 
 	virtual void Deactivate();
 
@@ -50,9 +52,13 @@ public:
 
 	const FString& getControllerName() const;
 
+	FDateTime getLastCollisionTime();
+
 	bool updateAgentOnTrack();
 
 protected:
+
+	void activateController(ADeepDriveAgent &agent);
 
 	bool initAgentOnTrack(ADeepDriveAgent &agent);
 	
@@ -71,6 +77,7 @@ protected:
 
 	bool								m_LapStarted = false;
 
+	FDateTime							m_lastCollisionTime = FDateTime();
 };
 
 

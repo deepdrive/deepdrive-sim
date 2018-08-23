@@ -10,6 +10,11 @@
 
 DEFINE_LOG_CATEGORY(LogDeepDriveAgentControllerBase);
 
+ADeepDriveAgentControllerBase::ADeepDriveAgentControllerBase()
+{
+	m_lastCollisionTime = ADeepDriveSimulation::getSimulationStartTime();
+}
+
 ADeepDriveAgentControllerBase::~ADeepDriveAgentControllerBase()
 {
 	UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("~ADeepDriveAgentControllerBase: %p sayz bye"), this );
@@ -19,12 +24,9 @@ void ADeepDriveAgentControllerBase::OnConfigureSimulation(const SimulationConfig
 {
 }
 
-bool ADeepDriveAgentControllerBase::Activate(ADeepDriveAgent &agent)
+bool ADeepDriveAgentControllerBase::Activate(ADeepDriveAgent &agent, bool keepPosition)
 {
-	m_Agent = &agent;
-	Possess(m_Agent);
-	agent.setIsGameDriving(m_isGameDriving);
-	return true;
+	return false;
 }
 
 void ADeepDriveAgentControllerBase::Deactivate()
@@ -61,6 +63,12 @@ void ADeepDriveAgentControllerBase::OnAgentCollision(AActor *OtherActor, const F
 {
 }
 
+void ADeepDriveAgentControllerBase::activateController(ADeepDriveAgent &agent)
+{
+	m_Agent = &agent;
+	Possess(m_Agent);
+	agent.setIsGameDriving(m_isGameDriving);
+}
 
 bool ADeepDriveAgentControllerBase::initAgentOnTrack(ADeepDriveAgent &agent)
 {
@@ -138,6 +146,12 @@ float ADeepDriveAgentControllerBase::getClosestDistanceOnSpline(USplineComponent
 	return FMath::Lerp(dist0, dist1, closestKey - static_cast<float> (index0));
 }
 
+FDateTime ADeepDriveAgentControllerBase::getLastCollisionTime()
+{
+	FDateTime lct(m_lastCollisionTime);
+	m_lastCollisionTime = ADeepDriveSimulation::getSimulationStartTime();
+	return lct;
+}
 void ADeepDriveAgentControllerBase::OnCheckpointReached()
 {
 }
