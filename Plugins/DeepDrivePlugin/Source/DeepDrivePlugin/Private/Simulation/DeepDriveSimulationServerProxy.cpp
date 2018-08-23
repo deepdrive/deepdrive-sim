@@ -3,6 +3,7 @@
 #include "DeepDrivePluginPrivatePCH.h"
 #include "Public/Simulation/DeepDriveSimulationServerProxy.h"
 #include "Public/Simulation/DeepDriveSimulation.h"
+#include "Public/Simulation/DeepDriveSimulationDefines.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 #include "Public/Simulation/Agent/DeepDriveAgentControllerBase.h"
 #include "Public/Simulation/DeepDriveSimulationTypes.h"
@@ -74,15 +75,18 @@ int32 DeepDriveSimulationServerProxy::RegisterCaptureCamera(float FieldOfView, i
 bool DeepDriveSimulationServerProxy::RequestAgentControl()
 {
 	bool res = true;
+	m_DeepDriveSim.SelectMode(EDeepDriveAgentControlMode::REMOTE_AI);
 
-	UE_LOG(LogDeepDriveSimulationServerProxy, Log, TEXT("Control requested") );
+	UE_LOG(LogDeepDriveSimulationServerProxy, Log, TEXT("Control requested - ensuring agent controller is RemoteAI"));
 
 	return res;
 }
 
 void DeepDriveSimulationServerProxy::ReleaseAgentControl()
 {
-	UE_LOG(LogDeepDriveSimulationServerProxy, Log, TEXT("Control released"));
+	m_DeepDriveSim.SelectMode(EDeepDriveAgentControlMode::LOCAL_AI);
+
+	UE_LOG(LogDeepDriveSimulationServerProxy, Log, TEXT("Control released - ensuring agent controller is LocalAI"));
 }
 
 void DeepDriveSimulationServerProxy::ResetAgent()
