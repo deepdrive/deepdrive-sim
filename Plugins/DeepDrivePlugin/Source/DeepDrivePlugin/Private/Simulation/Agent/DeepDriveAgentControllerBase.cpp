@@ -66,6 +66,7 @@ void ADeepDriveAgentControllerBase::OnAgentCollision(AActor *OtherActor, const F
 void ADeepDriveAgentControllerBase::activateController(ADeepDriveAgent &agent)
 {
 	m_Agent = &agent;
+	agent.setAgentController(this);
 	Possess(m_Agent);
 	agent.setIsGameDriving(m_isGameDriving);
 }

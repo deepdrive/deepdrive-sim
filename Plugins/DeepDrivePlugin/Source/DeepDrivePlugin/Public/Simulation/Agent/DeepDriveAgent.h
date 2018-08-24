@@ -113,6 +113,7 @@ public:
 	ADeepDriveAgent* getNextAgent(float maxDistance, float *distance = 0);
 	ADeepDriveAgent* getPrevAgent(float maxDistance, float *distance = 0);
 
+	void setAgentController(ADeepDriveAgentControllerBase *ctrl);
 	ADeepDriveAgentControllerBase *getAgentController();
 
 protected:
@@ -338,3 +339,7 @@ inline ADeepDriveAgent* ADeepDriveAgent::getPrevAgent(float maxDistance, float *
 	return 0;
 }
 
+inline void ADeepDriveAgent::setAgentController(ADeepDriveAgentControllerBase *ctrl)
+{
+	m_AgentController = ctrl;
+}
