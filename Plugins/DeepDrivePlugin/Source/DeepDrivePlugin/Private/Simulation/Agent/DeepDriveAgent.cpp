@@ -35,14 +35,14 @@ ADeepDriveAgent::ADeepDriveAgent()
 	CollisionRoot = CreateDefaultSubobject<USceneComponent>(TEXT("CollisionRoot"));
 	CollisionRoot->SetupAttachment(GetRootComponent());
 
-	UBoxComponent** boxes[] =	{ &CollisionFrontCenter, &CollisionFrontLeft, &CollisionFrontRight, &CollisionFrontSideLeft, &CollisionFrontSideRight
-								, &CollisionSideLeft, &CollisionSideRight, &CollisionBackCenter
-								, &CollisionBackLeft, &CollisionBackRight, &CollisionBackSideLeft, &CollisionBackSideRight
+	UBoxComponent** boxes[] =	{ &CollisionFrontBumper, &CollisionFrontLeftBumper, &CollisionFrontRightBumper, &CollisionFrontLeftFender, &CollisionFrontRightFender
+								, &CollisionLeftDoor, &CollisionRightDoor, &CollisionRearCenterBumper
+								, &CollisionRearLeftBumper, &CollisionRearRightBumper, &CollisionRearLeftFender, &CollisionBackRearRightFender
 								};
 
-	FName	names[] =	{ TEXT("CollisionFrontCenter"), TEXT("CollisionFrontLeft"), TEXT("CollisionFrontRight"), TEXT("CollisionFrontSideLeft"), TEXT("CollisionFrontSideRight")
-							, TEXT("CollisionSideLeft"), TEXT("CollisionSideRight"), TEXT("CollisionBackCenter")
-							, TEXT("CollisionBackLeft"), TEXT("CollisionBackRight"), TEXT("CollisionBackSideLeft"), TEXT("CollisionBackSideRight")
+	FName	names[] =	{ TEXT("CollisionFrontBumper"), TEXT("CollisionFrontLeftBumper"), TEXT("CollisionFrontRightBumper"), TEXT("CollisionFrontLeftFender"), TEXT("CollisionFrontRightFender")
+							, TEXT("CollisionLeftDoor"), TEXT("CollisionRightDoor"), TEXT("CollisionRearCenterBumper")
+							, TEXT("CollisionRearLeftBumper"), TEXT("CollisionRearRightBumper"), TEXT("CollisionRearLeftFender"), TEXT("CollisionBackRearRightFender")
 						};
 
 	for (unsigned i = 0; i < sizeof(boxes) / sizeof(UBoxComponent**); ++i)
@@ -315,11 +315,11 @@ float ADeepDriveAgent::getDistanceToCenterOfTrack() const
 	return res;
 }
 
-FDateTime ADeepDriveAgent::getLastCollisionTime()
+void ADeepDriveAgent::getLastCollisionTime(FDateTime &utc, double &timeStamp, double &timeSinceLastCollision)
 {
 	ADeepDriveAgentControllerBase *ctrl = getAgentController();
-
-	return ctrl ? ctrl->getLastCollisionTime() : FDateTime();
+	if (ctrl)
+		ctrl->getLastCollisionTime(utc, timeStamp, timeSinceLastCollision);
 }
 
 void ADeepDriveAgent::OnCheckpointReached()

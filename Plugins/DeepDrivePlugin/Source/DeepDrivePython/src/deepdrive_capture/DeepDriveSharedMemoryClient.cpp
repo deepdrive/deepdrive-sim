@@ -89,6 +89,10 @@ PyCaptureSnapshotObject* DeepDriveSharedMemoryClient::readMessage()
 						NumPyUtils::copyVector3(captureMsg->up_vector, msg->up_vector);
 						NumPyUtils::copyVector3(captureMsg->right_vector, msg->right_vector);
 
+						msg->last_collision_time_utc = captureMsg->last_collision_time_utc;
+						msg->last_collision_timestamp = captureMsg->last_collision_timestamp;
+						msg->time_since_last_collision = captureMsg->time_since_last_collision;
+
 //						std::cout << "Vector stuff done captureMsg num_cameras" << captureMsg->num_cameras << " cameras obj " << captureMsg->cameras << "\n";
 
 						if (captureMsg->num_cameras)

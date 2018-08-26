@@ -40,6 +40,7 @@ bool ADeepDriveAgentRemoteAIController::Activate(ADeepDriveAgent &agent, bool ke
 	if(keepPosition || initAgentOnTrack(agent))
 	{
 		activateController(agent);
+		m_hasCollisionOccured = false;
 		activated = true;
 	}
 	return true;
@@ -51,6 +52,7 @@ bool ADeepDriveAgentRemoteAIController::ResetAgent()
 	if(m_Agent)
 	{
 		resetAgentPosOnSpline(*m_Agent, m_Track->GetSpline(), m_StartDistance);
+		m_hasCollisionOccured = false;
 		res = true;
 	}
 	return res;
@@ -58,7 +60,10 @@ bool ADeepDriveAgentRemoteAIController::ResetAgent()
 
 void ADeepDriveAgentRemoteAIController::OnAgentCollision(AActor *OtherActor, const FHitResult &HitResult)
 {
-	m_lastCollisionTime = FDateTime::UtcNow();
+	FDateTime now(FDateTime::UtcNow());
+	m_lastCollisionTimeStamp = FPlatformTime::Seconds();
+	m_lastCollisionTimeUTC = FDateTime::UtcNow();
+	m_hasCollisionOccured = true;
 }
 
 

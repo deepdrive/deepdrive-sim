@@ -101,7 +101,7 @@ public:
 	float getDistanceAlongRoute() const;
 	float getDistanceToCenterOfTrack() const;
 	bool getIsGameDriving() const;
-	FDateTime getLastCollisionTime();
+	void getLastCollisionTime(FDateTime &utc, double &timeStamp, double &timeSinceLastCollision);
 
 	float getFrontBumperDistance() const;
 	float getBackBumperDistance() const;
@@ -137,40 +137,40 @@ protected:
 	USceneComponent						*CollisionRoot = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = Collision)
-	UBoxComponent						*CollisionFrontCenter = 0;
+	UBoxComponent						*CollisionFrontBumper = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = Collision)
-	UBoxComponent						*CollisionFrontLeft = 0;
+	UBoxComponent						*CollisionFrontLeftBumper = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = Collision)
-	UBoxComponent						*CollisionFrontRight = 0;
+	UBoxComponent						*CollisionFrontRightBumper = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = Collision)
-	UBoxComponent						*CollisionFrontSideLeft = 0;
+	UBoxComponent						*CollisionFrontLeftFender = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = Collision)
-	UBoxComponent						*CollisionFrontSideRight = 0;
+	UBoxComponent						*CollisionFrontRightFender = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = Collision)
-	UBoxComponent						*CollisionSideLeft = 0;
+	UBoxComponent						*CollisionLeftDoor = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = Collision)
-	UBoxComponent						*CollisionSideRight = 0;
+	UBoxComponent						*CollisionRightDoor = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = Collision)
-	UBoxComponent						*CollisionBackCenter = 0;
+	UBoxComponent						*CollisionRearCenterBumper = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = Collision)
-	UBoxComponent						*CollisionBackLeft = 0;
+	UBoxComponent						*CollisionRearLeftBumper = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = Collision)
-	UBoxComponent						*CollisionBackRight = 0;
+	UBoxComponent						*CollisionRearRightBumper = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = Collision)
-	UBoxComponent						*CollisionBackSideLeft = 0;
+	UBoxComponent						*CollisionRearLeftFender = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = Collision)
-	UBoxComponent						*CollisionBackSideRight = 0;
+	UBoxComponent						*CollisionBackRearRightFender = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = Car)
 	float								FrontBumperDistance = 0.0f;

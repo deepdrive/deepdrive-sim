@@ -71,7 +71,8 @@ bool DeepDriveSimulationCaptureProxy::beginCapture()
 		m_DeepDriveData.DistanceToCenterOfLane = agent->getDistanceToCenterOfTrack();
 		m_DeepDriveData.LapNumber = agent->getNumberOfLaps();
 
-		m_DeepDriveData.LastCollisionTime = agent->getLastCollisionTime();
+		agent->getLastCollisionTime(m_DeepDriveData.LastCollisionTimeUTC, m_DeepDriveData.LastCollisionTimeStamp, m_DeepDriveData.TimeSinceLastCollision);
+		//m_DeepDriveData.LastCollisionTime = agent->getLastCollisionTime();
 
 	}
 

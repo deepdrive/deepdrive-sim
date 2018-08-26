@@ -103,7 +103,7 @@ void ADeepDriveCaptureProxy::Tick( float DeltaTime )
 
 			if(m_TimeToNextCapture <= 0.0f)
 			{
-				m_DeepDriveData = BeginCapture();
+				//m_DeepDriveData = BeginCapture();
 				DeepDriveCapture::GetInstance().Capture();
 
 				m_TimeToNextCapture = CaptureInterval;

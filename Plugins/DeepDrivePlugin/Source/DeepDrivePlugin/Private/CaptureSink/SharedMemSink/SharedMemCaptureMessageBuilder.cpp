@@ -57,6 +57,9 @@ void SharedMemCaptureMessageBuilder::begin(const FDeepDriveDataOut &deepDriveDat
 		m_Message->distance_to_center_of_lane = deepDriveData.DistanceToCenterOfLane;
 		m_Message->lap_number = deepDriveData.LapNumber;
 
+		m_Message->last_collision_time_utc = deepDriveData.LastCollisionTimeUTC.ToUnixTimestamp();
+		m_Message->last_collision_timestamp = deepDriveData.LastCollisionTimeStamp;
+		m_Message->time_since_last_collision = deepDriveData.TimeSinceLastCollision;
 
 		m_MessageSize = sizeof(DeepDriveCaptureMessage);
 		m_remainingSize = m_SharedMem.getMaxPayloadSize() - sizeof(DeepDriveCaptureMessage);

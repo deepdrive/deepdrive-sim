@@ -48,9 +48,6 @@ public:
 	*	IDeepDriveCaptureProxy
 	*/
 
-	UFUNCTION(BlueprintImplementableEvent, Category="DeepDrivePlugin")
-	FDeepDriveDataOut BeginCapture();
-
 	TArray<UCaptureSinkComponentBase*>& getSinks();
 
 	const FDeepDriveDataOut& getDeepDriveData() const;

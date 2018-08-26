@@ -12,7 +12,6 @@ DEFINE_LOG_CATEGORY(LogDeepDriveAgentControllerBase);
 
 ADeepDriveAgentControllerBase::ADeepDriveAgentControllerBase()
 {
-	m_lastCollisionTime = ADeepDriveSimulation::getSimulationStartTime();
 }
 
 ADeepDriveAgentControllerBase::~ADeepDriveAgentControllerBase()
@@ -147,12 +146,22 @@ float ADeepDriveAgentControllerBase::getClosestDistanceOnSpline(USplineComponent
 	return FMath::Lerp(dist0, dist1, closestKey - static_cast<float> (index0));
 }
 
-FDateTime ADeepDriveAgentControllerBase::getLastCollisionTime()
+void ADeepDriveAgentControllerBase::getLastCollisionTime(FDateTime &utc, double &timeStamp, double &timeSinceLastCollision)
 {
-	FDateTime lct(m_lastCollisionTime);
-	m_lastCollisionTime = ADeepDriveSimulation::getSimulationStartTime();
-	return lct;
+	if (m_hasCollisionOccured)
+	{
+		utc = m_lastCollisionTimeUTC;
+		timeStamp = m_lastCollisionTimeStamp;
+		timeSinceLastCollision = FPlatformTime::Seconds() - m_lastCollisionTimeStamp;
+	}
+	else
+	{
+		utc = FDateTime();
+		timeStamp = -1.0;
+		timeSinceLastCollision = -1.0;
+	}
 }
+
 void ADeepDriveAgentControllerBase::OnCheckpointReached()
 {
 }

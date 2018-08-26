@@ -52,7 +52,7 @@ public:
 
 	const FString& getControllerName() const;
 
-	FDateTime getLastCollisionTime();
+	void getLastCollisionTime(FDateTime &utc, double &timeStamp, double &timeSinceLastCollision);
 
 	bool updateAgentOnTrack();
 
@@ -77,7 +77,9 @@ protected:
 
 	bool								m_LapStarted = false;
 
-	FDateTime							m_lastCollisionTime = FDateTime();
+	bool								m_hasCollisionOccured = false;
+	FDateTime							m_lastCollisionTimeUTC = FDateTime();
+	double								m_lastCollisionTimeStamp = 0.0;
 };
 
 

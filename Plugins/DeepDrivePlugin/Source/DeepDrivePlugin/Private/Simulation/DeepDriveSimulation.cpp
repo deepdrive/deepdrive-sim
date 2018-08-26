@@ -314,7 +314,7 @@ void ADeepDriveSimulation::SelectMode(EDeepDriveAgentControlMode Mode)
 {
 	if(Mode != m_curAgentMode)
 	{
-		UE_LOG(LogDeepDriveSimulation, Log, TEXT("SelectMode activating new mode: %d"), Mode);
+		//UE_LOG(LogDeepDriveSimulation, Log, TEXT("SelectMode activating new mode: %d"), Mode);
 
 		ADeepDriveAgentControllerBase *controller = spawnController(Mode, 0, 0);
 		ADeepDriveAgentControllerBase *prevController = Cast<ADeepDriveAgentControllerBase> (m_curAgent->GetController());

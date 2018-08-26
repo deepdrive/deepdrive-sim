@@ -87,6 +87,12 @@ struct DeepDriveCaptureMessage	:	public DeepDriveMessageHeader
 
 	uint32						num_cameras;
 
+	int64						last_collision_time_utc;
+
+	double						last_collision_timestamp;
+
+	double						time_since_last_collision;
+
 	DeepDriveCaptureCamera		cameras[1];
 
 };
