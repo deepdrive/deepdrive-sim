@@ -2,8 +2,10 @@
 
 # Usage: DEEPDRIVE_UNREAL_SOURCE_DIR=YourSourceDir DEEPDRIVE_PACKAGE_DIR=YourPackageDir ./package.sh
 # Or with Jenkins
-# docker run -u root -d -p 8080:8080 -p 50000:50000 -e DEEPDRIVE_UNREAL_SOURCE_DIR='YourSourceDir' -e DEEPDRIVE_PACKAGE_DIR='YourPackageDir' -v YourJenkinsDir:/var/jenkins_home -v /var/run/docker.sock:/var/run/docker.sock jenkinsci/blueocean
-
+# Add the following to /etc/environment and restart
+# DEEPDRIVE_PACKAGE_DIR="<some-dir>"
+# DEEPDRIVE_UNREAL_SOURCE_DIR="<your-unreal-repo>"
+# DEEPDRIVE_USER="<your-username>"
 set -euvo pipefail
 
 dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
