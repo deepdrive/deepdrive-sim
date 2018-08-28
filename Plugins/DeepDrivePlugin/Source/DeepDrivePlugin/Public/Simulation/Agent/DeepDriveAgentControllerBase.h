@@ -44,7 +44,7 @@ public:
 	
 	virtual bool ResetAgent( /* const SimulationConfiguration &configuration */);
 	
-	virtual void OnAgentCollision(AActor *OtherActor, const FHitResult &HitResult);
+	virtual void OnAgentCollision(AActor *OtherActor, const FHitResult &HitResult, const FName &Tag);
 
 	virtual void OnCheckpointReached();
 
@@ -80,6 +80,7 @@ protected:
 	bool								m_hasCollisionOccured = false;
 	FDateTime							m_lastCollisionTimeUTC = FDateTime();
 	double								m_lastCollisionTimeStamp = 0.0;
+	FName								m_CollisionLocation;
 };
 
 

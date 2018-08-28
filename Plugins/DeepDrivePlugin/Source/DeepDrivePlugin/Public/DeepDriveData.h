@@ -49,4 +49,10 @@ struct FDeepDriveDataOut
 
 	double		TimeSinceLastCollision;
 
+	FName		CollisionLocation;
+
+	FVector		ColliderVelocity;
+
+	FVector		CollisionNormal;
+
 };

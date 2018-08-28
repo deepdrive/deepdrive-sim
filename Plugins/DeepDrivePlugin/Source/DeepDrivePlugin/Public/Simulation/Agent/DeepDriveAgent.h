@@ -10,6 +10,7 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveAgent, Log, All);
 
+struct FDeepDriveDataOut;
 class UCaptureCameraComponent;
 class ADeepDriveAgentControllerBase;
 class ADeepDriveSimulation;
@@ -84,24 +85,13 @@ public:
 	void setIsGameDriving(bool isGameDriving);
 	void reset();
 
-	FVector getAngularVelocity() const;
-	FVector getAcceleration() const;
-	FVector getAngularAcceleration() const;
+	void beginCapture(FDeepDriveDataOut &deepDriveData);
+
 	float getSpeed() const;
 	float getSpeedKmh() const;
 
-	FVector getDimensions() const;
-
-	float getSteering() const;
-	float getThrottle() const;
-	float getBrake() const;
-	bool getHandbrake() const;
-
-	int32 getNumberOfLaps() const;
 	float getDistanceAlongRoute() const;
 	float getDistanceToCenterOfTrack() const;
-	bool getIsGameDriving() const;
-	void getLastCollisionTime(FDateTime &utc, double &timeStamp, double &timeSinceLastCollision);
 
 	float getFrontBumperDistance() const;
 	float getBackBumperDistance() const;
@@ -137,7 +127,7 @@ protected:
 	USceneComponent						*CollisionRoot = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = Collision)
-	UBoxComponent						*CollisionFrontBumper = 0;
+	UBoxComponent						*CollisionFrontCenterBumper = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = Collision)
 	UBoxComponent						*CollisionFrontLeftBumper = 0;
@@ -170,7 +160,7 @@ protected:
 	UBoxComponent						*CollisionRearLeftFender = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = Collision)
-	UBoxComponent						*CollisionBackRearRightFender = 0;
+	UBoxComponent						*CollisionRearRightFender = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = Car)
 	float								FrontBumperDistance = 0.0f;
@@ -232,56 +222,6 @@ inline void ADeepDriveAgent::setResetTransform(const FTransform &transform)
 inline void ADeepDriveAgent::setIsGameDriving(bool isGameDriving)
 {
 	m_isGameDriving = isGameDriving;
-}
-
-inline float ADeepDriveAgent::getSteering() const
-{
-	return m_curSteering;
-}
-
-inline float ADeepDriveAgent::getThrottle() const
-{
-	return m_curSteering;
-}
-
-inline float ADeepDriveAgent::getBrake() const
-{
-	return m_curBrake;
-}
-
-inline bool ADeepDriveAgent::getHandbrake() const
-{
-	return m_curHandbrake;
-}
-
-inline FVector ADeepDriveAgent::getAngularVelocity() const
-{
-	return m_AngularVelocity;
-}
-
-inline FVector ADeepDriveAgent::getAcceleration() const
-{
-	return m_Acceleration;
-}
-
-inline FVector ADeepDriveAgent::getAngularAcceleration() const
-{
-	return m_AngularAcceleration;
-}
-
-inline FVector ADeepDriveAgent::getDimensions() const
-{
-	return m_Dimensions;
-}
-
-inline int32 ADeepDriveAgent::getNumberOfLaps() const
-{
-	return m_NumberOfLaps;
-}
-
-inline bool ADeepDriveAgent::getIsGameDriving() const
-{
-	return m_isGameDriving;
 }
 
 inline int32 ADeepDriveAgent::getAgentId() const

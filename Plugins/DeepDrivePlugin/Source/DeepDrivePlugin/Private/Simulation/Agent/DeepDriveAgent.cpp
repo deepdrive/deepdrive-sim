@@ -3,6 +3,7 @@
 #include "Public/Simulation/DeepDriveSimulation.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 #include "Public/Capture/CaptureCameraComponent.h"
+#include "Public/DeepDriveData.h"
 #include "Components/SplineComponent.h"
 #include "Simulation/Agent/DeepDriveAgentControllerBase.h"
 
@@ -35,14 +36,19 @@ ADeepDriveAgent::ADeepDriveAgent()
 	CollisionRoot = CreateDefaultSubobject<USceneComponent>(TEXT("CollisionRoot"));
 	CollisionRoot->SetupAttachment(GetRootComponent());
 
-	UBoxComponent** boxes[] =	{ &CollisionFrontBumper, &CollisionFrontLeftBumper, &CollisionFrontRightBumper, &CollisionFrontLeftFender, &CollisionFrontRightFender
+	UBoxComponent** boxes[] =	{ &CollisionFrontCenterBumper, &CollisionFrontLeftBumper, &CollisionFrontRightBumper, &CollisionFrontLeftFender, &CollisionFrontRightFender
 								, &CollisionLeftDoor, &CollisionRightDoor, &CollisionRearCenterBumper
-								, &CollisionRearLeftBumper, &CollisionRearRightBumper, &CollisionRearLeftFender, &CollisionBackRearRightFender
+								, &CollisionRearLeftBumper, &CollisionRearRightBumper, &CollisionRearLeftFender, &CollisionRearRightFender
 								};
 
-	FName	names[] =	{ TEXT("CollisionFrontBumper"), TEXT("CollisionFrontLeftBumper"), TEXT("CollisionFrontRightBumper"), TEXT("CollisionFrontLeftFender"), TEXT("CollisionFrontRightFender")
-							, TEXT("CollisionLeftDoor"), TEXT("CollisionRightDoor"), TEXT("CollisionRearCenterBumper")
-							, TEXT("CollisionRearLeftBumper"), TEXT("CollisionRearRightBumper"), TEXT("CollisionRearLeftFender"), TEXT("CollisionBackRearRightFender")
+	FName	names[] =	{	TEXT("CollisionFrontCnterBumper"), TEXT("CollisionFrontLeftBumper"), TEXT("CollisionFrontRightBumper"), TEXT("CollisionFrontLeftFender"), TEXT("CollisionFrontRightFender")
+						,	TEXT("CollisionLeftDoor"), TEXT("CollisionRightDoor"), TEXT("CollisionRearCenterBumper")
+						,	TEXT("CollisionRearLeftBumper"), TEXT("CollisionRearRightBumper"), TEXT("CollisionRearLeftFender"), TEXT("CollisionRearRightFender")
+						};
+
+	FName	tags[] =	{	TEXT("front_center_bumper"), TEXT("front_left_bumper"), TEXT("front_right_bumper"), TEXT("front_left_fender"), TEXT("front_right_fender")
+						,	TEXT("left_door"), TEXT("right_door"), TEXT("rear_center_bumper")
+						,	TEXT("rear_left_bumper"), TEXT("rear_right_bumper"), TEXT("rear_left_fender"), TEXT("rear_right_fender")
 						};
 
 	for (unsigned i = 0; i < sizeof(boxes) / sizeof(UBoxComponent**); ++i)
@@ -52,6 +58,7 @@ ADeepDriveAgent::ADeepDriveAgent()
 		*(boxes[i]) = box;
 
 		box->OnComponentBeginOverlap.AddDynamic(this, &ADeepDriveAgent::OnBeginOverlap);
+		box->ComponentTags.Add(tags[i]);
 	}
 }
 
@@ -275,6 +282,34 @@ void ADeepDriveAgent::reset()
 	GetMesh()->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
 }
 
+void ADeepDriveAgent::beginCapture(FDeepDriveDataOut &deepDriveData)
+{
+	deepDriveData.Position = GetActorLocation();
+	deepDriveData.Rotation = GetActorRotation();
+	deepDriveData.Velocity = GetVelocity();
+	deepDriveData.AngularVelocity = m_AngularVelocity;
+	deepDriveData.Acceleration = m_Acceleration;
+	deepDriveData.AngularAcceleration = m_AngularAcceleration;
+	deepDriveData.Speed = getSpeed();
+
+	deepDriveData.Dimension = m_Dimensions;
+
+	deepDriveData.IsGameDriving = m_isGameDriving;
+
+	deepDriveData.Steering = m_curSteering;
+	deepDriveData.Throttle = m_curThrottle;
+	deepDriveData.Brake = m_curBrake;
+	deepDriveData.Handbrake = m_curHandbrake;
+
+	deepDriveData.DistanceAlongRoute = getDistanceAlongRoute();
+	deepDriveData.DistanceToCenterOfLane = getDistanceToCenterOfTrack();
+	deepDriveData.LapNumber = m_NumberOfLaps;
+
+	ADeepDriveAgentControllerBase *ctrl = getAgentController();
+	if (ctrl)
+		ctrl->getLastCollisionTime(deepDriveData.LastCollisionTimeUTC, deepDriveData.LastCollisionTimeStamp, deepDriveData.TimeSinceLastCollision);
+}
+
 float ADeepDriveAgent::getSpeed() const
 {
 	return GetVehicleMovementComponent()->GetForwardSpeed();
@@ -315,13 +350,6 @@ float ADeepDriveAgent::getDistanceToCenterOfTrack() const
 	return res;
 }
 
-void ADeepDriveAgent::getLastCollisionTime(FDateTime &utc, double &timeStamp, double &timeSinceLastCollision)
-{
-	ADeepDriveAgentControllerBase *ctrl = getAgentController();
-	if (ctrl)
-		ctrl->getLastCollisionTime(utc, timeStamp, timeSinceLastCollision);
-}
-
 void ADeepDriveAgent::OnCheckpointReached()
 {
 	ADeepDriveAgentControllerBase *ctrl = Cast<ADeepDriveAgentControllerBase>(GetController());
@@ -360,6 +388,6 @@ void ADeepDriveAgent::OnBeginOverlap(UPrimitiveComponent *OverlappedComponent, A
 	ADeepDriveAgentControllerBase *ctrl = getAgentController();
 	if (ctrl)
 	{
-		ctrl->OnAgentCollision(OtherActor, SweepResult);
+		ctrl->OnAgentCollision(OtherActor, SweepResult, OverlappedComponent->ComponentTags.Num() > 0 ? OverlappedComponent->ComponentTags[0] : FName());
 	}
 }

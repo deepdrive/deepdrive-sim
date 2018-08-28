@@ -50,6 +50,7 @@ bool DeepDriveSimulationCaptureProxy::beginCapture()
 
 	if(agent)
 	{
+		#if 0
 		m_DeepDriveData.Position = agent->GetActorLocation();
 		m_DeepDriveData.Rotation = agent->GetActorRotation();
 		m_DeepDriveData.Velocity = agent->GetVelocity();
@@ -73,7 +74,9 @@ bool DeepDriveSimulationCaptureProxy::beginCapture()
 
 		agent->getLastCollisionTime(m_DeepDriveData.LastCollisionTimeUTC, m_DeepDriveData.LastCollisionTimeStamp, m_DeepDriveData.TimeSinceLastCollision);
 		//m_DeepDriveData.LastCollisionTime = agent->getLastCollisionTime();
+		#endif
 
+		agent->beginCapture(m_DeepDriveData);
 	}
 
 	return agent != 0;

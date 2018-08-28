@@ -44,7 +44,7 @@ public:
 
 	virtual bool ResetAgent();
 
-	virtual void OnAgentCollision(AActor *OtherActor, const FHitResult &HitResult);
+	virtual void OnAgentCollision(AActor *OtherActor, const FHitResult &HitResult, const FName &Tag);
 
 	UFUNCTION(BlueprintCallable, Category = "Configuration")
 	void Configure(const FDeepDriveRemoteAIControllerConfiguration &Configuration, int32 StartPositionSlot, ADeepDriveSimulation* DeepDriveSimulation);

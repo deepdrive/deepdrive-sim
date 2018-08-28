@@ -58,11 +58,12 @@ bool ADeepDriveAgentRemoteAIController::ResetAgent()
 	return res;
 }
 
-void ADeepDriveAgentRemoteAIController::OnAgentCollision(AActor *OtherActor, const FHitResult &HitResult)
+void ADeepDriveAgentRemoteAIController::OnAgentCollision(AActor *OtherActor, const FHitResult &HitResult, const FName &Tag)
 {
 	FDateTime now(FDateTime::UtcNow());
 	m_lastCollisionTimeStamp = FPlatformTime::Seconds();
 	m_lastCollisionTimeUTC = FDateTime::UtcNow();
+	m_CollisionLocation = Tag;
 	m_hasCollisionOccured = true;
 }
 
