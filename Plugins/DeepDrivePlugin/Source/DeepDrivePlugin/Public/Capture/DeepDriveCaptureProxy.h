@@ -50,7 +50,7 @@ public:
 
 	TArray<UCaptureSinkComponentBase*>& getSinks();
 
-	const FDeepDriveDataOut& getDeepDriveData() const;
+	const DeepDriveDataOut& getDeepDriveData() const;
 
 
 
@@ -72,7 +72,7 @@ private:
 	
 	float									m_TimeToNextCapture;
 
-	FDeepDriveDataOut						m_DeepDriveData;
+	DeepDriveDataOut						m_DeepDriveData;
 
 };
 
@@ -82,7 +82,7 @@ inline TArray<UCaptureSinkComponentBase*>& ADeepDriveCaptureProxy::getSinks()
 	return m_CaptureSinks;
 }
 
-inline const FDeepDriveDataOut& ADeepDriveCaptureProxy::getDeepDriveData() const
+inline const DeepDriveDataOut& ADeepDriveCaptureProxy::getDeepDriveData() const
 {
 	return m_DeepDriveData;
 }

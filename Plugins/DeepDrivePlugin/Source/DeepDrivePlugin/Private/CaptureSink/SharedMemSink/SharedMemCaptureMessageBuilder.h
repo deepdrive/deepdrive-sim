@@ -8,7 +8,7 @@
 DECLARE_LOG_CATEGORY_EXTERN(LogSharedMemCaptureMessageBuilder, Log, All);
 
 class SharedMemory;
-struct FDeepDriveDataOut;
+struct DeepDriveDataOut;
 struct DeepDriveCaptureMessage;
 struct DeepDriveCaptureCamera;
 class CaptureBuffer;
@@ -20,7 +20,7 @@ public:
 
 	SharedMemCaptureMessageBuilder(SharedMemory &sharedMem);
 
-	void begin(const FDeepDriveDataOut &deepDriveData, double timestamp, uint32 sequenceNumber);
+	void begin(const DeepDriveDataOut &deepDriveData, double timestamp, uint32 sequenceNumber);
 
 	void addCamera(EDeepDriveCameraType camType, int32 camId, CaptureBuffer &sceneCaptureBuffer, CaptureBuffer *depthCaptureBuffer);
 

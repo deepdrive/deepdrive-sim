@@ -5,9 +5,11 @@
 
 class SharedMemory;
 struct PyCaptureCameraObject;
+struct PyCaptureLastCollisionObject;
 struct PyCaptureSnapshotObject;
 
 struct DeepDriveCaptureCamera;
+struct DeepDriveLastCollisionData;
 struct DeepDriveCaptureMessage;
 
 class DeepDriveSharedMemoryClient
@@ -28,6 +30,7 @@ public:
 private:
 
 	PyCaptureCameraObject* buildCamera(const DeepDriveCaptureCamera &srcCam);
+	PyCaptureLastCollisionObject* buildLastCollision(const DeepDriveLastCollisionData &srcCollision);
 
 	void dumpSharedMemContent(const DeepDriveCaptureMessage *data);
 

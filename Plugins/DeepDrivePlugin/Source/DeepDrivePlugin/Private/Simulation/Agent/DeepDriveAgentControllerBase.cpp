@@ -60,7 +60,18 @@ bool ADeepDriveAgentControllerBase::ResetAgent()
 
 void ADeepDriveAgentControllerBase::OnAgentCollision(AActor *OtherActor, const FHitResult &HitResult, const FName &Tag)
 {
+	if (m_isCollisionEnabled)
+	{
+		FDateTime now(FDateTime::UtcNow());
+		m_CollisionData.LastCollisionTimeStamp = FPlatformTime::Seconds();
+		m_CollisionData.LastCollisionTimeUTC = FDateTime::UtcNow();
+		m_CollisionData.CollisionLocation = Tag;
+		m_CollisionData.ColliderVelocity = OtherActor->GetVelocity();
+		m_CollisionData.CollisionNormal = HitResult.ImpactNormal;
+		m_hasCollisionOccured = true;
+	}
 }
+
 
 void ADeepDriveAgentControllerBase::activateController(ADeepDriveAgent &agent)
 {
@@ -146,21 +157,11 @@ float ADeepDriveAgentControllerBase::getClosestDistanceOnSpline(USplineComponent
 	return FMath::Lerp(dist0, dist1, closestKey - static_cast<float> (index0));
 }
 
-void ADeepDriveAgentControllerBase::getLastCollisionTime(FDateTime &utc, double &timeStamp, double &timeSinceLastCollision)
+void ADeepDriveAgentControllerBase::getCollisionData(DeepDriveCollisionData &collisionDataOut)
 {
-	if (m_hasCollisionOccured)
-	{
-		utc = m_lastCollisionTimeUTC;
-		timeStamp = m_lastCollisionTimeStamp;
-		timeSinceLastCollision = FPlatformTime::Seconds() - m_lastCollisionTimeStamp;
-	}
-	else
-	{
-		utc = FDateTime();
-		timeStamp = -1.0;
-		timeSinceLastCollision = -1.0;
-	}
+	collisionDataOut = m_hasCollisionOccured ? m_CollisionData : DeepDriveCollisionData();
 }
+
 
 void ADeepDriveAgentControllerBase::OnCheckpointReached()
 {

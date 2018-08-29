@@ -38,7 +38,7 @@ void USharedMemCaptureSinkComponent::EndPlay(const EEndPlayReason::Type EndPlayR
 	m_Worker->kill();
 }
 
-void USharedMemCaptureSinkComponent::begin(double timestamp, uint32 sequenceNumber, const FDeepDriveDataOut &deepDriveData)
+void USharedMemCaptureSinkComponent::begin(double timestamp, uint32 sequenceNumber, const DeepDriveDataOut &deepDriveData)
 {
 	m_curJobData = new SharedMemCaptureSinkWorker::SSharedMemCaptureSinkJobData(timestamp, sequenceNumber, deepDriveData);
 }

@@ -73,13 +73,9 @@ struct PyCaptureSnapshotObject
 
 	uint32				lap_number;
 
-	int64				last_collision_time_utc;
-
-	double				last_collision_timestamp;
-
-	double				time_since_last_collision;
-
 	uint32				camera_count;
+
+	PyCaptureLastCollisionObject	*last_collision;
 
 	PyListObject		*cameras;
 
@@ -109,9 +105,6 @@ static PyMemberDef PyCaptureSnapshotMembers[] =
 	{"distance_along_route", T_DOUBLE, offsetof(PyCaptureSnapshotObject, distance_along_route), 0, "Distance achieved to destination on designated route in cm"},
 	{"distance_to_center_of_lane", T_DOUBLE, offsetof(PyCaptureSnapshotObject, distance_to_center_of_lane), 0, "Last distance to previously achieved waypoint - where waypoints are 4m apart"},
 	{"lap_number", T_UINT, offsetof(PyCaptureSnapshotObject, lap_number), 0, "Number of laps achieved since last reset"},
-	//{"last_collision_time_utc", T_INT64, offsetof(PyCaptureSnapshotObject, last_collision_time_utc), 0, "UTC Timestamp (as unix timestamp) when last collision occured or -1"},
-	{"last_collision_timestamp", T_DOUBLE, offsetof(PyCaptureSnapshotObject, last_collision_timestamp), 0, "Timestamp when last collision occured or -1"},
-	{"time_since_last_collision", T_DOUBLE, offsetof(PyCaptureSnapshotObject, time_since_last_collision), 0, "Elapsed time in seconds sicne last collision or -1"},
 	{"camera_count", T_UINT, offsetof(PyCaptureSnapshotObject, camera_count), 0, "Number of captured cameras"},
 	{"cameras", T_OBJECT_EX, offsetof(PyCaptureSnapshotObject, cameras), 0, "List of captured cameras"},
 	{NULL}

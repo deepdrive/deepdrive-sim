@@ -282,7 +282,7 @@ void ADeepDriveAgent::reset()
 	GetMesh()->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
 }
 
-void ADeepDriveAgent::beginCapture(FDeepDriveDataOut &deepDriveData)
+void ADeepDriveAgent::beginCapture(DeepDriveDataOut &deepDriveData)
 {
 	deepDriveData.Position = GetActorLocation();
 	deepDriveData.Rotation = GetActorRotation();
@@ -307,7 +307,7 @@ void ADeepDriveAgent::beginCapture(FDeepDriveDataOut &deepDriveData)
 
 	ADeepDriveAgentControllerBase *ctrl = getAgentController();
 	if (ctrl)
-		ctrl->getLastCollisionTime(deepDriveData.LastCollisionTimeUTC, deepDriveData.LastCollisionTimeStamp, deepDriveData.TimeSinceLastCollision);
+		ctrl->getCollisionData(deepDriveData.CollisionData);
 }
 
 float ADeepDriveAgent::getSpeed() const

@@ -50,32 +50,6 @@ bool DeepDriveSimulationCaptureProxy::beginCapture()
 
 	if(agent)
 	{
-		#if 0
-		m_DeepDriveData.Position = agent->GetActorLocation();
-		m_DeepDriveData.Rotation = agent->GetActorRotation();
-		m_DeepDriveData.Velocity = agent->GetVelocity();
-		m_DeepDriveData.AngularVelocity = agent->getAngularVelocity();
-		m_DeepDriveData.Acceleration = agent->getAcceleration();
-		m_DeepDriveData.AngularAcceleration = agent->getAngularAcceleration();
-		m_DeepDriveData.Speed = agent->getSpeed();
-
-		m_DeepDriveData.Dimension = agent->getDimensions();
-
-		m_DeepDriveData.IsGameDriving = agent->getIsGameDriving();
-
-		m_DeepDriveData.Steering = agent->getSteering();
-		m_DeepDriveData.Throttle = agent->getThrottle();
-		m_DeepDriveData.Brake = agent->getBrake();
-		m_DeepDriveData.Handbrake = agent->getHandbrake();
-
-		m_DeepDriveData.DistanceAlongRoute = agent->getDistanceAlongRoute();
-		m_DeepDriveData.DistanceToCenterOfLane = agent->getDistanceToCenterOfTrack();
-		m_DeepDriveData.LapNumber = agent->getNumberOfLaps();
-
-		agent->getLastCollisionTime(m_DeepDriveData.LastCollisionTimeUTC, m_DeepDriveData.LastCollisionTimeStamp, m_DeepDriveData.TimeSinceLastCollision);
-		//m_DeepDriveData.LastCollisionTime = agent->getLastCollisionTime();
-		#endif
-
 		agent->beginCapture(m_DeepDriveData);
 	}
 

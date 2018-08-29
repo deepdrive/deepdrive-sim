@@ -10,7 +10,7 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveAgent, Log, All);
 
-struct FDeepDriveDataOut;
+struct DeepDriveDataOut;
 class UCaptureCameraComponent;
 class ADeepDriveAgentControllerBase;
 class ADeepDriveSimulation;
@@ -85,7 +85,7 @@ public:
 	void setIsGameDriving(bool isGameDriving);
 	void reset();
 
-	void beginCapture(FDeepDriveDataOut &deepDriveData);
+	void beginCapture(DeepDriveDataOut &deepDriveData);
 
 	float getSpeed() const;
 	float getSpeedKmh() const;

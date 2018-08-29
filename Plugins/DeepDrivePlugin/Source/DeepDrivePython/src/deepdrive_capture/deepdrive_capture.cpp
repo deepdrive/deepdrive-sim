@@ -3,6 +3,7 @@
 #include "DeepDriveSharedMemoryClient.h"
 
 #include "PyCaptureCameraObject.h"
+#include "PyCaptureLastCollisionObject.h"
 #include "PyCaptureSnapshotObject.h"
 
 #include <iostream>
@@ -99,6 +100,9 @@ PyMODINIT_FUNC PyInit_deepdrive_capture(void)
 	if (PyType_Ready(&PyCaptureCameraType) < 0)
 		return 0;
 
+	if (PyType_Ready(&PyCaptureLastCollisionType) < 0)
+		return 0;
+
 	if (PyType_Ready(&PyCaptureSnapshotType) < 0)
 		return 0;
 
@@ -112,10 +116,15 @@ PyMODINIT_FUNC PyInit_deepdrive_capture(void)
 		Py_INCREF(&PyCaptureCameraType);
 		PyModule_AddObject(m, "CaptureCamera", (PyObject *)&PyCaptureCameraType);
 
+		Py_INCREF(&PyCaptureLastCollisionType);
+		PyModule_AddObject(m, "LastCollision", (PyObject *)&PyCaptureLastCollisionType);
+
 		Py_INCREF(&PyCaptureSnapshotType);
 		PyModule_AddObject(m, "CaptureSnapshot", (PyObject *)&PyCaptureSnapshotType);
 
 	}
+
+	std::cout << "### ><>|><> PyInit_deepdrive_capture <><|<>< ###\n";
 
 	return m;
 }

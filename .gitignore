@@ -58,6 +58,10 @@ SourceArt/**/*.tga
 # Binary Files
 Binaries/*
 
+# Visual Studio Code
+.vscode/*
+*.code-workspace
+
 # Builds
 Build/*
 

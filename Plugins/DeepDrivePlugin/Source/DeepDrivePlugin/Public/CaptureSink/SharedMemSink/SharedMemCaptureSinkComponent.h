@@ -31,7 +31,7 @@ public:
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-	virtual void begin(double timestamp, uint32 sequenceNumber, const FDeepDriveDataOut &deepDriveData);
+	virtual void begin(double timestamp, uint32 sequenceNumber, const DeepDriveDataOut &deepDriveData);
 
 	virtual bool setCaptureBuffer(int32 cameraId, EDeepDriveCameraType cameraType, CaptureBuffer &sceneCaptureBuffer, CaptureBuffer *depthCaptureBuffer);
 

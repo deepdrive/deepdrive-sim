@@ -19,7 +19,7 @@ UDiskCaptureSinkComponent::UDiskCaptureSinkComponent()
 }
 
 
-void UDiskCaptureSinkComponent::begin(double timestamp, uint32 sequenceNumber, const FDeepDriveDataOut &deepDriveData)
+void UDiskCaptureSinkComponent::begin(double timestamp, uint32 sequenceNumber, const DeepDriveDataOut &deepDriveData)
 {
 	if(m_Worker == 0)
 	{

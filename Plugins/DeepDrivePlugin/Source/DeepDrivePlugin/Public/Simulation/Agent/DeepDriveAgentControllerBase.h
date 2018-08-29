@@ -3,6 +3,9 @@
 #pragma once
 
 #include "GameFramework/Controller.h"
+
+#include "Public/DeepDriveData.h"
+
 #include "DeepDriveAgentControllerBase.generated.h"
 
 
@@ -14,7 +17,6 @@ class USplineComponent;
 class ADeepDriveSplineTrack;
 
 struct SimulationConfiguration;
-
 
 /**
  * 
@@ -44,7 +46,6 @@ public:
 	
 	virtual bool ResetAgent( /* const SimulationConfiguration &configuration */);
 	
-	virtual void OnAgentCollision(AActor *OtherActor, const FHitResult &HitResult, const FName &Tag);
 
 	virtual void OnCheckpointReached();
 
@@ -52,7 +53,9 @@ public:
 
 	const FString& getControllerName() const;
 
-	void getLastCollisionTime(FDateTime &utc, double &timeStamp, double &timeSinceLastCollision);
+	void OnAgentCollision(AActor *OtherActor, const FHitResult &HitResult, const FName &Tag);
+
+	void getCollisionData(DeepDriveCollisionData &collisionDataOut);
 
 	bool updateAgentOnTrack();
 
@@ -77,10 +80,10 @@ protected:
 
 	bool								m_LapStarted = false;
 
+	bool								m_isCollisionEnabled = false;
+
 	bool								m_hasCollisionOccured = false;
-	FDateTime							m_lastCollisionTimeUTC = FDateTime();
-	double								m_lastCollisionTimeStamp = 0.0;
-	FName								m_CollisionLocation;
+	DeepDriveCollisionData				m_CollisionData;
 };
 
 

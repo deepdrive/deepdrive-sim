@@ -15,6 +15,11 @@ enum class DeepDriveMessageType	:	uint32
 
 struct DeepDriveMessageHeader
 {
+	enum
+	{
+		StringSize = 128
+	};
+
 	DeepDriveMessageHeader(DeepDriveMessageType type, uint32 size)
 		:	message_type(type)
 		,	message_size(size)

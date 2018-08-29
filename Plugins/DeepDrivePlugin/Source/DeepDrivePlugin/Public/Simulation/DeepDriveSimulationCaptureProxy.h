@@ -25,7 +25,7 @@ public:
 
 	virtual TArray<UCaptureSinkComponentBase*>& getSinks();
 
-	virtual const FDeepDriveDataOut& getDeepDriveData() const;
+	virtual const DeepDriveDataOut& getDeepDriveData() const;
 
 private:
 
@@ -33,7 +33,7 @@ private:
 
 	ADeepDriveSimulation 					&m_DeepDriveSim;
 
-	FDeepDriveDataOut						m_DeepDriveData;
+	DeepDriveDataOut						m_DeepDriveData;
 	
 	float									m_CaptureInterval = 0.0f;
 	float									m_TimeToNextCapture = 0.0f;
@@ -41,7 +41,7 @@ private:
 
 
 
-inline const FDeepDriveDataOut& DeepDriveSimulationCaptureProxy::getDeepDriveData() const
+inline const DeepDriveDataOut& DeepDriveSimulationCaptureProxy::getDeepDriveData() const
 {
 	return m_DeepDriveData;
 }

@@ -15,6 +15,7 @@ ADeepDriveAgentRemoteAIController::ADeepDriveAgentRemoteAIController()
 	:	ADeepDriveAgentControllerBase()
 {
 	m_ControllerName = "Remote AI Controller";
+	m_isCollisionEnabled = false;
 }
 
 void ADeepDriveAgentRemoteAIController::OnConfigureSimulation(const SimulationConfiguration &configuration, bool initialConfiguration)
@@ -57,16 +58,6 @@ bool ADeepDriveAgentRemoteAIController::ResetAgent()
 	}
 	return res;
 }
-
-void ADeepDriveAgentRemoteAIController::OnAgentCollision(AActor *OtherActor, const FHitResult &HitResult, const FName &Tag)
-{
-	FDateTime now(FDateTime::UtcNow());
-	m_lastCollisionTimeStamp = FPlatformTime::Seconds();
-	m_lastCollisionTimeUTC = FDateTime::UtcNow();
-	m_CollisionLocation = Tag;
-	m_hasCollisionOccured = true;
-}
-
 
 
 void ADeepDriveAgentRemoteAIController::Configure(const FDeepDriveRemoteAIControllerConfiguration &Configuration, int32 StartPositionSlot, ADeepDriveSimulation* DeepDriveSimulation)

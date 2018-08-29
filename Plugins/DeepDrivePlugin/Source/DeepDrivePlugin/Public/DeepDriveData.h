@@ -3,11 +3,33 @@
 
 #include "Engine.h"
 
-/*
-	Unreal -> (Python) Client
-*/
+struct DeepDriveCollisionData
+{
+	DeepDriveCollisionData()
+		: LastCollisionTimeUTC()
+		, LastCollisionTimeStamp(-1.0)
+		, TimeSinceLastCollision(-1.0)
+		, CollisionLocation()
+		, ColliderVelocity()
+		, CollisionNormal()
+	{
+	}
 
-struct FDeepDriveDataOut
+	FDateTime	LastCollisionTimeUTC;
+
+	double		LastCollisionTimeStamp;
+
+	double		TimeSinceLastCollision;
+
+	FName		CollisionLocation;
+
+	FVector		ColliderVelocity;
+
+	FVector		CollisionNormal;
+};
+
+
+struct DeepDriveDataOut
 {
 	FVector		Position;
 
@@ -43,16 +65,5 @@ struct FDeepDriveDataOut
 
 	int			LapNumber;
 
-	FDateTime	LastCollisionTimeUTC;
-
-	double		LastCollisionTimeStamp;
-
-	double		TimeSinceLastCollision;
-
-	FName		CollisionLocation;
-
-	FVector		ColliderVelocity;
-
-	FVector		CollisionNormal;
-
+	DeepDriveCollisionData		CollisionData;
 };

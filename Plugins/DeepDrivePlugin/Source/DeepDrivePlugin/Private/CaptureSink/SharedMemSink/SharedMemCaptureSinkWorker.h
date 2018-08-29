@@ -16,13 +16,13 @@ public:
 
 	struct SSharedMemCaptureSinkJobData : public SCaptureSinkJobData
 	{
-		SSharedMemCaptureSinkJobData(double timestamp, uint32 seqNr, const FDeepDriveDataOut &deepDriveData)
+		SSharedMemCaptureSinkJobData(double timestamp, uint32 seqNr, const DeepDriveDataOut &deepDriveData)
 			: SCaptureSinkJobData(timestamp, seqNr)
 			, deep_drive_data(deepDriveData)
 		{
 		}
 
-		FDeepDriveDataOut		deep_drive_data;
+		DeepDriveDataOut		deep_drive_data;
 	};
 
 	SharedMemCaptureSinkWorker(const FString &sharedMemName, uint32 maxSharedMemSize);

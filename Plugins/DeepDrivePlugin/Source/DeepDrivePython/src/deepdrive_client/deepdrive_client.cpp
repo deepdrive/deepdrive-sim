@@ -587,7 +587,7 @@ PyMODINIT_FUNC PyInit_deepdrive_client(void)
 		// Py_INCREF(&PyDeepDriveClientRegisterClientRequestType);
 		// PyModule_AddObject(m, "RegisterClientRequest", (PyObject *)&PyDeepDriveClientRegisterClientRequestType);
 	}
-	std::cout << "###### ><> ><> PyInit_deepdrive_client <>< <>< ######\n";
+	std::cout << "## ><>|><> PyInit_deepdrive_client <><|<>< ##\n";
 
 	return m;
 }

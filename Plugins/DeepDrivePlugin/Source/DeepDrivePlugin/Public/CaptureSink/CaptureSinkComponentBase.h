@@ -7,7 +7,7 @@
 #include "CaptureSinkComponentBase.generated.h"
 
 class CaptureBuffer;
-struct FDeepDriveDataOut;
+struct DeepDriveDataOut;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class DEEPDRIVEPLUGIN_API UCaptureSinkComponentBase : public UActorComponent
@@ -18,7 +18,7 @@ public:
 
 	UCaptureSinkComponentBase();
 
-	virtual void begin(double timestamp, uint32 sequenceNumber, const FDeepDriveDataOut &deepDriveData);
+	virtual void begin(double timestamp, uint32 sequenceNumber, const DeepDriveDataOut &deepDriveData);
 
 	virtual bool setCaptureBuffer(int32 cameraId, EDeepDriveCameraType cameraType, CaptureBuffer &sceneCaptureBuffer, CaptureBuffer *depthCaptureBuffer);
 

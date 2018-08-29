@@ -13,6 +13,6 @@ public:
 
 	virtual TArray<UCaptureSinkComponentBase*>& getSinks() = 0;
 
-	virtual const FDeepDriveDataOut& getDeepDriveData() const = 0;
+	virtual const DeepDriveDataOut& getDeepDriveData() const = 0;
 
 };

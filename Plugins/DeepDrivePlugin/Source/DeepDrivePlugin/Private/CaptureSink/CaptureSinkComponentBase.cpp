@@ -11,7 +11,7 @@ UCaptureSinkComponentBase::UCaptureSinkComponentBase()
 
 
 
-void UCaptureSinkComponentBase::begin(double timestamp, uint32 sequenceNumber, const FDeepDriveDataOut &deepDriveData)
+void UCaptureSinkComponentBase::begin(double timestamp, uint32 sequenceNumber, const DeepDriveDataOut &deepDriveData)
 {
 
 }

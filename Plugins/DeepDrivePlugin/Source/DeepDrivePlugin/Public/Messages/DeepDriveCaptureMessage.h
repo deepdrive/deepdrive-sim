@@ -26,6 +26,16 @@ struct DeepDriveCaptureCamera
 
 };
 
+struct DeepDriveLastCollisionData
+{
+	int64_t					time_utc;
+	double					time_stamp;
+	double					time_since_last_collision;
+	char					collision_location[DeepDriveMessageHeader::StringSize];
+	DeepDriveVector3		collidee_velocity;
+	DeepDriveVector3		collision_normal;
+};
+
 struct DeepDriveCaptureMessage	:	public DeepDriveMessageHeader
 {
 	DeepDriveCaptureMessage()
@@ -42,6 +52,8 @@ struct DeepDriveCaptureMessage	:	public DeepDriveMessageHeader
 	uint32						sequence_number;
 
 	uint32						padding_0;
+
+	DeepDriveLastCollisionData	last_collision;
 
 	DeepDriveVector3			position;
 
@@ -86,12 +98,6 @@ struct DeepDriveCaptureMessage	:	public DeepDriveMessageHeader
 	uint32						is_resetting;
 
 	uint32						num_cameras;
-
-	int64						last_collision_time_utc;
-
-	double						last_collision_timestamp;
-
-	double						time_since_last_collision;
 
 	DeepDriveCaptureCamera		cameras[1];
 
