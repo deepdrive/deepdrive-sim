@@ -6,10 +6,14 @@
 
 #include "common/NumPyUtils.h"
 
-#include <iostream>
+#include <stdint.h>
 
 struct PyCaptureLastCollisionObject
 {
+	static int initNumPy();
+	static void init(PyCaptureLastCollisionObject *self);
+	static PyObject* allocate();
+
 	PyObject_HEAD
 
 	int64_t				time_utc;
@@ -23,10 +27,6 @@ struct PyCaptureLastCollisionObject
 	PyArrayObject		*collidee_velocity;
 
 	PyArrayObject		*collision_normal;
-
-	static int initNumPy();
-	static void init(PyCaptureLastCollisionObject *self);
-	static PyObject* allocate();
 
 };
 
@@ -47,10 +47,7 @@ static PyObject* PyCaptureLastCollisionObject_new(PyTypeObject *type, PyObject *
 
 static int PyCaptureLastCollisionObject_init(PyObject *self, PyObject *args, PyObject *kwds)
 {
-	std::cout << "PyCaptureLastCollisionObject_init\n";
-
 	PyCaptureLastCollisionObject::init(reinterpret_cast<PyCaptureLastCollisionObject*> (self));
-
 	return 0;
 }
 

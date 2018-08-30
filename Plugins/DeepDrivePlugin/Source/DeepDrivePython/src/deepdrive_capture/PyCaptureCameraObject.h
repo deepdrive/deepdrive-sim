@@ -6,39 +6,28 @@
 
 #include "common/NumPyUtils.h"
 
-#include <iostream>
+#include <stdint.h>
 
-/*	Forward declarations
-*/
-static PyObject* PyCaptureCameraObject_new_impl();
-
-#if 0
-static int initNumPy()
-{
-	static bool initRequired = true;
-	if(initRequired)
-	{
-//		std::cout << "Init numPy\n";
-		import_array();
-		initRequired = false;
-	}
-	return 0;
-}
-#endif
 
 struct PyCaptureCameraObject
 {
+	static int initNumPy();
+	static void init(PyCaptureCameraObject *self);
+	static PyObject* allocate();
+
+	static PyArrayObject* createImage(int size, const uint8_t *data);
+
 	PyObject_HEAD
 
-	uint32				type;
-	uint32				id;
+	uint32_t			type;
+	uint32_t			id;
 
 	double				horizontal_field_of_view;
 	double				aspect_ratio;
 
 
-	uint32				capture_width;
-	uint32				capture_height;
+	uint32_t			capture_width;
+	uint32_t			capture_height;
 
 	PyArrayObject		*image_data;
 	PyArrayObject		*depth_data;
@@ -60,22 +49,12 @@ static PyMemberDef PyCaptureCameraMembers[] =
 
 static PyObject* PyCaptureCameraObject_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-	return PyCaptureCameraObject_new_impl();
-}
-
-static void PyCaptureCameraObject_init_impl(PyCaptureCameraObject *self)
-{
-//	(void) initNumPy();
-
-//	std::cout << "PyCaptureCameraObject_init_impl\n";
+	return PyCaptureCameraObject::allocate();
 }
 
 static int PyCaptureCameraObject_init(PyObject *self, PyObject *args, PyObject *kwds)
 {
-	std::cout << "PyCaptureCameraObject_init\n";
-
-	PyCaptureCameraObject_init_impl(reinterpret_cast<PyCaptureCameraObject*> (self));
-
+	PyCaptureCameraObject::init(reinterpret_cast<PyCaptureCameraObject*> (self));
 	return 0;
 }
 
@@ -120,21 +99,3 @@ static PyTypeObject PyCaptureCameraType =
 	0,		//	tp_alloc
 	PyCaptureCameraObject_new,		//	tp_new
 };
-
-
-static PyObject* PyCaptureCameraObject_new_impl()
-{
-	PyCaptureCameraObject *self;
-
-	if (PyType_Ready(&PyCaptureCameraType) < 0)
-		return NULL;
-
-	self = PyObject_New(PyCaptureCameraObject, &PyCaptureCameraType);
-
-	if(self)
-	{
-		PyCaptureCameraObject_init_impl(self);
-	}
-
-	return (PyObject *)self;
-}

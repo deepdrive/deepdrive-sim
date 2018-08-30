@@ -53,8 +53,9 @@ if client != None and 'client_id' in client:
 					#	print(snapshot.capture_timestamp, snapshot.sequence_number, snapshot.speed, snapshot.is_game_driving, snapshot.camera_count, len(snapshot.cameras) )
 					#	for c in snapshot.cameras:
 					#		print('Id', c.id, c.capture_width, 'x', c.capture_height)
-						print(snapshot.cameras[0].image_data[0], snapshot.cameras[0].image_data[1], snapshot.cameras[0].image_data[2] )
-						pass
+						#print(snapshot.last_collision.time_utc, snapshot.last_collision.collidee_velocity)
+						if snapshot.camera_count > 0:
+							print(snapshot.cameras[0].image_data[0], snapshot.cameras[0].image_data[1], snapshot.cameras[0].image_data[2] )
 
 					seqNr = deepdrive_client.advance_synchronous_stepping(clientId, 0.125, 0.2, 1.0, 0.0, 0)
 					print('Advanced', counter, seqNr)

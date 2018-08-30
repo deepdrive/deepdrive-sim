@@ -15,7 +15,9 @@ print('###################################')
 sources_capture =	[	SRC_DIR + '/DeepDrivePlugin/Private/SharedMemory/SharedMemory.cpp'
                     ,	'src/deepdrive_capture/DeepDriveSharedMemoryClient.cpp'
                     ,	'src/deepdrive_capture/deepdrive_capture.cpp'
+                    ,	'src/deepdrive_capture/PyCaptureCameraObject.cpp'
                     ,	'src/deepdrive_capture/PyCaptureLastCollisionObject.cpp'
+                    ,	'src/deepdrive_capture/PyCaptureSnapshotObject.cpp'
                     ,	'src/common/NumPyUtils.cpp'
                     ]
 

@@ -61,8 +61,6 @@ PyCaptureSnapshotObject* DeepDriveSharedMemoryClient::readMessage()
 
 					if(msg)
 					{
-//						std::cout << "PyCaptureSnapshotObject created\n";
-
 						msg->capture_timestamp = captureMsg->creation_timestamp;
 						msg->sequence_number = captureMsg->sequence_number;
 						msg->speed = captureMsg->speed;
@@ -90,34 +88,19 @@ PyCaptureSnapshotObject* DeepDriveSharedMemoryClient::readMessage()
 						NumPyUtils::copyVector3(captureMsg->up_vector, msg->up_vector);
 						NumPyUtils::copyVector3(captureMsg->right_vector, msg->right_vector);
 
-						/*msg->last_collision =*/ buildLastCollision(captureMsg->last_collision);
-
-						//msg->last_collision_time_utc = captureMsg->last_collision.time_utc;
-						// msg->last_collision_timestamp = captureMsg->last_collision_timestamp;
-						// msg->time_since_last_collision = captureMsg->time_since_last_collision;
-
-						//std::cout << "NumCams " << captureMsg->num_cameras << " lct " << msg->last_collision_time_utc << "\n";
+						setupLastCollision(captureMsg->last_collision, *msg->last_collision);
 
 						if (captureMsg->num_cameras)
 						{
-							// std::cout << "Before camera read " << captureMsg->num_cameras << "   " << sizeof(DeepDriveLastCollisionData) << "\n";
-
 							const DeepDriveCaptureCamera *ddCam = &captureMsg->cameras[0];
 
-//							std::cout << "Before PyList_New " << captureMsg->num_cameras << "\n";
 							PyObject *camList = PyList_New(captureMsg->num_cameras);
-//							std::cout << "After PyList_New " << camList << "\n";
 
 							uint32 offsetToNext = 0;
 							uint32 curInd = 0;
 							do
 							{
-//								std::cout << "Camera built Before " << captureMsg->num_cameras << "\n";
-
 								PyCaptureCameraObject *pyCam = buildCamera(*ddCam);
-
-//								std::cout << "Camera built After " << captureMsg->num_cameras << "\n";
-
 								PyList_SetItem(camList, curInd++, reinterpret_cast<PyObject*> (pyCam));
 
 								offsetToNext = ddCam->offset_to_next_camera;
@@ -130,9 +113,9 @@ PyCaptureSnapshotObject* DeepDriveSharedMemoryClient::readMessage()
 						{
 							// Retaining old cameras causes segfault
 							msg->cameras = 0;
+							msg->camera_count = 0;
 //							std::cout << "No cameras\n";
 						}
-
 					}
 
 				}
@@ -171,35 +154,21 @@ PyCaptureCameraObject* DeepDriveSharedMemoryClient::buildCamera(const DeepDriveC
 
 		dstCam->capture_width = srcCam.capture_width;
 		dstCam->capture_height = srcCam.capture_height;
-
-		npy_intp dims[1] = {srcCam.capture_width * srcCam.capture_height * 3};
-		dstCam->image_data = reinterpret_cast<PyArrayObject*> (PyArray_SimpleNewFromData(1, dims, NPY_FLOAT16, const_cast<uint8*> (srcCam.data)));
-
-		dims[0] = {srcCam.capture_width * srcCam.capture_height};
-		dstCam->depth_data = reinterpret_cast<PyArrayObject*> (PyArray_SimpleNewFromData(1, dims, NPY_FLOAT16, const_cast<uint8*> (srcCam.data) + srcCam.depth_offset));
+		dstCam->image_data = PyCaptureCameraObject::createImage(srcCam.capture_width * srcCam.capture_height * 3, srcCam.data);
+		dstCam->depth_data = PyCaptureCameraObject::createImage(srcCam.capture_width * srcCam.capture_height, srcCam.data + srcCam.depth_offset);
 	}
-
 
 	return dstCam;
 }
 
-PyCaptureLastCollisionObject* DeepDriveSharedMemoryClient::buildLastCollision(const DeepDriveLastCollisionData &srcCollision)
+void DeepDriveSharedMemoryClient::setupLastCollision(const DeepDriveLastCollisionData &srcCollision, PyCaptureLastCollisionObject &dstCollision)
 {
-	PyCaptureLastCollisionObject *dstCollision = reinterpret_cast<PyCaptureLastCollisionObject*> (PyCaptureCameraType.tp_new(&PyCaptureLastCollisionType, 0, 0));
+	dstCollision.time_utc = srcCollision.time_utc;
+	dstCollision.time_stamp = srcCollision.time_stamp;
+	dstCollision.time_since_last_collision = srcCollision.time_since_last_collision;
 
-	if(dstCollision)
-	{
-		dstCollision->time_utc = srcCollision.time_utc;
-		dstCollision->time_stamp = srcCollision.time_stamp;
-		dstCollision->time_since_last_collision = srcCollision.time_since_last_collision;
-
-		std::cout << "collidee_velocity " << dstCollision->collidee_velocity << "\n";
-
-		//NumPyUtils::copyVector3(srcCollision.collidee_velocity, dstCollision->collidee_velocity);
-		//NumPyUtils::copyVector3(srcCollision.collision_normal, dstCollision->collision_normal);
-	}
-
-	return dstCollision;
+	NumPyUtils::copyVector3(srcCollision.collidee_velocity, dstCollision.collidee_velocity);
+	NumPyUtils::copyVector3(srcCollision.collision_normal, dstCollision.collision_normal);
 }
 
 

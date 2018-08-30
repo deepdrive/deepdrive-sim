@@ -6,36 +6,27 @@
 
 #include "common/NumPyUtils.h"
 
-#include <iostream>
+#include <stdint.h>
 
-/*	Forward declarations
-*/
-static PyObject* PyCaptureSnapshotObject_new_impl();
-
-static int initNumPy()
-{
-	static bool initRequired = true;
-	if(initRequired)
-	{
-//		std::cout << "Init numPy\n";
-		import_array();
-		initRequired = false;
-	}
-	return 0;
-}
-
+struct PyCaptureLastCollisionObject;
 
 struct PyCaptureSnapshotObject
 {
+	static int initNumPy();
+	static void init(PyCaptureSnapshotObject *self);
+	static PyObject* allocate();
+	static PyArrayObject* createVec3();
+
+
 	PyObject_HEAD
 
 	double				capture_timestamp;
 
-	uint32				sequence_number;
+	uint32_t			sequence_number;
 
-	uint32				is_game_driving;
+	uint32_t			is_game_driving;
 
-	uint32				is_resetting;
+	uint32_t			is_resetting;
 
 	double				speed;
 
@@ -45,7 +36,7 @@ struct PyCaptureSnapshotObject
 
 	double				brake;
 
-	uint32				handbrake;
+	uint32_t			handbrake;
 
 	PyArrayObject*		position;
 
@@ -71,11 +62,11 @@ struct PyCaptureSnapshotObject
 
 	double				distance_to_center_of_lane;
 
-	uint32				lap_number;
-
-	uint32				camera_count;
+	uint32_t			lap_number;
 
 	PyCaptureLastCollisionObject	*last_collision;
+
+	uint32_t			camera_count;
 
 	PyListObject		*cameras;
 
@@ -105,6 +96,7 @@ static PyMemberDef PyCaptureSnapshotMembers[] =
 	{"distance_along_route", T_DOUBLE, offsetof(PyCaptureSnapshotObject, distance_along_route), 0, "Distance achieved to destination on designated route in cm"},
 	{"distance_to_center_of_lane", T_DOUBLE, offsetof(PyCaptureSnapshotObject, distance_to_center_of_lane), 0, "Last distance to previously achieved waypoint - where waypoints are 4m apart"},
 	{"lap_number", T_UINT, offsetof(PyCaptureSnapshotObject, lap_number), 0, "Number of laps achieved since last reset"},
+	{"last_collision", T_OBJECT_EX, offsetof(PyCaptureSnapshotObject, last_collision), 0, "Last collision data"},
 	{"camera_count", T_UINT, offsetof(PyCaptureSnapshotObject, camera_count), 0, "Number of captured cameras"},
 	{"cameras", T_OBJECT_EX, offsetof(PyCaptureSnapshotObject, cameras), 0, "List of captured cameras"},
 	{NULL}
@@ -112,40 +104,12 @@ static PyMemberDef PyCaptureSnapshotMembers[] =
 
 static PyObject* PyCaptureSnapshotObject_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-	return PyCaptureSnapshotObject_new_impl();
-}
-
-static PyArrayObject* createVec3()
-{
-	(void) initNumPy();
-
-	int dims[1] = {3};
-	PyArrayObject *vec3 = reinterpret_cast<PyArrayObject*> (PyArray_FromDims(1, dims, NPY_DOUBLE));
-
-	return vec3;
-}
-
-static void PyCaptureSnapshotObject_init_impl(PyCaptureSnapshotObject *self)
-{
-//	std::cout << "PyCaptureSnapshotObject_init_impl\n";
-	self->position = createVec3();
-	self->rotation = createVec3();
-	self->velocity = createVec3();
-	self->acceleration = createVec3();
-	self->angular_velocity = createVec3();
-	self->angular_acceleration = createVec3();
-	self->forward_vector = createVec3();
-	self->up_vector = createVec3();
-	self->right_vector = createVec3();
-	self->dimension = createVec3();
+	return PyCaptureSnapshotObject::allocate();
 }
 
 static int PyCaptureSnapshotObject_init(PyObject *self, PyObject *args, PyObject *kwds)
 {
-	std::cout << "PyCaptureSnapshotObject_init\n";
-
-	PyCaptureSnapshotObject_init_impl(reinterpret_cast<PyCaptureSnapshotObject*> (self));
-
+	PyCaptureSnapshotObject::init(reinterpret_cast<PyCaptureSnapshotObject*> (self));
 	return 0;
 }
 
@@ -190,21 +154,3 @@ static PyTypeObject PyCaptureSnapshotType =
 	0,		//	tp_alloc
 	PyCaptureSnapshotObject_new,		//	tp_new
 };
-
-
-static PyObject* PyCaptureSnapshotObject_new_impl()
-{
-	PyCaptureSnapshotObject *self;
-
-	if (PyType_Ready(&PyCaptureSnapshotType) < 0)
-		return NULL;
-
-	self = PyObject_New(PyCaptureSnapshotObject, &PyCaptureSnapshotType);
-
-	if(self)
-	{
-		PyCaptureSnapshotObject_init_impl(self);
-	}
-
-	return (PyObject *)self;
-}

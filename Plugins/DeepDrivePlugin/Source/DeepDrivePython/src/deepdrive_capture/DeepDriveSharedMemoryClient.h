@@ -30,7 +30,7 @@ public:
 private:
 
 	PyCaptureCameraObject* buildCamera(const DeepDriveCaptureCamera &srcCam);
-	PyCaptureLastCollisionObject* buildLastCollision(const DeepDriveLastCollisionData &srcCollision);
+	void setupLastCollision(const DeepDriveLastCollisionData &srcCollision, PyCaptureLastCollisionObject &dstCollision);
 
 	void dumpSharedMemContent(const DeepDriveCaptureMessage *data);
 
