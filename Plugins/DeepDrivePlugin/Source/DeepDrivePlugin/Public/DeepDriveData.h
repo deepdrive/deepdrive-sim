@@ -5,27 +5,17 @@
 
 struct DeepDriveCollisionData
 {
-	DeepDriveCollisionData()
-		: LastCollisionTimeUTC()
-		, LastCollisionTimeStamp(-1.0)
-		, TimeSinceLastCollision(-1.0)
-		, CollisionLocation()
-		, ColliderVelocity()
-		, CollisionNormal()
-	{
-	}
+	FDateTime	LastCollisionTimeUTC = FDateTime::FromUnixTimestamp(0);
 
-	FDateTime	LastCollisionTimeUTC;
+	double		LastCollisionTimeStamp = 0.0;
 
-	double		LastCollisionTimeStamp;
-
-	double		TimeSinceLastCollision;
+	double		TimeSinceLastCollision = 0.0;
 
 	FName		CollisionLocation;
 
-	FVector		ColliderVelocity;
+	FVector		ColliderVelocity = FVector(0.0f, 0.0f, 0.0f);
 
-	FVector		CollisionNormal;
+	FVector		CollisionNormal = FVector(0.0f, 0.0f, 0.0f);
 };
 
 

@@ -308,6 +308,8 @@ void ADeepDriveAgent::beginCapture(DeepDriveDataOut &deepDriveData)
 	ADeepDriveAgentControllerBase *ctrl = getAgentController();
 	if (ctrl)
 		ctrl->getCollisionData(deepDriveData.CollisionData);
+	else
+		deepDriveData.CollisionData = DeepDriveCollisionData();
 }
 
 float ADeepDriveAgent::getSpeed() const

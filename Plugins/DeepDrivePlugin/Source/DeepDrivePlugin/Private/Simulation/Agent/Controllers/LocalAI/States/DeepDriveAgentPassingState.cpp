@@ -46,7 +46,8 @@ void DeepDriveAgentPassingState::update(DeepDriveAgentLocalAIStateMachineContext
 	float desiredSpeed = ctx.configuration.OvertakingSpeed;
 	desiredSpeed = ctx.speed_controller.limitSpeedByTrack(desiredSpeed, ctx.configuration.SpeedLimitFactor);
 
-	ctx.speed_controller.update(dT, desiredSpeed);
+	// ctx.speed_controller.update(dT, desiredSpeed);
+	ctx.speed_controller.update(dT, desiredSpeed, -1.0f, 0.0f);
 	ctx.steering_controller.update(dT, desiredSpeed, ctx.side_offset);
 }
 

@@ -33,36 +33,36 @@ void DeepDriveAgentSpeedController::reset()
 	m_curThrottle = 0.0f;
 }
 
-void DeepDriveAgentSpeedController::update(float dT, float desiredSpeed)
-{
-	if(m_Agent)
-	{
-		float curBrake = 1.0f;
-		float curThrottle = 1.0f;
+// void DeepDriveAgentSpeedController::update(float dT, float desiredSpeed)
+// {
+// 	if(m_Agent)
+// 	{
+// 		float curBrake = 1.0f;
+// 		float curThrottle = 1.0f;
 
-		if (desiredSpeed > 0.0f)
-		{
-			const float curSpeed = m_Agent->GetVehicleMovementComponent()->GetForwardSpeed();
+// 		if (desiredSpeed > 0.0f)
+// 		{
+// 			const float curSpeed = m_Agent->GetVehicleMovementComponent()->GetForwardSpeed();
 
-			const float curSpeedKmh = curSpeed * 0.036f;
-			const float deltaSpeed = desiredSpeed - curSpeedKmh;
-			const float eSpeed = deltaSpeed / desiredSpeed;
+// 			const float curSpeedKmh = curSpeed * 0.036f;
+// 			const float deltaSpeed = desiredSpeed - curSpeedKmh;
+// 			const float eSpeed = deltaSpeed / desiredSpeed;
 
-			const float yThrottle = m_ThrottlePIDCtrl.advance(dT, eSpeed) * dT;
-			m_curThrottle = FMath::Clamp(m_curThrottle + yThrottle, 0.0f, 1.0f);
+// 			const float yThrottle = m_ThrottlePIDCtrl.advance(dT, eSpeed) * dT;
+// 			m_curThrottle = FMath::Clamp(m_curThrottle + yThrottle, 0.0f, 1.0f);
 
-			const float throttleDampFac = FMath::SmoothStep(-0.025, 0.025, eSpeed);
-			curThrottle = m_curThrottle * throttleDampFac;
+// 			const float throttleDampFac = FMath::SmoothStep(-0.025, 0.025, eSpeed);
+// 			curThrottle = m_curThrottle * throttleDampFac;
 
-			curBrake = 0.0f;
+// 			curBrake = 0.0f;
 
-			//UE_LOG(LogDeepDriveAgentSpeedController, Log, TEXT("DeepDriveAgentSpeedController::update desiredSpeed %4.2f curSpeed %4.2f eSpeed %f curThrottle %f | %f curBrake %f dThrottle %f"), desiredSpeed, curSpeedKmh, eSpeed, curThrottle, throttleDampFac, curBrake, yThrottle);
-		}
+// 			// UE_LOG(LogDeepDriveAgentSpeedController, Log, TEXT("DeepDriveAgentSpeedController::update desiredSpeed %4.2f curSpeed %4.2f eSpeed %f curThrottle %f | %f curBrake %f yThrottle %f"), desiredSpeed, curSpeedKmh, eSpeed, curThrottle, throttleDampFac, curBrake, yThrottle);
+// 		}
 
-		m_Agent->SetThrottle(curThrottle);
-		m_Agent->SetBrake(curBrake);
-	}
-}
+// 		m_Agent->SetThrottle(curThrottle);
+// 		m_Agent->SetBrake(curBrake);
+// 	}
+// }
 
 void DeepDriveAgentSpeedController::update(float dT, float desiredSpeed, float desiredDistance, float curDistance)
 {
@@ -73,11 +73,17 @@ void DeepDriveAgentSpeedController::update(float dT, float desiredSpeed, float d
 
 		if (desiredSpeed > 0.0f)
 		{
+
 			const float curSpeed = m_Agent->GetVehicleMovementComponent()->GetForwardSpeed();
 
 			const float curSpeedKmh = curSpeed * 0.036f;
 			const float deltaSpeed = desiredSpeed - curSpeedKmh;
 			const float eSpeed = deltaSpeed / desiredSpeed;
+
+			// avoid slowing down when car is moving but no throttle is applied
+			// this can happen when switching controllers
+			if(curSpeed > 0.0f && m_curThrottle == 0.0f)
+				m_curThrottle = 1.0f;
 
 			const float yThrottle = m_ThrottlePIDCtrl.advance(dT, eSpeed) * dT;
 			m_curThrottle = FMath::Clamp(m_curThrottle + yThrottle, 0.0f, 1.0f);
@@ -96,7 +102,8 @@ void DeepDriveAgentSpeedController::update(float dT, float desiredSpeed, float d
 
 			curBrake = 0.0f;
 
-			//UE_LOG(LogDeepDriveAgentSpeedController, Log, TEXT("DeepDriveAgentSpeedController::update desiredSpeed %4.2f curSpeed %4.2f eSpeed %f curThrottle %f | %f curBrake %f dThrottle %f"), desiredSpeed, curSpeedKmh, eSpeed, curThrottle, throttleDampFac, curBrake, yThrottle);
+
+			// UE_LOG(LogDeepDriveAgentSpeedController, Log, TEXT("DeepDriveAgentSpeedController::update desiredSpeed %4.2f curSpeed %4.2f eSpeed %f curThrottle %f | %f curBrake %f dThrottle %f"), desiredSpeed, curSpeedKmh, eSpeed, curThrottle, throttleDampFac, curBrake, yThrottle);
 		}
 
 		m_Agent->SetThrottle(curThrottle);

@@ -27,7 +27,7 @@ public:
 
 	//float limitSpeedByNextAgent(float desiredSpeed);
 
-	void update(float dT, float desiredSpeed);
+	// void update(float dT, float desiredSpeed);
 
 	void update(float dT, float desiredSpeed, float desiredDistance, float curDistance);
 

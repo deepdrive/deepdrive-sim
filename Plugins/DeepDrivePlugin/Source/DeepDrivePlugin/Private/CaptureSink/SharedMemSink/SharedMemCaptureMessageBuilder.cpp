@@ -58,12 +58,12 @@ void SharedMemCaptureMessageBuilder::begin(const DeepDriveDataOut &deepDriveData
 		m_Message->distance_to_center_of_lane = deepDriveData.DistanceToCenterOfLane;
 		m_Message->lap_number = deepDriveData.LapNumber;
 
-		m_Message->last_collision.time_utc = 666999;// deepDriveData.CollisionData.LastCollisionTimeUTC.ToUnixTimestamp();
-		// m_Message->last_collision.time_stamp = deepDriveData.CollisionData.LastCollisionTimeStamp;
-		// m_Message->last_collision.time_since_last_collision = deepDriveData.CollisionData.TimeSinceLastCollision;
-		// m_Message->last_collision.collidee_velocity = DeepDriveVector3(deepDriveData.CollisionData.ColliderVelocity);
-		// m_Message->last_collision.collision_normal = DeepDriveVector3(deepDriveData.CollisionData.CollisionNormal);
-		// deepdrive::utils::copyString(deepDriveData.CollisionData.CollisionLocation, m_Message->last_collision.collision_location, DeepDriveMessageHeader::StringSize);
+		m_Message->last_collision.time_utc = deepDriveData.CollisionData.LastCollisionTimeUTC.ToUnixTimestamp();
+		m_Message->last_collision.time_stamp = deepDriveData.CollisionData.LastCollisionTimeStamp;
+		m_Message->last_collision.time_since_last_collision = deepDriveData.CollisionData.TimeSinceLastCollision;
+		m_Message->last_collision.collidee_velocity = DeepDriveVector3(deepDriveData.CollisionData.ColliderVelocity);
+		m_Message->last_collision.collision_normal = DeepDriveVector3(deepDriveData.CollisionData.CollisionNormal);
+		deepdrive::utils::copyString(deepDriveData.CollisionData.CollisionLocation, m_Message->last_collision.collision_location, DeepDriveMessageHeader::StringSize);
 
 		m_MessageSize = sizeof(DeepDriveCaptureMessage);
 		m_remainingSize = m_SharedMem.getMaxPayloadSize() - sizeof(DeepDriveCaptureMessage);
