@@ -14,6 +14,11 @@ struct PyCaptureLastCollisionObject
 	static void init(PyCaptureLastCollisionObject *self);
 	static PyObject* allocate();
 
+	enum
+	{
+		StringSize = 128
+	};
+
 	PyObject_HEAD
 
 	int64_t				time_utc;
@@ -22,7 +27,7 @@ struct PyCaptureLastCollisionObject
 
 	double				time_since_last_collision;
 
-	//char				collision_location[DeepDriveMessageHeader::StringSize];
+	char				collision_location[StringSize];
 
 	PyArrayObject		*collidee_velocity;
 
@@ -35,6 +40,7 @@ static PyMemberDef PyCaptureLastCollisionMembers[] =
 	{"time_utc", T_LONG, offsetof(PyCaptureLastCollisionObject, time_utc), 0, "Capture snapshot sequence number"}
 ,	{"time_stamp", T_DOUBLE, offsetof(PyCaptureLastCollisionObject, time_stamp), 0, "Timestamp of last collision"}
 ,	{"time_since_last_collision", T_DOUBLE, offsetof(PyCaptureLastCollisionObject, time_since_last_collision), 0, "Times since last collision of last collision"}
+,	{"collision_location", T_STRING, offsetof(PyCaptureLastCollisionObject, collision_location), 0, "x,y,z velocity of vehicle in frame of ego origin orientation, cm/s"}
 ,	{"collidee_velocity", T_OBJECT_EX, offsetof(PyCaptureLastCollisionObject, collidee_velocity), 0, "x,y,z velocity of vehicle in frame of ego origin orientation, cm/s"}
 ,	{"collision_normal", T_OBJECT_EX, offsetof(PyCaptureLastCollisionObject, collision_normal), 0, "x,y,z velocity of vehicle in frame of ego origin orientation, cm/s"}
 ,	{NULL}

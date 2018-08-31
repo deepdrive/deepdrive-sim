@@ -36,6 +36,8 @@ void PyCaptureLastCollisionObject::init(PyCaptureLastCollisionObject *self)
 	self->time_stamp = 0.0;
 	self->time_since_last_collision = 0.0;
 
+	self->collision_location[0] = 0;
+
 	self->collidee_velocity = reinterpret_cast<PyArrayObject*> (PyArray_FromDims(1, dims, NPY_DOUBLE));
 	self->collision_normal = reinterpret_cast<PyArrayObject*> (PyArray_FromDims(1, dims, NPY_DOUBLE));
 }
