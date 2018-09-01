@@ -13,6 +13,9 @@ ADeepDriveAgentManualController::ADeepDriveAgentManualController()
 	:	ADeepDriveAgentControllerBase()
 {
 	m_ControllerName = "Manual Controller";
+
+	//	for testing purposes
+	m_isCollisionEnabled = true;
 }
 
 bool ADeepDriveAgentManualController::Activate(ADeepDriveAgent &agent, bool keepPosition)

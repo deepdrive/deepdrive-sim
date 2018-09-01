@@ -24,6 +24,9 @@ ADeepDriveAgentLocalAIController::ADeepDriveAgentLocalAIController()
 {
 	m_ControllerName = "Local AI Controller";
 	m_isGameDriving = true;
+
+	//	for testing purposes
+	m_isCollisionEnabled = true;
 }
 
 
