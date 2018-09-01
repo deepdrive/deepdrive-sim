@@ -167,6 +167,11 @@ void DeepDriveSharedMemoryClient::setupLastCollision(const DeepDriveLastCollisio
 	dstCollision.time_stamp = srcCollision.time_stamp;
 	dstCollision.time_since_last_collision = srcCollision.time_since_last_collision;
 
+	const char *src = srcCollision.collision_location;
+	char *dst = const_cast<char*> (dstCollision.collision_location);
+	for (uint32 i = PyCaptureLastCollisionObject::StringSize - 1; i > 0 && *src; *dst++ = *src++, --i);
+	*dst = 0;
+
 	NumPyUtils::copyVector3(srcCollision.collidee_velocity, dstCollision.collidee_velocity);
 	NumPyUtils::copyVector3(srcCollision.collision_normal, dstCollision.collision_normal);
 }

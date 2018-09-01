@@ -40,7 +40,7 @@ if client != None and 'client_id' in client:
 			while True:
 				snapshot = deepdrive_capture.step()
 				if snapshot:
-					print(snapshot.last_collision.time_utc, snapshot.last_collision.collidee_velocity, snapshot.last_collision.collision_normal)
+					print(snapshot.last_collision.time_utc, snapshot.last_collision.collision_location, snapshot.last_collision.collidee_velocity, snapshot.last_collision.collision_normal)
 
 				time.sleep(0.05)
 

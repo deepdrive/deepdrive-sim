@@ -27,7 +27,7 @@ struct PyCaptureLastCollisionObject
 
 	double				time_since_last_collision;
 
-	char				collision_location[StringSize];
+	const char			*collision_location;
 
 	PyArrayObject		*collidee_velocity;
 
