@@ -385,11 +385,13 @@ int32 ADeepDriveAgent::findCaptureCamera(int32 id)
 
 void ADeepDriveAgent::OnBeginOverlap(UPrimitiveComponent *OverlappedComponent, AActor *OtherActor, UPrimitiveComponent *OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
 {
-	UE_LOG(LogDeepDriveAgent, Log, TEXT("OnBeginOverlap %s with %s"), *(OverlappedComponent->GetName()), *(OtherActor->GetName()) );
+	if(OtherActor != this)
+	{	UE_LOG(LogDeepDriveAgent, Log, TEXT("OnBeginOverlap %s with %s"), *(OverlappedComponent->GetName()), *(OtherActor->GetName()) );
 
-	ADeepDriveAgentControllerBase *ctrl = getAgentController();
-	if (ctrl)
-	{
-		ctrl->OnAgentCollision(OtherActor, SweepResult, OverlappedComponent->ComponentTags.Num() > 0 ? OverlappedComponent->ComponentTags[0] : FName());
+		ADeepDriveAgentControllerBase *ctrl = getAgentController();
+		if (ctrl)
+		{
+			ctrl->OnAgentCollision(OtherActor, SweepResult, OverlappedComponent->ComponentTags.Num() > 0 ? OverlappedComponent->ComponentTags[0] : FName());
+		}
 	}
 }

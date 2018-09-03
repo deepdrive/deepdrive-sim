@@ -33,6 +33,5 @@ private:
 	};
 
 	float			m_History[HistoryLength];
-	int32			m_lastHistoryIndex = 0;
-	int32			m_nextHistoryIndex = 1;
+	int32			m_nextHistoryIndex = 0;
 };
