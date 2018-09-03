@@ -46,7 +46,7 @@ static PyMemberDef PySimulationGraphicsSettingsMembers[] =
 	{"vsync_enabled", T_UINT, offsetof(PySimulationGraphicsSettingsObject, vsync_enabled), 0, "VSync enabled"},
 	{"resolution_width", T_UINT, offsetof(PySimulationGraphicsSettingsObject, resolution_width), 0, "Resolution width"},
 	{"resolution_height", T_UINT, offsetof(PySimulationGraphicsSettingsObject, resolution_height), 0, "Resolution height"},
-	{"resolution_scale", T_DOUBLE, offsetof(PySimulationGraphicsSettingsObject, resolution_scale), 0, "Resolution scale"},
+	{"resolution_scale", T_DOUBLE, offsetof(PySimulationGraphicsSettingsObject, resolution_scale), 0, "Resolution scale (0.0 - 1.0)"},
 	{"texture_quality", T_UINT, offsetof(PySimulationGraphicsSettingsObject, texture_quality), 0, "Texture quality level (0 - 3)"},
 	{"shadow_quality", T_UINT, offsetof(PySimulationGraphicsSettingsObject, shadow_quality), 0, "Shadow quality level (0 - 3)"},
 	{"effect_quality", T_UINT, offsetof(PySimulationGraphicsSettingsObject, effect_quality), 0, "Effect quality level (0 - 3)"},
