@@ -33,7 +33,7 @@ bool DiskCaptureSinkWorker::execute(SCaptureSinkJobData &jobData)
 	{
 		const EDeepDriveCameraType camType = captureBufferData.camera_type;
 		const int32 camId = captureBufferData.camera_id;
-		CaptureBuffer *captureBuffer = captureBufferData.scene_capture_buffer;
+		CaptureBuffer *captureBuffer = captureBufferData.capture_buffer;
 
 		FString filePath;
 		FString camTypePath = diskSinkJobData.camera_type_paths.Contains(camType) ? diskSinkJobData.camera_type_paths[camType] : "";

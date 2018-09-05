@@ -20,7 +20,7 @@ public:
 
 	virtual void begin(double timestamp, uint32 sequenceNumber, const DeepDriveDataOut &deepDriveData);
 
-	virtual bool setCaptureBuffer(int32 cameraId, EDeepDriveCameraType cameraType, CaptureBuffer &sceneCaptureBuffer, CaptureBuffer *depthCaptureBuffer);
+	virtual bool setCaptureBuffer(int32 cameraId, EDeepDriveCameraType cameraType, CaptureBuffer &captureBuffer);
 
 	virtual void flush();	
 

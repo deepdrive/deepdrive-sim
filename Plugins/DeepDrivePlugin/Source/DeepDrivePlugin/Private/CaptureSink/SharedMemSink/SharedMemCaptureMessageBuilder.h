@@ -22,11 +22,19 @@ public:
 
 	void begin(const DeepDriveDataOut &deepDriveData, double timestamp, uint32 sequenceNumber);
 
-	void addCamera(EDeepDriveCameraType camType, int32 camId, CaptureBuffer &sceneCaptureBuffer, CaptureBuffer *depthCaptureBuffer);
+	void addCamera(EDeepDriveCameraType camType, int32 camId, CaptureBuffer &captureBuffer);
 
 	void flush();
 
 private:
+
+	void decodeGrayscaleDepth(const FFloat16 *src, FFloat16 *colDst, FFloat16 *depthDst, uint32 width, uint32 height);
+
+	void decodeYUVDepth(const FFloat16 *src, FFloat16 *colDst, FFloat16 *depthDst, uint32 width, uint32 height);
+
+	void decodeRGBDepth(CaptureBuffer &captureBuffer, FFloat16 *colDst, FFloat16 *depthDst);
+
+	void decodeSeparate(CaptureBuffer &sceneCaptureBuffer, CaptureBuffer &depthCaptureBuffer, FFloat16 *colDst, FFloat16 *depthDst);
 
 	SharedMemory					&m_SharedMem;
 

@@ -118,18 +118,15 @@ void DeepDriveCapture::processFinishedJobs()
 
 			for(SCaptureRequest &captureReq : job->capture_requests)
 			{
-				CaptureBuffer *sceneCaptureBuffer = captureReq.scene_capture_buffer;
-				CaptureBuffer *depthCaptureBuffer = captureReq.depth_capture_buffer;
+				CaptureBuffer *captureBuffer = captureReq.capture_buffer;
 
-				if(sceneCaptureBuffer)
+				if(captureBuffer)
 				{
 					for(UCaptureSinkComponentBase* &sink : sinks)
 					{
-						if(sink->setCaptureBuffer(captureReq.camera_id, captureReq.camera_type, *sceneCaptureBuffer, depthCaptureBuffer))
+						if(sink->setCaptureBuffer(captureReq.camera_id, captureReq.camera_type, *captureBuffer))
 						{
-							sceneCaptureBuffer->addLock();
-							if(depthCaptureBuffer)
-								depthCaptureBuffer->addLock();
+							captureBuffer->addLock();
 						}
 					}
 				}
@@ -142,13 +139,10 @@ void DeepDriveCapture::processFinishedJobs()
 
 			for (SCaptureRequest &captureReq : job->capture_requests)
 			{
-				CaptureBuffer *sceneCaptureBuffer = captureReq.scene_capture_buffer;
-				if (sceneCaptureBuffer)
-					sceneCaptureBuffer->release();
+				CaptureBuffer *captureBuffer = captureReq.capture_buffer;
+				if (captureBuffer)
+					captureBuffer->release();
 
-				CaptureBuffer *depthCaptureBuffer = captureReq.depth_capture_buffer;
-				if (depthCaptureBuffer)
-					depthCaptureBuffer->release();
 			}
 
 			m_onCaptureFinished.ExecuteIfBound(job->sequence_number);
@@ -257,12 +251,13 @@ void DeepDriveCapture::executeCaptureJob(SCaptureJob &job)
 {
 	for(SCaptureRequest &captureReq : job.capture_requests)
 	{
-		captureReq.scene_capture_buffer = capture(*job.capture_buffer_pool, captureReq.scene_capture_source->TextureRHI->GetTexture2D());
+		captureReq.capture_buffer = capture(*job.capture_buffer_pool, captureReq.scene_capture_source->TextureRHI->GetTexture2D());
 		// UE_LOG(LogDeepDriveCapture, Log, TEXT("Capturing %d x %d  %p"), width, height, texture);
 
 		if(captureReq.depth_capture_source)
 		{
-			captureReq.depth_capture_buffer = capture(*job.capture_buffer_pool, captureReq.depth_capture_source->TextureRHI->GetTexture2D());
+			CaptureBuffer *depthCaptureBuffer = capture(*job.capture_buffer_pool, captureReq.depth_capture_source->TextureRHI->GetTexture2D());
+			captureReq.capture_buffer->setSecondaryCaptureBuffer(depthCaptureBuffer);
 		}
 	}
 

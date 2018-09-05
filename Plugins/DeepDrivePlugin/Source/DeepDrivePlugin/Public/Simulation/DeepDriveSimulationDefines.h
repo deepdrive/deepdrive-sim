@@ -108,6 +108,16 @@ struct FDeepDriveAdditionalAgentData
 	int32	StartPositionSlot;
 };
 
+UENUM(BlueprintType)
+enum class EDeepDriveViewModeEncoding : uint8
+{
+	NONE				= 0	UMETA(DisplayName = "None"),
+	SEPARATE			= 1	UMETA(DisplayName = "Separate"),
+	GRAYSCALE_DEPTH		= 2	UMETA(DisplayName = "GrayscaleDepth"),
+	YUV_DEPTH	   		= 3	UMETA(DisplayName = "YUVDepth")
+};
+
+
 
 USTRUCT(BlueprintType)
 struct FDeepDriveViewMode
@@ -116,5 +126,8 @@ struct FDeepDriveViewMode
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	UMaterialInterface	*Material = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	EDeepDriveViewModeEncoding	ViewModeEncoding = EDeepDriveViewModeEncoding::SEPARATE;
 };
 

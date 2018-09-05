@@ -43,12 +43,12 @@ void USharedMemCaptureSinkComponent::begin(double timestamp, uint32 sequenceNumb
 	m_curJobData = new SharedMemCaptureSinkWorker::SSharedMemCaptureSinkJobData(timestamp, sequenceNumber, deepDriveData);
 }
 
-bool USharedMemCaptureSinkComponent::setCaptureBuffer(int32 cameraId, EDeepDriveCameraType cameraType, CaptureBuffer &sceneCaptureBuffer, CaptureBuffer *depthCaptureBuffer)
+bool USharedMemCaptureSinkComponent::setCaptureBuffer(int32 cameraId, EDeepDriveCameraType cameraType, CaptureBuffer &captureBuffer)
 {
 	bool res = false;
 	if (m_curJobData)
 	{
-		m_curJobData->captures.Add(SCaptureSinkBufferData(cameraType, cameraId, sceneCaptureBuffer, depthCaptureBuffer));
+		m_curJobData->captures.Add(SCaptureSinkBufferData(cameraType, cameraId, captureBuffer));
 		res = true;
 	}
 	return res;

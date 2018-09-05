@@ -26,6 +26,9 @@ public:
 	void addLock();
 	void release();
 
+	void setSecondaryCaptureBuffer(CaptureBuffer *buffer);
+	CaptureBuffer* getSecondaryCaptureBuffer();
+
 	template<class T>
 	T* getBuffer();
 	template<class T>
@@ -45,6 +48,8 @@ private:
 
 	FThreadSafeCounter		m_LockCounter;
 
+	CaptureBuffer			*m_SecondaryCaptureBuffer = 0;
+
 	void					*m_Buffer = 0;
 	EPixelFormat			m_PixelFormat = PF_Unknown;
 	uint32					m_Width = 0;
@@ -53,6 +58,16 @@ private:
 	uint32					m_BufferSize = 0;
 
 };
+
+inline void CaptureBuffer::setSecondaryCaptureBuffer(CaptureBuffer *buffer)
+{
+	m_SecondaryCaptureBuffer = buffer;
+}
+
+inline CaptureBuffer* CaptureBuffer::getSecondaryCaptureBuffer()
+{
+	return m_SecondaryCaptureBuffer;
+}
 
 template<class T>
 inline T* CaptureBuffer::getBuffer()

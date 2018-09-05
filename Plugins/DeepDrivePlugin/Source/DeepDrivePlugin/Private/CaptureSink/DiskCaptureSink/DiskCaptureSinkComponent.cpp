@@ -30,14 +30,14 @@ void UDiskCaptureSinkComponent::begin(double timestamp, uint32 sequenceNumber, c
 	UE_LOG(LogDiskCaptureSinkComponent, Log, TEXT("UDiskCaptureSinkComponent::begin seqNr %d %p"), sequenceNumber, m_curJobData);
 }
 
-bool UDiskCaptureSinkComponent::setCaptureBuffer(int32 cameraId, EDeepDriveCameraType cameraType, CaptureBuffer &sceneCaptureBuffer, CaptureBuffer *depthCaptureBuffer)
+bool UDiskCaptureSinkComponent::setCaptureBuffer(int32 cameraId, EDeepDriveCameraType cameraType, CaptureBuffer &captureBuffer)
 {
 	UE_LOG(LogDiskCaptureSinkComponent, Log, TEXT("UDiskCaptureSinkComponent::setCaptureBuffer %p Id %d"), m_curJobData, cameraId);
 
 	bool res = false;
 	if(m_curJobData)
 	{
-		m_curJobData->captures.Add( SCaptureSinkBufferData(cameraType, cameraId, sceneCaptureBuffer, depthCaptureBuffer) );
+		m_curJobData->captures.Add( SCaptureSinkBufferData(cameraType, cameraId, captureBuffer) );
 		res = true;
 	}
 	return res;

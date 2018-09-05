@@ -53,12 +53,11 @@ bool SharedMemCaptureSinkWorker::execute(SCaptureSinkJobData &jobData)
 		{
 			const EDeepDriveCameraType camType = captureBufferData.camera_type;
 			const int32 camId = captureBufferData.camera_id;
-			CaptureBuffer *sceneCaptureBuffer = captureBufferData.scene_capture_buffer;
-			CaptureBuffer *depthCaptureBuffer = captureBufferData.depth_capture_buffer;
+			CaptureBuffer *captureBuffer = captureBufferData.capture_buffer;
 
-			if(sceneCaptureBuffer)
+			if(captureBuffer)
 			{
-				messageBuilder.addCamera(camType, camId, *sceneCaptureBuffer, depthCaptureBuffer);
+				messageBuilder.addCamera(camType, camId, *captureBuffer);
 			}
 		}
 

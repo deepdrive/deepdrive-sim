@@ -37,9 +37,13 @@ bool CaptureBuffer::allocate()
 
 void CaptureBuffer::release()
 {
+	if(m_SecondaryCaptureBuffer)
+		m_SecondaryCaptureBuffer->release();
+
 	m_LockCounter.Add(-1);
 	if(m_LockCounter.GetValue() <= 0)
 	{
+		m_SecondaryCaptureBuffer = 0;
 		m_CaptureBufferPool.release(*this);
 	}
 }
@@ -65,4 +69,6 @@ CaptureBuffer::DataType CaptureBuffer::getDataType() const
 void CaptureBuffer::addLock()
 {
 	m_LockCounter.Add(1);
+	if(m_SecondaryCaptureBuffer)
+		m_SecondaryCaptureBuffer->addLock();
 }

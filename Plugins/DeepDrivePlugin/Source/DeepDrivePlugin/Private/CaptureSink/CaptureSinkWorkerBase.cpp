@@ -43,11 +43,8 @@ uint32 CaptureSinkWorkerBase::Run()
 
 				for(auto &data : jobData->captures)
 				{
-					if(data.scene_capture_buffer)
-						data.scene_capture_buffer->release();
-
-					if(data.depth_capture_buffer)
-						data.depth_capture_buffer->release();				
+					if(data.capture_buffer)
+						data.capture_buffer->release();
 				}
 
 	
