@@ -17,12 +17,14 @@ struct SCaptureDestinationData
 
 struct SCaptureRequest
 {
-	EDeepDriveCameraType			camera_type;
-	int32							camera_id = 0;
-	FTextureRenderTargetResource	*scene_capture_source = 0;
-	CaptureBuffer					*capture_buffer = 0;
+	EDeepDriveCameraType				camera_type;
+	int32								camera_id = 0;
 
-	FTextureRenderTargetResource	*depth_capture_source = 0;
+	EDeepDriveInternalCaptureEncoding	internal_capture_encoding;
+
+	FTextureRenderTargetResource		*scene_capture_source = 0;
+	CaptureBuffer						*capture_buffer = 0;
+	FTextureRenderTargetResource		*depth_capture_source = 0;
 };
 
 struct SCaptureJob;

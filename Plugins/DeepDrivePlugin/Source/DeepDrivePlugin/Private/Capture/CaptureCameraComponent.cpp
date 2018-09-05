@@ -123,18 +123,14 @@ bool UCaptureCameraComponent::capture(SCaptureRequest &reqData)
 			}
 			reqData.scene_capture_source = sceneSrc;
 
-			FTextureRenderTargetResource *depthSrc = m_hasValidViewMode && m_DepthCapture ? m_DepthCapture->TextureTarget->GameThread_GetRenderTargetResource() : 0;
+			FTextureRenderTargetResource *depthSrc = m_hasValidViewMode && m_needsSeparateDepthCapture && m_DepthCapture ? m_DepthCapture->TextureTarget->GameThread_GetRenderTargetResource() : 0;
 			if(depthSrc)
 			{
 				if (!CaptureSceneEveryFrame)
 				{
-					if(m_hasValidViewMode)
-						m_DepthCapture->bCaptureEveryFrame = true;
-
+					m_DepthCapture->bCaptureEveryFrame = true;
 					m_DepthCapture->CaptureScene();
-
-					if(m_hasValidViewMode)
-						m_DepthCapture->bCaptureEveryFrame = false;
+					m_DepthCapture->bCaptureEveryFrame = false;
 				}
 				reqData.depth_capture_source = depthSrc;
 			}
@@ -143,6 +139,7 @@ bool UCaptureCameraComponent::capture(SCaptureRequest &reqData)
 	
 			reqData.camera_type = CameraType;
 			reqData.camera_id = CameraId;
+			reqData.internal_capture_encoding = m_InternalCaptureEncoding;
 			shallCapture = true;
 		}
 	}
@@ -160,6 +157,8 @@ void UCaptureCameraComponent::setViewMode(const FDeepDriveViewMode *viewMode)
 		{
 			m_SceneCapture->PostProcessSettings.AddBlendable(viewMode->Material, 1.0f);
 			m_hasValidViewMode = true;
+			m_InternalCaptureEncoding = viewMode->ViewModeEncoding;
+			m_needsSeparateDepthCapture = m_InternalCaptureEncoding == EDeepDriveInternalCaptureEncoding::SEPARATE ? true : false;
 		}
 
 		if(m_hasValidViewMode)
@@ -168,5 +167,6 @@ void UCaptureCameraComponent::setViewMode(const FDeepDriveViewMode *viewMode)
 	else
 	{
 		m_SceneCapture->CaptureSource = ESceneCaptureSource::SCS_SceneColorSceneDepth;
+		m_InternalCaptureEncoding = EDeepDriveInternalCaptureEncoding::RGB_DEPTH;
 	}
 }

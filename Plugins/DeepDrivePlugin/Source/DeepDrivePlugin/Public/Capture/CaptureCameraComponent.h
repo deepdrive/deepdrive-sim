@@ -58,16 +58,17 @@ public:
 private:
 
 	UPROPERTY()
-	USceneCaptureComponent2D	*m_SceneCapture = 0;
+	USceneCaptureComponent2D			*m_SceneCapture = 0;
 
 	UPROPERTY()
-	USceneCaptureComponent2D	*m_DepthCapture = 0;
+	USceneCaptureComponent2D			*m_DepthCapture = 0;
 
 	UPROPERTY()
-	UTextureRenderTarget2D 		*m_DepthRenderTexture = 0;
+	UTextureRenderTarget2D 				*m_DepthRenderTexture = 0;
 
-	bool						m_hasValidViewMode = false;
-
+	bool								m_hasValidViewMode = false;
+	EDeepDriveInternalCaptureEncoding	m_InternalCaptureEncoding = EDeepDriveInternalCaptureEncoding::RGB_DEPTH;
+	bool								m_needsSeparateDepthCapture;
 };
 
 inline int32 UCaptureCameraComponent::getCameraId() const

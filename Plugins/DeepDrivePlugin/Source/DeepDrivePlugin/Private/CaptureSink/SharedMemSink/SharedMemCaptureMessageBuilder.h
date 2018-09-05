@@ -28,9 +28,9 @@ public:
 
 private:
 
-	void decodeGrayscaleDepth(const FFloat16 *src, FFloat16 *colDst, FFloat16 *depthDst, uint32 width, uint32 height);
+	void decodeGrayscaleDepth(CaptureBuffer &captureBuffer, FFloat16 *colDst, FFloat16 *depthDst);
 
-	void decodeYUVDepth(const FFloat16 *src, FFloat16 *colDst, FFloat16 *depthDst, uint32 width, uint32 height);
+	void decodeCompressedYUVDepth(CaptureBuffer &captureBuffer, FFloat16 *colDst, FFloat16 *depthDst);
 
 	void decodeRGBDepth(CaptureBuffer &captureBuffer, FFloat16 *colDst, FFloat16 *depthDst);
 

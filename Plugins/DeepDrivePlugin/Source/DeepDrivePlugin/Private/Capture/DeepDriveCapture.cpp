@@ -9,6 +9,7 @@
 #include "Public/Capture/CaptureCameraComponent.h"
 #include "Public/Capture/IDeepDriveCaptureProxy.h"
 #include "Public/CaptureSink/CaptureSinkComponentBase.h"
+#include "Public/CaptureSink/SharedMemSink/SharedMemCaptureSinkComponent.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveCapture);
 
@@ -253,6 +254,8 @@ void DeepDriveCapture::executeCaptureJob(SCaptureJob &job)
 	{
 		captureReq.capture_buffer = capture(*job.capture_buffer_pool, captureReq.scene_capture_source->TextureRHI->GetTexture2D());
 		// UE_LOG(LogDeepDriveCapture, Log, TEXT("Capturing %d x %d  %p"), width, height, texture);
+
+		captureReq.capture_buffer->setEncoding(captureReq.internal_capture_encoding);
 
 		if(captureReq.depth_capture_source)
 		{

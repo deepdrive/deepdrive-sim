@@ -4,6 +4,8 @@
 #include "Engine.h"
 #include "Runtime/CoreUObject/Public/UObject/ObjectMacros.h"
 
+#include "Public/Capture/CaptureDefines.h"
+
 #include "DeepDriveSimulationDefines.generated.h"
 
 class UDeepDriveRandomStream;
@@ -108,16 +110,6 @@ struct FDeepDriveAdditionalAgentData
 	int32	StartPositionSlot;
 };
 
-UENUM(BlueprintType)
-enum class EDeepDriveViewModeEncoding : uint8
-{
-	NONE				= 0	UMETA(DisplayName = "None"),
-	SEPARATE			= 1	UMETA(DisplayName = "Separate"),
-	GRAYSCALE_DEPTH		= 2	UMETA(DisplayName = "GrayscaleDepth"),
-	YUV_DEPTH	   		= 3	UMETA(DisplayName = "YUVDepth")
-};
-
-
 
 USTRUCT(BlueprintType)
 struct FDeepDriveViewMode
@@ -128,6 +120,6 @@ struct FDeepDriveViewMode
 	UMaterialInterface	*Material = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	EDeepDriveViewModeEncoding	ViewModeEncoding = EDeepDriveViewModeEncoding::SEPARATE;
+	EDeepDriveInternalCaptureEncoding	ViewModeEncoding = EDeepDriveInternalCaptureEncoding::SEPARATE;
 };
 

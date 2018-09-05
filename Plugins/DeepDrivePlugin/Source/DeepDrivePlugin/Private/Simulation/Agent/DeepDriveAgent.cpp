@@ -121,16 +121,6 @@ int32 ADeepDriveAgent::RegisterCaptureCamera(float fieldOfView, int32 captureWid
 			m_CaptureCameras.Add(captureCamCmp);
 			OnCaptureCameraAdded(camId, camIndex, sceneTexture, label);
 
-			if (m_CaptureCameras.Num() == 1 && false)
-			{
-				if (m_Simulation && m_Simulation->ViewModes.Contains("WorldNormal"))
-				{
-					const FDeepDriveViewMode &viewMode = m_Simulation->ViewModes["WorldNormal"];
-					captureCamCmp->setViewMode(&viewMode);
-					SetDepthTexture(camId, camIndex, depthTexture);
-				}
-			}
-
 		}
 	}
 

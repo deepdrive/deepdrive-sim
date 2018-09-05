@@ -2,6 +2,7 @@
 #pragma once
 
 #include "Engine.h"
+#include "Public/Simulation/DeepDriveSimulationDefines.h"
 
 class CaptureBufferPool;
 
@@ -29,6 +30,9 @@ public:
 	void setSecondaryCaptureBuffer(CaptureBuffer *buffer);
 	CaptureBuffer* getSecondaryCaptureBuffer();
 
+	void setEncoding(EDeepDriveInternalCaptureEncoding encoding);
+	EDeepDriveInternalCaptureEncoding getEncoding();
+
 	template<class T>
 	T* getBuffer();
 	template<class T>
@@ -44,18 +48,20 @@ public:
 
 private:
 
-	CaptureBufferPool		&m_CaptureBufferPool;
+	CaptureBufferPool						&m_CaptureBufferPool;
 
-	FThreadSafeCounter		m_LockCounter;
+	FThreadSafeCounter						m_LockCounter;
 
-	CaptureBuffer			*m_SecondaryCaptureBuffer = 0;
+	CaptureBuffer							*m_SecondaryCaptureBuffer = 0;
 
-	void					*m_Buffer = 0;
-	EPixelFormat			m_PixelFormat = PF_Unknown;
-	uint32					m_Width = 0;
-	uint32					m_Height = 0;
-	uint32					m_Stride = 0;
-	uint32					m_BufferSize = 0;
+	EDeepDriveInternalCaptureEncoding		m_Encoding = EDeepDriveInternalCaptureEncoding::RGB_DEPTH;
+
+	void									*m_Buffer = 0;
+	EPixelFormat							m_PixelFormat = PF_Unknown;
+	uint32									m_Width = 0;
+	uint32									m_Height = 0;
+	uint32									m_Stride = 0;
+	uint32									m_BufferSize = 0;
 
 };
 
@@ -68,6 +74,17 @@ inline CaptureBuffer* CaptureBuffer::getSecondaryCaptureBuffer()
 {
 	return m_SecondaryCaptureBuffer;
 }
+
+inline void CaptureBuffer::setEncoding(EDeepDriveInternalCaptureEncoding encoding)
+{
+	m_Encoding = encoding;
+}
+
+inline EDeepDriveInternalCaptureEncoding CaptureBuffer::getEncoding()
+{
+	return m_Encoding;
+}
+
 
 template<class T>
 inline T* CaptureBuffer::getBuffer()

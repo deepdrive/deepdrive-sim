@@ -16,3 +16,13 @@ enum class EDeepDriveCameraType : uint8
 	DDC_CAMERA_BACK_RIGHT	= 7	UMETA(DisplayName="BackRightCamera"),
 	DDC_CAMERA_BACK			= 8	UMETA(DisplayName="BackCamera")
 };
+
+
+UENUM(BlueprintType)
+enum class EDeepDriveInternalCaptureEncoding : uint8
+{
+	RGB_DEPTH				= 0	UMETA(DisplayName = "RGBDepth"),
+	SEPARATE				= 1	UMETA(DisplayName = "Separate"),
+	GRAYSCALE_DEPTH			= 2	UMETA(DisplayName = "GrayscaleDepth"),
+	COMPRESSED_YUV_DEPTH	= 3	UMETA(DisplayName = "CompressedYUVDepth")
+};

@@ -111,39 +111,23 @@ void SharedMemCaptureMessageBuilder::addCamera(EDeepDriveCameraType camType, int
 
 		CaptureBuffer *secondaryCaptureBuffer = captureBuffer.getSecondaryCaptureBuffer();
 
-		if(secondaryCaptureBuffer)
-			decodeSeparate(captureBuffer, *secondaryCaptureBuffer, colDst, depthDst);
-		else
-			decodeRGBDepth(captureBuffer, colDst, depthDst);
-
-		// const FFloat16 *f16ColSrc = captureBuffer.getBuffer<FFloat16>();
-		// const FFloat16 *f16DepthSrc = depthCaptureBuffer && depthCaptureBuffer->getDataType() == CaptureBuffer::Float16 ? depthCaptureBuffer->getBuffer<FFloat16>() : 0;
-		// for(unsigned y = 0; y < height; y++)
-		// {
-		// 	uint32 ind = 0;
-		// 	for(unsigned x = 0; x < width; x++)
-		// 	{
-		// 		*colDst++ = f16ColSrc[ind++];
-		// 		*colDst++ = f16ColSrc[ind++];
-		// 		*colDst++ = f16ColSrc[ind++];
-
-		// 		if(f16DepthSrc)
-		// 		{
-		// 			depthDst->Set(f16DepthSrc[x].GetFloat() / 65535.0f);
-
-		// 			// necessary to increase ind for scene src buffer
-		// 			++ind;
-		// 		}
-		// 		else
-		// 			depthDst->Set(f16ColSrc[ind++].GetFloat() / 65535.0f);
-
-		// 		depthDst++;
-		// 	}
-
-		// 	f16ColSrc = reinterpret_cast<const FFloat16*> (reinterpret_cast<const uint8*> (f16ColSrc) + sceneCaptureBuffer.getStride() );
-		// 	if(f16DepthSrc)
-		// 		f16DepthSrc = reinterpret_cast<const FFloat16*> (reinterpret_cast<const uint8*> (f16DepthSrc) + depthCaptureBuffer->getStride() );
-		// }
+		EDeepDriveInternalCaptureEncoding encoding = captureBuffer.getEncoding();
+		switch(encoding)
+		{
+			case EDeepDriveInternalCaptureEncoding::RGB_DEPTH:
+				decodeRGBDepth(captureBuffer, colDst, depthDst);
+				break;
+			case EDeepDriveInternalCaptureEncoding::SEPARATE:
+				if(secondaryCaptureBuffer)
+					decodeSeparate(captureBuffer, *secondaryCaptureBuffer, colDst, depthDst);
+				break;
+			case EDeepDriveInternalCaptureEncoding::GRAYSCALE_DEPTH:
+				decodeGrayscaleDepth(captureBuffer, colDst, depthDst);
+				break;
+			case EDeepDriveInternalCaptureEncoding::COMPRESSED_YUV_DEPTH:
+				decodeCompressedYUVDepth(captureBuffer, colDst, depthDst);
+				break;
+		}
 
 		// calc size for this camera
 		const uint32 camMemSize = width * height * (curCamera->bytes_per_pixel + curCamera->bytes_per_depth_value) + sizeof(DeepDriveCaptureCamera);
@@ -178,6 +162,55 @@ void SharedMemCaptureMessageBuilder::flush()
 	}
 }
 
+void SharedMemCaptureMessageBuilder::decodeGrayscaleDepth(CaptureBuffer &captureBuffer, FFloat16 *colDst, FFloat16 *depthDst)
+{
+	const uint32 width = captureBuffer.getWidth();
+	const uint32 height = captureBuffer.getHeight();
+	const FFloat16 *f16ColSrc = captureBuffer.getBuffer<FFloat16>();
+	for(unsigned y = 0; y < height; y++)
+	{
+		uint32 ind = 0;
+		for(unsigned x = 0; x < width; x++)
+		{
+			const FFloat16 f16 = f16ColSrc[ind];
+			*colDst++ = f16;
+			*colDst++ = f16;
+			*colDst++ = f16;
+
+			depthDst->Set(f16ColSrc[ind + 1].GetFloat() / 65535.0f);
+			depthDst++;
+
+			ind += 4;
+		}
+
+		f16ColSrc = reinterpret_cast<const FFloat16*> (reinterpret_cast<const uint8*> (f16ColSrc) + captureBuffer.getStride() );
+	}
+}
+
+void SharedMemCaptureMessageBuilder::decodeCompressedYUVDepth(CaptureBuffer &captureBuffer, FFloat16 *colDst, FFloat16 *depthDst)
+{
+	const uint32 width = captureBuffer.getWidth();
+	const uint32 height = captureBuffer.getHeight();
+	const FFloat16 *f16ColSrc = captureBuffer.getBuffer<FFloat16>();
+	for(unsigned y = 0; y < height; y++)
+	{
+		uint32 ind = 0;
+		for(unsigned x = 0; x < width; x++)
+		{
+			const FFloat16 f16 = f16ColSrc[ind];
+			*colDst++ = f16;
+			*colDst++ = f16;
+			*colDst++ = f16;
+
+			depthDst->Set(f16ColSrc[ind + 2].GetFloat() / 65535.0f);
+			depthDst++;
+
+			ind += 4;
+		}
+
+		f16ColSrc = reinterpret_cast<const FFloat16*> (reinterpret_cast<const uint8*> (f16ColSrc) + captureBuffer.getStride() );
+	}
+}
 
 void SharedMemCaptureMessageBuilder::decodeRGBDepth(CaptureBuffer &captureBuffer, FFloat16 *colDst, FFloat16 *depthDst)
 {
