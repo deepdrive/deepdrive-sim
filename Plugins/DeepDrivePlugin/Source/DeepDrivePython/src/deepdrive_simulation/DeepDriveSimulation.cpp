@@ -17,6 +17,7 @@ DeepDriveSimulation::DeepDriveSimulation(const IP4Address &ip4Address)
 
 DeepDriveSimulation::~DeepDriveSimulation()
 {
+	m_Socket.close();
 }
 
 

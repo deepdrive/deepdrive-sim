@@ -100,6 +100,7 @@ static PyObject* deepdrive_simulation_connect(PyObject *self, PyObject *args, Py
 */
 static PyObject* deepdriuve_simulation_disconnect(PyObject *self, PyObject *args)
 {
+	uint32 res = 0;
 	if(g_DeepDriveSimulation)
 	{
 		delete g_DeepDriveSimulation;
@@ -107,12 +108,11 @@ static PyObject* deepdriuve_simulation_disconnect(PyObject *self, PyObject *args
 	}
 
 
-	return 0;
+	return Py_BuildValue("i", res);
 }
 
 /*	Reset simulation
  *
- *	@param	uint32		Client Id
  *	@param	number		Global time dilation
  *	@param	number		Agent starting location
  *
@@ -253,7 +253,8 @@ static PyObject* set_sun_simulation_speed(PyObject *self, PyObject *args, PyObje
 	return Py_BuildValue("i", res);
 }
 
-static PyMethodDef DeepDriveClientMethods[] =	{	{"connect", (PyCFunction) deepdrive_simulation_connect, METH_VARARGS | METH_KEYWORDS, "Creates a new client which tries to connect to DeepDriveServer"}
+static PyMethodDef DeepDriveClientMethods[] =	{	{"connect", (PyCFunction) deepdrive_simulation_connect, METH_VARARGS | METH_KEYWORDS, "Connect to simulation server"}
+												,	{"disconnect", (PyCFunction) deepdriuve_simulation_disconnect, METH_VARARGS | METH_KEYWORDS, "Disconnects from simulation server"}
 												,	{"reset_simulation", (PyCFunction) reset_simulation, METH_VARARGS | METH_KEYWORDS, "Reset simulation"}
 												,	{"set_graphics_settings", set_graphics_settings, METH_VARARGS, "Set graphics settings"}
 												,	{"set_date_and_time", (PyCFunction) set_date_and_time, METH_VARARGS | METH_KEYWORDS, "Set date and time for simulation"}
@@ -315,3 +316,6 @@ PyMODINIT_FUNC PyInit_deepdrive_simulation(void)
 
 	return m;
 }
+
+
+

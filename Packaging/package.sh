@@ -19,9 +19,6 @@ echo DEEPDRIVE_UNREAL_SOURCE_DIR ${DEEPDRIVE_UNREAL_SOURCE_DIR}
 echo DEEPDRIVE_PACKAGE_DIR ${DEEPDRIVE_PACKAGE_DIR}
 echo DEEPDRIVE_USER ${DEEPDRIVE_USER}
 
-# This needs to change if you are not clearing /Intermediate files in the project every build.
-internal_build_id=8861
-
 ${root_dir}/clean.sh
 
 cd ${unreal_dir}/Engine/Build/BatchFiles
