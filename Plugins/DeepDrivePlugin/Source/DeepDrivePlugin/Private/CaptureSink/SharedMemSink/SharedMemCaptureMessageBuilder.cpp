@@ -197,10 +197,15 @@ void SharedMemCaptureMessageBuilder::decodeCompressedYUVDepth(CaptureBuffer &cap
 		uint32 ind = 0;
 		for(unsigned x = 0; x < width; x++)
 		{
-			const FFloat16 f16 = f16ColSrc[ind];
-			*colDst++ = f16;
-			*colDst++ = f16;
-			*colDst++ = f16;
+			const FFloat16 f16Y = f16ColSrc[ind];
+			const FFloat16 f16UV = f16ColSrc[ind + 1];
+			const float v = FGenericPlatformMath::Frac(f16UV.GetFloat());
+			const float u = 0.5f * (f16UV.GetFloat() - v);
+			const FVector yuv(f16Y.GetFloat(), u, v);
+
+			colDst->Set( FVector::DotProduct(yuv, FVector(1.0f, 0.0f, 1.3983f)) );			colDst++;
+			colDst->Set( FVector::DotProduct(yuv, FVector(1.0f, -0.21482f, -0.38059f)) );	colDst++;
+			colDst->Set( FVector::DotProduct(yuv, FVector(1.0f, 2.12798f, 0.0f)) );			colDst++;
 
 			depthDst->Set(f16ColSrc[ind + 2].GetFloat() / 65535.0f);
 			depthDst++;
