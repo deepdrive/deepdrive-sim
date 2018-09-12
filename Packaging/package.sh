@@ -51,8 +51,8 @@ sudo chown -Rh ${user}:${user} ${root_dir}
 #		<NMakeReBuildCommandLine>C:\Users\a\src\UnrealEngine\Engine\Build\BatchFiles\Rebuild.bat DeepDriveServer Linux Development "$(SolutionDir)$(ProjectName).uproject" -waitmutex</NMakeReBuildCommandLine>
 #		<NMakeCleanCommandLine>C:\Users\a\src\UnrealEngine\Engine\Build\BatchFiles\Clean.bat DeepDriveServer Linux Development "$(SolutionDir)$(ProjectName).uproject" -waitmutex</NMakeCleanCommandLine>
 
-@echo off
-setlocal enabledelayedexpansion
+# @echo off
+# setlocal enabledelayedexpansion
 
 #  REM The %~dp0 specifier resolves to the path to the directory where this .bat is located in.
 #  REM We use this so that regardless of where the .bat file was executed from, we can change to
