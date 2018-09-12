@@ -35,7 +35,8 @@ protected:
 private:
 
 	SharedMemory			*m_SharedMemory = 0;
-
+	uint8					*m_MessageBuffer = 0;
+	
 	float					m_TotalSavingTime = 0.0f;
 	float					m_SaveCount = 0.0f;
 	double					m_lastLoggingTimestamp = 0.0f;

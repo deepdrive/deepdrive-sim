@@ -11,18 +11,19 @@
 
 DEFINE_LOG_CATEGORY(LogSharedMemCaptureMessageBuilder);
 
-SharedMemCaptureMessageBuilder::SharedMemCaptureMessageBuilder(SharedMemory &sharedMem)
-	:	m_SharedMem(sharedMem)
+SharedMemCaptureMessageBuilder::SharedMemCaptureMessageBuilder(SharedMemory &sharedMem, uint8 *buffer)
+:	m_SharedMem(sharedMem)
 {
+	m_MessageBuffer = buffer;
 }
 
 void SharedMemCaptureMessageBuilder::begin(const DeepDriveDataOut &deepDriveData, double timestamp, uint32 sequenceNumber)
 {
-	m_Message = reinterpret_cast<DeepDriveCaptureMessage*> (m_SharedMem.lockForWriting(0));
+	//m_Message = reinterpret_cast<DeepDriveCaptureMessage*> (m_SharedMem.lockForWriting(0));
+	m_Message = reinterpret_cast<DeepDriveCaptureMessage*> (m_MessageBuffer);
 
 	if(m_Message)
 	{
-
 		m_Message = new (m_Message) DeepDriveCaptureMessage();
 
 		m_Message->sequence_number = sequenceNumber;
@@ -125,7 +126,9 @@ void SharedMemCaptureMessageBuilder::addCamera(EDeepDriveCameraType camType, int
 				decodeGrayscaleDepth(captureBuffer, colDst, depthDst);
 				break;
 			case EDeepDriveInternalCaptureEncoding::COMPRESSED_YUV_DEPTH:
-				decodeCompressedYUVDepth(captureBuffer, colDst, depthDst);
+				{
+					decodeCompressedYUVDepth(captureBuffer, colDst, depthDst);
+				}
 				break;
 		}
 
@@ -153,10 +156,13 @@ void SharedMemCaptureMessageBuilder::addCamera(EDeepDriveCameraType camType, int
 
 void SharedMemCaptureMessageBuilder::flush()
 {
-	if(m_Message)
+	DeepDriveCaptureMessage *finalMsgBuf = reinterpret_cast<DeepDriveCaptureMessage*> (m_SharedMem.lockForWriting(0));
+
+	if(finalMsgBuf)
 	{
-		m_Message->message_size = m_MessageSize;
-		m_Message->setMessageId();
+		FMemory::BigBlockMemcpy(finalMsgBuf, m_Message, m_MessageSize);
+		finalMsgBuf->message_size = m_MessageSize;
+		finalMsgBuf->setMessageId();
 		m_SharedMem.unlock(m_MessageSize);
 //		UE_LOG(LogSharedMemCaptureMessageBuilder, Log, TEXT("SharedMemCaptureMessageBuilder::flush Flushed message %d msgSize %d"), m_Message->message_id, m_MessageSize);
 	}
@@ -177,7 +183,7 @@ void SharedMemCaptureMessageBuilder::decodeGrayscaleDepth(CaptureBuffer &capture
 			*colDst++ = f16;
 			*colDst++ = f16;
 
-			depthDst->Set(f16ColSrc[ind + 1].GetFloat() / 65535.0f);
+			depthDst->SetWithoutBoundsChecks(f16ColSrc[ind + 1].GetFloat() / 65535.0f);
 			depthDst++;
 
 			ind += 4;
@@ -197,17 +203,17 @@ void SharedMemCaptureMessageBuilder::decodeCompressedYUVDepth(CaptureBuffer &cap
 		uint32 ind = 0;
 		for(unsigned x = 0; x < width; x++)
 		{
-			const FFloat16 f16Y = f16ColSrc[ind];
-			const FFloat16 f16UV = f16ColSrc[ind + 1];
-			const float v = FGenericPlatformMath::Frac(f16UV.GetFloat());
-			const float u = 0.5f * (f16UV.GetFloat() - v);
-			const FVector yuv(f16Y.GetFloat(), u, v);
+			const float Y = f16ColSrc[ind].GetFloat();
+			const FFloat16 UV = f16ColSrc[ind + 1].GetFloat();
+			const float v = FGenericPlatformMath::Frac(UV);
+			const float u = 0.5f * (UV - v);
+			const FVector yuv(Y, u, v);
 
-			colDst->Set( FVector::DotProduct(yuv, FVector(1.0f, 0.0f, 1.3983f)) );			colDst++;
-			colDst->Set( FVector::DotProduct(yuv, FVector(1.0f, -0.21482f, -0.38059f)) );	colDst++;
-			colDst->Set( FVector::DotProduct(yuv, FVector(1.0f, 2.12798f, 0.0f)) );			colDst++;
+			colDst->SetWithoutBoundsChecks( FVector::DotProduct(yuv, FVector(1.0f, 0.0f, 1.3983f)) );			colDst++;
+			colDst->SetWithoutBoundsChecks( FVector::DotProduct(yuv, FVector(1.0f, -0.21482f, -0.38059f)) );	colDst++;
+			colDst->SetWithoutBoundsChecks( FVector::DotProduct(yuv, FVector(1.0f, 2.12798f, 0.0f)) );			colDst++;
 
-			depthDst->Set(f16ColSrc[ind + 2].GetFloat() / 65535.0f);
+			depthDst->SetWithoutBoundsChecks(f16ColSrc[ind + 2].GetFloat() / 65535.0f);
 			depthDst++;
 
 			ind += 4;
@@ -231,7 +237,7 @@ void SharedMemCaptureMessageBuilder::decodeRGBDepth(CaptureBuffer &captureBuffer
 			*colDst++ = f16ColSrc[ind++];
 			*colDst++ = f16ColSrc[ind++];
 
-			depthDst->Set(f16ColSrc[ind++].GetFloat() / 65535.0f);
+			depthDst->SetWithoutBoundsChecks(f16ColSrc[ind++].GetFloat() / 65535.0f);
 			depthDst++;
 		}
 
@@ -257,7 +263,7 @@ void SharedMemCaptureMessageBuilder::decodeSeparate(CaptureBuffer &sceneCaptureB
 
 			// skip unused alpha in scene source buffer
 			++ind;
-			depthDst->Set(f16DepthSrc[x].GetFloat() / 65535.0f);
+			depthDst->SetWithoutBoundsChecks(f16DepthSrc[x].GetFloat() / 65535.0f);
 			depthDst++;
 		}
 

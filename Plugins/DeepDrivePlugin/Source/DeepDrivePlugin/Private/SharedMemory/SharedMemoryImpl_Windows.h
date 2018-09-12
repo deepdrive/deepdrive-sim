@@ -5,8 +5,9 @@
 
 #include "Private/SharedMemory/ISharedMemoryImpl.h"
 
-
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+
 #include <future>
 #include <sstream>
 

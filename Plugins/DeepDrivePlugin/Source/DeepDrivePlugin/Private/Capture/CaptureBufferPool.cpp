@@ -61,6 +61,10 @@ void CaptureBufferPool::release(CaptureBuffer &buffer)
 			bufferSlot.available_buffers.Push(&buffer);
 		}
 	}
+	else
+	{
+		UE_LOG(LogCaptureBufferPool, Error, TEXT("Wrong buffer size %d"), bufferSize);
+	}
 	m_Mutex.Unlock();
 }
 

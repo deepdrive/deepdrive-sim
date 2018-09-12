@@ -17,6 +17,7 @@ SharedMemCaptureSinkWorker::SharedMemCaptureSinkWorker(const FString &sharedMemN
 	if (m_SharedMemory)
 	{
 		m_SharedMemory->create(sharedMemName, maxSharedMemSize);
+		m_MessageBuffer = new uint8[maxSharedMemSize];
 
 		DeepDriveMessageHeader *message = reinterpret_cast<DeepDriveMessageHeader*> (m_SharedMemory->lockForWriting(-1));
 		if(message)
@@ -32,6 +33,7 @@ SharedMemCaptureSinkWorker::~SharedMemCaptureSinkWorker()
 {
 	UE_LOG(LogSharedMemCaptureSinkWorker, Log, TEXT("SharedMemCaptureSinkWorker::~SharedMemCaptureSinkWorker"));
 	delete m_SharedMemory;
+	delete m_MessageBuffer;
 }
 
 
@@ -43,7 +45,7 @@ bool SharedMemCaptureSinkWorker::execute(SCaptureSinkJobData &jobData)
 
 	if(m_SharedMemory)
 	{
-		SharedMemCaptureMessageBuilder messageBuilder(*m_SharedMemory);
+		SharedMemCaptureMessageBuilder messageBuilder(*m_SharedMemory, m_MessageBuffer);
 
 		const double before = FPlatformTime::Seconds();
 

@@ -18,7 +18,7 @@ class SharedMemCaptureMessageBuilder
 
 public:
 
-	SharedMemCaptureMessageBuilder(SharedMemory &sharedMem);
+	SharedMemCaptureMessageBuilder(SharedMemory &sharedMem, uint8 *buffer);
 
 	void begin(const DeepDriveDataOut &deepDriveData, double timestamp, uint32 sequenceNumber);
 
@@ -37,6 +37,9 @@ private:
 	void decodeSeparate(CaptureBuffer &sceneCaptureBuffer, CaptureBuffer &depthCaptureBuffer, FFloat16 *colDst, FFloat16 *depthDst);
 
 	SharedMemory					&m_SharedMem;
+	uint32							m_SharedMemSize = 0;
+
+	uint8							*m_MessageBuffer = 0;
 
 	DeepDriveCaptureMessage			*m_Message = 0;
 

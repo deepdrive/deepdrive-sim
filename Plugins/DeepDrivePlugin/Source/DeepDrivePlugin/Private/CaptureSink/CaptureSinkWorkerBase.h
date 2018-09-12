@@ -65,5 +65,5 @@ private:
 
 	TQueue<SCaptureSinkJobData*>	m_JobDataQueue;
 
-
+	FThreadSafeCounter				m_JobCounter = 0;
 };

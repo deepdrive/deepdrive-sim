@@ -9,7 +9,7 @@
 CaptureSinkWorkerBase::CaptureSinkWorkerBase(const FString &name)
 {
 	m_Semaphore = FGenericPlatformProcess::GetSynchEventFromPool(false);
-	m_WorkerThread = FRunnableThread::Create(this, *(name) , 0, TPri_AboveNormal);
+	m_WorkerThread = FRunnableThread::Create(this, *(name) , 0, TPri_Highest);
 }
 
 CaptureSinkWorkerBase::~CaptureSinkWorkerBase()
@@ -41,6 +41,8 @@ uint32 CaptureSinkWorkerBase::Run()
 			{
 				const bool continueExecuting = execute(*jobData);
 
+				const uint32 curJobCtr = m_JobCounter.Decrement();
+
 				for(auto &data : jobData->captures)
 				{
 					if(data.capture_buffer)
@@ -50,11 +52,12 @@ uint32 CaptureSinkWorkerBase::Run()
 	
 
 				delete jobData;
-
-				if(continueExecuting)
+/*
+				if(continueExecuting || curJobCtr > 0)
 					FPlatformProcess::Sleep(0.001);
 				else
 					break;
+*/
 			}
 		}
 
@@ -78,6 +81,25 @@ void CaptureSinkWorkerBase::Stop()
 void CaptureSinkWorkerBase::process(SCaptureSinkJobData &jobData)
 {
 	m_JobDataQueue.Enqueue(&jobData);
+
+	uint32 curJobCount = m_JobCounter.Increment();
+	while(curJobCount > 2)
+	{
+		SCaptureSinkJobData *jd = 0;
+		if (m_JobDataQueue.Dequeue(jd))
+		{
+			if (jd)
+			{
+				for (auto &c : jd->captures)
+					if (c.capture_buffer)
+						c.capture_buffer->release();
+			}
+			delete jd;
+		}
+		
+		curJobCount = m_JobCounter.Decrement();
+	}
+
 	m_Semaphore->Trigger();
 }
 

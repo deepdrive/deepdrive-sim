@@ -33,7 +33,7 @@ public:
 	bool	IsCapturingActive = true;
 
 	UPROPERTY(EditDefaultsOnly, Category = "CaptureCamera")
-	bool	CaptureSceneEveryFrame = false;
+	bool	CaptureSceneEveryFrame = true;
 
 	UFUNCTION(BlueprintCallable, Category = "CaptureCamera")
 	void Initialize(UTextureRenderTarget2D *colorRenderTarget, UTextureRenderTarget2D *depthRenderTarget, float FoV);
