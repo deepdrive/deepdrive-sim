@@ -48,12 +48,10 @@ if client != None and 'client_id' in client:
 			time.sleep(1)
 			while True:
 				viewMode = viewModes[random.randint(0, len(viewModes) - 1)]
-				camId = camIds[random.randint(0, len(camIds) - 1)]
+				camId = -1 # camIds[random.randint(0, len(camIds) - 1)]
 				deepdrive_client.set_view_mode(clientId, camId, viewMode)
 				print('Enjoy', viewMode, 'for', camId)
 				time.sleep(4)
-
-			cleanUp(clientId)
 
 		except KeyboardInterrupt:
 			cleanUp(clientId)

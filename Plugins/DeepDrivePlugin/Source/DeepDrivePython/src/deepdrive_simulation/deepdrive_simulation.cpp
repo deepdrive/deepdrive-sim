@@ -276,7 +276,7 @@ PyMODINIT_FUNC PyInit_deepdrive_simulation(void)
 	// if (PyType_Ready(&PyDeepDriveClientRegisterClientRequestType) < 0)
 	//	return 0;
 
-	std::cout << "###### ><> ><> PyInit_deepdrive_simulation <>< <>< ######\n";
+	std::cout << "#### ><> ><> PyInit_deepdrive_simulation <>< <>< ######\n";
 
 	if (PyType_Ready(&PySimulationGraphicsSettingsType) < 0)
 		return 0;

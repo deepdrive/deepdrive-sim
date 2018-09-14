@@ -59,6 +59,10 @@ public:
 
 	bool updateAgentOnTrack();
 
+	float getDistanceAlongRoute();
+
+	float getDistanceToCenterOfTrack();
+
 protected:
 
 	void activateController(ADeepDriveAgent &agent);

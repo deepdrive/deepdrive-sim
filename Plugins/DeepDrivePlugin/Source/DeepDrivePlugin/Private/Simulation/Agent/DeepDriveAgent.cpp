@@ -291,15 +291,20 @@ void ADeepDriveAgent::beginCapture(DeepDriveDataOut &deepDriveData)
 	deepDriveData.Brake = m_curBrake;
 	deepDriveData.Handbrake = m_curHandbrake;
 
-	deepDriveData.DistanceAlongRoute = getDistanceAlongRoute();
-	deepDriveData.DistanceToCenterOfLane = getDistanceToCenterOfTrack();
+
 	deepDriveData.LapNumber = m_NumberOfLaps;
 
 	ADeepDriveAgentControllerBase *ctrl = getAgentController();
 	if (ctrl)
+	{
 		ctrl->getCollisionData(deepDriveData.CollisionData);
+	    deepDriveData.DistanceAlongRoute = ctrl->getDistanceAlongRoute();
+	    deepDriveData.DistanceToCenterOfLane = ctrl->getDistanceToCenterOfTrack();
+	}
 	else
-		deepDriveData.CollisionData = DeepDriveCollisionData();
+	{
+	    deepDriveData.CollisionData = DeepDriveCollisionData();
+	}
 }
 
 float ADeepDriveAgent::getSpeed() const
@@ -312,35 +317,6 @@ float ADeepDriveAgent::getSpeedKmh() const
 	return GetVehicleMovementComponent()->GetForwardSpeed() * 0.036f;
 }
 
-float ADeepDriveAgent::getDistanceAlongRoute() const
-{
-	float res = 0.0f;
-	if (m_CenterOfTrackSpline)
-	{
-		const float closestKey = m_CenterOfTrackSpline->FindInputKeyClosestToWorldLocation(GetActorLocation());
-
-		const int32 index0 = floor(closestKey);
-		const int32 index1 = floor(closestKey + 1.0f);
-
-		const float dist0 = m_CenterOfTrackSpline->GetDistanceAlongSplineAtSplinePoint(index0);
-		const float dist1 = m_CenterOfTrackSpline->GetDistanceAlongSplineAtSplinePoint(index1);
-
-		res = FMath::Lerp(dist0, dist1, closestKey - static_cast<float> (index0));
-	}
-	return res;
-}
-
-float ADeepDriveAgent::getDistanceToCenterOfTrack() const
-{
-	float res = 0.0f;
-	if (m_CenterOfTrackSpline)
-	{
-		FVector curLoc = GetActorLocation();
-		const float closestKey = m_CenterOfTrackSpline->FindInputKeyClosestToWorldLocation(curLoc);
-		res = (m_CenterOfTrackSpline->GetLocationAtSplineInputKey(closestKey, ESplineCoordinateSpace::World) - curLoc).Size();
-	}
-	return res;
-}
 
 void ADeepDriveAgent::OnCheckpointReached()
 {
@@ -376,7 +352,8 @@ int32 ADeepDriveAgent::findCaptureCamera(int32 id)
 void ADeepDriveAgent::OnBeginOverlap(UPrimitiveComponent *OverlappedComponent, AActor *OtherActor, UPrimitiveComponent *OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)
 {
 	if(OtherActor != this)
-	{	UE_LOG(LogDeepDriveAgent, Log, TEXT("OnBeginOverlap %s with %s"), *(OverlappedComponent->GetName()), *(OtherActor->GetName()) );
+	{
+		UE_LOG(LogDeepDriveAgent, Log, TEXT("OnBeginOverlap %s with %s"), *(OverlappedComponent->GetName()), *(OtherActor->GetName()) );
 
 		ADeepDriveAgentControllerBase *ctrl = getAgentController();
 		if (ctrl)

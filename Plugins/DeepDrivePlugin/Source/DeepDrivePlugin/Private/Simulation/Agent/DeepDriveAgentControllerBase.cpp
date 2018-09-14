@@ -130,6 +130,25 @@ bool ADeepDriveAgentControllerBase::updateAgentOnTrack()
 	return res;
 }
 
+float ADeepDriveAgentControllerBase::getDistanceAlongRoute()
+{
+    return getClosestDistanceOnSpline(m_Track->GetSpline(), m_Agent->GetActorLocation());
+}
+
+
+float ADeepDriveAgentControllerBase::getDistanceToCenterOfTrack()
+{
+	float res = 0.0f;
+	auto spline = m_Track->GetSpline();
+	if (spline)
+	{
+		FVector curLoc = m_Agent->GetActorLocation();
+		const float closestKey = spline->FindInputKeyClosestToWorldLocation(curLoc);
+		res = (spline->GetLocationAtSplineInputKey(closestKey, ESplineCoordinateSpace::World) - curLoc).Size();
+	}
+	return res;
+}
+
 void ADeepDriveAgentControllerBase::resetAgentPosOnSpline(ADeepDriveAgent &agent, USplineComponent *spline, float distance)
 {
 	FVector agentLocation = spline->GetLocationAtDistanceAlongSpline(distance, ESplineCoordinateSpace::World) + FVector(0.0f, 0.0f, 200.0f);

@@ -90,9 +90,6 @@ public:
 	float getSpeed() const;
 	float getSpeedKmh() const;
 
-	float getDistanceAlongRoute() const;
-	float getDistanceToCenterOfTrack() const;
-
 	float getFrontBumperDistance() const;
 	float getBackBumperDistance() const;
 
