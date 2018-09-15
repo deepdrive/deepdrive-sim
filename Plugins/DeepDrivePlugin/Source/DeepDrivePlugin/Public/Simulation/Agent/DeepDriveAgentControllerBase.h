@@ -77,7 +77,7 @@ protected:
 
 	ADeepDriveSplineTrack				*m_Track = 0;
 	float								m_StartDistance = 0.0f;
-	const float							m_LapDistanceThreshold = 500.0f;
+	const float							m_LapDistanceThreshold = 500.0f;  // cm? (everything is in cm in Unreal)
 
 	FString								m_ControllerName = "DeepDriveAgentControllerBase";
 	bool								m_isGameDriving = false;

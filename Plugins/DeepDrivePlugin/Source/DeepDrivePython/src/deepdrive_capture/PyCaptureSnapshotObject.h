@@ -94,6 +94,7 @@ static PyMemberDef PyCaptureSnapshotMembers[] =
 	{"right_vector", T_OBJECT_EX, offsetof(PyCaptureSnapshotObject, right_vector), 0, "Current right vector"},
 	{"dimension", T_OBJECT_EX, offsetof(PyCaptureSnapshotObject, dimension), 0, "Current dimension"},
 	{"distance_along_route", T_DOUBLE, offsetof(PyCaptureSnapshotObject, distance_along_route), 0, "Distance achieved to destination on designated route in cm"},
+	{"route_length", T_DOUBLE, offsetof(PyCaptureSnapshotObject, route_length), 0, "Total length of current route."},
 	{"distance_to_center_of_lane", T_DOUBLE, offsetof(PyCaptureSnapshotObject, distance_to_center_of_lane), 0, "Last distance to previously achieved waypoint - where waypoints are 4m apart"},
 	{"lap_number", T_UINT, offsetof(PyCaptureSnapshotObject, lap_number), 0, "Number of laps achieved since last reset"},
 	{"last_collision", T_OBJECT_EX, offsetof(PyCaptureSnapshotObject, last_collision), 0, "Last collision data"},
