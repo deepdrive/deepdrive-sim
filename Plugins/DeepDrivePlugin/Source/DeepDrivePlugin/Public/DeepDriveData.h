@@ -51,6 +51,8 @@ struct DeepDriveDataOut
 
 	float		DistanceAlongRoute;
 
+	float		RouteLength;
+
 	float		DistanceToCenterOfLane;
 
 	int			LapNumber;

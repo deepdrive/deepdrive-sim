@@ -130,6 +130,11 @@ bool ADeepDriveAgentControllerBase::updateAgentOnTrack()
 	return res;
 }
 
+float ADeepDriveAgentControllerBase::getRouteLength()
+{
+    return m_Track->GetSpline()->GetSplineLength();
+}
+
 float ADeepDriveAgentControllerBase::getDistanceAlongRoute()
 {
     auto spline = m_Track->GetSpline();
@@ -141,7 +146,6 @@ float ADeepDriveAgentControllerBase::getDistanceAlongRoute()
     }
     return curDistanceOnSpline;
 }
-
 
 float ADeepDriveAgentControllerBase::getDistanceToCenterOfTrack()
 {

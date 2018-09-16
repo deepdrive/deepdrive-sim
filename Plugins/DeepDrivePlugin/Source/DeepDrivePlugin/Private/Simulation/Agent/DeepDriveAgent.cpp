@@ -299,6 +299,7 @@ void ADeepDriveAgent::beginCapture(DeepDriveDataOut &deepDriveData)
 	{
 		ctrl->getCollisionData(deepDriveData.CollisionData);
 	    deepDriveData.DistanceAlongRoute = ctrl->getDistanceAlongRoute();
+	    deepDriveData.RouteLength = ctrl->getRouteLength();
 	    deepDriveData.DistanceToCenterOfLane = ctrl->getDistanceToCenterOfTrack();
 	}
 	else

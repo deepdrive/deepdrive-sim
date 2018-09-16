@@ -68,6 +68,7 @@ PyCaptureSnapshotObject* DeepDriveSharedMemoryClient::readMessage()
 						msg->is_resetting = captureMsg->is_resetting;
 						msg->camera_count = captureMsg->num_cameras;
 						msg->distance_along_route = captureMsg->distance_along_route;
+						msg->route_length = captureMsg->route_length;
 						msg->distance_to_center_of_lane = captureMsg->distance_to_center_of_lane;
 						msg->lap_number = captureMsg->lap_number;
 

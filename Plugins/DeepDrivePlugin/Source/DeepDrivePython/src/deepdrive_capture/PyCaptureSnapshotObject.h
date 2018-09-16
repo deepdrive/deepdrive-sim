@@ -60,6 +60,8 @@ struct PyCaptureSnapshotObject
 
 	double				distance_along_route;
 
+	double				route_length;
+
 	double				distance_to_center_of_lane;
 
 	uint32_t			lap_number;

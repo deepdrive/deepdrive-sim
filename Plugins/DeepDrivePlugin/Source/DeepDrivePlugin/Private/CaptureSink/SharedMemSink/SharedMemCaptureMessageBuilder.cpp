@@ -56,6 +56,7 @@ void SharedMemCaptureMessageBuilder::begin(const DeepDriveDataOut &deepDriveData
 		m_Message->is_resetting = deepDriveData.IsResetting;
 		m_Message->num_cameras = 0;
 		m_Message->distance_along_route = deepDriveData.DistanceAlongRoute;
+		m_Message->route_length = deepDriveData.RouteLength;
 		m_Message->distance_to_center_of_lane = deepDriveData.DistanceToCenterOfLane;
 		m_Message->lap_number = deepDriveData.LapNumber;
 

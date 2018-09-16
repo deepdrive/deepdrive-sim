@@ -61,6 +61,8 @@ public:
 
 	float getDistanceAlongRoute();
 
+	float getRouteLength();
+
 	float getDistanceToCenterOfTrack();
 
 protected:

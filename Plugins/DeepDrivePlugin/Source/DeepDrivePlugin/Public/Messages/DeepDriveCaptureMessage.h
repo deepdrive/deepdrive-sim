@@ -77,6 +77,8 @@ struct DeepDriveCaptureMessage	:	public DeepDriveMessageHeader
 
 	double						distance_along_route;
 
+	double						route_length;
+
 	double						distance_to_center_of_lane;
 
 	int32						lap_number;
