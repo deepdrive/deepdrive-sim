@@ -209,7 +209,7 @@ void DeepDriveServer::handleRegisterCamera(const deepdrive::server::MessageHeade
 		if (client)
 		{
 			int32 cameraId = 0;
-			if (client->isMaster())
+			if (m_Proxy && client->isMaster())
 			{
 				FVector relPos(req.relative_position[0], req.relative_position[1], req.relative_position[2]);
 				FVector relRot(req.relative_rotation[0], req.relative_rotation[1], req.relative_rotation[2]);
@@ -219,7 +219,7 @@ void DeepDriveServer::handleRegisterCamera(const deepdrive::server::MessageHeade
 			}
 			else
 			{
-				UE_LOG(LogDeepDriveServer, Log, TEXT("Client %d isn't master, registering camera not allowed"), req.client_id);
+				UE_LOG(LogDeepDriveServer, Log, TEXT("Client %d isn't master or no proxy, registering camera not allowed"), req.client_id);
 			}
 
 			client->enqueueResponse(new deepdrive::server::RegisterCaptureCameraResponse(cameraId));
@@ -236,14 +236,14 @@ void DeepDriveServer::handleRequestAgentControl(const deepdrive::server::Message
 		if (client)
 		{
 			bool ctrlGranted = false;
-			if (client->isMaster())
+			if (m_Proxy && client->isMaster())
 			{
 				ctrlGranted = m_Proxy->RequestAgentControl();
 				UE_LOG(LogDeepDriveServer, Log, TEXT("Control over agent granted %d %c"), req.client_id, ctrlGranted ? 'T' : 'F');
 			}
 			else
 			{
-				UE_LOG(LogDeepDriveServer, Log, TEXT("Client %d isn't master, control not granted"), req.client_id);
+				UE_LOG(LogDeepDriveServer, Log, TEXT("Client %d isn't master or no proxy, control not granted"), req.client_id);
 			}
 
 			client->enqueueResponse(new deepdrive::server::RequestAgentControlResponse(ctrlGranted));
@@ -259,12 +259,12 @@ void DeepDriveServer::handleReleaseAgentControl(const deepdrive::server::Message
 		DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
 		if (client)
 		{
-			if (client->isMaster())
+			if (m_Proxy && client->isMaster())
 			{
 				m_Proxy->ReleaseAgentControl();
 			}
 			else
-				UE_LOG(LogDeepDriveServer, Log, TEXT("Client %d isn't master, control not released"), req.client_id);
+				UE_LOG(LogDeepDriveServer, Log, TEXT("Client %d isn't master or no proxy, control not released"), req.client_id);
 
 			client->enqueueResponse(new deepdrive::server::ReleaseAgentControlResponse(true));
 		}
@@ -288,7 +288,7 @@ void DeepDriveServer::resetAgent(const deepdrive::server::MessageHeader &message
 		DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
 		if (client)
 		{
-			if (client->isMaster())
+			if (m_Proxy && client->isMaster())
 			{
 				m_Proxy->ResetAgent();
 				UE_LOG(LogDeepDriveServer, Log, TEXT("Agent reset %d"), req.client_id);
@@ -333,7 +333,7 @@ void DeepDriveServer::onAgentReset(bool success)
 
 void DeepDriveServer::setAgentControlValues(const deepdrive::server::MessageHeader &message)
 {
-	if (m_Clients.Num() > 0)
+	if (m_Proxy && m_Clients.Num() > 0)
 	{
 		const deepdrive::server::SetAgentControlValuesRequest &req = static_cast<const deepdrive::server::SetAgentControlValuesRequest&> (message);
 		DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
@@ -402,7 +402,7 @@ void DeepDriveServer::advanceSynchronousStepping(const deepdrive::server::Messag
 		DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
 		if (client)
 		{
-			if(client->isMaster() && m_State == Stepping_Idle)
+			if(m_Proxy && client->isMaster() && m_State == Stepping_Idle)
 			{
 				m_SteppingClient = client;
 				UGameplayStatics::SetGamePaused(m_World, false);
@@ -428,7 +428,7 @@ void DeepDriveServer::setViewMode(const deepdrive::server::MessageHeader &messag
 		DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
 		if (client)
 		{
-			if (client->isMaster())
+			if (m_Proxy && client->isMaster())
 			{
 				const bool res = m_Proxy->SetViewMode(req.camera_id, viewMode);
 				client->enqueueResponse(new deepdrive::server::SetViewModeResponse(res));
