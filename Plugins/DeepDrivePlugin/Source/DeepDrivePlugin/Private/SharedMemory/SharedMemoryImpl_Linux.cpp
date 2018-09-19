@@ -72,7 +72,7 @@ void* SharedMemoryImpl_Linux::lockForWriting(int32 waitTimeMS)
         {
             res = &m_SharedMemoryData->data;
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
-//			UE_LOG(LogSharedMemoryImpl_Linux, Error, TEXT("Locked for writing"));
+			UE_LOG(LogSharedMemoryImpl_Linux, Verbose, TEXT("Locked for writing"));
 #else
 //			std::cout << "Locked for writing\n";
 #endif
@@ -80,7 +80,7 @@ void* SharedMemoryImpl_Linux::lockForWriting(int32 waitTimeMS)
         else
         {
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
-//			UE_LOG(LogSharedMemoryImpl_Linux, Error, TEXT("NOT LOCKED FOR WRITING"));
+			UE_LOG(LogSharedMemoryImpl_Linux, Verbose, TEXT("NOT LOCKED FOR WRITING"));
 #else
 //			std::cout << "NOT LOCKED FOR WRITING\n";
 #endif
@@ -143,6 +143,7 @@ void SharedMemoryImpl_Linux::disconnect()
 	{
 		if (m_OperationMode == OperationMode::Write)
 		{
+			UE_LOG(LogSharedMemoryImpl_Linux, Display, TEXT("SharedMemoryImpl_Linux Destroying inter-process mutex"));
 			pthread_mutex_destroy(&m_SharedMemoryData->mutex);
 		}
 
@@ -179,7 +180,7 @@ const void* SharedMemoryImpl_Linux::lockForReading(int32 waitTimeMS) const
         {
             res = &m_SharedMemoryData->data;
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
-//			UE_LOG(LogSharedMemoryImpl_Linux, Error, TEXT("Locked for reading"));
+			UE_LOG(LogSharedMemoryImpl_Linux, Verbose, TEXT("Locked for reading"));
 #else
 //			std::cout << "Locked for reading\n";
 #endif
@@ -187,7 +188,7 @@ const void* SharedMemoryImpl_Linux::lockForReading(int32 waitTimeMS) const
         else
         {
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
-//			UE_LOG(LogSharedMemoryImpl_Linux, Error, TEXT("NOT LOCKED FOR READING"));
+			UE_LOG(LogSharedMemoryImpl_Linux, Verbose, TEXT("NOT LOCKED FOR READING"));
 #else
 //			std::cout << "NOT LOCKED FOR READING\n";
 #endif

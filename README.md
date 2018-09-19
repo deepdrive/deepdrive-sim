@@ -36,14 +36,8 @@ git update-index --assume-unchanged $(git ls-files | tr '\n' ' ')
 
 ### Linux
 
-The Unreal Editor in Linux works, but not as well as in Windows, so it's easiest to do most development in Windows, then test / bug fix issues in Linux.
-
-- Clone the Allegorithmic version of Unreal with the Substance plugin <kbd>4.14.0.17</kbd>:
-```
-git clone git@github.com:Allegorithmic/UnrealEngine --branch 4.14.0.17
-# or if you are using http: 
-# git clone https://github.com/Allegorithmic/UnrealEngine --branch 4.14.0.17
-```
+Download the Substance plugin from [here](https://forum.allegorithmic.com/index.php/topic,21919.msg87141/highlight,4.18+Released.html#msg87141) to
+<kbd>Plugins/Runtime</kbd>.
 
 Build Unreal
 
@@ -90,3 +84,85 @@ You'll often want to run `clean.sh` or `clean.bat` after pulling in changes, esp
 
 ## PyCharm
 If you open an Unreal project in Pycharm, add Binaries, Build, Content, Intermediate, and Saved to your project’s “Excluded” directories in Project Structure or simply by right clicking and choosing “Mark Directory as” => “Excluded”. Keeping these large binary directories in the project will cause PyCharm to index them. Do the same with these directories (Binaries, Build, Content, Intermediate, and Saved) within any of the Plugins in the Plugins folder.
+
+## Logging
+
+Command line example
+
+```
+-LogCmds="global Verbose, LogPython Verbose, LogAnimMontage off, LogDeepDriveAgent VeryVerbose"
+```
+
+In DefaultEngine.ini or Engine.ini:
+
+```
+[Core.Log]
+global=[default verbosity for things not listed later]
+[cat]=[level]
+foo=verbose break
+```
+
+#### Our log categories
+
+    Defined with DEFINE_LOG_CATEGORY macro
+
+```
+LogSunSimulationComponentLogSunLightSimulator
+LogDeepDriveAgentControllerBase
+LogDeepDriveAgentSteeringController
+LogDeepDriveAgent
+LogDeepDriveSimulationServer
+LogDeepDriveConnectionThread
+LogDeepDriveAgentLocalAIController
+LogDeepDriveAgentSpeedController
+LogDeepDriveSimulationCaptureProxy
+LogDeepDriveSimulationMessageHandler
+LogDeepDriveSimulationServerProxy
+LogDeepDriveSimulation
+LogDeepDriveSplineTrack
+LogSharedMemCaptureMessageBuilder
+LogSharedMemCaptureSinkWorkerLogSharedMemCaptureSinkWorker
+LogSharedMemCaptureSinkComponent
+DeepDriveCaptureProxy
+DeepDriveCaptureComponent
+LogDeepDriveCapture
+LogCaptureBufferPool
+LogDeepDriveConnectionListener
+LogDeepDriveClientConnection
+LogDeepDriveServer
+LogDeepDrivePlugin
+LogSharedMemoryImpl_Linux
+LogPython
+```
+
+
+#### Verbosities
+
+Fatal
+
+    Fatal level logs are always printed to console and log files and crashes even if logging is disabled.
+
+Error
+
+    Error level logs are printed to console and log files. These appear red by default.
+
+Warning
+
+    Warning level logs are printed to console and log files. These appear yellow by default.
+
+Display
+
+    Display level logs are printed to console and log files.
+
+Log
+
+    Log level logs are printed to log files but not to the in-game console. They can still be viewed in editor as they appear via the Output Log window.
+
+Verbose
+
+    Verbose level logs are printed to log files but not the in-game console. This is usually used for detailed logging and debugging.
+
+VeryVerbose
+
+    VeryVerbose level logs are printed to log files but not the in-game console. This is usually used for very detailed logging that would otherwise spam output.
+
