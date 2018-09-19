@@ -143,8 +143,23 @@ void SharedMemoryImpl_Linux::disconnect()
 	{
 		if (m_OperationMode == OperationMode::Write)
 		{
+#ifdef DEEPDRIVE_WITH_UE4_LOGGING
 			UE_LOG(LogSharedMemoryImpl_Linux, Display, TEXT("SharedMemoryImpl_Linux Destroying inter-process mutex"));
-			pthread_mutex_destroy(&m_SharedMemoryData->mutex);
+#else
+
+			std::cout << "SharedMemoryImpl_Linux Destroying inter-process mutex\n";
+#endif
+
+			int destroyRes = pthread_mutex_destroy(&m_SharedMemoryData->mutex);
+			if (destroyRes != 0)
+			{
+#ifdef DEEPDRIVE_WITH_UE4_LOGGING
+				UE_LOG(LogSharedMemoryImpl_Linux, Display,
+				    TEXT("SharedMemoryImpl_Linux Error, failed to destroy inter-process mutex. Errno: %d"), destroyRes);
+#else
+			std::cout << "SharedMemoryImpl_Linux Error, failed to destroy inter-process mutex. Errno: " << destroyRes << "\n";
+#endif
+			}
 		}
 
 		if (munmap(m_SharedMemoryData, sizeof(m_maxSize)) == -1)
@@ -168,34 +183,38 @@ void SharedMemoryImpl_Linux::disconnect()
 
 const void* SharedMemoryImpl_Linux::lockForReading(int32 waitTimeMS) const
 {
-	void *res = 0;
-	if(!m_isLocked && m_SharedMemoryData)
-	{
-		if(waitTimeMS == 0)
-			m_isLocked = pthread_mutex_trylock(&m_SharedMemoryData->mutex) == 0;
-		else
-			m_isLocked = pthread_mutex_lock(&m_SharedMemoryData->mutex) == 0;			
+    void *res = 0;
+    if(!m_isLocked && m_SharedMemoryData)
+    {
+        if(waitTimeMS == 0)
+            m_isLocked = pthread_mutex_trylock(&m_SharedMemoryData->mutex) == 0;
+        else
+            m_isLocked = pthread_mutex_lock(&m_SharedMemoryData->mutex) == 0;
 
         if(m_isLocked)
         {
             res = &m_SharedMemoryData->data;
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
-			UE_LOG(LogSharedMemoryImpl_Linux, Verbose, TEXT("Locked for reading"));
+            UE_LOG(LogSharedMemoryImpl_Linux, Verbose, TEXT("Locked for reading"));
 #else
-//			std::cout << "Locked for reading\n";
+            std::cout << "Locked for reading\n";
 #endif
         }
         else
         {
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
-			UE_LOG(LogSharedMemoryImpl_Linux, Verbose, TEXT("NOT LOCKED FOR READING"));
+            UE_LOG(LogSharedMemoryImpl_Linux, Verbose, TEXT("NOT LOCKED FOR READING"));
 #else
-//			std::cout << "NOT LOCKED FOR READING\n";
+            std::cout << "NOT LOCKED FOR READING\n";
 #endif
         }
-	}
+    }
+#ifndef DEEPDRIVE_WITH_UE4_LOGGING
+    else
+        std::cout << "Is Locked or no shared mem" << m_isLocked << "\n";
+#endif
 
-	return res;
+    return res;
 }
 
 void SharedMemoryImpl_Linux::unlock()
