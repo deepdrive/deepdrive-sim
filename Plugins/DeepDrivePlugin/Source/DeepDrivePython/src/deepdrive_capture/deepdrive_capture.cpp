@@ -75,9 +75,9 @@ static PyObject* deepdrive_close(PyObject *self, PyObject *args)
 		g_SharedMemClient = 0;
 	}
 	
-//	std::cout << "\ndeepdrive_close\n";
+	std::cout << "\nClosed deepdrive shared mem capture\n";
 
-	return Py_BuildValue("i", 1);
+	return Py_BuildValue("i", 1); // TODO: Return zero on success
 }
 
 static PyMethodDef DeepDriveMethods[] =	{	{"reset", deepdrive_reset, METH_VARARGS, "Reset environmnent and tries to open a connection to shared memory"}

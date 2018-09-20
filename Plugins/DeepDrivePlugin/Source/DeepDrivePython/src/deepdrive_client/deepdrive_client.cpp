@@ -134,10 +134,12 @@ static PyObject* deepdrive_client_close(PyObject *self, PyObject *args)
 		if(!removeClient(clientId))
 		{
 			PyErr_SetString(ClientDoesntExistError, "Client doesn't exist");
+			std::cout << "\nClosed deepdrive client (no connection found) result " << res << "\n";
 			return 0;
 		}
 	}
 
+	std::cout << "\nClosed deepdrive client result " << res << "\n";
 
 	return Py_BuildValue("i", res);
 }

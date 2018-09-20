@@ -107,6 +107,7 @@ static PyObject* deepdriuve_simulation_disconnect(PyObject *self, PyObject *args
 		g_DeepDriveSimulation = 0;
 	}
 
+	std::cout << "\nClosed deepdrive simulation result " << res << "\n";
 
 	return Py_BuildValue("i", res);
 }
