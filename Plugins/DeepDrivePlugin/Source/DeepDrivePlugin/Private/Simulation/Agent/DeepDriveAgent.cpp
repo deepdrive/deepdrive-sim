@@ -6,6 +6,7 @@
 #include "Public/DeepDriveData.h"
 #include "Components/SplineComponent.h"
 #include "Simulation/Agent/DeepDriveAgentControllerBase.h"
+#include "Private/Capture/DeepDriveCapture.h"
 
 #include "WheeledVehicleMovementComponent.h"
 #include "Runtime/Engine/Classes/Kismet/KismetRenderingLibrary.h"
@@ -135,13 +136,14 @@ void ADeepDriveAgent::UnregisterCaptureCamera(uint32 camId)
 	}
 	else
 	{
-		for(uint32 curIndex = 0; curIndex < m_CaptureCameras.Num(); ++curIndex)
+		for(int32 curIndex = 0; curIndex < m_CaptureCameras.Num(); ++curIndex)
 		{
 			UCaptureCameraComponent *camComp = m_CaptureCameras[curIndex];
 			if(camComp)
 			{
 				OnCaptureCameraRemoved(camComp->getCameraId(), curIndex);
-				
+				DeepDriveCapture::GetInstance().UnregisterCaptureComponent(camComp->getCameraId());
+
 				camComp->DestroyComponent(true);
 			}
 		}

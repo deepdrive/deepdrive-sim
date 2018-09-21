@@ -23,8 +23,6 @@ public:
 
 	UCaptureCameraComponent();
 
-	virtual void OnUnregister() override;
-
 	UPROPERTY(EditAnywhere, Category = "CaptureCamera")
 	EDeepDriveCameraType	CameraType = EDeepDriveCameraType::DDC_CAMERA_NONE; 
 
