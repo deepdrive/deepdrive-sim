@@ -213,6 +213,44 @@ static PyObject* deepdrive_client_register_camera(PyObject *self, PyObject *args
 	return Py_BuildValue("i", res);
 }
 
+/*	Register a new capture camera
+ *
+ *	@param	uint32		Client Id
+ *	@param	uint32		Camera Id
+*/
+static PyObject* deepdrive_client_unregister_camera(PyObject *self, PyObject *args, PyObject *keyWords)
+{
+	int32 res = 0;
+
+	uint32 clientId = 0;
+	uint32 cameraId = 0;
+
+	char *keyWordList[] = {"client_id", "camera_id", NULL};
+	int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "I|I", keyWordList, &clientId, &cameraId);
+
+	if(ok)
+	{
+		std::cout << "Unregister camera " << cameraId << " for client " << clientId << "\n";
+		DeepDriveClient *client = getClient(clientId);
+		if(client)
+		{
+			res = client->unregisterCamera(cameraId);
+			if(res < 0)
+				return handleError(res);
+		}
+		else
+		{
+			PyErr_SetString(ClientDoesntExistError, "Client doesn't exist");
+			return 0;
+		}
+	}
+	else
+		std::cout << "Wrong arguments\n";
+
+	return Py_BuildValue("i", 1);
+}
+
+
 /*	Request agent control
  *
  *	@param	uint32		Client Id
@@ -524,6 +562,7 @@ static PyObject* deepdrive_client_set_view_mode(PyObject *self, PyObject *args, 
 static PyMethodDef DeepDriveClientMethods[] =	{	{"create", (PyCFunction) deepdrive_client_create, METH_VARARGS | METH_KEYWORDS, "Creates a new client which tries to connect to DeepDriveServer"}
 												,	{"close", deepdrive_client_close, METH_VARARGS, "Closes an existing client connection and frees all depending resources"}
 												,	{"register_camera", (PyCFunction) deepdrive_client_register_camera, METH_VARARGS | METH_KEYWORDS, "Register a capture camera"}
+												,	{"unregister_camera", (PyCFunction) deepdrive_client_unregister_camera, METH_VARARGS | METH_KEYWORDS, "Unregister a capture camera"}
 												,	{"get_shared_memory", deepdrive_client_get_shared_memory, METH_VARARGS, "Get shared memory name and size for client"}
 												,	{"request_agent_control", deepdrive_client_request_agent_control, METH_VARARGS, "Request control over agent"}
 												,	{"release_agent_control", deepdrive_client_release_agent_control, METH_VARARGS, "Release control over agent"}
@@ -587,7 +626,7 @@ PyMODINIT_FUNC PyInit_deepdrive_client(void)
 		// Py_INCREF(&PyDeepDriveClientRegisterClientRequestType);
 		// PyModule_AddObject(m, "RegisterClientRequest", (PyObject *)&PyDeepDriveClientRegisterClientRequestType);
 	}
-	std::cout << "## ><>|><> PyInit_deepdrive_client <><|<>< ##\n";
+	std::cout << "### ><>|><> PyInit_deepdrive_client <><|<>< ###\n";
 
 	return m;
 }

@@ -72,6 +72,13 @@ int32 DeepDriveSimulationServerProxy::RegisterCaptureCamera(float FieldOfView, i
 	return agent ? agent->RegisterCaptureCamera(FieldOfView, CaptureWidth, CaptureHeight, RelativePosition, RelativeRotation, Label) : 0;
 }
 
+void DeepDriveSimulationServerProxy::UnregisterCaptureCamera(uint32 cameraId)
+{
+	ADeepDriveAgent *agent = m_isActive ? m_DeepDriveSim.getCurrentAgent() : 0;
+	if(agent)
+		agent->UnregisterCaptureCamera(cameraId);
+}
+
 bool DeepDriveSimulationServerProxy::RequestAgentControl()
 {
 	bool res = true;

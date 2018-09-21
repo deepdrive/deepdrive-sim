@@ -23,6 +23,8 @@ public:
 
 	UCaptureCameraComponent();
 
+	virtual void OnUnregister() override;
+
 	UPROPERTY(EditAnywhere, Category = "CaptureCamera")
 	EDeepDriveCameraType	CameraType = EDeepDriveCameraType::DDC_CAMERA_NONE; 
 
@@ -33,7 +35,7 @@ public:
 	bool	IsCapturingActive = true;
 
 	UPROPERTY(EditDefaultsOnly, Category = "CaptureCamera")
-	bool	CaptureSceneEveryFrame = true;
+	bool	CaptureSceneEveryFrame = false;
 
 	UFUNCTION(BlueprintCallable, Category = "CaptureCamera")
 	void Initialize(UTextureRenderTarget2D *colorRenderTarget, UTextureRenderTarget2D *depthRenderTarget, float FoV);

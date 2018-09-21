@@ -48,6 +48,7 @@ bool DeepDriveClientConnection::Init()
 																						};
 
 	m_MessageHandlers[deepdrive::server::MessageId::RegisterCaptureCameraRequest] = forward2Server;
+	m_MessageHandlers[deepdrive::server::MessageId::UnregisterCaptureCameraRequest] = forward2Server;
 	m_MessageHandlers[deepdrive::server::MessageId::RequestAgentControlRequest] = forward2Server;
 	m_MessageHandlers[deepdrive::server::MessageId::ReleaseAgentControlRequest] = forward2Server;
 	m_MessageHandlers[deepdrive::server::MessageId::SetAgentControlValuesRequest] = forward2Server;

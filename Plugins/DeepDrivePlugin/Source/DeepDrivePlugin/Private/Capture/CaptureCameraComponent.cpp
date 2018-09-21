@@ -66,6 +66,12 @@ void UCaptureCameraComponent::Initialize(UTextureRenderTarget2D *colorRenderTarg
 	UE_LOG(DeepDriveCaptureComponent, Log, TEXT("UCaptureCameraComponent::InitializeComponent 0x%p camId %d"), m_SceneCapture, CameraId);
 }
 
+void UCaptureCameraComponent::OnUnregister()
+{
+	DeepDriveCapture::GetInstance().UnregisterCaptureComponent(CameraId);
+}
+
+
 void UCaptureCameraComponent::Remove()
 {
 	DeepDriveCapture::GetInstance().UnregisterCaptureComponent(CameraId);

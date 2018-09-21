@@ -24,6 +24,8 @@ enum class MessageId	:	uint32
 	*/
 	RegisterCaptureCameraRequest,
 	RegisterCaptureCameraResponse,
+	UnregisterCaptureCameraRequest,
+	UnregisterCaptureCameraResponse,
 	SetCapturePatternRequest,
 	SetCapturePatternResponse,
 	SetCaptureConfigurationRequest,

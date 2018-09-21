@@ -37,6 +37,8 @@ public:
 
 	int32 RegisterCaptureCamera(float fieldOfView, int32 captureWidth, int32 captureHeight, FVector relativePosition, FVector relativeRotation, const FString &label);
 
+	void UnregisterCaptureCamera(uint32 camId);
+
 	void SetControlValues(float steering, float throttle, float brake, bool handbrake);
 
 	void SetSteering(float steering);
@@ -58,6 +60,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "HUD")
 	void OnCaptureCameraAdded(int32 CameraId, int32 CameraIndex, UTextureRenderTarget2D *SceneTexture, const FString &label);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "HUD")
+	void OnCaptureCameraRemoved(int32 CameraId, int32 CameraIndex);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "HUD")
 	void SetDepthTexture(int32 CameraId, int32 CameraIndex, UTextureRenderTarget2D *DepthTexture);

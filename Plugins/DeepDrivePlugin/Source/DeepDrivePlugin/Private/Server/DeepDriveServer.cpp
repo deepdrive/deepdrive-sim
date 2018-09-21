@@ -40,6 +40,7 @@ DeepDriveServer::DeepDriveServer()
 	UE_LOG(LogDeepDriveServer, Log, TEXT("DeepDriveServer created") );
 
 	m_MessageHandlers[deepdrive::server::MessageId::RegisterCaptureCameraRequest] = std::bind(&DeepDriveServer::handleRegisterCamera, this, std::placeholders::_1);
+	m_MessageHandlers[deepdrive::server::MessageId::UnregisterCaptureCameraRequest] = std::bind(&DeepDriveServer::handleUnregisterCamera, this, std::placeholders::_1);
 
 	m_MessageHandlers[deepdrive::server::MessageId::RequestAgentControlRequest] = std::bind(&DeepDriveServer::handleRequestAgentControl, this, std::placeholders::_1);
 	m_MessageHandlers[deepdrive::server::MessageId::ReleaseAgentControlRequest] = std::bind(&DeepDriveServer::handleReleaseAgentControl, this, std::placeholders::_1);
@@ -226,6 +227,34 @@ void DeepDriveServer::handleRegisterCamera(const deepdrive::server::MessageHeade
 		}
 	}
 }
+
+void DeepDriveServer::handleUnregisterCamera(const deepdrive::server::MessageHeader &message)
+{
+	if(m_Clients.Num() > 0)
+	{
+		const deepdrive::server::UnregisterCaptureCameraRequest &req = static_cast<const deepdrive::server::UnregisterCaptureCameraRequest&> (message);
+		DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
+		if (client)
+		{
+			if (m_Proxy)
+			{
+				m_Proxy->UnregisterCaptureCamera(req.camera_id);
+				client->enqueueResponse(new deepdrive::server::UnregisterCaptureCameraResponse(true));
+
+				UE_LOG(LogDeepDriveServer, Log, TEXT("Camera unregistered %d %d"), req.client_id, req.camera_id);
+			}
+			else
+			{
+				client->enqueueResponse(new deepdrive::server::UnregisterCaptureCameraResponse(false));
+				UE_LOG(LogDeepDriveServer, Log, TEXT("No proxy, unregistering camera not possible"));
+			}
+
+		}
+		else
+			UE_LOG(LogDeepDriveServer, Error, TEXT("Client %d not found"), req.client_id);
+	}
+}
+
 
 void DeepDriveServer::handleRequestAgentControl(const deepdrive::server::MessageHeader &message)
 {

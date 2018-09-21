@@ -46,6 +46,30 @@ struct RegisterCaptureCameraResponse	:	public MessageHeader
 
 };
 
+struct UnregisterCaptureCameraRequest	:	public MessageHeader
+{
+	UnregisterCaptureCameraRequest(uint32 clientId, uint32 cameraId)
+		:	MessageHeader(MessageId::UnregisterCaptureCameraRequest, sizeof(UnregisterCaptureCameraRequest))
+		,	client_id(clientId)
+		,	camera_id(cameraId)
+	{
+	}
+
+	uint32				client_id;
+	uint32				camera_id;
+};
+
+struct UnregisterCaptureCameraResponse	:	public MessageHeader
+{
+	UnregisterCaptureCameraResponse(bool _unregistered = false)
+		:	MessageHeader(MessageId::UnregisterCaptureCameraResponse, sizeof(UnregisterCaptureCameraResponse))
+		,	unregistered(_unregistered ? 1 : 0)
+	{	}
+
+	uint32		unregistered;
+
+};
+
 
 
 } }	// namespaces

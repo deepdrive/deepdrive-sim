@@ -32,6 +32,8 @@ public:
 
 	virtual int32 RegisterCaptureCamera(float FieldOfView, int32 CaptureWidth, int32 CaptureHeight, FVector RelativePosition, FVector RelativeRotation, const FString &Label);
 
+	virtual void UnregisterCaptureCamera(uint32 cameraId);
+
 	virtual bool RequestAgentControl();
 
 	virtual void ReleaseAgentControl();

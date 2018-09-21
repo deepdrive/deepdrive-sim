@@ -98,6 +98,7 @@ private:
 	void handleMessage(const deepdrive::server::MessageHeader &message);
 
 	void handleRegisterCamera(const deepdrive::server::MessageHeader &message);
+	void handleUnregisterCamera(const deepdrive::server::MessageHeader &message);
 
 	void handleRequestAgentControl(const deepdrive::server::MessageHeader &message);
 	void handleReleaseAgentControl(const deepdrive::server::MessageHeader &message);

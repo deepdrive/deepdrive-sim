@@ -127,6 +127,27 @@ int32 ADeepDriveAgent::RegisterCaptureCamera(float fieldOfView, int32 captureWid
 	return camId;
 }
 
+void ADeepDriveAgent::UnregisterCaptureCamera(uint32 camId)
+{
+	if(camId)
+	{
+
+	}
+	else
+	{
+		for(uint32 curIndex = 0; curIndex < m_CaptureCameras.Num(); ++curIndex)
+		{
+			UCaptureCameraComponent *camComp = m_CaptureCameras[curIndex];
+			if(camComp)
+			{
+				OnCaptureCameraRemoved(camComp->getCameraId(), curIndex);
+				
+				camComp->DestroyComponent(true);
+			}
+		}
+	}
+}
+
 bool ADeepDriveAgent::setViewMode(int32 cameraId, const FString &viewModeName)
 {
 	bool res = false;

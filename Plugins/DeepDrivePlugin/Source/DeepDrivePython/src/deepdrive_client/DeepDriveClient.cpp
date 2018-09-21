@@ -102,6 +102,29 @@ int32 DeepDriveClient::registerCamera(float hFoV, uint16 captureWidth, uint16 ca
 	return res;
 }
 
+int32 DeepDriveClient::unregisterCamera(uint32 cameraId)
+{
+	deepdrive::server::UnregisterCaptureCameraRequest req(m_ClientId, cameraId);
+
+	int32 res = m_Socket.send(&req, sizeof(req));
+	if(res >= 0)
+	{
+		std::cout << "UnregisterCaptureCameraRequest sent\n";
+
+		deepdrive::server::UnregisterCaptureCameraResponse response;
+		if(m_Socket.receive(&response, sizeof(response), 1000))
+		{
+			res = static_cast<int32> (response.unregistered);
+			std::cout << "UnregisterCaptureCameraResponse received " << m_ClientId << " " << res << "\n";
+		}
+		else
+			std::cout << "Waiting for UnregisterCaptureCameraResponse, time out\n";
+	}
+
+	return res;
+}
+
+
 int32 DeepDriveClient::requestAgentControl()
 {
 	int32 res = ClientErrorCode::NOT_CONNECTED;
