@@ -16,22 +16,32 @@ def git_commit_time_parse(t):
 
 
 def get_package_version():
-    # The %ci option gives the committer date which guarantees HEAD is most recent
-    p = Popen(['git', '--git-dir', os.path.join(os.path.dirname(DIR), '.git'), 'log', '-1', '--format=%ci'],
-              stdin=PIPE, stdout=PIPE, stderr=PIPE)
-    out, err = p.communicate()
-    if not isinstance(out, str):
-        out = ''.join(map(chr, out))
-    out = out.strip()
-    if p.returncode != 0:
-        raise RuntimeError('Could not get most recent commit')
-    last_commit_time = git_commit_time_parse(out)
-    last_commit_timestamp = last_commit_time.strftime('%Y%m%d%H%M%S')
     version_path = os.path.join(os.path.dirname(DIR), 'Content', 'Data')
-    with open(os.path.join(version_path, 'MAJOR_MINOR_VERSION')) as fr:
-        version = '%s.%s' % (fr.read(), last_commit_timestamp)
-    with open(os.path.join(version_path, 'VERSION'), 'w') as fw:
-        fw.write(version)
+
+    git_dir = os.path.join(os.path.dirname(DIR), '.git')
+    if not os.path.exists(git_dir):
+        # We are not in a git repo. Just read the last version - nothing is going to be pushed here.
+        with open(os.path.join(version_path, 'VERSION')) as fr:
+            version = fr.read()
+    else:
+        # The %ci option gives the committer date which guarantees HEAD is most recent
+        p = Popen(['git', '--git-dir', git_dir, 'log', '-1', '--format=%ci'],
+                  stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        out, err = p.communicate()
+        if p.returncode != 0:
+            raise RuntimeError('Could not get most recent commit')
+
+        if not isinstance(out, str):
+            out = ''.join(map(chr, out))
+        out = out.strip()
+
+        last_commit_time = git_commit_time_parse(out)
+        last_commit_timestamp = last_commit_time.strftime('%Y%m%d%H%M%S')
+
+        with open(os.path.join(version_path, 'MAJOR_MINOR_VERSION')) as fr:
+            version = '%s.%s' % (fr.read(), last_commit_timestamp)
+        with open(os.path.join(version_path, 'VERSION'), 'w') as fw:
+            fw.write(version)
     return version
 
 

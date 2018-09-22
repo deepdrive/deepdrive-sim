@@ -58,14 +58,12 @@ def get_egg_file(module_name):
 
 
 def main(build_type):
-    unreal_root = str(Path(DIR).parent.parent.parent.parent.parent)
-    print('Unreal root %s' % unreal_root)
+    sim_root = str(Path(DIR).parent.parent.parent.parent.parent)
+    print('Sim root %s' % sim_root)
     env = os.environ.copy()
     py = sys.executable
-    get_package_version_path = os.path.join(unreal_root, 'Packaging', 'get_package_version.py')
+    get_package_version_path = os.path.join(sim_root, 'Packaging', 'get_package_version.py')
     env['DEEPDRIVE_VERSION'], _ = run_command('%s %s' % (py, get_package_version_path))
-    env['DEEPDRIVE_BRANCH'] = (env.get('TRAVIS_BRANCH') or env.get('APPVEYOR_REPO_BRANCH') or
-                               run_command(['git', '-C', unreal_root, 'rev-parse', '--abbrev-ref', 'HEAD'])[0])
     print('DEEPDRIVE_VERSION is %s' % env['DEEPDRIVE_VERSION'])
     ext_root = os.path.dirname(DIR)
     print('PYPY_USERNAME is %s' % env.get('PYPI_USERNAME'))
@@ -88,7 +86,18 @@ def main(build_type):
         except Exception as e:
             raise Exception('Error building, is the module imported into a live python process?', e)
 
-    elif build_type == 'win_bdist':
+    else:
+        git_dir = os.path.join(os.path.dirname(sim_root), '.git')
+        if not os.path.exists(git_dir):
+            raise RuntimeError('Error: Git is required to build a distribution release. Use --type '
+                               'dev to build locally.')
+        env['DEEPDRIVE_BRANCH'] = (env.get('TRAVIS_BRANCH') or env.get('APPVEYOR_REPO_BRANCH') or
+                                   run_command(['git', '-C', sim_root, 'rev-parse', '--abbrev-ref', 'HEAD'])[0])
+        build_pypi(build_type, env, ext_root, py, sim_root)
+
+
+def build_pypi(build_type, env, ext_root, py, sim_root):
+    if build_type == 'win_bdist':
         run_command('%s -u setup.py bdist_wheel' % py, env=env, cwd=ext_root)
         if env['DEEPDRIVE_BRANCH'] == 'release':
             scripts_dir = os.path.join(env['PYTHON'], 'Scripts')
@@ -108,7 +117,7 @@ def main(build_type):
                      '-e', 'PYPI_PASSWORD',
                      '-e', 'DEEPDRIVE_BRANCH',
                      '-e', 'DEEPDRIVE_VERSION',
-                     '-v', unreal_root + '/Plugins/DeepDrivePlugin/Source:/io',
+                     '-v', sim_root + '/Plugins/DeepDrivePlugin/Source:/io',
                      env['DOCKER_IMAGE'],
                      env['PRE_CMD'],
                      '/io/DeepDrivePython/build/build-linux-wheels.sh'], env=env, cwd=os.path.dirname(DIR))
