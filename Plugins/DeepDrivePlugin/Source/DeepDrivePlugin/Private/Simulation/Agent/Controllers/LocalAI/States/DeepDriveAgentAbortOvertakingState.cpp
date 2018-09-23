@@ -17,8 +17,10 @@ DeepDriveAgentAbortOvertakingState::DeepDriveAgentAbortOvertakingState(DeepDrive
 
 void DeepDriveAgentAbortOvertakingState::enter(DeepDriveAgentLocalAIStateMachineContext &ctx)
 {
+    // TODO: Expose these through local_ai_ctrl as blueprintable for UnrealPython access
 	float distanceToNextAgent = -1.0f;
 	float distanceToPrevAgent = -1.0f;
+
 	ADeepDriveAgent *nextAgent = ctx.agent.getNextAgent(ctx.configuration.GapBetweenAgents, &distanceToNextAgent);
 	ADeepDriveAgent *prevAgent = ctx.agent.getPrevAgent(ctx.configuration.GapBetweenAgents, &distanceToPrevAgent);
 

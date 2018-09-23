@@ -16,7 +16,7 @@ class UDeepDriveRandomStream;
  * 
  */
 
-UCLASS()
+UCLASS(Blueprintable)
 class DEEPDRIVEPLUGIN_API ADeepDriveSplineTrack	:	public AActor
 {
 	GENERATED_BODY()

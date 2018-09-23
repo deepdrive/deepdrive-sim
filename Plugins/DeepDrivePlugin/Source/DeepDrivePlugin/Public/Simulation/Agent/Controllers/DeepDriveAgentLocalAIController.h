@@ -132,23 +132,48 @@ public:
 	float getDesiredSpeed() const;
 	void setDesiredSpeed(float desiredSpeed);
 
-private:
+	UFUNCTION(BlueprintCallable, Category = "StateMachine")
+    bool getIsPassing() const;
 
-	DeepDriveAgentLocalAIStateMachine			m_StateMachine;
-	DeepDriveAgentLocalAIStateMachineContext	*m_StateMachineCtx = 0;
-	
-	DeepDriveAgentSpeedController				*m_SpeedController = 0;
-	DeepDriveAgentSteeringController			*m_SteeringController = 0;
+    UFUNCTION(BlueprintCallable, Category = "StateMachine")
+    void setIsPassing(bool isPassing);
 
+protected:
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIProps")
 	FDeepDriveLocalAIControllerConfiguration	m_Configuration;
 
+//	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIProps")
+	DeepDriveAgentLocalAIStateMachineContext	*m_StateMachineCtx = 0;
+
+//	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIProps")
+	DeepDriveAgentSpeedController				*m_SpeedController = 0;
+
+//	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIProps")
+	DeepDriveAgentSteeringController			*m_SteeringController = 0;
+
+//	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIProps")
 	ADeepDriveSplineTrack						*m_OppositeTrack = 0;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIProps")
 	float										m_DesiredSpeed;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIProps")
 	float										m_SafetyDistanceFactor = 1.0f;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIProps")
 	float										m_BrakingDeceleration = 800.0f;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIProps")
 	bool										m_isPaused = false;
+
+private:
+
+    // Cannot be UPROPERTY as we are inheriting from template type TStateMachine
+    // https://answers.unrealengine.com/questions/101638/multiple-inheritance-not-working-with-uclass.html
+	DeepDriveAgentLocalAIStateMachine			m_StateMachine;
+
+	bool										m_isPassing = false;
 
 };
 
@@ -161,4 +186,15 @@ inline float ADeepDriveAgentLocalAIController::getDesiredSpeed() const
 inline void ADeepDriveAgentLocalAIController::setDesiredSpeed(float desiredSpeed)
 {
 	m_DesiredSpeed = desiredSpeed;
+}
+
+
+inline bool ADeepDriveAgentLocalAIController::getIsPassing() const
+{
+	return m_isPassing;
+}
+
+inline void ADeepDriveAgentLocalAIController::setIsPassing(bool isPassing)
+{
+	m_isPassing = isPassing;
 }

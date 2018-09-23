@@ -13,6 +13,7 @@ class ADeepDriveSplineTrack;
 /**
  * 
  */
+//UCLASS(Blueprintable)
 class DeepDriveAgentSteeringController
 {
 public:
