@@ -5,7 +5,7 @@
  Unreal Plugin and Python C++ Extension
 ----------
 
-This is the liaison between Unreal and your Python, delivering sensor data from the Unreal and receiving control and configuration commands from Python.
+This is the liaison between Unreal and your Python, delivering environment state from Unreal and receiving control and configuration from Python.
 =============
 
 Source - https://github.com/deepdrive/deepdrive-plugin
