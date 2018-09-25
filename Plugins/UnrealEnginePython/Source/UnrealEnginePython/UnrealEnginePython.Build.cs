@@ -21,7 +21,8 @@ public class UnrealEnginePython : ModuleRules
         "C:/Program Files/Python36",
         "C:/Program Files/Python35",
         "C:/Python27",
-        "C:/IntelPython35"
+        "C:/IntelPython35",
+        "C:/Users/Bender/AppData/Local/Programs/Python/Python35",
     };
 
     private string[] macKnownPaths =
