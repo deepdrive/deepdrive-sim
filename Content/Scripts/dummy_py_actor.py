@@ -16,6 +16,7 @@ class DummyPyActor:
         self.worlds = ue.all_worlds()
         ue.log('All worlds length ' + str(len(self.worlds)))
 
+
         # controllers = [(a.get_full_name(), a)
         #                for a in ue.all_worlds()[0].all_actors() if 'controller' in a.get_full_name().lower()]
         #

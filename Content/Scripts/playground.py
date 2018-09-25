@@ -9,19 +9,19 @@ import deepdrive_client
 
 #
 #
-# worlds = ue.all_worlds()
-#
-# sim_world = [w for w in worlds if 'DeepDriveSim_Demo.DeepDriveSim_Demo' in w.get_full_name()][-1]
-#
-# print(sim_world.get_full_name())
-#
-# controllers = [(a.get_full_name(), a)
-#                for a in sim_world.all_actors() if 'localaicontroller_' in a.get_full_name().lower()]
-# print(controllers)
-# controller = controllers[-1][1]
-# print(dir(controller))
-# print(controller.functions())
-# print(controller.getIsPassing())
+worlds = ue.all_worlds()
+
+sim_world = [w for w in worlds if 'DeepDriveSim_Demo.DeepDriveSim_Demo' in w.get_full_name()][-1]
+
+print(sim_world.get_full_name())
+
+controllers = [(a.get_full_name(), a)
+               for a in sim_world.all_actors() if 'localaicontroller_' in a.get_full_name().lower()]
+print(controllers)
+controller = controllers[-1][1]
+print(dir(controller))
+print(controller.functions())
+print(controller.getIsPassing())
 
 # [2018.09.23-01.02.08:998][652]LogPython: ['Configure', 'UnPossess', 'StopMovement', 'SetInitialLocationAndRotation', 'SetIgnoreMoveInput', 'SetIgnoreLookInput', 'SetControlRotation', 'ResetIgnoreMoveInput', 'ResetIgnoreLookInput', 'ResetIgnoreInputFlags', 'ReceiveInstigatedAnyDamage', 'Possess', 'OnRep_PlayerState', 'OnRep_Pawn', 'LineOfSightTo', 'K2_GetPawn', 'IsPlayerController', 'IsMoveInputIgnored', 'IsLookInputIgnored', 'IsLocalPlayerController', 'IsLocalController', 'GetViewTarget', 'GetDesiredRotation', 'GetControlRotation', 'ClientSetRotation', 'ClientSetLocation', 'CastToPlayerController', 'WasRecentlyRendered', 'UserConstructionScript', 'TearOff', 'SnapRootComponentTo', 'SetTickGroup', 'SetTickableWhenPaused', 'SetReplicates', 'SetReplicateMovement', 'SetOwner', 'SetNetDormancy', 'SetLifeSpan', 'SetIsTemporarilyHiddenInEditor', 'SetActorTickInterval', 'SetActorTickEnabled', 'SetActorScale3D', 'SetActorRelativeScale3D', 'SetActorHiddenInGame', 'SetActorEnableCollision', 'RemoveTickPrerequisiteComponent', 'RemoveTickPrerequisiteActor', 'ReceiveTick', 'ReceiveRadialDamage', 'ReceivePointDamage', 'ReceiveHit', 'ReceiveEndPlay', 'ReceiveDestroyed', 'ReceiveBeginPlay', 'ReceiveAnyDamage', 'ReceiveActorOnReleased', 'ReceiveActorOnInputTouchLeave', 'ReceiveActorOnInputTouchEnter', 'ReceiveActorOnInputTouchEnd', 'ReceiveActorOnInputTouchBegin', 'ReceiveActorOnClicked', 'ReceiveActorEndOverlap', 'ReceiveActorEndCursorOver', 'ReceiveActorBeginOverlap', 'ReceiveActorBeginCursorOver', 'PrestreamTextures', 'OnRep_ReplicateMovement', 'OnRep_ReplicatedMovement', 'OnRep_Owner', 'OnRep_Instigator', 'OnRep_AttachmentReplication', 'MakeNoise', 'MakeMIDForMaterial', 'K2_TeleportTo', 'K2_SetActorTransform', 'K2_SetActorRotation', 'K2_SetActorRelativeTransform', 'K2_SetActorRelativeRotation', 'K2_SetActorRelativeLocation', 'K2_SetActorLocationAndRotation', 'K2_SetActorLocation', 'K2_OnReset', 'K2_OnEndViewTarget', 'K2_OnBecomeViewTarget', 'K2_GetRootComponent', 'K2_GetActorRotation', 'K2_GetActorLocation', 'K2_DetachFromActor', 'K2_DestroyComponent', 'K2_DestroyActor', 'K2_AttachToComponent', 'K2_AttachToActor', 'K2_AttachRootComponentToActor', 'K2_AttachRootComponentTo', 'K2_AddActorWorldTransform', 'K2_AddActorWorldRotation', 'K2_AddActorWorldOffset', 'K2_AddActorLocalTransform', 'K2_AddActorLocalRotation', 'K2_AddActorLocalOffset', 'IsTemporarilyHiddenInEditor', 'IsSelectable', 'IsOverlappingActor', 'IsHiddenEdAtStartup', 'IsHiddenEd', 'IsEditable', 'IsChildActor', 'IsActorTickEnabled', 'IsActorBeingDestroyed', 'HasAuthority', 'GetVerticalDistanceTo', 'GetVelocity', 'GetTransform', 'GetTickableWhenPaused', 'GetSquaredDistanceTo', 'GetRemoteRole', 'GetParentComponent', 'GetParentActor', 'GetOwner', 'GetOverlappingComponents', 'GetOverlappingActors', 'GetLifeSpan', 'GetInstigatorController', 'GetInstigator', 'GetInputVectorAxisValue', 'GetInputAxisValue', 'GetInputAxisKeyValue', 'GetHorizontalDotProductTo', 'GetHorizontalDistanceTo', 'GetGameTimeSinceCreation', 'GetDotProductTo', 'GetDistanceTo', 'GetComponentsByTag', 'GetComponentsByClass', 'GetComponentByClass', 'GetAttachParentSocketName', 'GetAttachParentActor', 'GetAttachedActors', 'GetAllChildActors', 'GetActorUpVector', 'GetActorTimeDilation', 'GetActorTickInterval', 'GetActorScale3D', 'GetActorRightVector', 'GetActorRelativeScale3D', 'GetActorForwardVector', 'GetActorEyesViewPoint', 'GetActorEnableCollision', 'GetActorBounds', 'ForceNetUpdate', 'FlushNetDormancy', 'EnableInput', 'DisableInput', 'DetachRootComponentFromParent', 'AddTickPrerequisiteComponent', 'AddTickPrerequisiteActor', 'AddComponent', 'ActorHasTag', 'ExecuteUbergraph']
 
