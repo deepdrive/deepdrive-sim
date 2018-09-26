@@ -139,7 +139,7 @@ int32 IP4ClientSocketImpl_Linux::receive(void *buffer, uint32 size, uint32 timeO
 	}
 	else
 	{
-		std::cout << "Poll timed out\n";
+		std::cout << "Poll timed out after " << timeOutMS << " msecs\n";
 		res = ClientErrorCode::TIME_OUT;
 	}
 

@@ -23,14 +23,29 @@ DeepDriveSimulationServer::DeepDriveSimulationServer(ADeepDriveSimulation &simul
 	UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("DeepDriveSimulationServer listening on %d.%d.%d.%d:%d"), ipParts[0], ipParts[1], ipParts[2], ipParts[3], port);
 
 	FIPv4Endpoint endpoint(FIPv4Address(ipParts[0], ipParts[1], ipParts[2], ipParts[3]), port);
-	m_ListenSocket = FTcpSocketBuilder(TEXT("DeepDriveSimulationServer_Listen")).AsReusable().BoundToEndpoint(endpoint).Listening(8);
+	m_ServerSocket = FTcpSocketBuilder(TEXT("DeepDriveSimulationServer_Listen")).AsReusable().BoundToEndpoint(endpoint).Listening(8);
 
-	if(!m_ListenSocket)
+	if(!m_ServerSocket)
 		UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("PANIC: Couldn't create Listening socket on %d.%d.%d.%d:%d"), ipParts[0], ipParts[1], ipParts[2], ipParts[3], port);
+
+	resizeReceiveBuffer(10240);
 }
 
 DeepDriveSimulationServer::~DeepDriveSimulationServer()
 {
+	if(m_ClientSocket)
+	{
+		m_ClientSocket->Close();
+		delete m_ClientSocket;
+		UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("Client socket closed") );
+	}
+
+	if(m_ServerSocket)
+	{
+		m_ServerSocket->Close();
+		delete m_ServerSocket;
+		UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("Server socket closed") );
+	}
 }
 
 
@@ -57,29 +72,35 @@ uint32 DeepDriveSimulationServer::Run()
 				break;
 
 			case Listening:
-				m_Socket = listen();
-				if(m_Socket)
+				m_ClientSocket = listen();
+				if(m_ClientSocket)
 				{
 					m_State = Connected;
 				}
 				break;
 
 			case Connected:
-				checkForMessages();
+				if(checkForMessages())
 				{
 					deepdrive::server::MessageHeader *response = 0;
-					if (m_ResponseQueue.Dequeue(response)
-						&& response
+					if (	m_ResponseQueue.Dequeue(response)
+						&&	response
 						)
 					{
 						int32 bytesSent = 0;
-						m_Socket->Send(reinterpret_cast<uint8*> (response), response->message_size, bytesSent);
-						// UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] %d bytes sent back"), m_ClientId, bytesSent);
+						m_ClientSocket->Send(reinterpret_cast<uint8*> (response), response->message_size, bytesSent);
+						UE_LOG(LogDeepDriveSimulationServer, Log, TEXT(" %d bytes sent back"), bytesSent);
 
 						FMemory::Free(response);
 						sleepTime = 0.001f;
 					}
-
+				}
+				else
+				{
+					m_ClientSocket->Close();
+					m_isListening = false;
+					m_State = Listening;
+					UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("Connection to client lost, reverting back to listening") );
 				}
 				break;
 		}
@@ -98,49 +119,45 @@ void DeepDriveSimulationServer::enqueueResponse(deepdrive::server::MessageHeader
 	if (message)
 	{
 		m_ResponseQueue.Enqueue(message);
+		UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("enqueueResponse: Response queued"));
 	}
 }
 
 FSocket* DeepDriveSimulationServer::listen()
 {
 	FSocket *socket = 0;
-	if (m_ListenSocket)
+	if (m_ServerSocket)
 	{
 		if (!m_isListening)
 		{
-			m_isListening = m_ListenSocket->Listen(1);
+			m_isListening = m_ServerSocket->Listen(1);
 			UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("DeepDriveSimulationServer Socket is listening %c"), m_isListening ? 'T' : 'F');
 		}
 
 		bool pending = false;
-		if (m_ListenSocket->HasPendingConnection(pending) && pending)
+		if (m_ServerSocket->HasPendingConnection(pending) && pending)
 		{
 			TSharedRef<FInternetAddr> remoteAddress = ISocketSubsystem::Get(PLATFORM_SOCKETSUBSYSTEM)->CreateInternetAddr();
 			UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("DeepDriveSimulationServer Incoming connection from %s"), *(remoteAddress->ToString(true)) );
-			socket = m_ListenSocket->Accept(*remoteAddress, FString("DeepDriveSimulationServer"));
+			socket = m_ServerSocket->Accept(*remoteAddress, FString("DeepDriveSimulationServer"));
+			if(socket)
+				socket->SetNonBlocking(true);
 		}
 	}
 	return socket;
 }
 
-void DeepDriveSimulationServer::checkForMessages()
+bool DeepDriveSimulationServer::checkForMessages()
 {
-	uint32 pendingSize = 0;
-	if (m_Socket->HasPendingData(pendingSize))
+	int32 bytesRead = 0;
+	bool connected = m_ClientSocket->Recv(m_ReceiveBuffer, m_curReceiveBufferSize, bytesRead, ESocketReceiveFlags::None);
+	if (connected && bytesRead > 0)
 	{
-		if (pendingSize)
-		{
-			if (resizeReceiveBuffer(pendingSize))
-			{
-				int32 bytesRead = 0;
-				if (m_Socket->Recv(m_ReceiveBuffer, m_curReceiveBufferSize, bytesRead, ESocketReceiveFlags::None))
-				{
-					// UE_LOG(LogDeepDriveClientConnection, Log, TEXT("[%d] Received %d bytes: %d"), m_ClientId, bytesRead, bytesRead > 4 ? *(reinterpret_cast<uint32*>(m_ReceiveBuffer)) : 0);
-					m_MessageAssembler.add(m_ReceiveBuffer, bytesRead);
-				}
-			}
-		}
+		// UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("[%d] Received %d bytes: %d"), m_ClientId, bytesRead, bytesRead > 4 ? *(reinterpret_cast<uint32*>(m_ReceiveBuffer)) : 0);
+		m_MessageAssembler.add(m_ReceiveBuffer, bytesRead);
 	}
+
+	return connected;
 }
 
 void DeepDriveSimulationServer::handleMessage(const deepdrive::server::MessageHeader &message)
@@ -150,11 +167,11 @@ void DeepDriveSimulationServer::handleMessage(const deepdrive::server::MessageHe
 
 void DeepDriveSimulationServer::shutdown()
 {
-	if (m_ListenSocket)
+	if (m_ServerSocket)
 	{
-		const bool success = m_ListenSocket->Close();
+		const bool success = m_ServerSocket->Close();
 		UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("DeepDriveSimulationServer::shutdown Socket successfully closed %c"), success ? 'T' : 'F');
-		delete m_ListenSocket;
-		m_ListenSocket = 0;
+		delete m_ServerSocket;
+		m_ServerSocket = 0;
 	}
 }

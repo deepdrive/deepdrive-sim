@@ -40,17 +40,17 @@ private:
 
 	FSocket* listen();
 
-	void checkForMessages();
+	bool checkForMessages();
 
 	void handleMessage(const deepdrive::server::MessageHeader &message);
 
 	void shutdown();
 
 	ADeepDriveSimulation			&m_Simulation;
-	FSocket							*m_ListenSocket = 0;
+	FSocket							*m_ServerSocket = 0;
 	bool							m_isListening = false;
 
-	FSocket							*m_Socket = 0;
+	FSocket							*m_ClientSocket = 0;
 
 	State							m_State = Idle;
 
