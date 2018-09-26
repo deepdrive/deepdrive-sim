@@ -120,7 +120,7 @@ int32 ADeepDriveAgent::RegisterCaptureCamera(float fieldOfView, int32 captureWid
 			camId = captureCamCmp->getCameraId();
 			const int32 camIndex = m_CaptureCameras.Num();
 			m_CaptureCameras.Add(captureCamCmp);
-			OnCaptureCameraAdded(camId, camIndex, sceneTexture, label);
+			OnCaptureCameraAdded(camId, sceneTexture, label);
 
 		}
 	}
@@ -141,7 +141,7 @@ void ADeepDriveAgent::UnregisterCaptureCamera(uint32 camId)
 			UCaptureCameraComponent *camComp = m_CaptureCameras[curIndex];
 			if(camComp)
 			{
-				OnCaptureCameraRemoved(camComp->getCameraId(), curIndex);
+				OnCaptureCameraRemoved(camComp->getCameraId());
 				DeepDriveCapture::GetInstance().UnregisterCaptureComponent(camComp->getCameraId());
 
 				camComp->DestroyComponent(true);
@@ -179,7 +179,7 @@ bool ADeepDriveAgent::setViewMode(int32 cameraId, const FString &viewModeName)
 			for (int32 camIndex = 0; camIndex < m_CaptureCameras.Num(); ++camIndex)
 			{
 				m_CaptureCameras[camIndex]->setViewMode(viewMode);
-				SetDepthTexture(cameraId, camIndex, viewMode ? m_CaptureCameras[camIndex]->getDepthRenderTexture() : 0);
+				SetDepthTexture(m_CaptureCameras[camIndex]->getCameraId(), viewMode ? m_CaptureCameras[camIndex]->getDepthRenderTexture() : 0);
 			}
 		}
 		else
@@ -189,7 +189,7 @@ bool ADeepDriveAgent::setViewMode(int32 cameraId, const FString &viewModeName)
 			if (camIndex >= 0)
 			{
 				m_CaptureCameras[camIndex]->setViewMode(viewMode);
-				SetDepthTexture(cameraId, camIndex, viewMode ? m_CaptureCameras[camIndex]->getDepthRenderTexture() : 0);
+				SetDepthTexture(cameraId, viewMode ? m_CaptureCameras[camIndex]->getDepthRenderTexture() : 0);
 			}
 			else
 			{
