@@ -2,7 +2,6 @@ import unreal_engine as ue
 import sys
 print(sys.executable)
 print(sys.exc_info())
-import deepdrive_client
 
 # TODO: Automate setting PYTHONHOME in DefaultEngine.ini in deepdrive repo
 # TODO: Set the ScriptsDir in C# correctly in deepdrive repo
@@ -13,12 +12,14 @@ worlds = ue.all_worlds()
 
 sim_world = [w for w in worlds if 'DeepDriveSim_Demo.DeepDriveSim_Demo' in w.get_full_name()][-1]
 
+print(sim_world)
 print(sim_world.get_full_name())
 
 controllers = [(a.get_full_name(), a)
                for a in sim_world.all_actors() if 'localaicontroller_' in a.get_full_name().lower()]
 print(controllers)
 controller = controllers[-1][1]
+
 print(dir(controller))
 print(controller.functions())
 print(controller.getIsPassing())
