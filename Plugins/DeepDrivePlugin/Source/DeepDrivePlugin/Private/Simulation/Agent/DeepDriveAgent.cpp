@@ -118,8 +118,7 @@ int32 ADeepDriveAgent::RegisterCaptureCamera(float fieldOfView, int32 captureWid
 			captureCamCmp->Initialize(sceneTexture, depthTexture, fieldOfView);
 
 			camId = captureCamCmp->getCameraId();
-			const int32 camIndex = m_CaptureCameras.Num();
-			m_CaptureCameras.Add(captureCamCmp);
+			m_CaptureCameras.Add(camId, captureCamCmp);
 			OnCaptureCameraAdded(camId, sceneTexture, label);
 
 		}
@@ -132,20 +131,35 @@ void ADeepDriveAgent::UnregisterCaptureCamera(uint32 camId)
 {
 	if(camId)
 	{
-
-	}
-	else
-	{
-		for(int32 curIndex = 0; curIndex < m_CaptureCameras.Num(); ++curIndex)
+		if(m_CaptureCameras.Contains(camId))
 		{
-			UCaptureCameraComponent *camComp = m_CaptureCameras[curIndex];
+			UCaptureCameraComponent *camComp = m_CaptureCameras[camId];
 			if(camComp)
 			{
 				OnCaptureCameraRemoved(camComp->getCameraId());
 				DeepDriveCapture::GetInstance().UnregisterCaptureComponent(camComp->getCameraId());
 
 				camComp->DestroyComponent(true);
-				m_CaptureCameras[curIndex] = 0;
+				m_CaptureCameras[camId] = 0;
+			}
+			m_CaptureCameras.Remove(camId);
+		}
+		else
+			UE_LOG(LogDeepDriveAgent, Error, TEXT("Camera with id % not found on agent %s"), camId, *(GetName()) );
+	}
+	else
+	{
+		UE_LOG(LogDeepDriveAgent, Log, TEXT("Unregistering all cameras on agent %s"), *(GetName()) );
+		for(auto &cIt : m_CaptureCameras)
+		{
+			UCaptureCameraComponent *camComp = cIt.Value;
+			if(camComp)
+			{
+				OnCaptureCameraRemoved(camComp->getCameraId());
+				DeepDriveCapture::GetInstance().UnregisterCaptureComponent(camComp->getCameraId());
+
+				camComp->DestroyComponent(true);
+				cIt.Value = 0;
 			}
 		}
 		m_CaptureCameras.Empty();
@@ -176,20 +190,18 @@ bool ADeepDriveAgent::setViewMode(int32 cameraId, const FString &viewModeName)
 	{
 		if (cameraId < 0)
 		{
-			for (int32 camIndex = 0; camIndex < m_CaptureCameras.Num(); ++camIndex)
+			for (auto &cIt :  m_CaptureCameras)
 			{
-				m_CaptureCameras[camIndex]->setViewMode(viewMode);
-				SetDepthTexture(m_CaptureCameras[camIndex]->getCameraId(), viewMode ? m_CaptureCameras[camIndex]->getDepthRenderTexture() : 0);
+				cIt.Value->setViewMode(viewMode);
+				SetDepthTexture(cIt.Value->getCameraId(), viewMode ? cIt.Value->getDepthRenderTexture() : 0);
 			}
 		}
 		else
 		{
-			int32 camIndex = findCaptureCamera(cameraId);
-			UE_LOG(LogDeepDriveAgent, Log, TEXT("Camera index %d"), camIndex );
-			if (camIndex >= 0)
+			if (m_CaptureCameras.Contains(cameraId))
 			{
-				m_CaptureCameras[camIndex]->setViewMode(viewMode);
-				SetDepthTexture(cameraId, viewMode ? m_CaptureCameras[camIndex]->getDepthRenderTexture() : 0);
+				m_CaptureCameras[cameraId]->setViewMode(viewMode);
+				SetDepthTexture(cameraId, viewMode ? m_CaptureCameras[cameraId]->getDepthRenderTexture() : 0);
 			}
 			else
 			{
@@ -362,17 +374,6 @@ void ADeepDriveAgent::OnDebugTrigger()
 ADeepDriveAgentControllerBase *ADeepDriveAgent::getAgentController()
 {
 	return Cast<ADeepDriveAgentControllerBase>(GetController());
-}
-
-int32 ADeepDriveAgent::findCaptureCamera(int32 id)
-{
-	int32 index = 0;
-	for (index = 0; index < m_CaptureCameras.Num(); ++index)
-	{
-		if (m_CaptureCameras[index]->getCameraId() == id)
-			break;
-	}
-	return index < m_CaptureCameras.Num() ? index : -1;
 }
 
 void ADeepDriveAgent::OnBeginOverlap(UPrimitiveComponent *OverlappedComponent, AActor *OtherActor, UPrimitiveComponent *OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult)

@@ -172,7 +172,7 @@ protected:
 
 private:
 
-	int32 findCaptureCamera(int32 id);
+	typedef TMap<uint32, UCaptureCameraComponent*>	CaptureCameraMap;
 
 	UFUNCTION()
 	void OnBeginOverlap(UPrimitiveComponent *OverlappedComponent, AActor *OtherActor, UPrimitiveComponent *OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult &SweepResult);
@@ -187,7 +187,7 @@ private:
 
 	ADeepDriveAgentControllerBase		*m_AgentController = 0;
 
-	TArray< UCaptureCameraComponent*>	m_CaptureCameras;
+	CaptureCameraMap					m_CaptureCameras;
 	
 	float								m_curSteering = 0.0f;
 	float								m_curThrottle = 0.0f;
