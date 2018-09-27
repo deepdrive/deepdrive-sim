@@ -54,46 +54,7 @@ class DummyPyActor:
         ue.log('Begin Play on DummyPyActor class')
         self._find_world()
 
-        # controllers = [(a.get_full_name(), a)
-        #                for a in sim_world.all_actors() if 'localaicontroller_' in a.get_full_name().lower()]
-        # print(controllers)
 
-        # try:
-        #     print(self.get_current_level())
-        # except Exception as e:
-        #     print(e)
-
-        # controllers = [(a.get_full_name(), a)
-        #                for a in sim_world.all_actors() if 'localaicontroller_' in a.get_full_name().lower()]
-        #
-        # print(controllers)
-        # controller = controllers[-1][1]
-        # print(dir(controller))
-        # print(controller.functions())
-        # print(controller.getIsPassing())
-
-        #
-        # print(controllers)
-        #
-        # local_ai_controller = controllers[1][1]
-        #
-        # from unreal_engine.classes import DeepDriveAgentLocalAIController
-        #
-        # # print(dir(ue.all_worlds()[0]))
-        #
-        # print(local_ai_controller.get_class())
-        # print(local_ai_controller.__class__)
-        # print(local_ai_controller.functions())
-        # print(local_ai_controller.GetActorBounds())
-        #
-        # # print(ue.all_worlds()[0].get_components_by_class(DeepDriveAgentLocalAIController))
-        #
-        # agents = [(a.get_full_name(), a)
-        #           for a in ue.all_worlds()[0].all_actors() if 'agent' in a.get_full_name().lower()]
-        #
-        # print(agents)
-        #
-        # print(agents[0][1].ChaseCamera)
 
     # this is called at every 'tick'
     def tick(self, delta_time):

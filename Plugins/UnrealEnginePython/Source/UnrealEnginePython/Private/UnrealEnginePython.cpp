@@ -16,9 +16,13 @@
 
 #if ENGINE_MINOR_VERSION >= 18
 #define PROJECT_CONTENT_DIR FPaths::ProjectContentDir()
+#define PROJECT_DIR FPaths::ProjectDir()
 #else
 #define PROJECT_CONTENT_DIR FPaths::GameContentDir()
+#define PROJECT_DIR FPaths::GameDir()
+
 #endif
+
 
 #if PLATFORM_MAC
 #include "Runtime/Core/Public/Mac/CocoaThread.h"
@@ -250,7 +254,7 @@ void FUnrealEnginePythonModule::StartupModule()
 
 	if (GConfig->GetString(UTF8_TO_TCHAR("Python"), UTF8_TO_TCHAR("RelativeHome"), PythonHome, GEngineIni))
 	{
-		PythonHome = FPaths::Combine(*PROJECT_CONTENT_DIR, *PythonHome);
+		PythonHome = FPaths::Combine(*PROJECT_DIR, *PythonHome);
 		FPaths::NormalizeFilename(PythonHome);
 		PythonHome = FPaths::ConvertRelativePathToFull(PythonHome);
 #if PY_MAJOR_VERSION >= 3

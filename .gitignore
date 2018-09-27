@@ -101,3 +101,6 @@ PKG-INFO
 
 # manylinux build artifacts
 wheelhouse
+
+# embedded Python dependencies (pyzmq and pyarrow)
+python_libs
