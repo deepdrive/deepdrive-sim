@@ -329,6 +329,7 @@ public class UnrealEnginePython : ModuleRules
             string headerFile = Path.Combine(path, "Python.h");
             if (File.Exists(headerFile))
             {
+                System.Console.WriteLine("Using linux include path at " + path);
                 return path;
             }
         }
@@ -345,6 +346,7 @@ public class UnrealEnginePython : ModuleRules
         {
             if (File.Exists(path))
             {
+                System.Console.WriteLine("Using linux lib path at " + path);
                 return path;
             }
         }

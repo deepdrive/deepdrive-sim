@@ -13,8 +13,13 @@ try:
 except ImportError:
     START_UNREAL_API_SERVER = False
     CURR_PATH = Path(__file__).resolve().parent
-    print('To enable the UnrealPython API, start the sim through the deepdrive project (github.com/deepdrive/deepdrive)'
-          ' and enter %s as the simulator project directory ' % CURR_PATH)
+    print('To enable the UnrealPython API, start the sim '
+          '\n\tthrough the deepdrive project (github.com/deepdrive/deepdrive)'
+          '\n\tand enter %s'
+          '\n\tas the simulator project directory when prompted.'
+          '\n\tAlternately, you can download the dependencies from'
+          '\n\thttps://s3-us-west-1.amazonaws.com/deepdrive/unreal_python_lib/python_libs.zip'
+          '\n\tand extract into <your-project-root>/python_libs' % CURR_PATH)
 
 
 def start_unreal_api_server():
