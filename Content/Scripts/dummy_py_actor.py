@@ -4,8 +4,7 @@ import unreal_engine as ue
 
 """Liason class between Python and Unreal that allows hooking into the world tick"""
 
-ue.log('Loading DummyPyActor')
-
+print('Loading DummyPyActor')
 
 class DummyPyActor:
 
@@ -16,27 +15,21 @@ class DummyPyActor:
 
     def _find_world(self):
         self.worlds = ue.all_worlds()
-        # ue.log('All worlds length ' + str(len(self.worlds)))
+        # print('All worlds length ' + str(len(self.worlds)))
 
         # print([w.get_full_name() for w in self.worlds])
 
         if hasattr(ue, 'get_editor_world'):
-            # ue.log('Detected Unreal Editor')
-            sim_world = ue.get_editor_world()
+            # print('Detected Unreal Editor')
+            self.worlds.append(ue.get_editor_world())
         else:
-            # ue.log('Determined we are in a packaged game')
-            sim_world = self.uobject.get_current_level()
-        # print(sim_world)
-        # print(sim_world.get_full_name())
+            # print('Determined we are in a packaged game')
+            # self.worlds.append(self.uobject.get_current_level()) # A LEVEL IS NOT A WORLD
+            pass
 
-        sim_demo_worlds = [w for w in self.worlds if 'DeepDriveSim_Demo.DeepDriveSim_Demo' in w.get_full_name()]
+        self.worlds = [w for w in self.worlds if 'DeepDriveSim_Demo.DeepDriveSim_Demo' in w.get_full_name()]
 
-        # print('sim demo worlds are ')
-        # print(sim_demo_worlds)
-
-        possible_worlds = [sim_world] + sim_demo_worlds
-
-        for w in possible_worlds:
+        for w in self.worlds:
             self.ai_controllers = [a for a in w.all_actors()
                                    if 'localaicontroller_' in a.get_full_name().lower()]
             if self.ai_controllers:
@@ -51,7 +44,7 @@ class DummyPyActor:
 
     # this is called on game start
     def begin_play(self):
-        ue.log('Begin Play on DummyPyActor class')
+        print('Begin Play on DummyPyActor class')
         self._find_world()
 
 
@@ -73,3 +66,6 @@ class DummyPyActor:
         # # set new location
         # self.uobject.set_actor_location(location)
 
+# if __name__ == '__main__':
+#     print('main')
+#     DummyPyActor()._find_world()

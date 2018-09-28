@@ -25,7 +25,8 @@ cd ${unreal_dir}/Engine/Build/BatchFiles
 
 sudo chown -Rh ${user}:${user} ${root_dir}
 
-# Development_Server
+set +v
+# Development_Server notes
 
 # 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Development_Server|x64'">
 #		<LocalDebuggerCommandArguments>"$(SolutionDir)$(ProjectName).uproject" -skipcompile</LocalDebuggerCommandArguments>
@@ -81,6 +82,7 @@ sudo chown -Rh ${user}:${user} ${root_dir}
 
 # Server
 # C:\Users\a\src\UnrealEngine\Engine\Build\BatchFiles\Build.bat DeepDriveServer Linux Development "C:\Users\a\src\deepdrive-sim\DeepDrive.uproject" -waitmutex
+set -v
 
 # Build project including Deepdrive and DeepdrivePlugin modules - TODO: Use Build.sh?
 sudo -u ${user} HOME=/home/${user} ${unreal_dir}/Engine/Binaries/DotNET/UnrealBuildTool.exe DeepDrive Development \
@@ -92,5 +94,3 @@ sudo -u ${user} HOME=/home/${user} ./RunUAT.sh -ScriptsForProject=${root_dir}/De
     -archivedirectory=${output_dir} -package -clientconfig=Development -ue4exe=UE4Editor -clean -pak -prereqs \
     -nodebuginfo -targetplatform=Linux -build
 
-# npm install --global empty-trash-cli
-# empty-trash??????

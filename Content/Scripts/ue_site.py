@@ -10,6 +10,7 @@ try:
     import zmq
     import pyarrow
     START_UNREAL_API_SERVER = True
+    print('Starting UnrealPython server on zmq!')
 except ImportError:
     START_UNREAL_API_SERVER = False
     CURR_PATH = Path(__file__).resolve().parent
