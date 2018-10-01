@@ -71,6 +71,21 @@ void ADeepDriveAgent::BeginPlay()
 	GetActorBounds(true, origin, m_Dimensions);
 
 	m_prevVelocity = m_AngularVelocity = m_prevAngularVelocity = FVector(0.0f, 0.0f, 0.0f);
+
+	if (	FrontBumperDistance <= 0.0f && BackBumperDistance <= 0.0f
+		&&	CollisionFrontCenterBumper && CollisionRearCenterBumper
+		)
+	{
+		FVector2D forwardBumperLoc(CollisionFrontCenterBumper->GetRelativeTransform().GetLocation());
+		FVector2D rearBumperLoc(CollisionRearCenterBumper->GetRelativeTransform().GetLocation());
+		FVector2D forward = forwardBumperLoc - rearBumperLoc;
+		forward.Normalize();
+
+		FrontBumperDistance = FMath::Abs(FVector2D::DotProduct(forward, forwardBumperLoc));
+		BackBumperDistance = FMath::Abs(FVector2D::DotProduct(forward, rearBumperLoc));
+
+		UE_LOG(LogDeepDriveAgent, Log, TEXT("Calculated FrontBumperDist to %f and BackBmperDistance to %f"), FrontBumperDistance, BackBumperDistance);
+	}
 }
 
 void ADeepDriveAgent::Tick( float DeltaSeconds )
