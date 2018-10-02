@@ -1,3 +1,7 @@
+# Vendored into Deepdrive
+from https://github.com/deepdrive/UnrealEnginePython
+
+To merge in changes
 
 # UnrealEnginePython
 Embed Python in Unreal Engine 4
@@ -686,7 +690,7 @@ The following parameters are supported:
 * `RelativeAdditionalModulesPath`: like AdditionalModulesPath, but the path is relative to the /Content directory
 * `ZipPath`: allow to specify a .zip file that is added to sys.path
 * `RelativeZipPath`: like ZipPath, but the path is relative to the /Content directory
-* `ImportModules: comma/space/semicolon separated list of modules to import on startup (after ue_site)
+* `ImportModules`: comma/space/semicolon separated list of modules to import on startup (after ue_site)
 
 Example:
 

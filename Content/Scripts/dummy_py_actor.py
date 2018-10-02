@@ -1,10 +1,30 @@
-import time
-
 import unreal_engine as ue
+from pathlib import Path
+import asyncio
+
+from lambda_server import LambdaServer
 
 """Liason class between Python and Unreal that allows hooking into the world tick"""
 
 print('Loading DummyPyActor')
+
+try:
+    import zmq
+    import pyarrow
+
+    START_UNREAL_API_SERVER = True
+    print('Starting UnrealPython server on zmq!')
+except ImportError:
+    START_UNREAL_API_SERVER = False
+    CURR_PATH = Path(__file__).resolve().parent
+    print('To enable the UnrealPython API, start the sim '
+          '\n\tthrough the deepdrive project (github.com/deepdrive/deepdrive)'
+          '\n\tand enter %s'
+          '\n\tas the simulator project directory when prompted.'
+          '\n\tAlternately, you can download the dependencies from'
+          '\n\thttps://s3-us-west-1.amazonaws.com/deepdrive/unreal_python_lib/python_libs.zip'
+          '\n\tand extract into <your-project-root>/python_libs' % CURR_PATH)
+
 
 class DummyPyActor:
 
@@ -12,6 +32,18 @@ class DummyPyActor:
         self.worlds = None
         self.world = None
         self.ai_controllers = None
+        self.started_server = False
+
+    def begin_play(self):
+        print('Begin Play on DummyPyActor class')
+        self._find_world()
+
+    def tick(self, delta_time):
+        if self.world is None:
+            self._find_world()
+        elif not self.started_server:
+            asyncio.ensure_future(LambdaServer().run(self.world))
+            self.started_server = True
 
     def _find_world(self):
         self.worlds = ue.all_worlds()
@@ -31,41 +63,15 @@ class DummyPyActor:
 
         for w in self.worlds:
             self.ai_controllers = [a for a in w.all_actors()
-                                   if 'localaicontroller_' in a.get_full_name().lower()]
+                                   if 'LocalAIController_'.lower() in a.get_full_name().lower()]
             if self.ai_controllers:
                 self.world = w
-                print('FOUND WORLD WITH CONTROLLER !!!!!!!!!!!!!!!!!')
+                print('Found current world')
                 break
         else:
-            # print('NO WORLDS WITH CONTROLLER')
+            # print('Current world not detected')
             pass
 
         return self.world
 
-    # this is called on game start
-    def begin_play(self):
-        print('Begin Play on DummyPyActor class')
-        self._find_world()
 
-
-
-    # this is called at every 'tick'
-    def tick(self, delta_time):
-        if self.world is None:
-            self._find_world()
-
-        for controller in self.ai_controllers:
-            if controller.getIsPassing():
-                print('IS PASSING!!!!!!!!!!!!!!!!!!!!!!!')
-
-        # py.cmd print([a.get_full_name() for a in ue.all_worlds()[0].all_actors()])
-        #  # get current location
-        # location = self.uobject.get_actor_location()
-        # # increase Z honouring delta_time
-        # location.z += 100 * delta_time
-        # # set new location
-        # self.uobject.set_actor_location(location)
-
-# if __name__ == '__main__':
-#     print('main')
-#     DummyPyActor()._find_world()
