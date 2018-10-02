@@ -47,4 +47,5 @@ void DeepDriveAgentPullInState::exit(DeepDriveAgentLocalAIStateMachineContext &c
 {
 	ctx.wait_time_before_overtaking = 2.0f;
 	ctx.side_offset = m_curOffset;
+	ctx.local_ai_ctrl.setIsPassing(false);
 }

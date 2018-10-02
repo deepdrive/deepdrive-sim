@@ -65,6 +65,9 @@ public:
 
 	float getDistanceToCenterOfTrack();
 
+	void setIsPassing(bool isPassing);
+	bool isPassing() const;
+
 protected:
 
 	void activateController(ADeepDriveAgent &agent);
@@ -83,6 +86,7 @@ protected:
 
 	FString								m_ControllerName = "DeepDriveAgentControllerBase";
 	bool								m_isGameDriving = false;
+	bool								m_isPassing = false;
 
 	bool								m_LapStarted = false;
 
@@ -96,4 +100,14 @@ protected:
 inline const FString& ADeepDriveAgentControllerBase::getControllerName() const
 {
 	return m_ControllerName;
+}
+
+inline void ADeepDriveAgentControllerBase::setIsPassing(bool isPassing)
+{
+	m_isPassing = isPassing;
+}
+
+inline bool ADeepDriveAgentControllerBase::isPassing() const
+{
+	return m_isPassing;
 }

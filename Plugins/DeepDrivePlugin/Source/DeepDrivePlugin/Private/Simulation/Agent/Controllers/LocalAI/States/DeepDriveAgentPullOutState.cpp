@@ -23,6 +23,8 @@ void DeepDriveAgentPullOutState::enter(DeepDriveAgentLocalAIStateMachineContext 
 
 	startThinkTimer(ctx.configuration.ThinkDelays.Y, false);
 
+	ctx.local_ai_ctrl.setIsPassing(true);
+
 	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT(">>>> Pulling out Agent %d"), ctx.agent.getAgentId());
 }
 

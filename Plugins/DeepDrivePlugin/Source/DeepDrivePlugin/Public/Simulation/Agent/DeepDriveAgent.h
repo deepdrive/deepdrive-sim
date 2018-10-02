@@ -181,9 +181,9 @@ private:
 
 	int32								m_AgentId;
 	ADeepDriveAgent						*m_NextAgent = 0;
-	float								m_DistanceToNextAgent = 0.0f;
+	float								m_DistanceToNextAgent = -1.0f;
 	ADeepDriveAgent						*m_PrevAgent = 0;
-	float								m_DistanceToPrevAgent = 0.0f;
+	float								m_DistanceToPrevAgent = -1.0f;
 
 	ADeepDriveAgentControllerBase		*m_AgentController = 0;
 

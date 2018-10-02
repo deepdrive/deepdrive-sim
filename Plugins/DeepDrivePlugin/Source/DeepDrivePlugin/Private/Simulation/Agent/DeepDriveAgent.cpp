@@ -343,6 +343,9 @@ void ADeepDriveAgent::beginCapture(DeepDriveDataOut &deepDriveData)
 	deepDriveData.Brake = m_curBrake;
 	deepDriveData.Handbrake = m_curHandbrake;
 
+	deepDriveData.DistanceToNextAgent = m_NextAgent ? m_DistanceToNextAgent : -1.0f;
+	deepDriveData.DistanceToPrevAgent = m_PrevAgent ? m_DistanceToPrevAgent : -1.0f;
+	deepDriveData.DistanceToNextOpposingAgent = -1.0f;
 
 	deepDriveData.LapNumber = m_NumberOfLaps;
 
@@ -353,10 +356,12 @@ void ADeepDriveAgent::beginCapture(DeepDriveDataOut &deepDriveData)
 	    deepDriveData.DistanceAlongRoute = ctrl->getDistanceAlongRoute();
 	    deepDriveData.RouteLength = ctrl->getRouteLength();
 	    deepDriveData.DistanceToCenterOfLane = ctrl->getDistanceToCenterOfTrack();
+		deepDriveData.IsPassing = ctrl->isPassing();
 	}
 	else
 	{
 	    deepDriveData.CollisionData = DeepDriveCollisionData();
+		deepDriveData.IsPassing = false;
 	}
 }
 

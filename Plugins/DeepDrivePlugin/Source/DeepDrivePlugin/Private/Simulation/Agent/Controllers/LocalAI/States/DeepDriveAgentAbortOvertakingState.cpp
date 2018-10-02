@@ -133,6 +133,7 @@ void DeepDriveAgentAbortOvertakingState::exit(DeepDriveAgentLocalAIStateMachineC
 {
 	ctx.wait_time_before_overtaking = 4.0f;
 	ctx.side_offset = m_curOffset;
+	ctx.local_ai_ctrl.setIsPassing(false);
 }
 
 

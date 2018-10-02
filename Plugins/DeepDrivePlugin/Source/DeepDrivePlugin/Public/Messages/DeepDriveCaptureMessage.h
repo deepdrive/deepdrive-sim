@@ -81,9 +81,15 @@ struct DeepDriveCaptureMessage	:	public DeepDriveMessageHeader
 
 	double						distance_to_center_of_lane;
 
-	int32						lap_number;
+	double						distance_to_next_agent;
 
-	uint32						padding_1;
+	double						distance_to_prev_agent;
+
+	double						distance_to_next_opposing_agent;
+
+	uint32						is_passing;
+
+	int32						lap_number;
 
 	double						speed;
 

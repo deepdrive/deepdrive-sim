@@ -124,7 +124,7 @@ PyMODINIT_FUNC PyInit_deepdrive_capture(void)
 
 	}
 
-	std::cout << "### ><>|><> PyInit_deepdrive_capture <><|<>< ###\n";
+	std::cout << "## ><>|><> PyInit_deepdrive_capture <><|<>< ##\n";
 	(void) PyCaptureCameraObject::initNumPy();
 	(void) PyCaptureLastCollisionObject::initNumPy();
 	(void) PyCaptureSnapshotObject::initNumPy();

@@ -20,8 +20,6 @@ void DeepDriveAgentPassingState::enter(DeepDriveAgentLocalAIStateMachineContext 
 	m_AgentToPass = ctx.agent.getNextAgent(-1.0f);
 	
 	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT(">>>> Passing agent %d/%s"), m_AgentToPass ? m_AgentToPass->getAgentId() : -1, *(m_AgentToPass ? *(m_AgentToPass->GetName()) : FString("")) );
-
-	ctx.local_ai_ctrl.setIsPassing(true);
 }
 
 void DeepDriveAgentPassingState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)
@@ -55,7 +53,6 @@ void DeepDriveAgentPassingState::update(DeepDriveAgentLocalAIStateMachineContext
 
 void DeepDriveAgentPassingState::exit(DeepDriveAgentLocalAIStateMachineContext &ctx)
 {
-	ctx.local_ai_ctrl.setIsPassing(false);
 }
 
 bool DeepDriveAgentPassingState::abortOvertaking(DeepDriveAgentLocalAIStateMachineContext &ctx)

@@ -64,6 +64,14 @@ struct PyCaptureSnapshotObject
 
 	double				distance_to_center_of_lane;
 
+	double				distance_to_next_agent;
+
+	double				distance_to_prev_agent;
+
+	double				distance_to_next_opposing_agent;
+
+	uint32_t			is_passing;
+
 	uint32_t			lap_number;
 
 	PyCaptureLastCollisionObject	*last_collision;
@@ -98,6 +106,10 @@ static PyMemberDef PyCaptureSnapshotMembers[] =
 	{"distance_along_route", T_DOUBLE, offsetof(PyCaptureSnapshotObject, distance_along_route), 0, "Distance achieved to destination on designated route in cm"},
 	{"route_length", T_DOUBLE, offsetof(PyCaptureSnapshotObject, route_length), 0, "Total length of current route."},
 	{"distance_to_center_of_lane", T_DOUBLE, offsetof(PyCaptureSnapshotObject, distance_to_center_of_lane), 0, "Last distance to previously achieved waypoint - where waypoints are 4m apart"},
+	{"distance_to_next_agent", T_DOUBLE, offsetof(PyCaptureSnapshotObject, distance_to_next_agent), 0, "Distance to next agent on this lane"},
+	{"distance_to_prev_agent", T_DOUBLE, offsetof(PyCaptureSnapshotObject, distance_to_prev_agent), 0, "Distance to previous agent on this lane"},
+	{"distance_to_next_opposing_agent", T_DOUBLE, offsetof(PyCaptureSnapshotObject, distance_to_next_opposing_agent), 0, "Distance to next agent on opposing lane"},
+	{"is_passing", T_UINT, offsetof(PyCaptureSnapshotObject, is_passing), 0, "Boolean flag whether agent is currently passing another agent"},
 	{"lap_number", T_UINT, offsetof(PyCaptureSnapshotObject, lap_number), 0, "Number of laps achieved since last reset"},
 	{"last_collision", T_OBJECT_EX, offsetof(PyCaptureSnapshotObject, last_collision), 0, "Last collision data"},
 	{"camera_count", T_UINT, offsetof(PyCaptureSnapshotObject, camera_count), 0, "Number of captured cameras"},

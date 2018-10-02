@@ -48,4 +48,5 @@ void DeepDriveAgentPullBackInState::update(DeepDriveAgentLocalAIStateMachineCont
 void DeepDriveAgentPullBackInState::exit(DeepDriveAgentLocalAIStateMachineContext &ctx)
 {
 	ctx.wait_time_before_overtaking = 2.0f;
+	ctx.local_ai_ctrl.setIsPassing(false);
 }

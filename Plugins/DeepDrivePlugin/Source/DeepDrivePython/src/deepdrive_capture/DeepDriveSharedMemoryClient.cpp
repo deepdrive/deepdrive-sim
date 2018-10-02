@@ -70,6 +70,10 @@ PyCaptureSnapshotObject* DeepDriveSharedMemoryClient::readMessage()
 						msg->distance_along_route = captureMsg->distance_along_route;
 						msg->route_length = captureMsg->route_length;
 						msg->distance_to_center_of_lane = captureMsg->distance_to_center_of_lane;
+						msg->distance_to_next_agent = captureMsg->distance_to_next_agent;
+						msg->distance_to_prev_agent = captureMsg->distance_to_prev_agent;
+						msg->distance_to_next_opposing_agent = captureMsg->distance_to_next_opposing_agent;
+						msg->is_passing = captureMsg->is_passing;
 						msg->lap_number = captureMsg->lap_number;
 
 						msg->steering = captureMsg->steering;

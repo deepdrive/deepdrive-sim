@@ -55,6 +55,14 @@ struct DeepDriveDataOut
 
 	float		DistanceToCenterOfLane;
 
+	float		DistanceToNextAgent;
+
+	float		DistanceToPrevAgent;
+
+	float		DistanceToNextOpposingAgent;
+
+	bool		IsPassing;
+
 	int			LapNumber;
 
 	DeepDriveCollisionData		CollisionData;

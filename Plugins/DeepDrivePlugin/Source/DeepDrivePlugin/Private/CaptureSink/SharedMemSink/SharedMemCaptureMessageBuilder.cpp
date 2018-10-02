@@ -29,7 +29,6 @@ void SharedMemCaptureMessageBuilder::begin(const DeepDriveDataOut &deepDriveData
 		m_Message->sequence_number = sequenceNumber;
 		m_Message->creation_timestamp = timestamp;
 		m_Message->padding_0 = 0xEFBEADDE;
-		m_Message->padding_1 = 0xEFBEADDE;
 
 		m_Message->position = DeepDriveVector3(deepDriveData.Position);
 
@@ -58,6 +57,10 @@ void SharedMemCaptureMessageBuilder::begin(const DeepDriveDataOut &deepDriveData
 		m_Message->distance_along_route = deepDriveData.DistanceAlongRoute;
 		m_Message->route_length = deepDriveData.RouteLength;
 		m_Message->distance_to_center_of_lane = deepDriveData.DistanceToCenterOfLane;
+		m_Message->distance_to_next_agent = deepDriveData.DistanceToNextAgent;
+		m_Message->distance_to_prev_agent = deepDriveData.DistanceToPrevAgent;
+		m_Message->distance_to_next_opposing_agent = deepDriveData.DistanceToNextOpposingAgent;
+		m_Message->is_passing = deepDriveData.IsPassing ? 1 : 0;
 		m_Message->lap_number = deepDriveData.LapNumber;
 
 		m_Message->last_collision.time_utc = deepDriveData.CollisionData.LastCollisionTimeUTC.ToUnixTimestamp();

@@ -132,12 +132,6 @@ public:
 	float getDesiredSpeed() const;
 	void setDesiredSpeed(float desiredSpeed);
 
-	UFUNCTION(BlueprintCallable, Category = "StateMachine")
-    bool getIsPassing() const;
-
-    UFUNCTION(BlueprintCallable, Category = "StateMachine")
-    void setIsPassing(bool isPassing);
-
 protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIProps")
@@ -169,11 +163,7 @@ protected:
 
 private:
 
-    // Cannot be UPROPERTY as we are inheriting from template type TStateMachine
-    // https://answers.unrealengine.com/questions/101638/multiple-inheritance-not-working-with-uclass.html
 	DeepDriveAgentLocalAIStateMachine			m_StateMachine;
-
-	bool										m_isPassing = false;
 
 };
 
@@ -186,15 +176,4 @@ inline float ADeepDriveAgentLocalAIController::getDesiredSpeed() const
 inline void ADeepDriveAgentLocalAIController::setDesiredSpeed(float desiredSpeed)
 {
 	m_DesiredSpeed = desiredSpeed;
-}
-
-
-inline bool ADeepDriveAgentLocalAIController::getIsPassing() const
-{
-	return m_isPassing;
-}
-
-inline void ADeepDriveAgentLocalAIController::setIsPassing(bool isPassing)
-{
-	m_isPassing = isPassing;
 }
