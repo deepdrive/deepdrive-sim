@@ -34,6 +34,7 @@ class DummyPyActor:
         self.ai_controllers = None
         self.started_server = False
         self.event_loop = None
+        self.lambda_server = None
 
     def begin_play(self):
         print('Begin Play on DummyPyActor class')
@@ -48,11 +49,28 @@ class DummyPyActor:
             asyncio.set_event_loop(self.event_loop)
             # self.event_loop.set_debug(enabled=True)
             print('Creating server task')
-            asyncio.ensure_future(LambdaServer().run(self.world))
+            self.lambda_server = LambdaServer()
+            asyncio.ensure_future(self.lambda_server.run(self.world))
             self.started_server = True
         elif self.event_loop is not None:
             self.event_loop.stop()
             self.event_loop.run_forever()
+
+    def end_play(self, end_code):
+        print('Closing lambda server event loop')
+        # for task in asyncio.Task.all_tasks():
+        #     task.cancel()
+        try:
+            self.event_loop.run_forever()
+        finally:
+            self.lambda_server.close()
+            self.event_loop.close()
+
+        # try:
+        #
+        # else:
+        #     # self.event_loop.run_until_complete(self.event_loop.shutdown_asyncgens())
+        #     self.event_loop.close()
 
     def _find_world(self):
         self.worlds = ue.all_worlds()

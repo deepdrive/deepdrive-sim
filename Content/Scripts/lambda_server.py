@@ -11,7 +11,6 @@ import pyarrow
 import zmq.asyncio
 import zmq
 
-
 API_PORT = 5657
 API_TIMEOUT_MS = 5000
 
@@ -35,7 +34,7 @@ class LambdaServer(object):
 
         # noinspection PyUnresolvedReferences
         socket = self.context.socket(zmq.PAIR)
-        
+
         # Creating a new socket on timeout is not working when other ZMQ connections are present in the process.
         # socket.RCVTIMEO = API_TIMEOUT_MS
         # socket.SNDTIMEO = API_TIMEOUT_MS
@@ -49,25 +48,33 @@ class LambdaServer(object):
         print('Unreal Lambda server started at %s' % self.conn_string)
         while True:
             try:
-                _locals = {'world': world}
-                msg = await self.socket.recv()
-                expression_str, local_vars = pyarrow.deserialize(msg)
-                _locals.update(local_vars)
-                await self.eval(expression_str, _locals)
+                await self.check_for_messages(world)
+            except asyncio.CancelledError:
+                print('Server shut down signal detected')
+                self.close()
+                break
 
-                """
-                TODO: support simpler RPC as well
-                ```
-                    method_name, args, kwargs = pyarrow.deserialize(msg)
-                    fn = eval(method_name)
-                    resp = fn(*args, **kwargs)
-                    self.socket.send(pyarrow.serialize(resp).to_buffer())
-                ```                
-                """
+    async def check_for_messages(self, world):
+        try:
+            _locals = {'world': world}
+            msg = await self.socket.recv()
+            expression_str, local_vars = pyarrow.deserialize(msg)
+            _locals.update(local_vars)
+            await self.eval(expression_str, _locals)
 
-            except zmq.error.Again:
-                print('Waiting for client')
-                await self.create_socket()
+            """
+            TODO: support simpler RPC as well
+            ```
+                method_name, args, kwargs = pyarrow.deserialize(msg)
+                fn = eval(method_name)
+                resp = fn(*args, **kwargs)
+                self.socket.send(pyarrow.serialize(resp).to_buffer())
+            ```                
+            """
+
+        except zmq.error.Again:
+            print('Waiting for client')
+            await self.create_socket()
 
     async def eval(self, expression_str, local_vars):
         try:
@@ -79,6 +86,17 @@ class LambdaServer(object):
         else:
             await self.socket.send(pyarrow.serialize(
                 {'success': True, 'result': resp}).to_buffer())
+
+    def __del__(self):
+        self.close()
+
+    def close(self):
+        print('Closing lambda server')
+        try:
+            self.socket.close()
+            self.context.term()
+        except Exception as e:
+            print('Error closing lambda server ' + str(e))
 
 
 if __name__ == '__main__':
