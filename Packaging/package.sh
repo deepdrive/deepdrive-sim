@@ -46,3 +46,6 @@ wget https://s3-us-west-1.amazonaws.com/deepdrive/unreal_python_lib/python_libs.
 unzip -d python_libs ${TMPFILE}
 mv python_libs ${output_dir}/LinuxNoEditor/DeepDrive/
 rm ${TMPFILE}
+
+sudo chown -Rh ${user}:${user} ${output_dir}
+
