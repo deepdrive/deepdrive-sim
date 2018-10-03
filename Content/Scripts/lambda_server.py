@@ -71,7 +71,7 @@ class LambdaServer(object):
 
     async def eval(self, expression_str, local_vars):
         try:
-            # Expression can be something like [(a.get_full_name(), a) for a in sim_world.all_actors() if 'localaicontroller_' in a.get_full_name().lower()]
+            # Expression can be something like [(a.get_full_name(), a) for a in world.all_actors() if 'localaicontroller_' in a.get_full_name().lower()]
             resp = eval(expression_str, None, local_vars)
         except SyntaxError:
             await self.socket.send(pyarrow.serialize(
