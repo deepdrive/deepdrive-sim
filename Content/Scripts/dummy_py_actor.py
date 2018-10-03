@@ -58,19 +58,9 @@ class DummyPyActor:
 
     def end_play(self, end_code):
         print('Closing lambda server event loop')
-        # for task in asyncio.Task.all_tasks():
-        #     task.cancel()
-        try:
-            self.event_loop.run_forever()
-        finally:
-            self.lambda_server.close()
-            self.event_loop.close()
+        self.lambda_server.close()
+        self.event_loop.close()
 
-        # try:
-        #
-        # else:
-        #     # self.event_loop.run_until_complete(self.event_loop.shutdown_asyncgens())
-        #     self.event_loop.close()
 
     def _find_world(self):
         self.worlds = ue.all_worlds()

@@ -213,7 +213,7 @@ static PyObject* deepdrive_client_register_camera(PyObject *self, PyObject *args
 	return Py_BuildValue("i", res);
 }
 
-/*	Register a new capture camera
+/*	Unregister camera
  *
  *	@param	uint32		Client Id
  *	@param	uint32		Camera Id

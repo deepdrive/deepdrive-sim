@@ -94,7 +94,6 @@ class LambdaServer(object):
         print('Closing lambda server')
         try:
             self.socket.close()
-            self.context.term()
         except Exception as e:
             print('Error closing lambda server ' + str(e))
 
