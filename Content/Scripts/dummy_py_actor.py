@@ -33,6 +33,7 @@ class DummyPyActor:
         self.world = None
         self.ai_controllers = None
         self.started_server = False
+        self.event_loop = None
 
     def begin_play(self):
         print('Begin Play on DummyPyActor class')
@@ -42,8 +43,16 @@ class DummyPyActor:
         if self.world is None:
             self._find_world()
         elif not self.started_server:
+            print('Creating new event loop. You should only see this once!')
+            self.event_loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(self.event_loop)
+            # self.event_loop.set_debug(enabled=True)
+            print('Creating server task')
             asyncio.ensure_future(LambdaServer().run(self.world))
             self.started_server = True
+        elif self.event_loop is not None:
+            self.event_loop.stop()
+            self.event_loop.run_forever()
 
     def _find_world(self):
         self.worlds = ue.all_worlds()
@@ -66,7 +75,7 @@ class DummyPyActor:
                                    if 'LocalAIController_'.lower() in a.get_full_name().lower()]
             if self.ai_controllers:
                 self.world = w
-                print('Found current world')
+                print('Found current world: ' + str(w))
                 break
         else:
             # print('Current world not detected')

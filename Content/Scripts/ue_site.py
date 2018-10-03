@@ -5,29 +5,6 @@ If the module cannot be imported, you will get a (harmful) message in the logs.
 This file is also necessary for packaged builds
 """
 
-import asyncio
-import unreal_engine as ue
-
-
-def main():
-    print('Creating new event loop. You should only see this once!')
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-
-    def ticker_loop(delta_time):
-        try:
-            loop.stop()
-            loop.run_forever()
-        except Exception as e:
-            ue.log_error(e)
-        return True
-
-    ticker = ue.add_ticker(ticker_loop)
-
-
-if __name__ == '__main__':
-    main()
-
 # TODO: Perhaps download python libs here with:
 # import os
 # # noinspection PyCompatibility

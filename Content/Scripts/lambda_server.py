@@ -83,6 +83,7 @@ class LambdaServer(object):
 
 if __name__ == '__main__':
     # Just for testing - dummy_actor starts server in-game to ensure world is loaded prior
+    print('Testing event loop server')
     loop = asyncio.get_event_loop()
     loop.set_debug(enabled=True)
     loop.run_until_complete(LambdaServer().run(world=None))
