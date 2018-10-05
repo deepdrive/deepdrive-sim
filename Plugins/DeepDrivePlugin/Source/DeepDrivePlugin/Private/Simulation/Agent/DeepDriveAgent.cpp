@@ -154,7 +154,7 @@ void ADeepDriveAgent::UnregisterCaptureCamera(uint32 camId)
 				OnCaptureCameraRemoved(camComp->getCameraId());
 				DeepDriveCapture::GetInstance().UnregisterCaptureComponent(camComp->getCameraId());
 
-				camComp->DestroyComponent(true);
+				camComp->destroy();
 				m_CaptureCameras[camId] = 0;
 			}
 			m_CaptureCameras.Remove(camId);
@@ -173,7 +173,7 @@ void ADeepDriveAgent::UnregisterCaptureCamera(uint32 camId)
 				OnCaptureCameraRemoved(camComp->getCameraId());
 				DeepDriveCapture::GetInstance().UnregisterCaptureComponent(camComp->getCameraId());
 
-				camComp->DestroyComponent(true);
+				camComp->destroy();
 				cIt.Value = 0;
 			}
 		}

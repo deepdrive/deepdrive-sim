@@ -47,6 +47,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category="Capturing")
 	void DeactivateCapturing();
 
+	void destroy();
+
 	bool capture(SCaptureRequest &reqData);
 
 	int32 getCameraId() const;
