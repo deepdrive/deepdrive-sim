@@ -57,10 +57,9 @@ class DummyPyActor:
             self.event_loop.run_forever()
 
     def end_play(self, end_code):
-        print('Closing lambda server event loop')
         self.lambda_server.close()
+        print('Closing lambda server event loop')
         self.event_loop.close()
-
 
     def _find_world(self):
         self.worlds = ue.all_worlds()

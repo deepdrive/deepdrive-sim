@@ -197,7 +197,7 @@ const void* SharedMemoryImpl_Linux::lockForReading(int32 waitTimeMS) const
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
             UE_LOG(LogSharedMemoryImpl_Linux, Verbose, TEXT("Locked for reading"));
 #else
-            std::cout << "Locked for reading\n";
+//            std::cout << "Locked for reading\n";
 #endif
         }
         else
