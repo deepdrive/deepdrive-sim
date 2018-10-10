@@ -86,6 +86,12 @@ struct FDeepDriveLocalAIControllerConfiguration
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Overtaking)
 	float	AbortSpeedReduction = 0.5f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Overtaking)
+	float	PassingDirectionThreshold = 0.1f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Overtaking)
+	float	PassingDistance = 100.0f;
+
 };
 
 /**
@@ -119,7 +125,7 @@ public:
 	
 	//bool hasPassed(ADeepDriveAgent *other, float minDistance);
 
-	float getPassedDistance(ADeepDriveAgent *other);
+	float getPassedDistance(ADeepDriveAgent *other, float threshold);
 
 	float isOppositeTrackClear(ADeepDriveAgent &nextAgent, float distanceToNextAgent, float speedDifference, float overtakingSpeed, bool considerDuration);
 	float computeOppositeTrackClearance(float overtakingDistance, float speedDifference, float overtakingSpeed, bool considerDuration);

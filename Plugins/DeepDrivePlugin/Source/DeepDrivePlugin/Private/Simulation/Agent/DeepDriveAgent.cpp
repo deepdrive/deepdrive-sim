@@ -400,7 +400,7 @@ void ADeepDriveAgent::OnBeginOverlap(UPrimitiveComponent *OverlappedComponent, A
 {
 	if(OtherActor != this)
 	{
-		UE_LOG(LogDeepDriveAgent, Log, TEXT("OnBeginOverlap %s with %s"), *(OverlappedComponent->GetName()), *(OtherActor->GetName()) );
+		// UE_LOG(LogDeepDriveAgent, Log, TEXT("OnBeginOverlap %s with %s"), *(OverlappedComponent->GetName()), *(OtherActor->GetName()) );
 
 		ADeepDriveAgentControllerBase *ctrl = getAgentController();
 		if (ctrl)

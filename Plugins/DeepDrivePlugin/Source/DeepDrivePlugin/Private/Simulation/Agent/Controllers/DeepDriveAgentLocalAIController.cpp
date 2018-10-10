@@ -113,7 +113,7 @@ void ADeepDriveAgentLocalAIController::Tick( float DeltaSeconds )
 	}
 }
 
-float ADeepDriveAgentLocalAIController::getPassedDistance(ADeepDriveAgent *other)
+float ADeepDriveAgentLocalAIController::getPassedDistance(ADeepDriveAgent *other, float threshold)
 {
 	float distance = 0.0f;
 	ADeepDriveAgent *prevAgent = m_Agent->getPrevAgent(-1.0f, &distance);
@@ -122,7 +122,7 @@ float ADeepDriveAgentLocalAIController::getPassedDistance(ADeepDriveAgent *other
 		FVector dir = m_Agent->GetActorLocation() - prevAgent->GetActorLocation();
 		dir.Normalize();
 
-		if (FVector::DotProduct(prevAgent->GetActorForwardVector(), dir) > 0.0f)
+		if (FVector::DotProduct(prevAgent->GetActorForwardVector(), dir) > threshold)
 		{
 			return distance;
 		}

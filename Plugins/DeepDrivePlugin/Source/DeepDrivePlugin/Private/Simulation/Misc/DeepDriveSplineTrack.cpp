@@ -55,20 +55,36 @@ void ADeepDriveSplineTrack::Tick(float DeltaTime)
 	{
 		m_RegisteredAgents.Sort([](const AgentData &lhs, const AgentData &rhs) {	return lhs.key < rhs.key;	 });
 
-		int32 ind0 = 0;
-		int32 ind1 = 1;
-		for (int32 i = 0; i < m_RegisteredAgents.Num(); ++i)
+		if (m_RegisteredAgents.Num() == 2)
 		{
-			ADeepDriveAgent *agent0 = m_RegisteredAgents[ind0].agent;
-			ADeepDriveAgent *agent1 = m_RegisteredAgents[ind1].agent;
-			float distance = ind1 > ind0 ? m_RegisteredAgents[ind1].distance - m_RegisteredAgents[ind0].distance : (m_TrackLength - m_RegisteredAgents[ind1].distance + m_RegisteredAgents[ind0].distance);
-			distance -= agent0->getFrontBumperDistance() + agent1->getBackBumperDistance();
+			ADeepDriveAgent *agent0 = m_RegisteredAgents[0].agent;
+			ADeepDriveAgent *agent1 = m_RegisteredAgents[1].agent;
+			float dist01 = FMath::Max(0.0f, m_RegisteredAgents[1].distance - m_RegisteredAgents[0].distance - agent0->getFrontBumperDistance() - agent1->getBackBumperDistance());
+			float dist10 = FMath::Max(0.0f, (m_TrackLength - m_RegisteredAgents[1].distance + m_RegisteredAgents[0].distance) - agent1->getFrontBumperDistance() - agent0->getBackBumperDistance());
 
-			agent0->setNextAgent(agent1, FMath::Max(0.0f, distance));
-			agent1->setPrevAgent(agent0, FMath::Max(0.0f, distance));
+			agent0->setNextAgent(agent1, dist01);
+			agent0->setPrevAgent(agent1, dist10);
 
-			ind0 = ind1;
-			ind1 = (ind1 + 1) % m_RegisteredAgents.Num();
+			agent1->setNextAgent(agent0, dist10);
+			agent1->setPrevAgent(agent0, dist01);
+		}
+		else
+		{
+			int32 ind0 = 0;
+			int32 ind1 = 1;
+			for (int32 i = 0; i < m_RegisteredAgents.Num(); ++i)
+			{
+				ADeepDriveAgent *agent0 = m_RegisteredAgents[ind0].agent;
+				ADeepDriveAgent *agent1 = m_RegisteredAgents[ind1].agent;
+				float distance = ind1 > ind0 ? m_RegisteredAgents[ind1].distance - m_RegisteredAgents[ind0].distance : (m_TrackLength - m_RegisteredAgents[ind1].distance + m_RegisteredAgents[ind0].distance);
+				distance -= agent0->getFrontBumperDistance() + agent1->getBackBumperDistance();
+
+				agent0->setNextAgent(agent1, FMath::Max(0.0f, distance));
+				agent1->setPrevAgent(agent0, FMath::Max(0.0f, distance));
+
+				ind0 = ind1;
+				ind1 = (ind1 + 1) % m_RegisteredAgents.Num();
+			}
 		}
 	}
 

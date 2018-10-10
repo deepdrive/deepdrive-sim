@@ -28,8 +28,11 @@ void DeepDriveAgentPassingState::update(DeepDriveAgentLocalAIStateMachineContext
 		&&	ctx.agent.getNextAgent(-1.0f) != &ctx.agent
 		)
 	{
-		const float passedDistance = ctx.local_ai_ctrl.getPassedDistance(m_AgentToPass);
-		if(passedDistance > 0.0f)
+		const float passedDistance = ctx.local_ai_ctrl.getPassedDistance(m_AgentToPass, ctx.configuration.PassingDirectionThreshold);
+
+		UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT(">>>> Passed distance %f"), passedDistance );
+	
+		if(passedDistance > ctx.configuration.PassingDistance)
 			m_StateMachine.setNextState("PullIn");
 		else if(isTimeToThink(dT))
 		{
