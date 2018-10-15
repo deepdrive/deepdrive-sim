@@ -321,6 +321,7 @@ void ADeepDriveAgent::reset()
 	GetVehicleMovementComponent()->SetThrottleInput(0.0f);
 	GetVehicleMovementComponent()->SetSteeringInput(0.0f);
 	GetVehicleMovementComponent()->SetBrakeInput(1.0f);
+	GetVehicleMovementComponent()->StopMovementImmediately();
 	GetMesh()->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
 }
 

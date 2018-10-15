@@ -366,7 +366,7 @@ void ADeepDriveSimulation::applyGraphicsSettings(const SimulationGraphicsSetting
 	UGameUserSettings *gameSettings = UGameUserSettings::GetGameUserSettings();
 	if (gameSettings)
 	{
-		gameSettings->SetFullscreenMode(gfxSettings.is_fullscreen > 0 ? EWindowMode::Fullscreen : EWindowMode::Windowed);
+		gameSettings->SetFullscreenMode(gfxSettings.is_fullscreen > 0 ? EWindowMode::WindowedFullscreen : EWindowMode::Windowed);
 		gameSettings->SetVSyncEnabled(gfxSettings.vsync_enabled > 0);
 		gameSettings->SetScreenResolution( FIntPoint(gfxSettings.resolution_width, gfxSettings.resolution_height) );
 
