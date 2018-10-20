@@ -79,6 +79,12 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent, Category = "Simulation")
 	void UpdateLights(float Zenith);
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Car")
+	void OnBrakeLight(bool BrakeLightOn);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Car")
+	void OnReverseLight(bool ReverseLightOn);
+
 	UFUNCTION(BlueprintCallable, Category = "Agents")
 	void OnCheckpointReached();
 

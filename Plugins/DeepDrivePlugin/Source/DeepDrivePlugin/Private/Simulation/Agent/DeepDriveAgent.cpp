@@ -248,11 +248,13 @@ void ADeepDriveAgent::SetThrottle(float throttle)
 {
 	m_curThrottle = throttle;
 	GetVehicleMovementComponent()->SetThrottleInput(throttle);
+	OnReverseLight(GetVehicleMovementComponent()->GetForwardSpeed() < 0.0f && throttle < 0.0f);
 }
 
 void ADeepDriveAgent::SetBrake(float brake)
 {
 	m_curBrake = brake;
+	OnBrakeLight(brake > 0.0f);
 	GetVehicleMovementComponent()->SetBrakeInput(brake);
 }
 

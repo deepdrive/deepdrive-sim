@@ -9,6 +9,8 @@
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 #include "Components/SplineComponent.h"
 
+#include "WheeledVehicleMovementComponent.h"
+
 ADeepDriveAgentManualController::ADeepDriveAgentManualController()
 	:	ADeepDriveAgentControllerBase()
 {
@@ -32,7 +34,25 @@ bool ADeepDriveAgentManualController::Activate(ADeepDriveAgent &agent, bool keep
 void ADeepDriveAgentManualController::MoveForward(float axisValue)
 {
 	if(m_Agent)
+	{
+		if(axisValue >= 0.0f)
+		{
+			m_Agent->GetVehicleMovementComponent()->SetTargetGear(1, false);
+			m_Agent->SetBrake(0.0f);
+		}
+		else if( axisValue < 0.0f)
+		{
+			m_Agent->GetVehicleMovementComponent()->SetTargetGear(-1, false);
+			m_Agent->SetBrake(m_Agent->GetVehicleMovementComponent()->GetForwardSpeed() > 0.0f);
+		}
+		else
+		{
+			m_Agent->GetVehicleMovementComponent()->SetTargetGear(0, false);
+			m_Agent->SetBrake(1.0f);
+		}
+
 		m_Agent->SetThrottle(axisValue);
+	}
 }
 
 void ADeepDriveAgentManualController::MoveRight(float axisValue)
