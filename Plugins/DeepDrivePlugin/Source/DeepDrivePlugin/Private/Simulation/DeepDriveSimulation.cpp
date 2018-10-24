@@ -522,6 +522,33 @@ UDeepDriveRandomStream* ADeepDriveSimulation::GetRandomStream(const FName &Rando
 	return RandomStreams.Contains(RandomStreamId) ? RandomStreams[RandomStreamId].getRandomStream() : 0;
 }
 
+void ADeepDriveSimulation::ToggleAgentRenderMode()
+{
+	m_SimpleRenderMode = !m_SimpleRenderMode;
+	for(auto &agent : m_Agents)
+	{
+		agent->SetRenderMode(m_SimpleRenderMode);
+	}
+}
+
+void ADeepDriveSimulation::ToggleAgentCollisionMode()
+{
+	m_SimpleCollisionMode = !m_SimpleCollisionMode;
+	for(auto &agent : m_Agents)
+	{
+		agent->setCollisionMode(m_SimpleCollisionMode);
+	}
+}
+
+void ADeepDriveSimulation::ToggleCollisionVisibility()
+{
+	m_CollisionVisibility = !m_CollisionVisibility;
+	for(auto &agent : m_Agents)
+	{
+		agent->setCollisionVisibility(m_CollisionVisibility);
+	}
+}
+
 void ADeepDriveSimulation::OnDebugTrigger()
 {
 	if (m_curAgent)

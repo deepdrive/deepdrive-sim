@@ -85,11 +85,17 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Car")
 	void OnReverseLight(bool ReverseLightOn);
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Rendering")
+	void SetRenderMode(bool Simple);
+
 	UFUNCTION(BlueprintCallable, Category = "Agents")
 	void OnCheckpointReached();
 
 	UFUNCTION(BlueprintCallable, Category = "Agents")
 	void OnDebugTrigger();
+
+	void setCollisionMode(bool simple);
+	void setCollisionVisibility(bool visible);
 
 	bool setViewMode(int32 cameraId, const FString &viewModeName);
 
@@ -133,6 +139,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = Collision)
 	USceneComponent						*CollisionRoot = 0;
+
+	UPROPERTY(EditDefaultsOnly, Category = Collision)
+	UBoxComponent						*CollisionSimpleBox = 0;
 
 	UPROPERTY(EditDefaultsOnly, Category = Collision)
 	UBoxComponent						*CollisionFrontCenterBumper = 0;
@@ -192,6 +201,9 @@ private:
 	float								m_DistanceToPrevAgent = -1.0f;
 
 	ADeepDriveAgentControllerBase		*m_AgentController = 0;
+
+	bool								m_SimpleCollisionMode = false;
+	bool								m_CollisionVisible = false;
 
 	CaptureCameraMap					m_CaptureCameras;
 	

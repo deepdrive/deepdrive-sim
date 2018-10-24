@@ -37,12 +37,17 @@ ADeepDriveAgent::ADeepDriveAgent()
 	CollisionRoot = CreateDefaultSubobject<USceneComponent>(TEXT("CollisionRoot"));
 	CollisionRoot->SetupAttachment(GetRootComponent());
 
+	CollisionSimpleBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionSimpleBox"));
+	CollisionSimpleBox->SetupAttachment(CollisionRoot);
+	// CollisionSimpleBox->OnComponentBeginOverlap.AddDynamic(this, &ADeepDriveAgent::OnBeginOverlap);
+	CollisionSimpleBox->ComponentTags.Add(TEXT("simple"));
+
 	UBoxComponent** boxes[] =	{ &CollisionFrontCenterBumper, &CollisionFrontLeftBumper, &CollisionFrontRightBumper, &CollisionFrontLeftFender, &CollisionFrontRightFender
 								, &CollisionLeftDoor, &CollisionRightDoor, &CollisionRearCenterBumper
 								, &CollisionRearLeftBumper, &CollisionRearRightBumper, &CollisionRearLeftFender, &CollisionRearRightFender
 								};
 
-	FName	names[] =	{	TEXT("CollisionFrontCnterBumper"), TEXT("CollisionFrontLeftBumper"), TEXT("CollisionFrontRightBumper"), TEXT("CollisionFrontLeftFender"), TEXT("CollisionFrontRightFender")
+	FName	names[] =	{	TEXT("CollisionFrontCenterBumper"), TEXT("CollisionFrontLeftBumper"), TEXT("CollisionFrontRightBumper"), TEXT("CollisionFrontLeftFender"), TEXT("CollisionFrontRightFender")
 						,	TEXT("CollisionLeftDoor"), TEXT("CollisionRightDoor"), TEXT("CollisionRearCenterBumper")
 						,	TEXT("CollisionRearLeftBumper"), TEXT("CollisionRearRightBumper"), TEXT("CollisionRearLeftFender"), TEXT("CollisionRearRightFender")
 						};
@@ -179,6 +184,47 @@ void ADeepDriveAgent::UnregisterCaptureCamera(uint32 camId)
 		}
 		m_CaptureCameras.Empty();
 	}
+}
+
+void ADeepDriveAgent::setCollisionMode(bool simple)
+{
+	m_SimpleCollisionMode = simple;
+	setCollisionVisibility(m_CollisionVisible);
+}
+
+void ADeepDriveAgent::setCollisionVisibility(bool visible)
+{
+	UBoxComponent* boxes[] =	{ CollisionFrontCenterBumper, CollisionFrontLeftBumper, CollisionFrontRightBumper, CollisionFrontLeftFender, CollisionFrontRightFender
+								, CollisionLeftDoor, CollisionRightDoor, CollisionRearCenterBumper
+								, CollisionRearLeftBumper, CollisionRearRightBumper, CollisionRearLeftFender, CollisionRearRightFender
+								};
+
+	if(visible)
+	{
+		if(m_SimpleCollisionMode)
+		{
+			for (unsigned i = 0; i < sizeof(boxes) / sizeof(UBoxComponent*); ++i)
+				if(boxes[i])
+					boxes[i]->SetHiddenInGame(true, false);
+			CollisionSimpleBox->SetHiddenInGame(false, false);
+		}
+		else
+		{
+			for (unsigned i = 0; i < sizeof(boxes) / sizeof(UBoxComponent*); ++i)
+				if(boxes[i])
+					boxes[i]->SetHiddenInGame(false, false);
+			CollisionSimpleBox->SetHiddenInGame(true, false);
+		}
+	}
+	else
+	{
+		for (unsigned i = 0; i < sizeof(boxes) / sizeof(UBoxComponent*); ++i)
+			if(boxes[i])
+				boxes[i]->SetHiddenInGame(true, false);
+		CollisionSimpleBox->SetHiddenInGame(true, false);
+	}
+
+	m_CollisionVisible = visible;
 }
 
 bool ADeepDriveAgent::setViewMode(int32 cameraId, const FString &viewModeName)
@@ -403,12 +449,18 @@ void ADeepDriveAgent::OnBeginOverlap(UPrimitiveComponent *OverlappedComponent, A
 {
 	if(OtherActor != this)
 	{
-		// UE_LOG(LogDeepDriveAgent, Log, TEXT("OnBeginOverlap %s with %s"), *(OverlappedComponent->GetName()), *(OtherActor->GetName()) );
 
-		ADeepDriveAgentControllerBase *ctrl = getAgentController();
-		if (ctrl)
+		if	(	(m_SimpleCollisionMode && OverlappedComponent == CollisionSimpleBox)
+			||	(!m_SimpleCollisionMode && OverlappedComponent != CollisionSimpleBox)
+			)
 		{
-			ctrl->OnAgentCollision(OtherActor, SweepResult, OverlappedComponent->ComponentTags.Num() > 0 ? OverlappedComponent->ComponentTags[0] : FName());
+			// UE_LOG(LogDeepDriveAgent, Log, TEXT("OnBeginOverlap %s with %s"), *(OverlappedComponent->GetName()), *(OtherActor->GetName()) );
+
+			ADeepDriveAgentControllerBase *ctrl = getAgentController();
+			if (ctrl)
+			{
+				ctrl->OnAgentCollision(OtherActor, SweepResult, OverlappedComponent->ComponentTags.Num() > 0 ? OverlappedComponent->ComponentTags[0] : FName());
+			}
 		}
 	}
 }

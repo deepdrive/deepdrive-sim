@@ -154,6 +154,15 @@ public:
 	UDeepDriveRandomStream* GetRandomStream(const FName &RandomStreamId);
 
 	UFUNCTION(BlueprintCallable, Category = "Agents")
+	void ToggleAgentRenderMode();
+
+	UFUNCTION(BlueprintCallable, Category = "Agents")
+	void ToggleAgentCollisionMode();
+
+	UFUNCTION(BlueprintCallable, Category = "Agents")
+	void ToggleCollisionVisibility();
+
+	UFUNCTION(BlueprintCallable, Category = "Agents")
 	void OnDebugTrigger();
 
 	void enqueueMessage(deepdrive::server::MessageHeader *message);
@@ -201,6 +210,10 @@ private:
 	EDeepDriveAgentCameraType				m_curCameraType = EDeepDriveAgentCameraType::NONE;
 	float									m_OrbitCameraPitch = 0.0f;
 	float									m_OrbitCameraYaw = 0.0f;
+
+	bool									m_SimpleRenderMode = false;
+	bool									m_SimpleCollisionMode = false;
+	bool									m_CollisionVisibility = false;
 
 	static FDateTime						m_SimulationStartTime;
 };
