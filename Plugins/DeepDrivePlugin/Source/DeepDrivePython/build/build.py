@@ -84,7 +84,20 @@ def main(build_type):
         try:
             build_dev(env, ext_root, py)
         except Exception as e:
-            raise Exception('Error building, is the module imported into a live python process?', e)
+            msg = 'Error building, you may need to kill running\nPython processes which have imported the deepdrive' \
+                  '\nmodule.'
+            print("""
+            
+*****************************************************
+*****************************************************
+
+""" + msg + """
+
+*****************************************************
+*****************************************************
+
+""")
+            raise Exception(msg, e)
 
     else:
         git_dir = os.path.join(os.path.dirname(sim_root), '.git')

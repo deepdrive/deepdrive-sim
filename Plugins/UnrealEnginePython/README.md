@@ -1,8 +1,6 @@
 # Vendored into Deepdrive
 from https://github.com/deepdrive/UnrealEnginePython
 
-To merge in changes
-
 # UnrealEnginePython
 Embed Python in Unreal Engine 4
 
