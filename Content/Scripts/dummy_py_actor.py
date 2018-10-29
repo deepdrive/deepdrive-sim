@@ -1,8 +1,12 @@
 import unreal_engine as ue
 from pathlib import Path
 import asyncio
+import sys
 
 from lambda_server import LambdaServer
+
+IS_LINUX = sys.platform == 'linux' or sys.platform == 'linux2'
+IS_WINDOWS = sys.platform == 'win32'
 
 """Liason class between Python and Unreal that allows hooking into the world tick"""
 
@@ -20,10 +24,16 @@ except ImportError:
     print('To enable the UnrealPython API, start the sim '
           '\n\tthrough the deepdrive project (github.com/deepdrive/deepdrive)'
           '\n\tand enter %s'
-          '\n\tas the simulator project directory when prompted.'
-          '\n\tAlternately, you can download the dependencies from'
-          '\n\thttps://s3-us-west-1.amazonaws.com/deepdrive/unreal_python_lib/python_libs.zip'
-          '\n\tand extract into <your-project-root>/python_libs' % CURR_PATH)
+          '\n\tas the simulator project directory when prompted.')
+
+    if IS_LINUX:
+        print('\n\tAlternatively, you can download the dependencies from'
+              '\n\thttps://s3-us-west-1.amazonaws.com/deepdrive/unreal_python_lib/python_libs.zip'
+              '\n\tand extract into <your-project-root>/python_libs' % CURR_PATH)
+    elif IS_WINDOWS:
+        print('\n\tAlternatively, you can download the dependencies from'
+              '\n\thttps://s3-us-west-1.amazonaws.com/deepdrive/unreal_python_lib/Win64Python35.zip'
+              '\n\tand extract into <your-project-root>/Binaries' % CURR_PATH)
 
 
 class DummyPyActor:
