@@ -292,6 +292,7 @@ public class UnrealEnginePython : ModuleRules
         // insert the PYTHONHOME content as the first known path
         List<string> paths = new List<string>(knownPaths);
         paths.Insert(0, Path.Combine(ModuleDirectory, "../../Binaries", binaryPath));
+        paths.Insert(0, Path.Combine(ModuleDirectory, "../../python_bin/windows", binaryPath));
         paths.Insert(0, Path.Combine(ModuleDirectory, "../../../../Binaries", binaryPath));
         string environmentPath = System.Environment.GetEnvironmentVariable("PYTHONHOME");
         if (!string.IsNullOrEmpty(environmentPath))

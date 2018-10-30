@@ -33,7 +33,7 @@ except ImportError:
     elif IS_WINDOWS:
         print('\n\tAlternatively, you can download the dependencies from'
               '\n\thttps://s3-us-west-1.amazonaws.com/deepdrive/unreal_python_lib/Win64Python35.zip'
-              '\n\tand extract into <your-project-root>/Binaries' % CURR_PATH)
+              '\n\tand extract into <your-project-root>/Binaries/Win64' % CURR_PATH)
 
 
 class DummyPyActor:
