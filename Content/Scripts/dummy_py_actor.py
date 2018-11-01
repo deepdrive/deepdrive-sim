@@ -28,11 +28,11 @@ except ImportError:
 
     if IS_LINUX:
         print('\n\tAlternatively, you can download the dependencies from'
-              '\n\thttps://s3-us-west-1.amazonaws.com/deepdrive/unreal_python_lib/python_libs.zip'
+              '\n\thttps://s3-us-west-1.amazonaws.com/deepdrive/embedded_python_for_unreal/linux/python_libs.zip'
               '\n\tand extract into <your-project-root>/python_libs' % CURR_PATH)
     elif IS_WINDOWS:
         print('\n\tAlternatively, you can download the dependencies from'
-              '\n\thttps://s3-us-west-1.amazonaws.com/deepdrive/unreal_python_lib/Win64Python35.zip'
+              '\n\thttps://s3-us-west-1.amazonaws.com/deepdrive/embedded_python_for_unreal/windows/python_bin_with_libs.zip'
               '\n\tand extract into <your-project-root>/Binaries/Win64' % CURR_PATH)
 
 

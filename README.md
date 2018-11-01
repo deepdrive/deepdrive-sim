@@ -14,8 +14,8 @@ Checkout our [main repo](https://github.com/deepdrive/deepdrive)
 
 ### Windows
 
-- Install [Git LFS](https://git-lfs.github.com/) (you may need to restart Windows before you can `git lfs install`)
-- Clone this repo
+- Clone the repo
+- Download and extract our [embedded python](https://s3-us-west-1.amazonaws.com/deepdrive/embedded_python_for_unreal/windows/python_bin_with_libs.zip) into `Plugins/UnrealEnginePython/Binaries/Win64`  
 - Use Visual Studio 2015 with the [C++ build tools](https://stackoverflow.com/a/31955339)
 - Get Unreal v4.17 via the Epic Launcher -> Unreal Enngine tab -> Library
 - Install the Substance Plugin through the Marketplace in Epic Launcher
