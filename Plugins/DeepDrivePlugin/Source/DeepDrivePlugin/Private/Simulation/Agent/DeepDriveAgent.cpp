@@ -140,7 +140,7 @@ int32 ADeepDriveAgent::RegisterCaptureCamera(float fieldOfView, int32 captureWid
 			camId = captureCamCmp->getCameraId();
 			m_CaptureCameras.Add(camId, captureCamCmp);
 			OnCaptureCameraAdded(camId, sceneTexture, label);
-
+			SetCaptureEncoding(camId, EDeepDriveInternalCaptureEncoding::RGB_DEPTH, 0);
 		}
 	}
 
@@ -233,7 +233,6 @@ bool ADeepDriveAgent::setViewMode(int32 cameraId, const FString &viewModeName)
 
 	const FDeepDriveViewMode *viewMode = 0;
 
-	
 	if (viewModeName.IsEmpty() == false)
 	{
 		if (m_Simulation && m_Simulation->ViewModes.Contains(viewModeName))
@@ -254,7 +253,8 @@ bool ADeepDriveAgent::setViewMode(int32 cameraId, const FString &viewModeName)
 			for (auto &cIt :  m_CaptureCameras)
 			{
 				cIt.Value->setViewMode(viewMode);
-				SetDepthTexture(cIt.Value->getCameraId(), viewMode ? cIt.Value->getDepthRenderTexture() : 0);
+				// SetDepthTexture(cIt.Value->getCameraId(), viewMode ? cIt.Value->getDepthRenderTexture() : 0);
+				SetCaptureEncoding(cIt.Value->getCameraId(), viewMode ? viewMode->ViewModeEncoding : EDeepDriveInternalCaptureEncoding::RGB_DEPTH, viewMode ? cIt.Value->getDepthRenderTexture() : 0);
 			}
 		}
 		else
@@ -262,7 +262,8 @@ bool ADeepDriveAgent::setViewMode(int32 cameraId, const FString &viewModeName)
 			if (m_CaptureCameras.Contains(cameraId))
 			{
 				m_CaptureCameras[cameraId]->setViewMode(viewMode);
-				SetDepthTexture(cameraId, viewMode ? m_CaptureCameras[cameraId]->getDepthRenderTexture() : 0);
+				// SetDepthTexture(cameraId, viewMode ? m_CaptureCameras[cameraId]->getDepthRenderTexture() : 0);
+				SetCaptureEncoding(cameraId, viewMode ? viewMode->ViewModeEncoding : EDeepDriveInternalCaptureEncoding::RGB_DEPTH, viewMode ? m_CaptureCameras[cameraId]->getDepthRenderTexture() : 0);
 			}
 			else
 			{

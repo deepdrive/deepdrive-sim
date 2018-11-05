@@ -65,7 +65,7 @@ public:
 	void OnCaptureCameraRemoved(int32 CameraId);
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "HUD")
-	void SetDepthTexture(int32 CameraId, UTextureRenderTarget2D *DepthTexture);
+	void SetCaptureEncoding(int32 CameraId, EDeepDriveInternalCaptureEncoding CaptureEncoding, UTextureRenderTarget2D *DepthTexture);
 
 	UFUNCTION(BlueprintCallable, Category = "Simulation")
 	void OnLapStart();
