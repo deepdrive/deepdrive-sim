@@ -1,4 +1,5 @@
-# Deepdrive sim [![Build Status](https://travis-ci.org/deepdrive/deepdrive-sim.svg?branch=master)](https://travis-ci.org/deepdrive/deepdrive-sim) [![Build status](https://ci.appveyor.com/api/projects/status/84wj7jsxnymi8uxy?svg=true)](https://ci.appveyor.com/project/crizCraig/deepdrive-sim)
+# Deepdrive sim [![Build Status](https://travis-ci.org/deepdrive/deepdrive-sim.svg?branch=master)](https://travis-ci.org/deepdrive/deepdrive-sim) [![Build status](https://ci.appveyor.com/api/projects/status/84wj7jsxnymi8uxy/branch/master?svg=true)](https://ci.appveyor.com/project/crizCraig/deepdrive-sim/branch/master)
+
 
 
 Unreal based simulator and Python interface to Deepdrive
