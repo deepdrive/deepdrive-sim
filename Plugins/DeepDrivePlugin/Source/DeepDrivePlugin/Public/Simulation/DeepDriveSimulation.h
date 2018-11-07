@@ -135,6 +135,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Spectator")
 	void PreviousAgent();
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Simulation")
+	void OnSimulationReady();
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "Agents")
 	void OnAgentSpawned(ADeepDriveAgent *SpawnedAgent);
 

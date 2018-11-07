@@ -34,4 +34,5 @@ void DeepDriveSimulationInitializeState::update(ADeepDriveSimulation &deepDriveS
 
 void DeepDriveSimulationInitializeState::exit(ADeepDriveSimulation &deepDriveSim)
 {
+	deepDriveSim.OnSimulationReady();
 }
