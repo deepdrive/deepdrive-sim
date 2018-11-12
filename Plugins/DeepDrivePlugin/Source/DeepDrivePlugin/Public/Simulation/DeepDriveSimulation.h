@@ -18,6 +18,7 @@ class DeepDriveSimulationServerProxy;
 class DeepDriveSimulationStateMachine;
 class DeepDriveSimulationServer;
 class DeepDriveSimulationMessageHandler;
+class DeepDriveSimulationResetState;
 
 class DeepDriveSimulationRunningState;
 class DeepDriveSimulationReseState;
@@ -109,7 +110,7 @@ public:
 	TMap<FString, FDeepDriveViewMode>	ViewModes;
 
 	UFUNCTION(BlueprintCallable, Category = "Simulation")
-	void ResetSimulation();
+	void ResetSimulation(bool ActivateAdditionalAgents);
 
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void MoveForward(float AxisValue);
@@ -177,6 +178,9 @@ public:
 	TArray<UCaptureSinkComponentBase*>& getCaptureSinks();
 
 	void initializeAgents();
+	void removeAdditionalAgents();
+	void spawnAdditionalAgents();
+	bool hasAdditionalAgents();
 
 	static FDateTime getSimulationStartTime();
 
@@ -186,8 +190,6 @@ private:
 
 	ADeepDriveAgent* spawnAgent(EDeepDriveAgentControlMode mode, int32 configSlot, int32 startPosSlot);
 
-	void spawnAdditionalAgents();
-
 	ADeepDriveAgentControllerBase* spawnController(EDeepDriveAgentControlMode mode, int32 configSlot, int32 startPosSlot);
 
 	void switchToAgent(int32 index);
@@ -196,6 +198,7 @@ private:
 	void applyGraphicsSettings(const SimulationGraphicsSettings &gfxSettings);
 
 	DeepDriveSimulationStateMachine			*m_StateMachine = 0;
+	DeepDriveSimulationResetState			*m_ResetState = 0;
 	DeepDriveSimulationServer				*m_SimulationServer = 0;
 	DeepDriveSimulationMessageHandler		*m_MessageHandler = 0;
 	DeepDriveSimulationServerProxy			*m_ServerProxy = 0;
@@ -244,4 +247,9 @@ inline TArray<UCaptureSinkComponentBase*>& ADeepDriveSimulation::getCaptureSinks
 inline FDateTime ADeepDriveSimulation::getSimulationStartTime()
 {
 	return ADeepDriveSimulation::m_SimulationStartTime;
+}
+
+inline bool ADeepDriveSimulation::hasAdditionalAgents()
+{
+	return m_Agents.Num() > 1;
 }

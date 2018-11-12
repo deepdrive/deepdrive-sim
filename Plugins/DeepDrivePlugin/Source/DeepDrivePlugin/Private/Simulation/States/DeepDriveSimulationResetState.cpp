@@ -29,11 +29,23 @@ void DeepDriveSimulationResetState::update(ADeepDriveSimulation &deepDriveSim, f
 			rs.Value.getRandomStream()->initialize(deepDriveSim.Seed);
 	}
 
+	if(m_ActivateAdditionalAgents)
+	{
+		if(deepDriveSim.hasAdditionalAgents() == false)
+			deepDriveSim.spawnAdditionalAgents();
+	}
+	else
+	{
+		if(deepDriveSim.hasAdditionalAgents())
+			deepDriveSim.removeAdditionalAgents();
+	}
+
 	for (auto &agent : deepDriveSim.m_Agents)
 	{
 		ADeepDriveAgentControllerBase *controller = Cast<ADeepDriveAgentControllerBase>(agent->GetController());
 		if (controller)
 			controller->ResetAgent();
+
 	}
 
 	m_StateMachine.setNextState("Running");

@@ -89,7 +89,8 @@ void ADeepDriveSimulation::PreInitializeComponents()
 			{
 				m_StateMachine->registerState(new DeepDriveSimulationInitializeState(*m_StateMachine));
 				m_StateMachine->registerState(new DeepDriveSimulationRunningState(*m_StateMachine));
-				m_StateMachine->registerState(new DeepDriveSimulationResetState(*m_StateMachine));
+				m_ResetState = new DeepDriveSimulationResetState(*m_StateMachine);
+				m_StateMachine->registerState(m_ResetState);
 			}
 
 			for (auto &rsd : RandomStreams)
@@ -160,8 +161,9 @@ void ADeepDriveSimulation::Tick( float DeltaTime )
 		m_StateMachine->update(*this, DeltaTime);
 }
 
-void ADeepDriveSimulation::ResetSimulation()
+void ADeepDriveSimulation::ResetSimulation(bool ActivateAdditionalAgents)
 {
+	m_ResetState->setActivateAdditionalAgents(ActivateAdditionalAgents);
 	if(m_StateMachine)
 		m_StateMachine->setNextState("Reset");
 }
@@ -412,6 +414,15 @@ void ADeepDriveSimulation::initializeAgents()
 			}
 		}
 	}
+}
+
+void ADeepDriveSimulation::removeAdditionalAgents()
+{
+	for(signed i = 1; i < m_Agents.Num(); ++i)
+	{
+		m_Agents[i]->Destroy();
+	}
+	m_Agents.SetNum(1);
 }
 
 ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(EDeepDriveAgentControlMode mode, int32 configSlot, int32 startPosSlot)

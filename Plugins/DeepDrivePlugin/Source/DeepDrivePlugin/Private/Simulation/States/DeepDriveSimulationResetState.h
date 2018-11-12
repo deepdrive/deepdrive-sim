@@ -17,4 +17,16 @@ public:
 
 	virtual void exit(ADeepDriveSimulation &deepDriveSim);
 
+	void setActivateAdditionalAgents(bool activateAgents);
+
+private:
+
+	bool		m_ActivateAdditionalAgents = true;
+
 };
+
+
+inline void DeepDriveSimulationResetState::setActivateAdditionalAgents(bool activateAgents)
+{
+	m_ActivateAdditionalAgents = activateAgents;
+}
