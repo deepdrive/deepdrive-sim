@@ -1,6 +1,7 @@
 import asyncio
 import time
 import traceback
+import re
 
 try:
     import unreal_engine as ue
@@ -45,7 +46,7 @@ class LambdaServer(object):
 
     async def run(self, world):
         await self.create_socket()
-        print('Unreal Lambda server started at %s' % self.conn_string)
+        print('Unreal Lambda server started at %s v0.4' % self.conn_string)
         while True:
             try:
                 await self.check_for_messages(world)
@@ -56,7 +57,7 @@ class LambdaServer(object):
 
     async def check_for_messages(self, world):
         try:
-            _locals = {'world': world}
+            _locals = {'world': world, 'get_actor_by_name': get_actor_by_name}
             msg = await self.socket.recv()
             expression_str, local_vars = pyarrow.deserialize(msg)
             _locals.update(local_vars)
@@ -80,12 +81,10 @@ class LambdaServer(object):
         try:
             # Expression can be something like [(a.get_full_name(), a) for a in world.all_actors() if 'localaicontroller_' in a.get_full_name().lower()]
             resp = eval(expression_str, None, local_vars)
-        except SyntaxError:
-            await self.socket.send(pyarrow.serialize(
-                {'success': False, 'result': traceback.format_exc()}).to_buffer())
+        except Exception:
+            await self.socket.send(_serialize({'success': False, 'result': traceback.format_exc()}))
         else:
-            await self.socket.send(pyarrow.serialize(
-                {'success': True, 'result': resp}).to_buffer())
+            await self.socket.send(_serialize({'success': True, 'result': resp}))
 
     def __del__(self):
         self.close()
@@ -98,10 +97,25 @@ class LambdaServer(object):
             print('Error closing lambda server ' + str(e))
 
 
-if __name__ == '__main__':
+def _serialize(obj):
+    try:
+        ret = pyarrow.serialize(obj).to_buffer()
+    except pyarrow.lib.SerializationCallbackError:
+        print('Could not serialize with pyarrow - falling back to str(obj)')
+        ret = pyarrow.serialize({'success': True, 'result': str(obj)}).to_buffer()
+    except:
+        ret = {'success': False, 'result': traceback.format_exc()}
+    return ret
+
+
+def start_server_test():
     # Just for testing - dummy_actor starts server in-game to ensure world is loaded prior
     print('Testing event loop server')
     loop = asyncio.get_event_loop()
     loop.set_debug(enabled=True)
     loop.run_until_complete(LambdaServer().run(world=None))
+
+
+if __name__ == '__main__':
+    get_actor_by_name()
 
