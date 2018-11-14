@@ -39,7 +39,7 @@ git update-index --assume-unchanged $(git ls-files | tr '\n' ' ')
 ### Linux
 
 Download the Substance plugin from [here](https://forum.allegorithmic.com/index.php/topic,21919.msg87141/highlight,4.18+Released.html#msg87141) to
-<kbd>Plugins/Runtime</kbd>.
+<kbd>Plugins/Runtime</kbd> for Unreal 4.18. For other releases, see [this thread](https://forum.allegorithmic.com/index.php/board,23.0.html).
 
 Build Unreal
 
