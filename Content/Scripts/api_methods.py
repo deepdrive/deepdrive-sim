@@ -16,13 +16,17 @@ def get_actor_by_name(name):
     global world
     if world is None:
         world = get_world()
-    actors = [a for a in world.all_actors() if a.get_display_name() == name]
+    pattern = name + r'(_.*\d+)?$'
+    r = re.compile(pattern)
+    actors = [a for a in world.all_actors() if a.get_display_name() == name or r.match(a.get_display_name())]
     ret = None
     if len(actors) > 0:
         ret = actors[0]
 
     if len(actors) > 1:
         print('Found multiple actors matching ' + name + '!')
+        for a in actors:
+            print('%s %s' % (a.get_display_name(), a.get_full_name))
 
     return ret
 
