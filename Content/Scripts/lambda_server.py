@@ -2,6 +2,7 @@ import asyncio
 import time
 import traceback
 import re
+import types
 
 try:
     import unreal_engine as ue
@@ -11,6 +12,8 @@ except ImportError:
 import pyarrow
 import zmq.asyncio
 import zmq
+import api_methods as api
+
 
 API_PORT = 5657
 API_TIMEOUT_MS = 5000
@@ -57,7 +60,8 @@ class LambdaServer(object):
 
     async def check_for_messages(self, world):
         try:
-            _locals = {'world': world, 'get_actor_by_name': get_actor_by_name}
+            _locals = {'world': world}
+            add_api_methods(_locals)
             msg = await self.socket.recv()
             expression_str, local_vars = pyarrow.deserialize(msg)
             _locals.update(local_vars)
@@ -77,14 +81,16 @@ class LambdaServer(object):
             print('Waiting for client')
             await self.create_socket()
 
+
+
     async def eval(self, expression_str, local_vars):
         try:
             # Expression can be something like [(a.get_full_name(), a) for a in world.all_actors() if 'localaicontroller_' in a.get_full_name().lower()]
             resp = eval(expression_str, None, local_vars)
         except Exception:
-            await self.socket.send(_serialize({'success': False, 'result': traceback.format_exc()}))
+            await self.socket.send(serialize({'success': False, 'result': traceback.format_exc()}))
         else:
-            await self.socket.send(_serialize({'success': True, 'result': resp}))
+            await self.socket.send(serialize({'success': True, 'result': resp}))
 
     def __del__(self):
         self.close()
@@ -97,7 +103,13 @@ class LambdaServer(object):
             print('Error closing lambda server ' + str(e))
 
 
-def _serialize(obj):
+def add_api_methods(_locals):
+    for attr_name in dir(api):
+        attr = getattr(api, attr_name)
+        if isinstance(attr, types.FunctionType):
+            _locals[attr_name] = attr
+
+def serialize(obj):
     try:
         ret = pyarrow.serialize(obj).to_buffer()
     except pyarrow.lib.SerializationCallbackError:
@@ -117,5 +129,6 @@ def start_server_test():
 
 
 if __name__ == '__main__':
-    get_actor_by_name()
+    print([getattr(api, a) for a in dir(api)
+      if isinstance(getattr(api, a), types.FunctionType)])
 

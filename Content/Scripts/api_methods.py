@@ -10,26 +10,25 @@ except ImportError:
 
 import pyarrow
 
-def get_actor_by_name(name, world):
-    actors = [(a.get_full_name(), a) for a in world.all_actors()]
-    print('num actors = ' + str(len(actors)))
-    pattern = r'.*\.' + name + '_.*\d+'
-    r = re.compile(pattern)
+world = None
+
+def get_actor_by_name(name):
+    global world
+    if world is None:
+        world = get_world()
+    actors = [a for a in world.all_actors() if a.get_display_name() == name]
     ret = None
-    for a_name, a in actors:
-        if r.match(a_name):
-            print(a_name)
-            print(a)
-            print(a.HasAdditionalAgents)
-            a.HasAdditionalAgents = True
-            # for d in dir(a):
-            #     print(d)
-            # return a
-            ret = a
+    if len(actors) > 0:
+        ret = actors[0]
+
+    if len(actors) > 1:
+        print('Found multiple actors matching ' + name + '!')
+
     return ret
 
 
 def get_world():
+    global world
     worlds = ue.all_worlds()
     # print('All worlds length ' + str(len(worlds)))
 
@@ -59,6 +58,27 @@ def get_world():
     return world
 
 
-if __name__ == '__main__':
-    print(get_actor_by_name('DeepDriveInputController', get_world()))
+def enable_traffic_next_reset():
+    input_controller = get_actor_by_name('DeepDriveInputController')
+    print('Enabling traffic for next reset...')
+    if input_controller.HasAdditionalAgents:
+        print('Traffic already enabled for next reset')
+    else:
+        print('Traffic will be enabled on next reset')
+        input_controller.HasAdditionalAgents = True
 
+
+
+def disable_traffic_next_reset():
+    input_controller = get_actor_by_name('DeepDriveInputController')
+    print('Disabling traffic for next reset...')
+    if not input_controller.HasAdditionalAgents:
+        print('Traffic already disabled for next reset')
+    else:
+        print('Traffic will be disabled on next reset')
+        input_controller.HasAdditionalAgents = False
+
+
+if __name__ == '__main__':
+    # disable_traffic_next_reset()
+    pass
