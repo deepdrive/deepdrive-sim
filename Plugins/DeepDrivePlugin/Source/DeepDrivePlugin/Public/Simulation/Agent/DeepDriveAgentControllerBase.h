@@ -46,6 +46,7 @@ public:
 	
 	virtual bool ResetAgent( /* const SimulationConfiguration &configuration */);
 	
+	virtual void OnRemoveAgent();
 
 	virtual void OnCheckpointReached();
 

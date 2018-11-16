@@ -420,6 +420,11 @@ void ADeepDriveSimulation::removeAdditionalAgents()
 {
 	for(signed i = 1; i < m_Agents.Num(); ++i)
 	{
+		ADeepDriveAgentControllerBase *agentController = Cast<ADeepDriveAgentControllerBase>(m_Agents[i]->GetController());
+
+		if(agentController)
+			agentController->OnRemoveAgent();
+
 		m_Agents[i]->Destroy();
 	}
 	m_Agents.SetNum(1);
@@ -477,7 +482,7 @@ void ADeepDriveSimulation::spawnAdditionalAgents()
 				if (controller->Activate(*agent, false))
 				{
 					OnAgentSpawned(agent);
-					UE_LOG(LogDeepDriveSimulation, Log, TEXT("Additional agent spawned, controlled by %s"), *(controller->getControllerName()));
+					UE_LOG(LogDeepDriveSimulation, Log, TEXT("Additional agent spawned, controlled by %s at %p"), *(controller->getControllerName()), controller);
 				}
 				else
 					UE_LOG(LogDeepDriveSimulation, Log, TEXT("Couldn't activate controller %s"), *(controller->getControllerName()));

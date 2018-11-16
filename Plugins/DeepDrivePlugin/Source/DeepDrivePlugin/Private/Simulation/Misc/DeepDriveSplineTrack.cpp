@@ -51,7 +51,12 @@ void ADeepDriveSplineTrack::Tick(float DeltaTime)
 		//UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("Agent %d Distance %f"), item.agent->getAgentId(), item.distance );
 	}
 
-	if (m_RegisteredAgents.Num() > 1)
+	if (m_RegisteredAgents.Num() == 1)
+	{
+		m_RegisteredAgents[0].agent->setNextAgent(0, -1.0f);
+		m_RegisteredAgents[0].agent->setPrevAgent(0, -1.0f);
+	}
+	else if (m_RegisteredAgents.Num() > 1)
 	{
 		m_RegisteredAgents.Sort([](const AgentData &lhs, const AgentData &rhs) {	return lhs.key < rhs.key;	 });
 
@@ -87,7 +92,6 @@ void ADeepDriveSplineTrack::Tick(float DeltaTime)
 			}
 		}
 	}
-
 }
 
 
@@ -162,6 +166,17 @@ float ADeepDriveSplineTrack::getSpeedLimit(float distanceAhead)
 void ADeepDriveSplineTrack::registerAgent(ADeepDriveAgent &agent, float curKey)
 {
 	m_RegisteredAgents.Add(AgentData(&agent, curKey, getDistance(curKey)));
+}
+
+void ADeepDriveSplineTrack::unregisterAgent(ADeepDriveAgent &agent)
+{
+	int32 i = 0;
+	for(; i < m_RegisteredAgents.Num(); ++i)
+		if(m_RegisteredAgents[i].agent == &agent)
+		break;
+
+	if(i < m_RegisteredAgents.Num())
+		m_RegisteredAgents.RemoveAt(i);
 }
 
 bool ADeepDriveSplineTrack::getNextAgent(ADeepDriveAgent &agent, ADeepDriveAgent* &agentPtr, float &distance)

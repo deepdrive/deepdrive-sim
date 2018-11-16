@@ -58,6 +58,13 @@ bool ADeepDriveAgentControllerBase::ResetAgent()
 	return res;
 }
 
+void ADeepDriveAgentControllerBase::OnRemoveAgent()
+{
+	if(m_Track && m_Agent)
+		m_Track->unregisterAgent(*m_Agent);
+}
+
+
 void ADeepDriveAgentControllerBase::OnAgentCollision(AActor *OtherActor, const FHitResult &HitResult, const FName &Tag)
 {
 	if (m_isCollisionEnabled)

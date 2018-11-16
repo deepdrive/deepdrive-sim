@@ -56,6 +56,8 @@ public:
 
 	void registerAgent(ADeepDriveAgent &agent, float curKey);
 
+	void unregisterAgent(ADeepDriveAgent &agent);
+
 	bool getNextAgent(ADeepDriveAgent &agent, ADeepDriveAgent* &agentPtr, float &distance);
 
 	void getPreviousAgent(const FVector &location, ADeepDriveAgent* &agentPtr, float &distance);

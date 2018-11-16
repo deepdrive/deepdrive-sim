@@ -42,7 +42,6 @@ private:
 	ADeepDriveAgent					*m_Agent = 0;
 	ADeepDriveSplineTrack			*m_Track = 0;
 
-
 	PIDController					m_ThrottlePIDCtrl;
 	PIDController					m_BrakePIDCtrl;
 
