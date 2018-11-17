@@ -81,10 +81,16 @@ void DeepDriveSimulationMessageHandler::reset(const deepdrive::server::MessageHe
 	for (auto &rsd : m_Simulation.RandomStreams)
 		rsd.Value.getRandomStream()->initialize(m_Simulation.Seed);
 
+	m_Simulation.removeAgents(false);
+	m_Simulation.initializeAgents();
+	m_Simulation.SelectCamera(EDeepDriveAgentCameraType::CHASE_CAMERA);
+
+#if 0
 	for (auto &agent : m_Simulation.m_Agents)
 	{
 		agent->getAgentController()->OnConfigureSimulation(configuration, true);
 	}
+#endif
 
 	m_SimulationServer.enqueueResponse( new deepdrive::server::ResetSimulationResponse(true) );
 }

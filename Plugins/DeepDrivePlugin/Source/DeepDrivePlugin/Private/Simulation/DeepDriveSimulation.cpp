@@ -416,9 +416,9 @@ void ADeepDriveSimulation::initializeAgents()
 	}
 }
 
-void ADeepDriveSimulation::removeAdditionalAgents()
+void ADeepDriveSimulation::removeAgents(bool additionalAgentsOnly)
 {
-	for(signed i = 1; i < m_Agents.Num(); ++i)
+	for(signed i = additionalAgentsOnly ? 1 : 0; i < m_Agents.Num(); ++i)
 	{
 		ADeepDriveAgentControllerBase *agentController = Cast<ADeepDriveAgentControllerBase>(m_Agents[i]->GetController());
 
@@ -427,7 +427,17 @@ void ADeepDriveSimulation::removeAdditionalAgents()
 
 		m_Agents[i]->Destroy();
 	}
-	m_Agents.SetNum(1);
+
+	if(additionalAgentsOnly)
+		m_Agents.SetNum(1);
+	else
+	{
+		m_Agents.SetNum(0);
+		m_curAgent = 0;
+		m_curAgentController = 0;
+		m_curAgentMode = EDeepDriveAgentControlMode::NONE;
+		m_curCameraType = EDeepDriveAgentCameraType::NONE;
+	}
 }
 
 ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(EDeepDriveAgentControlMode mode, int32 configSlot, int32 startPosSlot)

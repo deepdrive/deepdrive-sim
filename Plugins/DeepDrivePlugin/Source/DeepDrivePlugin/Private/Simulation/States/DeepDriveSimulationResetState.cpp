@@ -37,7 +37,7 @@ void DeepDriveSimulationResetState::update(ADeepDriveSimulation &deepDriveSim, f
 	else
 	{
 		if(deepDriveSim.hasAdditionalAgents())
-			deepDriveSim.removeAdditionalAgents();
+			deepDriveSim.removeAgents(true);
 	}
 
 	for (auto &agent : deepDriveSim.m_Agents)
