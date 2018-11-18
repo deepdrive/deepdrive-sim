@@ -73,6 +73,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Simulation")
 	void OnLapFinished();
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Simulation")
+	void OnSimulationReset();
+
 	UFUNCTION(BlueprintCallable, Category = "Simulation")
 	void SetCenterOfTrackSpline(USplineComponent *Spline);
 

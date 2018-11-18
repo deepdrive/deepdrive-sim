@@ -79,11 +79,17 @@ void DeepDriveSimulationMessageHandler::reset(const deepdrive::server::MessageHe
 	const SimulationConfiguration &configuration = req.configuration;
 
 	for (auto &rsd : m_Simulation.RandomStreams)
-		rsd.Value.getRandomStream()->initialize(m_Simulation.Seed);
+		if(rsd.Value.ReSeedOnReset)
+			rsd.Value.getRandomStream()->initialize(m_Simulation.Seed);
 
 	for (auto &agent : m_Simulation.m_Agents)
 	{
-		agent->getAgentController()->OnConfigureSimulation(configuration, true);
+		ADeepDriveAgentControllerBase *controller = agent->getAgentController();
+		if (controller)
+		{
+			controller->OnConfigureSimulation(configuration, false);
+			controller->ResetAgent();
+		}
 	}
 
 	m_SimulationServer.enqueueResponse( new deepdrive::server::ResetSimulationResponse(true) );

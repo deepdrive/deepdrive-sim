@@ -372,6 +372,8 @@ void ADeepDriveAgent::reset()
 	GetVehicleMovementComponent()->SetBrakeInput(1.0f);
 	GetVehicleMovementComponent()->StopMovementImmediately();
 	GetMesh()->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
+
+	OnSimulationReset();
 }
 
 void ADeepDriveAgent::beginCapture(DeepDriveDataOut &deepDriveData)
