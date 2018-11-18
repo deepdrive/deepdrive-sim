@@ -178,7 +178,7 @@ public:
 	TArray<UCaptureSinkComponentBase*>& getCaptureSinks();
 
 	void initializeAgents();
-	void removeAgents(bool additionalAgentsOnly);
+	void removeAdditionalAgents();
 	void spawnAdditionalAgents();
 	bool hasAdditionalAgents();
 
