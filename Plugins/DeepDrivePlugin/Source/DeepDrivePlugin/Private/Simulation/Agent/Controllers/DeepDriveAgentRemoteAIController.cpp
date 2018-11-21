@@ -32,7 +32,10 @@ void ADeepDriveAgentRemoteAIController::OnConfigureSimulation(const SimulationCo
 void ADeepDriveAgentRemoteAIController::SetControlValues(float steering, float throttle, float brake, bool handbrake)
 {
 	if (m_Agent)
+	{
 		m_Agent->SetControlValues(steering, throttle, brake, handbrake);
+		m_Agent->setIsGameDriving(true);
+	}
 }
 
 bool ADeepDriveAgentRemoteAIController::Activate(ADeepDriveAgent &agent, bool keepPosition)

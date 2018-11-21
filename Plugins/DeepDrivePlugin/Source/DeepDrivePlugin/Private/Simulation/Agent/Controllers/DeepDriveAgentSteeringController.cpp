@@ -63,6 +63,7 @@ void DeepDriveAgentSteeringController::update(float dT, float desiredSpeed, floa
 		//ySteering = FMath::SmoothStep(0.0f, 80.0f, FMath::Abs(delta)) * FMath::Sign(delta);
 
 		m_Agent->SetSteering(m_curSteering);
+		m_Agent->setIsGameDriving(true);
 
 		// UE_LOG(LogDeepDriveAgentSteeringController, Log, TEXT("DeepDriveAgentSteeringController::update curThrottle %f"), m_curThrottle );
 

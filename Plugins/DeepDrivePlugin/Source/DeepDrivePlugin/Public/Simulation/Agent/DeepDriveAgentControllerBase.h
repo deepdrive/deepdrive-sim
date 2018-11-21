@@ -86,7 +86,6 @@ protected:
 	const float							m_LapDistanceThreshold = 500.0f;  // cm? (everything is in cm in Unreal)
 
 	FString								m_ControllerName = "DeepDriveAgentControllerBase";
-	bool								m_isGameDriving = false;
 	bool								m_isPassing = false;
 
 	bool								m_LapStarted = false;

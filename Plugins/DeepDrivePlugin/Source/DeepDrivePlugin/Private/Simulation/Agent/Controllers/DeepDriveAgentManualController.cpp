@@ -52,13 +52,17 @@ void ADeepDriveAgentManualController::MoveForward(float axisValue)
 		}
 
 		m_Agent->SetThrottle(axisValue);
+		m_Agent->setIsGameDriving(true);
 	}
 }
 
 void ADeepDriveAgentManualController::MoveRight(float axisValue)
 {
 	if(m_Agent)
+	{
 		m_Agent->SetSteering(axisValue);
+		m_Agent->setIsGameDriving(true);
+	}
 }
 
 void ADeepDriveAgentManualController::Configure(const FDeepDriveManualControllerConfiguration &Configuration, int32 StartPositionSlot, ADeepDriveSimulation* DeepDriveSimulation)
