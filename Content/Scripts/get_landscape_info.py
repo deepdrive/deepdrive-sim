@@ -9,7 +9,10 @@ def main():
     lspline_ctrl_pts = []
     for o in objects:
         try:
-            if o.get_full_name().startswith('LandscapeSplineControlPoint '):
+            if o.get_full_name().startswith('LandscapeSplineControlPoint '
+                                            '/Game/DeepDrive/Maps/Sublevels/DeepDrive_Canyon.'
+                                            'DeepDrive_Canyon:PersistentLevel.Landscape4.'
+                                            'LandscapeSplinesComponent'):
                 lspline_ctrl_pts.append(o)
         except:
             print('error getting object')
