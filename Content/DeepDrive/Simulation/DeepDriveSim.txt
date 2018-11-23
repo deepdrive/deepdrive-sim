@@ -1,0 +1,15 @@
+
+RandomStreams:
+(("AgentAppearance", ()),("AgentPlacement", ()))
+
+ViewModes:
+(("BaseColor", (Material=Material'"/Game/DeepDrive/Materials/ViewModes/M_ViewMode_BaseColor.M_ViewMode_BaseColor"')),("WorldNormal", (Material=Material'"/Game/DeepDrive/Materials/ViewModes/M_ViewMode_WorldNormal.M_ViewMode_WorldNormal"')),("AmbientOcclusion", (Material=Material'"/Game/DeepDrive/Materials/ViewModes/M_ViewMode_AmbientOcclusion.M_ViewMode_AmbientOcclusion"',ViewModeEncoding=GRAYSCALE_DEPTH)),("Reflectivity", (Material=Material'"/Game/DeepDrive/Materials/ViewModes/M_ViewMode_Reflectivity.M_ViewMode_Reflectivity"',ViewModeEncoding=GRAYSCALE_DEPTH)),("Specularity", (Material=Material'"/Game/DeepDrive/Materials/ViewModes/M_ViewMode_Specularity.M_ViewMode_Specularity"',ViewModeEncoding=GRAYSCALE_DEPTH)),("Roughness", (Material=Material'"/Game/DeepDrive/Materials/ViewModes/M_ViewMode_Roughness.M_ViewMode_Roughness"',ViewModeEncoding=GRAYSCALE_DEPTH)),("HeatMap", (Material=Material'"/Game/DeepDrive/Materials/ViewModes/M_ViewMode_HeatMap.M_ViewMode_HeatMap"')))
+
+Controllers:
+((MANUAL, ManualControllerCreator_C'"/Game/DeepDrive/Maps/DeepDriveSim_Demo.DeepDriveSim_Demo:PersistentLevel.ManualControllerCreator_68"'),(REMOTE_AI, RemoteAIControllerCreator_C'"/Game/DeepDrive/Maps/DeepDriveSim_Demo.DeepDriveSim_Demo:PersistentLevel.RemoteAIControllerCreator_84"'),(LOCAL_AI, LocalAIControllerCreator_C'"/Game/DeepDrive/Maps/DeepDriveSim_Demo.DeepDriveSim_Demo:PersistentLevel.LocalAIControllerCreator_76"'))
+
+Some agents:
+((Agent=BlueprintGeneratedClass'"/Game/DeepDrive/Simulation/Agents/DeepDriveAgent_AliceGT.DeepDriveAgent_AliceGT_C"',Mode=LOCAL_AI,ConfigurationSlot=1,StartPositionSlot=1),(Agent=BlueprintGeneratedClass'"/Game/DeepDrive/Simulation/Agents/DeepDriveAgent_AliceGT.DeepDriveAgent_AliceGT_C"',Mode=LOCAL_AI,ConfigurationSlot=1,StartPositionSlot=2),(Agent=BlueprintGeneratedClass'"/Game/DeepDrive/Simulation/Agents/DeepDriveAgent_AliceGT.DeepDriveAgent_AliceGT_C"',Mode=LOCAL_AI,ConfigurationSlot=1,StartPositionSlot=3),(Agent=BlueprintGeneratedClass'"/Game/DeepDrive/Simulation/Agents/DeepDriveAgent_AliceGT.DeepDriveAgent_AliceGT_C"',Mode=LOCAL_AI,ConfigurationSlot=1,StartPositionSlot=4),(Agent=BlueprintGeneratedClass'"/Game/DeepDrive/Simulation/Agents/DeepDriveAgent_AliceGT.DeepDriveAgent_AliceGT_C"',Mode=LOCAL_AI,ConfigurationSlot=1,StartPositionSlot=5))
+
+
+
