@@ -38,6 +38,8 @@ public:
 
 	virtual bool Activate(ADeepDriveAgent &agent, bool keepPosition);
 
+	virtual bool ResetAgent();
+
 	virtual void MoveForward(float axisValue);
 
 	virtual void MoveRight(float axisValue);

@@ -31,6 +31,17 @@ bool ADeepDriveAgentManualController::Activate(ADeepDriveAgent &agent, bool keep
 	return res;
 }
 
+bool ADeepDriveAgentManualController::ResetAgent()
+{
+	bool res = false;
+	if(m_Agent)
+	{
+		UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("Reset Agent") );
+		res = initAgentOnTrack(*m_Agent);
+	}
+	return res;
+}
+
 void ADeepDriveAgentManualController::MoveForward(float axisValue)
 {
 	if(m_Agent)
