@@ -4,6 +4,7 @@ import asyncio
 import sys
 
 from lambda_server import LambdaServer
+import api_methods as api
 
 IS_LINUX = sys.platform == 'linux' or sys.platform == 'linux2'
 IS_WINDOWS = sys.platform == 'win32'
@@ -48,6 +49,7 @@ class DummyPyActor:
 
     def begin_play(self):
         print('Begin Play on DummyPyActor class')
+        api.world = None
         self._find_world()
 
     def tick(self, delta_time):
@@ -72,6 +74,7 @@ class DummyPyActor:
         self.event_loop.close()
 
     def _find_world(self):
+        # TODO: Use api_methods.find_world
         self.worlds = ue.all_worlds()
         # print('All worlds length ' + str(len(self.worlds)))
 
