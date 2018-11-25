@@ -20,10 +20,7 @@ public:
 	AUtilsProxy();
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	int32 GetSplineSegmentConnections(UStructProperty* StructProperty);
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "DeepDriveUtils")
-	int32 cq;
+	int32 GetSplineSegmentConnections(UObject* StructProperty);
 
 protected:
 	// Called when the game starts or when spawned

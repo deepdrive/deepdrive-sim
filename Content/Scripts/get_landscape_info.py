@@ -7,11 +7,12 @@ import json
 
 def main():
     """Create 3 spline components (L,R,Center) from landscape spline components"""
-    # world = api_methods.get_world() #ue.get_editor_world()
+    world = api_methods.get_world() #ue.get_editor_world()
 
-    for world in ue.all_worlds():
-        print('getting world ' + str(world))
-        get_landscape_info(world)
+    # for world in ue.all_worlds():
+    #     print('getting world ' + str(world))
+
+    get_landscape_info(world)
 
 
     # for o in lspline_ctrl_pts:
@@ -71,20 +72,29 @@ def print_segments(utils_proxy, segments):
         conns = segment.Connections
         print('connections ' + str(conns))
         conn_ptr = int(str(conns)[-18:-2], 16)
+        # TODO: Get size (currently 24)
+        # TODO: Hope that the pointer can be cast
+        # TODO: Then get all connections in C++ with GetSplineSegmentConnections
         print('connections ptr ' + str(conn_ptr))
         print('sig ' + str(conns.ref.__text_signature__))
         print('ref ' + str(conns.ref()))
         print('ref dict' + str(conns.ref().as_dict()))
         print('ref fields' + str(conns.ref().fields()))
+        print('conns dir' + str(dir(conns)))
         print('ref dir' + str(dir(conns.ref())))
         print('dict' + str(conns.as_dict()))
         print(conns.fields())
         print(conns.ControlPoint)
         print(conns.TangentLen)
-        print(conns.get_field_array_dim('ControlPoint'))
-        # print(utils_proxy.GetSplineSegmentConnections(conns.ref.as_dict()['ptr']))
+        print('conns.get_field_array_dim(\'ControlPoint\'))' + str(conns.get_field_array_dim('ControlPoint')))
+        print('seg call_function ' + str(segment.call_function))
+        print('utils call_function ' + str(utils_proxy.call_function))
+        # print('segment uobject ' + str(segment.get_owner()))
+        # print(utils_proxy.GetSplineSegmentConnections(conn_ptr))
+        print(utils_proxy.GetSplineSegmentConnections(segment))
 
-        # break
+        break
+
     print('Num segments ' + str(len(segments)))
 
 
