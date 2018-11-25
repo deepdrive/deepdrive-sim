@@ -11,10 +11,10 @@ AUtilsProxy::AUtilsProxy()
 	PrimaryActorTick.bCanEverTick = false;
 }
 
-int32 AUtilsProxy::GetSplineSegmentConnections(UObject* StructProperty)
+void AUtilsProxy::GetSplineSegmentConnections()
 {
-	UE_LOG(LogTemp, Log, TEXT("GetSplineSegmentConnections seg: %d"), StructProperty);
-	return 42;
+	UE_LOG(LogTemp, Log, TEXT("GetSplineSegmentConnections !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"));
+	//return StructProperty;
 }
 
 // Called when the game starts or when spawned

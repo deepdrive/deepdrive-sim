@@ -20,7 +20,7 @@ public:
 	AUtilsProxy();
 
 	UFUNCTION(BlueprintCallable, Category = "Python")
-	int32 GetSplineSegmentConnections(UObject* StructProperty);
+	void GetSplineSegmentConnections();
 
 protected:
 	// Called when the game starts or when spawned

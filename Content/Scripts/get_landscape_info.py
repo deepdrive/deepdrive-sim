@@ -7,29 +7,20 @@ import json
 
 def main():
     """Create 3 spline components (L,R,Center) from landscape spline components"""
+
+
+    for world in ue.all_worlds():
+        print('getting world ' + str(world))
+        get_landscape_info(world)
+
     world = api_methods.get_world() #ue.get_editor_world()
-
-    # for world in ue.all_worlds():
-    #     print('getting world ' + str(world))
-
     get_landscape_info(world)
 
 
     # for o in lspline_ctrl_pts:
     #     print(o.get_full_name())
 
-    # for pt in ctrl_pts:
-    #     # print(dir(pt))
-    #     # print(pt.get_points())
-    #     print('point location ' + str(pt.Location))
-    #     print(pt.SideFalloff)
-    #     print(pt.SegmentMeshOffset)
-    #     print(len(pt.Points))
-    #     if len(pt.Points) > 0:
-    #         print('point center ' + str(pt.Points[0].Center))
-    #     # print('length of interp points %d' % len(pt.GetPoints()))
-    #
-    # print('num spline ctrl points ' + str(len(lspline_ctrl_pts)))
+
 
 
 def get_landscape_info(world):
@@ -57,14 +48,30 @@ def get_landscape_info(world):
                 segments.append(o)
             elif full_name.startswith('UtilsProxy '):
                 utils_proxy = o
-                print(o.get_full_name())
+                # print(o.get_full_name())
                 # print(dir(o))
-                print('bCanEverTick ' + str(o.PrimaryActorTick.bCanEverTick))
+                # print('bCanEverTick ' + str(o.PrimaryActorTick.bCanEverTick))
                 # print('GetSplineSegmentConnectionsASDF ' + str(o.GetSplineSegmentConnections()))
-                print('levels ' + str(o.get_levels()))
+                # print('levels ' + str(o.get_levels()))
         except:
             print('error getting object')
     print_segments(utils_proxy, segments)
+
+    print_ctrl_points(ctrl_pts)
+
+
+def print_ctrl_points(ctrl_pts):
+    for pt in ctrl_pts:
+        # print(dir(pt))
+        # print(pt.get_points())
+        print('point location ' + str(pt.Location))
+        print(pt.SideFalloff)
+        print(pt.SegmentMeshOffset)
+        print(len(pt.Points))
+        if len(pt.Points) > 0:
+            print('point center ' + str(pt.Points[0].Center))
+        # print('length of interp points %d' % len(pt.GetPoints()))
+    print('num spline ctrl points ' + str(len(ctrl_pts)))
 
 
 def print_segments(utils_proxy, segments):
@@ -91,9 +98,10 @@ def print_segments(utils_proxy, segments):
         print('utils call_function ' + str(utils_proxy.call_function))
         # print('segment uobject ' + str(segment.get_owner()))
         # print(utils_proxy.GetSplineSegmentConnections(conn_ptr))
-        print(utils_proxy.GetSplineSegmentConnections(segment))
+        print('GetSplineSegmentConnections ' + str(utils_proxy.GetSplineSegmentConnections()))
+        # print('lesgo2 ' + str(utils_proxy.call_function('GetSplineSegmentConnections')))
 
-        break
+
 
     print('Num segments ' + str(len(segments)))
 
