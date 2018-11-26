@@ -67,15 +67,7 @@ def get_landscape_info(world):
 def print_ctrl_points(ctrl_pts):
     out_pts = []
     for p in ctrl_pts:
-        out_pt = {
-            'full_name': p.get_full_name(),
-            'display_name': p.get_display_name(),
-            'as_string': str(p),
-            'Location': get_3d_vector(p.Location),
-            'Rotation': {'roll': p.Rotation.roll, 'pitch': p.Rotation.pitch, 'yaw': p.Rotation.yaw},
-            'SideFalloff': p.SideFalloff,
-            'SegmentMeshOffset': p.SegmentMeshOffset,
-        }
+        out_pt = serialize_ctrl_point(p)
         out_pts.append(out_pt)
         print('ctrl point location ' + str(p.Location))
         print('ctrl point rotation ' + str(p.Rotation))
@@ -97,11 +89,25 @@ def print_ctrl_points(ctrl_pts):
         print('Saved ctrl points to %s' % os.path.realpath(outfile.name))
 
 
+def serialize_ctrl_point(p):
+    out_pt = {
+        'full_name': p.get_full_name(),
+        'display_name': p.get_display_name(),
+        'as_string': str(p),
+        'Location': get_3d_vector(p.Location),
+        'Rotation': {'roll': p.Rotation.roll, 'pitch': p.Rotation.pitch, 'yaw': p.Rotation.yaw},
+        'SideFalloff': p.SideFalloff,
+        'SegmentMeshOffset': p.SegmentMeshOffset,
+    }
+    return out_pt
+
+
 def print_segments(utils_proxy, segments):
     out_segs = []
     for i, segment in enumerate(segments):
         end_points = []
         mid_points = []
+        conns = segment.Connections
         out_seg = {
             'full_name': segment.get_full_name(),
             'as_string': str(segment),
@@ -109,9 +115,13 @@ def print_segments(utils_proxy, segments):
             'layer_name': str(segment.LayerName),
             'Points': mid_points,
             'SplineInfo_Points': end_points,
-        }
+            'first_Connection': {
+                'as_string': str(segment.Connections),
+                'ControlPoint': serialize_ctrl_point(conns.ControlPoint),
+                'TangentLen': conns.TangentLen,
+            }
 
-        conns = segment.Connections
+        }
         points = segment.Points
         spline_info = segment.SplineInfo
         print('spline_info ' + str(spline_info))
@@ -119,11 +129,11 @@ def print_segments(utils_proxy, segments):
         for p in spline_info.Points:
 
             end_point = {
-                'InVal': str(p.InVal),
-                'OutVal': str(p.OutVal),  # Cross-ref this with ControlPoint Location
-                'ArriveTangent': str(p.ArriveTangent),
-                'LeaveTangent': str(p.LeaveTangent),
-                'InterpMode': str(p.InterpMode),
+                'InVal': p.InVal,
+                'OutVal': get_3d_vector(p.OutVal),  # Cross-ref this with ControlPoint Location
+                'ArriveTangent': get_3d_vector(p.ArriveTangent),
+                'LeaveTangent': get_3d_vector(p.LeaveTangent),
+                'InterpMode': p.InterpMode,
             }
             # InterpMode 3 CIM_CurveUser =>	/** A smooth curve just like CIM_Curve,
             # but tangents are not automatically updated so you can have manual
@@ -148,6 +158,7 @@ def print_segments(utils_proxy, segments):
                 'StartEndFalloff': p.StartEndFalloff
             }
             mid_points.append(mid_point)
+
         out_segs.append(out_seg)
         print(str(i) + ' point centers ' + str([str(p.Center) for p in points]))
         print('len_points ' + str(len(points)))
