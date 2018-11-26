@@ -1,3 +1,5 @@
+import os
+
 import unreal_engine as ue
 from unreal_engine.classes import Landscape
 
@@ -55,28 +57,100 @@ def get_landscape_info(world):
                 # print('levels ' + str(o.get_levels()))
         except:
             print('error getting object')
+
+
     print_segments(utils_proxy, segments)
 
     print_ctrl_points(ctrl_pts)
 
 
 def print_ctrl_points(ctrl_pts):
-    for pt in ctrl_pts:
-        # print(dir(pt))
-        # print(pt.get_points())
-        print('point location ' + str(pt.Location))
-        print(pt.SideFalloff)
-        print(pt.SegmentMeshOffset)
-        print(len(pt.Points))
-        if len(pt.Points) > 0:
-            print('point center ' + str(pt.Points[0].Center))
+    out_pts = []
+    for p in ctrl_pts:
+        out_pt = {
+            'full_name': p.get_full_name(),
+            'display_name': p.get_display_name(),
+            'as_string': str(p),
+            'Location': get_3d_vector(p.Location),
+            'Rotation': {'roll': p.Rotation.roll, 'pitch': p.Rotation.pitch, 'yaw': p.Rotation.yaw},
+            'SideFalloff': p.SideFalloff,
+            'SegmentMeshOffset': p.SegmentMeshOffset,
+        }
+        out_pts.append(out_pt)
+        print('ctrl point location ' + str(p.Location))
+        print('ctrl point rotation ' + str(p.Rotation))
+        print(p.SideFalloff)
+        print(p.SegmentMeshOffset)
+        print('pt.Width ' + str(p.Width))
+        print('pt info ' + str(p))
+        print('pt full name ' + str(p.get_full_name()))
+        print('pt connected segments ' + str(p.ConnectedSegments))
+        print('len pt connected segments ' + str(len(p.ConnectedSegments)))
+        print(len(p.Points))
+        if len(p.Points) > 0:
+            print('point center ' + str(p.Points[0].Center))
         # print('length of interp points %d' % len(pt.GetPoints()))
     print('num spline ctrl points ' + str(len(ctrl_pts)))
 
+    with open('landscape_ctrl_points.json', 'w') as outfile:
+        json.dump(out_pts, outfile)
+        print('Saved ctrl points to %s' % os.path.realpath(outfile.name))
+
 
 def print_segments(utils_proxy, segments):
-    for segment in segments:
+    out_segs = []
+    for i, segment in enumerate(segments):
+        end_points = []
+        mid_points = []
+        out_seg = {
+            'full_name': segment.get_full_name(),
+            'as_string': str(segment),
+            'display_name': segment.get_display_name(),
+            'layer_name': str(segment.LayerName),
+            'Points': mid_points,
+            'SplineInfo_Points': end_points,
+        }
+
         conns = segment.Connections
+        points = segment.Points
+        spline_info = segment.SplineInfo
+        print('spline_info ' + str(spline_info))
+        print('spline_info points' + str(spline_info.Points))
+        for p in spline_info.Points:
+
+            end_point = {
+                'InVal': str(p.InVal),
+                'OutVal': str(p.OutVal),  # Cross-ref this with ControlPoint Location
+                'ArriveTangent': str(p.ArriveTangent),
+                'LeaveTangent': str(p.LeaveTangent),
+                'InterpMode': str(p.InterpMode),
+            }
+            # InterpMode 3 CIM_CurveUser =>	/** A smooth curve just like CIM_Curve,
+            # but tangents are not automatically updated so you can have manual
+            # control over them (eg. in Curve Editor). */
+
+            end_points.append(end_point)
+
+            print(str(i) + ' interp_point_InVal ' + str(p.InVal))
+            print(str(i) + ' interp_point_OutVal ' + str(p.OutVal))
+            print(str(i) + ' interp_point_ArriveTangent ' + str(p.ArriveTangent))
+            print(str(i) + ' interp_point_LeaveTangent ' + str(p.LeaveTangent))
+            print('interp_point_InterpMode ' + str(p.InterpMode))
+        print('len_spline_info points ' + str(len(spline_info.Points)))
+        print('points ' + str(points))
+        for p in points:
+            mid_point = {
+                'Center': get_3d_vector(p.Center),
+                'Right': get_3d_vector(p.Right),
+                'Left': get_3d_vector(p.Left),
+                'FalloffLeft': get_3d_vector(p.FalloffLeft),
+                'FalloffRight': get_3d_vector(p.FalloffRight),
+                'StartEndFalloff': p.StartEndFalloff
+            }
+            mid_points.append(mid_point)
+        out_segs.append(out_seg)
+        print(str(i) + ' point centers ' + str([str(p.Center) for p in points]))
+        print('len_points ' + str(len(points)))
         print('connections ' + str(conns))
         conn_ptr = int(str(conns)[-18:-2], 16)
         # TODO: Get size (currently 24)
@@ -101,9 +175,16 @@ def print_segments(utils_proxy, segments):
         print('GetSplineSegmentConnections ' + str(utils_proxy.GetSplineSegmentConnections()))
         # print('lesgo2 ' + str(utils_proxy.call_function('GetSplineSegmentConnections')))
 
+    with open('landscape_segments.json', 'w') as outfile:
+        json.dump(out_segs, outfile)
+        print('Saved segments to %s' % os.path.realpath(outfile.name))
 
 
     print('Num segments ' + str(len(segments)))
+
+
+def get_3d_vector(p):
+    return [p.x, p.y, p.z]
 
 
 if __name__ == '__main__':
