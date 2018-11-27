@@ -104,6 +104,7 @@ def serialize_ctrl_point(p):
 
 def print_segments(utils_proxy, segments):
     out_segs = []
+    unique_mid_points = set()
     for i, segment in enumerate(segments):
         end_points = []
         mid_points = []
@@ -157,6 +158,7 @@ def print_segments(utils_proxy, segments):
                 'FalloffRight': get_3d_vector(p.FalloffRight),
                 'StartEndFalloff': p.StartEndFalloff
             }
+            unique_mid_points.add(tuple(get_3d_vector(p.Center)))
             mid_points.append(mid_point)
 
         out_segs.append(out_seg)
@@ -185,6 +187,7 @@ def print_segments(utils_proxy, segments):
         # print(utils_proxy.GetSplineSegmentConnections(conn_ptr))
         print('GetSplineSegmentConnections ' + str(utils_proxy.GetSplineSegmentConnections()))
         # print('lesgo2 ' + str(utils_proxy.call_function('GetSplineSegmentConnections')))
+    print('num mid points ' + str(len(unique_mid_points)))
 
     with open('landscape_segments.json', 'w') as outfile:
         json.dump(out_segs, outfile)
