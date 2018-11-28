@@ -15,10 +15,10 @@
 #endif
 
 #if ENGINE_MINOR_VERSION >= 18
-#define PROJECT_CONTENT_DIR FPaths::ProjectContentDir()
+#define PROJECT_CONTENT_DIR FPaths::ConvertRelativePathToFull(FPaths::ProjectContentDir())
 #define PROJECT_DIR FPaths::ProjectDir()
 #else
-#define PROJECT_CONTENT_DIR FPaths::GameContentDir()
+#define PROJECT_CONTENT_DIR FPaths::ConvertRelativePathToFull(FPaths::GameContentDir())
 #define PROJECT_DIR FPaths::GameDir()
 
 #endif
@@ -238,7 +238,7 @@ void FUnrealEnginePythonModule::StartupModule()
 {
     // TODO: Refactor large method
 
-	UE_LOG(LogPython, Log, TEXT(">>>>>>> Loading UnrealEnginePythonPlugin"));
+	UE_LOG(LogPython, Log, TEXT(">>> Loading UnrealEnginePythonPlugin"));
 
 	BrutalFinalize = false;
 
