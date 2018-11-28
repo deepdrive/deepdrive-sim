@@ -6,6 +6,8 @@
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 #include "Public/Simulation/Misc/DeepDriveRandomStream.h"
 
+#include <fstream>
+
 DEFINE_LOG_CATEGORY(LogDeepDriveSplineTrack);
 
 ADeepDriveSplineTrack::ADeepDriveSplineTrack()
@@ -37,6 +39,11 @@ void ADeepDriveSplineTrack::PostInitializeComponents()
 
 	UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("Track %s Length %f Slot Count %d"), *(GetName()), m_TrackLength, m_RandomSlotCount );
 
+	// exportAsTextFile( FString("/home/mernst/tmp/") + GetName() + FString("_Center.dat"), 100.0f, 0.0f );
+	// exportAsTextFile( FString("/home/mernst/tmp/") + GetName() + FString("_Left.dat"), 100.0f, -400.0f );
+	// exportAsTextFile( FString("/home/mernst/tmp/") + GetName() + FString("_Right.dat"), 100.0f, 400.0f );
+
+	// exportControlPoints( FString("/home/mernst/tmp/") + GetName() + FString("_CtrlPoints.dat") );
 }
 
 void ADeepDriveSplineTrack::Tick(float DeltaTime)
@@ -364,3 +371,69 @@ float ADeepDriveSplineTrack::getRandomDistanceAlongTrack(UDeepDriveRandomStream 
 
 	return distance;
 }
+
+void ADeepDriveSplineTrack::exportAsTextFile(const FString &fileName, float steppingDistance, float sideOffset)
+{
+	if(SplineTrack && SplineTrack->GetNumberOfSplinePoints() > 0)
+	{
+		std::ofstream outStream( TCHAR_TO_ANSI(*fileName) );
+		if (outStream.good())
+		{
+			const float trackLength = SplineTrack->GetSplineLength();
+
+			outStream << "#	X,Y,Z\n";
+			for(float curDistance = 0.0f; curDistance < trackLength; curDistance += steppingDistance)
+			{
+				FVector loc = SplineTrack->GetLocationAtDistanceAlongSpline(curDistance, ESplineCoordinateSpace::World);
+				if(sideOffset != 0.0f)
+				{
+					FVector right = SplineTrack->GetRightVectorAtDistanceAlongSpline(curDistance, ESplineCoordinateSpace::World);
+					loc += right * sideOffset;
+				}
+
+				outStream	<<	loc.X << "," <<	loc.Y << "," <<	loc.Z
+							<< "\n";
+
+				// outStream	<<	"(X=" << loc.X << ",Y=" <<	loc.Y << ",Z=" <<	loc.Z
+				// 			<< "),\n";
+
+			}
+			UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("Exported track to %s"), *(fileName));
+		}
+	}
+
+}
+
+void ADeepDriveSplineTrack::exportControlPoints(const FString &fileName)
+{
+	if(SplineTrack && SplineTrack->GetNumberOfSplinePoints() > 0)
+	{
+		std::ofstream outStream( TCHAR_TO_ANSI(*fileName) );
+		if (outStream.good())
+		{
+			outStream << "#	Location(X,Y,Z), Rotation(Pitch,Roll,Yaw) ArriveTangent(X,Y,Z) LeaveTangent(X,Y,Z)\n";
+
+			for(unsigned i = 0; i < SplineTrack->GetNumberOfSplinePoints(); ++i)
+			{
+				FVector loc = SplineTrack->GetLocationAtSplinePoint(i, ESplineCoordinateSpace::World);
+				FRotator rot = SplineTrack->GetRotationAtSplinePoint(i, ESplineCoordinateSpace::World);
+				FVector aTng = SplineTrack->GetArriveTangentAtSplinePoint(i, ESplineCoordinateSpace::World);
+				FVector lTng = SplineTrack->GetLeaveTangentAtSplinePoint(i, ESplineCoordinateSpace::World);
+
+				outStream	<<	loc.X << "," <<	loc.Y << "," <<	loc.Z
+							<<	" " << rot.Pitch << "," <<	rot.Roll << "," <<	rot.Yaw
+							<<	" " << aTng.X << "," <<	aTng.Y << "," << lTng.Z
+							<<	" " << lTng.X << "," <<	lTng.Y << "," << lTng.Z
+							<< "\n";
+			}
+			UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("Exported control points to %s"), *(fileName));
+		}
+	}
+}
+
+void ADeepDriveSplineTrack::importControlPoints(const FString &fileName)
+{
+
+}
+
+

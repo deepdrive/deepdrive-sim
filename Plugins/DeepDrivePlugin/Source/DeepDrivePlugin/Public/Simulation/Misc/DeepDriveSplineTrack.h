@@ -85,6 +85,12 @@ protected:
 
 private:
 
+	void exportAsTextFile(const FString &fileName, float steppingDistance, float sideOffset);
+
+	void exportControlPoints(const FString &fileName);
+
+	void importControlPoints(const FString &fileName);
+
 	float getInputKeyAhead(float distanceAhead);
 
 	float getDistance(float key);
