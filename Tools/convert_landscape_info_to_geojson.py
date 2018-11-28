@@ -19,12 +19,12 @@ def main():
         # Find overlapping segments using OutVal of control point
         # String mid points together    unique_segments = dict()
         s = segments.pop()
-        connected_segs = string_together_segments(
+        spline = string_together_segments(
             start_segment=s,
             segment_point_map=segment_point_map,
             segments=segments)
 
-        splines.append(connected_segs)
+        splines.append(spline)
 
     print('Num splines', len(splines))
 
