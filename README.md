@@ -168,3 +168,9 @@ VeryVerbose
 
     VeryVerbose level logs are printed to log files but not the in-game console. This is usually used for very detailed logging that would otherwise spam output.
 
+
+#### UnrealEnginePython aka UEPY
+
+On Linux, we've included the binaries for the embedded Python here: `Plugins/UnrealEnginePython/linux`. Our dependencies are downloaded separately (zmq, and pyarrow) currently. You will see log messages on whether you need to download.
+
+If you need to change the UnrealEnginePython extension and rebuild, you may get seg faults. To workaround, do a `./clean.sh` and delete UnrealEnginePython/Intermediate and UnrealEnginePython/Binaries. This is a very long and tedious process, so please let me know if something else works. Perhaps doing a "Compile" in the Unreal Editor (instead of Modules->Rebuild) or changing things in Windows would be faster, idk.
