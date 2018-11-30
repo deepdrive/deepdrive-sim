@@ -9,8 +9,6 @@ import json
 
 def main():
     """Create 3 spline components (L,R,Center) from landscape spline components"""
-
-
     for world in ue.all_worlds():
         print('getting world ' + str(world))
         get_landscape_info(world)
@@ -19,13 +17,8 @@ def main():
     get_landscape_info(world)
 
 
-    # for o in lspline_ctrl_pts:
-    #     print(o.get_full_name())
-
-
-
-
 def get_landscape_info(world):
+    print('Getting landscape info')
     try:
         objects = world.all_objects()
     except Exception:
@@ -38,14 +31,9 @@ def get_landscape_info(world):
     for o in objects:
         full_name = o.get_full_name()
         try:
-            if full_name.startswith('LandscapeSplineControlPoint '
-                                    '/Game/DeepDrive/Maps/Sublevels/DeepDrive_Canyon.'
-                                    'DeepDrive_Canyon:PersistentLevel.Landscape4.'
-                                    'LandscapeSplinesComponent'):
+            if full_name.startswith('LandscapeSplineControlPoint '):
                 ctrl_pts.append(o)
-            elif full_name.startswith('LandscapeSplineSegment /Game/DeepDrive/Maps/Sublevels/'
-                                      'DeepDrive_Canyon.DeepDrive_Canyon:PersistentLevel.'
-                                      'Landscape4.LandscapeSplinesComponent'):
+            elif full_name.startswith('LandscapeSplineSegment '):
                 # print(full_name)
                 segments.append(o)
             elif full_name.startswith('UtilsProxy '):
@@ -165,7 +153,8 @@ def print_segments(utils_proxy, segments):
         print(str(i) + ' point centers ' + str([str(p.Center) for p in points]))
         print('len_points ' + str(len(points)))
         print('connections ' + str(conns))
-        conn_ptr = int(str(conns)[-18:-2], 16)
+        conns_str = str(conns)
+        conn_ptr = int(conns_str[conns_str.rindex(':')+2:-2], 16)
         # TODO: Get size (currently 24)
         # TODO: Hope that the pointer can be cast
         # TODO: Then get all connections in C++ with GetSplineSegmentConnections
@@ -182,10 +171,11 @@ def print_segments(utils_proxy, segments):
         print(conns.TangentLen)
         print('conns.get_field_array_dim(\'ControlPoint\'))' + str(conns.get_field_array_dim('ControlPoint')))
         print('seg call_function ' + str(segment.call_function))
-        print('utils call_function ' + str(utils_proxy.call_function))
+        if utils_proxy:
+            print('utils call_function ' + str(utils_proxy.call_function))
         # print('segment uobject ' + str(segment.get_owner()))
         # print(utils_proxy.GetSplineSegmentConnections(conn_ptr))
-        print('GetSplineSegmentConnections ' + str(utils_proxy.GetSplineSegmentConnections()))
+            print('GetSplineSegmentConnections ' + str(utils_proxy.GetSplineSegmentConnections()))
         # print('lesgo2 ' + str(utils_proxy.call_function('GetSplineSegmentConnections')))
     print('num mid points ' + str(len(unique_mid_points)))
 
