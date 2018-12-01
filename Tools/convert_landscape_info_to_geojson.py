@@ -1,4 +1,5 @@
 import json
+import numpy as np
 
 import collections
 
@@ -33,8 +34,32 @@ def main():
     segments = get_unique_segments(segments)  # Segments seem already de-duped, but just in case
     segments = [HashableSegment(s) for s in segments]
     segment_point_map = get_segment_point_map(segments)
-    graphs = []
     points = list(segment_point_map.keys())
+
+    landscape_offset = np.array([-11200.000000, -11200.000000, 100.000000])  # TODO: Add this from JSON
+    for point in points:
+        actual = np.array(point) + landscape_offset
+        print('actual', get_unreal_format(actual))
+        print('point', get_unreal_format(point))
+
+    # TODO: For each point in the segment_point map
+    # TODO: Check that interp points make sense in the editor
+    # TODO: Use width and roll rotation to get right and left side of road from each interp point
+    # TODO: Assign drive paths to points in between center and right, left edges of road
+    # TODO: Add the previous and next nodes per JSON map spec
+    # TODO: Add adjacent lanes (not yet in JSON spec but will be)
+    # TODO: Subtract the Landscape center from the points
+    # TODO: Use interpolated points to and cubic spline interpolation to get points sep by 1m
+    #graphs =  get_map_graphs(graphs, points, segment_point_map)
+    print('Num splines', len(graphs))
+
+
+def get_unreal_format(point):
+    return '(X=%.6f,Y=%.6f,Z=%.6f)' % (point[0], point[1], point[2])
+
+
+def get_map_graphs(points, segment_point_map):
+    graphs = []
     while points:
         # Find overlapping segments using OutVal of control point
         # String mid points together    unique_segments = dict()
@@ -42,8 +67,7 @@ def main():
         del segment_point_map[start_point]
         graph = get_map_graph(segment_point_map, start_point, points)
         graphs.append(graph)
-
-    print('Num splines', len(graphs))
+    return graphs
 
 
 def get_segment_point_map(segments):
@@ -107,15 +131,8 @@ def get_map_graph(segment_point_map, start_point, points):
                 visited.add(p)
                 q.append(p)
                 points.remove(p)  # Don't start a search from here
-                # TODO: For each point in the segment_point map
-                # TODO: Check that interp points make sense in the editor
-                # TODO: Use width and roll rotation to get right and left side of road from each interp point
-                # TODO: Assign drive paths to points in between center and right, left edges of road
-                # TODO: Add the previous and next nodes per JSON map spec
-                # TODO: Add adjacent lanes (not yet in JSON spec but will be)
-                # TODO: Subtract the Landscape center from the points
-                # TODO: Use interpolated points to and cubic spline interpolation to get points sep by 1m
-                graph
+
+                # graph
 
         # for p in get_segment_points(s):
 

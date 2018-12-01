@@ -13,7 +13,7 @@ def main():
         print('getting world ' + str(world))
         get_landscape_info(world)
 
-    world = api_methods.get_world() #ue.get_editor_world()
+    world = api_methods.get_world()  # ue.get_editor_world()
     get_landscape_info(world)
 
 
@@ -46,9 +46,7 @@ def get_landscape_info(world):
         except:
             print('error getting object')
 
-
     print_segments(utils_proxy, segments)
-
     print_ctrl_points(ctrl_pts)
 
 
@@ -109,7 +107,6 @@ def print_segments(utils_proxy, segments):
                 'ControlPoint': serialize_ctrl_point(conns.ControlPoint),
                 'TangentLen': conns.TangentLen,
             }
-
         }
         points = segment.Points
         spline_info = segment.SplineInfo
@@ -182,7 +179,6 @@ def print_segments(utils_proxy, segments):
     with open('landscape_segments.json', 'w') as outfile:
         json.dump(out_segs, outfile)
         print('Saved segments to %s' % os.path.realpath(outfile.name))
-
 
     print('Num segments ' + str(len(segments)))
 
