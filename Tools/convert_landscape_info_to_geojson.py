@@ -29,7 +29,7 @@ class HashableSegment(collections.MutableMapping):
 
 
 def main():
-    with open('landscape_segments_mesa.json') as f:
+    with open('landscape_segments_mesa_hill.json') as f:
         segments = json.load(f)
     segments = get_unique_segments(segments)  # Segments seem already de-duped, but just in case
     segments = [HashableSegment(s) for s in segments]
@@ -39,23 +39,29 @@ def main():
     landscape_offset = np.array([-11200.000000, -11200.000000, 100.000000])  # TODO: Add this from JSON
     for point in points:
         actual = np.array(point) + landscape_offset
-        print('actual', get_unreal_format(actual))
-        print('point', get_unreal_format(point))
+        print('actual', format_point_as_unreal(actual))
+        print('point', format_point_as_unreal(point))
+        for segment in segment_point_map[point]:
+            for interp_point in segment['Points']:
+                print('interp right', format_point_as_unreal(
+                    np.array(interp_point['Right']) + landscape_offset))
 
     # DONE: For each point in the segment_point map
     # DONE: Check that interp points make sense in the editor
-    # TODO: Use left and right to get left and right road edge from interp points
-    # TODO: Spot check above
+    # DONE: Use left and right to get left and right road edge from interp points
+    # DONE: Spot check above
+    # TODO: Do cubic interpolation on those points to get 1m increments
+    # TODO: Visualize results
     # TODO: Assign drive paths to points in between center and right, left edges of road
     # TODO: Add the previous and next nodes per JSON map spec
     # TODO: Add adjacent lanes (not yet in JSON spec but will be)
     # TODO: Subtract the Landscape center from the points
     # TODO: Use interpolated points to and cubic spline interpolation to get points sep by 1m
     #graphs =  get_map_graphs(graphs, points, segment_point_map)
-    print('Num splines', len(graphs))
+    # print('Num splines', len(graphs))
 
 
-def get_unreal_format(point):
+def format_point_as_unreal(point):
     return '(X=%.6f,Y=%.6f,Z=%.6f)' % (point[0], point[1], point[2])
 
 
