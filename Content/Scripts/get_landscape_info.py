@@ -81,6 +81,7 @@ def serialize_ctrl_point(p):
         'display_name': p.get_display_name(),
         'as_string': str(p),
         'Location': get_3d_vector(p.Location),
+        'Width': p.Width,
         'Rotation': {'roll': p.Rotation.roll, 'pitch': p.Rotation.pitch, 'yaw': p.Rotation.yaw},
         'SideFalloff': p.SideFalloff,
         'SegmentMeshOffset': p.SegmentMeshOffset,
