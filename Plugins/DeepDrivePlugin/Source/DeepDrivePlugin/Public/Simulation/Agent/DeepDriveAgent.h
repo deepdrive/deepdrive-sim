@@ -97,6 +97,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Agents")
 	void OnDebugTrigger();
 
+	UFUNCTION(BlueprintCallable, Category = "Agents")
+	int32 GetAgentId();
+
+	UFUNCTION(BlueprintCallable, Category = "Agents")
+	EDeepDriveAgentState GetAgentState();
+
 	void setCollisionMode(bool simple);
 	void setCollisionVisibility(bool visible);
 
@@ -113,7 +119,6 @@ public:
 	float getFrontBumperDistance() const;
 	float getBackBumperDistance() const;
 
-	int32 getAgentId() const;
 	void setNextAgent(ADeepDriveAgent *agent, float distance);
 	void setPrevAgent(ADeepDriveAgent *agent, float distance);
 
@@ -236,7 +241,6 @@ inline void ADeepDriveAgent::initialize(ADeepDriveSimulation &sim)
 	m_Simulation = &sim;
 }
 
-
 inline void ADeepDriveAgent::setResetTransform(const FTransform &transform)
 {
 	m_ResetTransform = transform;
@@ -247,7 +251,7 @@ inline void ADeepDriveAgent::setIsGameDriving(bool isGameDriving)
 	m_isGameDriving = isGameDriving;
 }
 
-inline int32 ADeepDriveAgent::getAgentId() const
+inline int32 ADeepDriveAgent::GetAgentId()
 {
 	return m_AgentId;
 }
@@ -261,7 +265,6 @@ inline float ADeepDriveAgent::getBackBumperDistance() const
 {
 	return BackBumperDistance;
 }
-
 
 
 inline void ADeepDriveAgent::setNextAgent(ADeepDriveAgent *agent, float distance)

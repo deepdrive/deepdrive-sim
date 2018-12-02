@@ -25,7 +25,7 @@ void DeepDriveAgentPullOutState::enter(DeepDriveAgentLocalAIStateMachineContext 
 
 	ctx.local_ai_ctrl.setIsPassing(true);
 
-	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT(">>>> Pulling out Agent %d"), ctx.agent.getAgentId());
+	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT(">>>> Pulling out Agent %d"), ctx.agent.GetAgentId());
 }
 
 void DeepDriveAgentPullOutState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)

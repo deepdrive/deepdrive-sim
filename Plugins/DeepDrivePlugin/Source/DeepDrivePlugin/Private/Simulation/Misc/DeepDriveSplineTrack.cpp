@@ -39,9 +39,12 @@ void ADeepDriveSplineTrack::PostInitializeComponents()
 
 	UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("Track %s Length %f Slot Count %d"), *(GetName()), m_TrackLength, m_RandomSlotCount );
 
-	// exportAsTextFile( FString("/home/mernst/tmp/") + GetName() + FString("_Center.dat"), 100.0f, 0.0f );
-	// exportAsTextFile( FString("/home/mernst/tmp/") + GetName() + FString("_Left.dat"), 100.0f, -400.0f );
-	// exportAsTextFile( FString("/home/mernst/tmp/") + GetName() + FString("_Right.dat"), 100.0f, 400.0f );
+	FString basePath("D:/tmp/");
+	// FString basePath("/home/mernst/tmp/");
+
+	exportAsTextFile( basePath + GetName() + FString("_Center.dat"), 100.0f, 0.0f );
+	exportAsTextFile( basePath + GetName() + FString("_Left.dat"), 100.0f, -400.0f );
+	exportAsTextFile( basePath + GetName() + FString("_Right.dat"), 100.0f, 400.0f );
 
 	// exportControlPoints( FString("/home/mernst/tmp/") + GetName() + FString("_CtrlPoints.dat") );
 }
@@ -55,7 +58,7 @@ void ADeepDriveSplineTrack::Tick(float DeltaTime)
 		item.key = SplineTrack->FindInputKeyClosestToWorldLocation(item.agent->GetActorLocation());
 		item.distance = getDistance(item.key);
 
-		//UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("Agent %d Distance %f"), item.agent->getAgentId(), item.distance );
+		//UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("Agent %d Distance %f"), item.agent->GetAgentId(), item.distance );
 	}
 
 	if (m_RegisteredAgents.Num() == 1)
@@ -239,7 +242,7 @@ void ADeepDriveSplineTrack::getPreviousAgent(const FVector &location, ADeepDrive
 		{
 			distance = curDistance - (m_TrackLength - dist);
 		}
-		//UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("Agent %d Distance %f"), agentPtr->getAgentId(), distance );
+		//UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("Agent %d Distance %f"), agentPtr->GetAgentId(), distance );
 	}
 	else if(m_RegisteredAgents.Num() > 1)
 	{
@@ -413,7 +416,7 @@ void ADeepDriveSplineTrack::exportControlPoints(const FString &fileName)
 		{
 			outStream << "#	Location(X,Y,Z), Rotation(Pitch,Roll,Yaw) ArriveTangent(X,Y,Z) LeaveTangent(X,Y,Z)\n";
 
-			for(unsigned i = 0; i < SplineTrack->GetNumberOfSplinePoints(); ++i)
+			for(signed i = 0; i < SplineTrack->GetNumberOfSplinePoints(); ++i)
 			{
 				FVector loc = SplineTrack->GetLocationAtSplinePoint(i, ESplineCoordinateSpace::World);
 				FRotator rot = SplineTrack->GetRotationAtSplinePoint(i, ESplineCoordinateSpace::World);

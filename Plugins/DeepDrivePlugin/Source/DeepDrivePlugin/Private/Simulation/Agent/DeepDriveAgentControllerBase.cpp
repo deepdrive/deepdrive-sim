@@ -209,4 +209,3 @@ void ADeepDriveAgentControllerBase::OnCheckpointReached()
 void ADeepDriveAgentControllerBase::OnDebugTrigger()
 {
 }
-

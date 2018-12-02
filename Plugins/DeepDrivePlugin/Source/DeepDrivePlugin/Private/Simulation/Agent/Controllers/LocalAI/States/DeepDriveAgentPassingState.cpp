@@ -19,7 +19,7 @@ void DeepDriveAgentPassingState::enter(DeepDriveAgentLocalAIStateMachineContext 
 	startThinkTimer(ctx.configuration.ThinkDelays.Z, false);
 	m_AgentToPass = ctx.agent.getNextAgent(-1.0f);
 	
-	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT(">>>> Passing agent %d/%s"), m_AgentToPass ? m_AgentToPass->getAgentId() : -1, *(m_AgentToPass ? *(m_AgentToPass->GetName()) : FString("")) );
+	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT(">>>> Passing agent %d/%s"), m_AgentToPass ? m_AgentToPass->GetAgentId() : -1, *(m_AgentToPass ? *(m_AgentToPass->GetName()) : FString("")) );
 }
 
 void DeepDriveAgentPassingState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)
@@ -68,7 +68,7 @@ bool DeepDriveAgentPassingState::abortOvertaking(DeepDriveAgentLocalAIStateMachi
 	abort = otc < 0.10f;
 
 	if(abort)
-		UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Abort overtaking %s / %d  otc %f"), *(m_AgentToPass ? *(m_AgentToPass->GetName()) : FString("---")), m_AgentToPass ? m_AgentToPass->getAgentId() : -1, otc );
+		UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Abort overtaking %s / %d  otc %f"), *(m_AgentToPass ? *(m_AgentToPass->GetName()) : FString("---")), m_AgentToPass ? m_AgentToPass->GetAgentId() : -1, otc );
 
 
 	return abort;

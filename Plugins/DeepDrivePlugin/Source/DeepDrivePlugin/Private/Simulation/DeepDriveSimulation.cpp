@@ -573,3 +573,23 @@ void ADeepDriveSimulation::OnDebugTrigger()
 	}
 }
 
+
+TArray<ADeepDriveAgent*> ADeepDriveSimulation::GetAgentsList(EDeepDriveAgentsListFilter Filter)
+{
+	TArray<ADeepDriveAgent*> agents;
+
+	switch(Filter)
+	{
+		case EDeepDriveAgentsListFilter::ALL:
+			agents = m_Agents;
+			break;
+		
+		case EDeepDriveAgentsListFilter::SAME_LANE:
+			break;
+		
+		case EDeepDriveAgentsListFilter::OPPOSING_LANE:
+			break;
+	}
+
+	return agents;
+}

@@ -467,3 +467,8 @@ void ADeepDriveAgent::OnBeginOverlap(UPrimitiveComponent *OverlappedComponent, A
 		}
 	}
 }
+
+EDeepDriveAgentState ADeepDriveAgent::GetAgentState()
+{
+	return EDeepDriveAgentState::CRUSING;
+}

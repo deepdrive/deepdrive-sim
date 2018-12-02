@@ -18,7 +18,7 @@ void DeepDriveAgentCruiseState::enter(DeepDriveAgentLocalAIStateMachineContext &
 	m_WaitTimeBeforeOvertaking = ctx.wait_time_before_overtaking;
 	ctx.local_ai_ctrl.setIsPassing(false);
 	startThinkTimer(ctx.configuration.ThinkDelays.X, false);
-	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT(">>>> Cruising Agent %d"), ctx.agent.getAgentId());
+	UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT(">>>> Cruising Agent %d"), ctx.agent.GetAgentId());
 }
 
 void DeepDriveAgentCruiseState::update(DeepDriveAgentLocalAIStateMachineContext &ctx, float dT)
@@ -87,7 +87,7 @@ bool DeepDriveAgentCruiseState::isOvertakingPossible(DeepDriveAgentLocalAIStateM
 					float otc = ctx.local_ai_ctrl.computeOppositeTrackClearance(curSpeed, ctx.configuration.LookAheadTime);
 					res = otc >= 0.0f;
 					if(res)
-						UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Overtaking %s / %d possible"), *(nextAgent->GetName()), nextAgent->getAgentId() );
+						UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Overtaking %s / %d possible"), *(nextAgent->GetName()), nextAgent->GetAgentId() );
 				}
 			}
 		}

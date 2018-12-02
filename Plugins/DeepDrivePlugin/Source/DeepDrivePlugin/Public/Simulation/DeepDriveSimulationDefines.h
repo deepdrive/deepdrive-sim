@@ -31,6 +31,27 @@ enum class EDeepDriveAgentCameraType : uint8
 	FREE_CAMERA			= 4	UMETA(DisplayName = "FreeCamera")
 };
 
+UENUM(BlueprintType)
+enum class EDeepDriveAgentsListFilter : uint8
+{
+	ALL					= 0	UMETA(DisplayName = "All"),
+	SAME_LANE			= 1	UMETA(DisplayName = "SameLane"),
+	OPPOSING_LANE		= 3	UMETA(DisplayName = "OpposingLane")
+};
+
+UENUM(BlueprintType)
+enum class EDeepDriveAgentState : uint8
+{
+	IDLE			= 0	UMETA(DisplayName = "Idle"),
+	CRUSING			= 1	UMETA(DisplayName = "Cruising"),
+	PASSING			= 2	UMETA(DisplayName = "Passing"),
+	TURNING			= 3	UMETA(DisplayName = "Turning"),
+	WAITING			= 4	UMETA(DisplayName = "Waiting"),
+	PARKING			= 5	UMETA(DisplayName = "Parking"),
+	STOPPED			= 6	UMETA(DisplayName = "Stopped"),
+	CRASHED			= 7	UMETA(DisplayName = "Crashed")
+};
+
 
 USTRUCT(BlueprintType)
 struct FDeepDriveControllerData

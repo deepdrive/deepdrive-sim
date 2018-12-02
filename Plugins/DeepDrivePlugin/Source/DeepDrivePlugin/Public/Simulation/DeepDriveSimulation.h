@@ -169,6 +169,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Agents")
 	void OnDebugTrigger();
 
+	UFUNCTION(BlueprintCallable, Category = "Agents")
+	TArray<ADeepDriveAgent*> GetAgentsList(EDeepDriveAgentsListFilter Filter);
+
 	void enqueueMessage(deepdrive::server::MessageHeader *message);
 
 	bool resetAgent();
