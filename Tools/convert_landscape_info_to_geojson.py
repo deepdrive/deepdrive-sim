@@ -42,9 +42,10 @@ def main():
         print('actual', get_unreal_format(actual))
         print('point', get_unreal_format(point))
 
-    # TODO: For each point in the segment_point map
-    # TODO: Check that interp points make sense in the editor
-    # TODO: Use width and roll rotation to get right and left side of road from each interp point
+    # DONE: For each point in the segment_point map
+    # DONE: Check that interp points make sense in the editor
+    # TODO: Use left and right to get left and right road edge from interp points
+    # TODO: Spot check above
     # TODO: Assign drive paths to points in between center and right, left edges of road
     # TODO: Add the previous and next nodes per JSON map spec
     # TODO: Add adjacent lanes (not yet in JSON spec but will be)
