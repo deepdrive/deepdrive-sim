@@ -2,6 +2,7 @@ import json
 import numpy as np
 
 import collections
+from scipy.interpolate import interp1d
 
 
 class HashableSegment(collections.MutableMapping):
@@ -28,6 +29,14 @@ class HashableSegment(collections.MutableMapping):
         return self.store['full_name']
 
 
+def cubic_example():
+    x = np.linspace(0, 10, num=11, endpoint=True)
+    y = np.cos(-x ** 2 / 9.0)
+    f = interp1d(x, y)
+    f2 = interp1d(x, y, kind='cubic')
+    pass
+
+
 def main():
     with open('landscape_segments_mesa_hill.json') as f:
         segments = json.load(f)
@@ -42,9 +51,49 @@ def main():
         print('actual', format_point_as_unreal(actual))
         print('point', format_point_as_unreal(point))
         for segment in segment_point_map[point]:
+            lefts, centers, rights, distances = [], [], [], [0]
             for interp_point in segment['Points']:
-                print('interp right', format_point_as_unreal(
-                    np.array(interp_point['Right']) + landscape_offset))
+                actual_right = np.array(interp_point['Right']) + landscape_offset
+                if rights:
+                    distances.append(np.linalg.norm(actual_right-rights[-1]))
+                rights.append(actual_right)
+                print('interp right', format_point_as_unreal(actual_right))
+
+            # cubic_example()
+
+            # Add midpoints for cubic interpolation to guarantee more than 3 points
+            rights_plus = []
+
+            for i in range(len(rights) - 1):
+                start = rights[i]
+                end = rights[i+1]
+                mid = start + (end - start) * 0.5
+                rights_plus += [start, mid]
+            rights_plus.append(rights[-1])
+
+            rights = rights_plus
+
+            distances_plus = [0]
+            for i in range(len(rights) - 1):
+                start = rights[i]
+                end = rights[i+1]
+                distance = distances_plus[i] + np.linalg.norm(end - start)
+                distances_plus.append(distance)
+
+
+            # Cubic spline interpolation at 1m
+            distances, rights = np.array(distances_plus), np.array(rights_plus)
+
+
+
+
+
+            total_meters = sum(distances) // 100 + 1
+            chords = np.arange(0, total_meters)
+            cubic_interpolator = interp1d(distances, rights, 'cubic', axis=0)
+            final_rights = cubic_interpolator(chords)
+            print(final_rights)
+
 
     # DONE: For each point in the segment_point map
     # DONE: Check that interp points make sense in the editor
