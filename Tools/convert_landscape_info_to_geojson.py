@@ -37,29 +37,30 @@ def cubic_example():
     f2 = interp1d(x, y, kind='cubic')
     pass
 
+FILENAME = 'landscape_segments.json'
+# FILENAME = 'landscape_segments_mesa.json'
 
 def main():
-    with open('landscape_segments_mesa_hill.json') as f:
+    with open('landscape_segments.json') as f:
         segments = json.load(f)
     segments = set(HashableSegment(s) for s in segments)
     visited_segments = set()
     segment_point_map = get_segment_point_map(segments)
     points = list(segment_point_map.keys())
 
-    landscape_offset = np.array([-11200.000000, -11200.000000, 100.000000])  # TODO: Add this from JSON
+    # landscape_offset = np.array([-11200.000000, -11200.000000, 100.000000])
+    landscape_offset = np.array([-21214.687500, -21041.564453, 20004.670898999997])  # TODO: Get this from Unreal
     for point in points:
         actual = np.array(point) + landscape_offset
         print('actual', format_point_as_unreal(actual))
         print('point', format_point_as_unreal(point))
         for segment in segment_point_map[point]:
-            if segment['full_name'] == 'LandscapeSplineSegment /Game/DeepDrive/Maps/Mesa.Mesa:PersistentLevel.Landscape_0.LandscapeSplinesComponent_0.LandscapeSplineSegment_3':
-                pass
             if segment in visited_segments:
                 continue
             else:
                 visited_segments.add(segment)
             # rights = interpolate(landscape_offset, segment, 'Right')
-            right_interp_points = get_interpolated_points(landscape_offset, point, segment, 'Right')
+            center_points = get_interpolated_points(landscape_offset, point, segment, 'Center')
 
             # TODO: Use the guard rails to get the right and left edges of the road
 
@@ -89,17 +90,24 @@ def main():
     # print('Num splines', len(graphs))
 
 
-def get_interpolated_points(landscape_offset, point, segment, side_name):
-    side_points, tangents = get_side_points_and_tangents(landscape_offset, segment, side_name)
-    if tangents is None:
-        return side_points
-    else:
-        new_points = sample_cubic_splines_with_derivative(side_points, tangents, GAP_CM)
+USE_TANGENTS = False
 
-        if np.isclose(point[0], 9730.796875) or np.isclose(point[0], 10259.5302734375):
-            for point in new_points:
-                print('check it!', format_point_as_unreal(point))
-        return new_points
+
+def get_interpolated_points(landscape_offset, point, segment, side_name):
+    if not USE_TANGENTS:
+        return interpolate(landscape_offset, segment, side_name)
+    else:
+        side_points, tangents = get_side_points_and_tangents(landscape_offset, segment, side_name)
+
+        if tangents is None:
+            return side_points
+        else:
+            new_points = sample_cubic_splines_with_derivative(side_points, tangents, GAP_CM)
+
+            if np.isclose(point[0], 9730.796875) or np.isclose(point[0], 10259.5302734375):
+                for point in new_points:
+                    print('check it!', format_point_as_unreal(point))
+            return new_points
 
 
 def interpolate(landscape_offset, segment, side):
@@ -110,6 +118,9 @@ def interpolate(landscape_offset, segment, side):
     :param side: Left, Center, or Right
     :return:
     """
+
+    # TODO: Vectorize all operations in this method
+
     orig = get_side_points(landscape_offset, segment, side)
 
     if len(orig) <= 2:
@@ -122,14 +133,10 @@ def interpolate(landscape_offset, segment, side):
         else:
             points = orig
 
-        distances = [0]
-        for i in range(len(points) - 1):
-            start = points[i]
-            end = points[i + 1]
-            distance = distances[i] + np.linalg.norm(end - start)
-            distances.append(distance)
+        distances = np.cumsum(
+            np.linalg.norm(np.diff(points, axis=0), axis=1))
+        distances = np.hstack([[0], distances])
 
-        distances = np.array(distances)
         points = np.array(points)
         total_points = distances[-1] // GAP_CM + 1
         chords = list(np.arange(0, total_points) * GAP_CM)
@@ -218,7 +225,6 @@ def get_segment_tangent_at_point(segment, point):
             if arrive != leave:
                 raise NotImplementedError('Unequal tangents not supported')
             return np.array(arrive)
-
 
 def get_side_points_and_tangents(landscape_offset, segment, side_name):
     points = []
