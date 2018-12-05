@@ -110,6 +110,57 @@ def main():
     # graphs =  get_map_graphs(graphs, points, segment_point_map)
     # print('Num splines', len(graphs))
 
+    serialize_as_geojson(segments, out)
+
+    with open('deepdrive-canyons-map.json', 'w') as outfile:
+        json.dump(out, outfile)
+        print('Saved map to %s' % os.path.realpath(outfile.name))
+
+
+def landscape_to_world(landscape_offset, landscape_z_scale, point):
+    point_with_z_scale = point * landscape_z_scale
+    actual = np.array(point_with_z_scale) + landscape_offset
+    return actual
+
+def serialize_as_geojson(in_segments, out):
+    lane_segments = []
+    out_segment_id = 0
+    for s in in_segments:
+        points = s['interp_center_points']
+        for i in range(len(points) - 1):
+            start = points[i]
+            end = points[i + 1]
+            vector = end - start
+            lane_segments.append(
+                get_geojson_lane_segment(end, out_segment_id, start, vector))
+            out_segment_id += 1
+    out['lanes'] = {'features': lane_segments, 'type': 'FeatureCollection'}
+
+
+
+def get_geojson_lane_segment(end, segment_id, start, vector):
+    return {
+        'geometry': {'type': 'LineString', 'coordinates': [start.tolist(), end.tolist()]},
+        'properties': {
+            'distance': np.linalg.norm(vector),
+            'direction': np.arctan(vector[1] / vector[0]),
+            'vehicle_type': "VEHICLE",
+            'id': segment_id,
+            'intersections': [],
+            'lane_count': 1,
+            'lane_num': 1,
+            'lane_type': "STRAIGHT",
+            'left_line': {},
+            'next_lanes': [],
+            'other_attributes': [],
+            # 'polygon': {type: "Polygon", coordinates: [[-87.6406294199376, 115.43642618666914, 125.653404236],…]},
+            'prev_lanes': [],
+            'radius': 0,
+            # 'right_line': {, …},
+            'speed_limit': 60,
+        },
+        'type': "Feature"}
+
 
 USE_TANGENTS = False
 
