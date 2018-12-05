@@ -44,6 +44,8 @@ public:
 
 	~ADeepDriveSplineTrack();
 
+	virtual void OnConstruction(const FTransform & Transform) override;
+
 	virtual void PostInitializeComponents() override;
 
 	virtual void Tick(float DeltaTime) override;
@@ -74,9 +76,33 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Track")
 	float	RandomSlotDistance = 2000.0f;
 
+	/** Base path for exporting track. If empty Content dir is used as base path. */
+	UPROPERTY(EditAnywhere, Category = "Export")
+	FString	BasePath = "";
+
+	UPROPERTY(EditAnywhere, Category = "Export")
+	FString	CenterSplineFile;
+
+	UPROPERTY(EditAnywhere, Category = "Export")
+	float	CenterSplineOffset = 0.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Export")
+	FString	LeftSplineFile;
+
+	UPROPERTY(EditAnywhere, Category = "Export")
+	float	LeftSplineOffset = 400.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Export")
+	FString	RightSplineFile;
+
+	UPROPERTY(EditAnywhere, Category = "Export")
+	float	RightSplineOffset = 400.0f;
+
 	float getRandomDistanceAlongTrack(FRandomStream &randomStream);
 
 	float getRandomDistanceAlongTrack(UDeepDriveRandomStream &randomStream);
+
+	void exportTrack();
 
 protected:
 
@@ -94,6 +120,8 @@ private:
 	float getInputKeyAhead(float distanceAhead);
 
 	float getDistance(float key);
+
+	FString getFullExportName(const FString &name);
 
 	TArray<FVector2D>				m_SpeedLimits;
 	bool							m_SpeedLimitsDirty = false;

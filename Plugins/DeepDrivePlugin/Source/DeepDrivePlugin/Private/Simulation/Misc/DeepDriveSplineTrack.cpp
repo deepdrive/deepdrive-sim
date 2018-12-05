@@ -10,6 +10,12 @@
 
 DEFINE_LOG_CATEGORY(LogDeepDriveSplineTrack);
 
+static FString getCtrlPointsName(const FString &track)
+{
+	FString basePath( FPaths::GameContentDir() + "DeepDrive/Maps/Sublevels/");
+	return basePath + "DeepDrive_Canyon_" + track + FString(".ctrl");
+}
+
 ADeepDriveSplineTrack::ADeepDriveSplineTrack()
 	:	SplineTrack(0)
 {
@@ -19,15 +25,26 @@ ADeepDriveSplineTrack::ADeepDriveSplineTrack()
 	PrimaryActorTick.bCanEverTick = true;
 	PrimaryActorTick.bStartWithTickEnabled = true;
 	PrimaryActorTick.TickGroup = TG_PrePhysics;
+
+	importControlPoints(getCtrlPointsName(GetName()) );
+	UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("ADeepDriveSplineTrack::ADeepDriveSplineTrack %d"), SplineTrack->GetNumberOfSplinePoints() );
 }
 
 ADeepDriveSplineTrack::~ADeepDriveSplineTrack()
 {
 }
 
+void ADeepDriveSplineTrack::OnConstruction(const FTransform & Transform)
+{
+	importControlPoints(getCtrlPointsName(GetName()) );
+	UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("ADeepDriveSplineTrack::OnConstruction") );
+}
+
 void ADeepDriveSplineTrack::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
+
+	UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("ADeepDriveSplineTrack::PostInitializeComponents %d"), SplineTrack->GetNumberOfSplinePoints() );
 
 	SetActorTickEnabled(true);
 
@@ -39,14 +56,8 @@ void ADeepDriveSplineTrack::PostInitializeComponents()
 
 	UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("Track %s Length %f Slot Count %d"), *(GetName()), m_TrackLength, m_RandomSlotCount );
 
-	FString basePath("D:/tmp/");
-	// FString basePath("/home/mernst/tmp/");
-
-	exportAsTextFile( basePath + GetName() + FString("_Center.dat"), 100.0f, 0.0f );
-	exportAsTextFile( basePath + GetName() + FString("_Left.dat"), 100.0f, -400.0f );
-	exportAsTextFile( basePath + GetName() + FString("_Right.dat"), 100.0f, 400.0f );
-
-	// exportControlPoints( FString("/home/mernst/tmp/") + GetName() + FString("_CtrlPoints.dat") );
+	// exportControlPoints( ctrlPointsName );
+	importControlPoints(getCtrlPointsName(GetName()) );
 }
 
 void ADeepDriveSplineTrack::Tick(float DeltaTime)
@@ -58,7 +69,7 @@ void ADeepDriveSplineTrack::Tick(float DeltaTime)
 		item.key = SplineTrack->FindInputKeyClosestToWorldLocation(item.agent->GetActorLocation());
 		item.distance = getDistance(item.key);
 
-		//UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("Agent %d Distance %f"), item.agent->GetAgentId(), item.distance );
+		//UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("Agent %d Distance %f"), item.agent->getAgentId(), item.distance );
 	}
 
 	if (m_RegisteredAgents.Num() == 1)
@@ -242,7 +253,7 @@ void ADeepDriveSplineTrack::getPreviousAgent(const FVector &location, ADeepDrive
 		{
 			distance = curDistance - (m_TrackLength - dist);
 		}
-		//UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("Agent %d Distance %f"), agentPtr->GetAgentId(), distance );
+		//UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("Agent %d Distance %f"), agentPtr->getAgentId(), distance );
 	}
 	else if(m_RegisteredAgents.Num() > 1)
 	{
@@ -407,6 +418,22 @@ void ADeepDriveSplineTrack::exportAsTextFile(const FString &fileName, float step
 
 }
 
+void ADeepDriveSplineTrack::exportTrack()
+{
+	if(CenterSplineFile.Len())
+	{
+		exportAsTextFile(getFullExportName(CenterSplineFile) , 100.0f, CenterSplineOffset );
+	}
+	if(LeftSplineFile.Len())
+	{
+		exportAsTextFile(getFullExportName(LeftSplineFile) , 100.0f, -FGenericPlatformMath::Abs(LeftSplineOffset) );
+	}
+	if(RightSplineFile.Len())
+	{
+		exportAsTextFile(getFullExportName(RightSplineFile) , 100.0f, FGenericPlatformMath::Abs(RightSplineOffset) );
+	}
+}
+
 void ADeepDriveSplineTrack::exportControlPoints(const FString &fileName)
 {
 	if(SplineTrack && SplineTrack->GetNumberOfSplinePoints() > 0)
@@ -414,19 +441,27 @@ void ADeepDriveSplineTrack::exportControlPoints(const FString &fileName)
 		std::ofstream outStream( TCHAR_TO_ANSI(*fileName) );
 		if (outStream.good())
 		{
-			outStream << "#	Location(X,Y,Z), Rotation(Pitch,Roll,Yaw) ArriveTangent(X,Y,Z) LeaveTangent(X,Y,Z)\n";
+			// outStream << "#	Location(X,Y,Z), Rotation(Pitch,Roll,Yaw) ArriveTangent(X,Y,Z) LeaveTangent(X,Y,Z)\n";
 
 			for(signed i = 0; i < SplineTrack->GetNumberOfSplinePoints(); ++i)
 			{
-				FVector loc = SplineTrack->GetLocationAtSplinePoint(i, ESplineCoordinateSpace::World);
-				FRotator rot = SplineTrack->GetRotationAtSplinePoint(i, ESplineCoordinateSpace::World);
-				FVector aTng = SplineTrack->GetArriveTangentAtSplinePoint(i, ESplineCoordinateSpace::World);
-				FVector lTng = SplineTrack->GetLeaveTangentAtSplinePoint(i, ESplineCoordinateSpace::World);
+				ESplinePointType::Type type = SplineTrack->GetSplinePointType(i);
+				FVector loc = SplineTrack->GetLocationAtSplinePoint(i, ESplineCoordinateSpace::Local);
+				FRotator rot = SplineTrack->GetRotationAtSplinePoint(i, ESplineCoordinateSpace::Local);
+				FVector aTng = SplineTrack->GetArriveTangentAtSplinePoint(i, ESplineCoordinateSpace::Local);
+				FVector lTng = SplineTrack->GetLeaveTangentAtSplinePoint(i, ESplineCoordinateSpace::Local);
 
-				outStream	<<	loc.X << "," <<	loc.Y << "," <<	loc.Z
-							<<	" " << rot.Pitch << "," <<	rot.Roll << "," <<	rot.Yaw
-							<<	" " << aTng.X << "," <<	aTng.Y << "," << lTng.Z
-							<<	" " << lTng.X << "," <<	lTng.Y << "," << lTng.Z
+				// outStream	<<	loc.X << "," <<	loc.Y << "," <<	loc.Z
+				// 			<<	" " << rot.Pitch << "," <<	rot.Roll << "," <<	rot.Yaw
+				// 			<<	" " << aTng.X << "," <<	aTng.Y << "," << lTng.Z
+				// 			<<	" " << lTng.X << "," <<	lTng.Y << "," << lTng.Z
+				// 			<< "\n";
+
+				outStream	<< type
+							<<	" " << loc.X << " " <<	loc.Y << " " <<	loc.Z
+							<<	" " << rot.Pitch << " " <<	rot.Roll << " " <<	rot.Yaw
+							<<	" " << aTng.X << " " <<	aTng.Y << " " << lTng.Z
+							<<	" " << lTng.X << " " <<	lTng.Y << " " << lTng.Z
 							<< "\n";
 			}
 			UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("Exported control points to %s"), *(fileName));
@@ -436,7 +471,41 @@ void ADeepDriveSplineTrack::exportControlPoints(const FString &fileName)
 
 void ADeepDriveSplineTrack::importControlPoints(const FString &fileName)
 {
+		std::ifstream inStream( TCHAR_TO_ANSI(*fileName) );
+		if (inStream.good())
+		{
+			TArray<FSplinePoint> points;
+			for(signed i = 0; i < SplineTrack->GetNumberOfSplinePoints(); ++i)
+			{
+				int32 type;
+				FVector loc;
+				FRotator rot;
+				FVector aTng;
+				FVector lTng;
+				
+				inStream	>> type
+							>> loc.X >> loc.Y >> loc.Z
+							>> rot.Pitch >>	rot.Roll >>	rot.Yaw
+							>> aTng.X >> aTng.Y >> aTng.Z
+							>> lTng.X >> lTng.Y >> lTng.Z;
 
+				FSplinePoint p	( static_cast<float> (i), loc, aTng, lTng, rot, FVector(1.0f, 1.0f, 1.0f), static_cast<ESplinePointType::Type> (type));
+
+				points.Add(p);
+
+				// UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("l (%s) r(%s) a(%s) t(%s)"), *(loc.ToString()), *(rot.ToString()), *(aTng.ToString()), *(lTng.ToString()) );
+			}
+
+			if(points.Num() > 2)
+			{
+				SplineTrack->ClearSplinePoints();
+				SplineTrack->AddPoints(points, true);
+				UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("Imported control points from %s"), *(fileName));
+			}
+		}
 }
 
-
+FString ADeepDriveSplineTrack::getFullExportName(const FString &name)
+{
+	return BasePath.Len() > 0 ? FPaths::Combine(BasePath, name) : name;
+}

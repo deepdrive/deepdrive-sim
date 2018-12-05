@@ -51,7 +51,9 @@ public class DeepDrivePlugin : ModuleRules
 				"SlateCore",
                 "RenderCore",
                 "RHI",
-	            "PhysXVehicles"
+	            "PhysXVehicles",
+                "EditorStyle",
+                "PropertyEditor"
             }
             );
 		
