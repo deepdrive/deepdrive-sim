@@ -1,7 +1,8 @@
 import json
-import numpy as np
-
 import collections
+import os
+
+import numpy as np
 from scipy.interpolate import interp1d, BPoly
 
 GAP_CM = 100
@@ -63,12 +64,13 @@ def main():
     }
 
     # landscape_offset = np.array([-11200.000000, -11200.000000, 100.000000])
-    landscape_offset = np.array([-21214.687500, -21041.564453, 20004.670898999997])  # TODO: Get this from Unreal
+    landscape_offset = np.array([-21214.687500, -21041.564453, 18179.121094])  # TODO: Get this from Unreal
+    landscape_z_scale = np.array([1, 1, 159.939941 / 100])
 
     all_center_points = []
 
     for point in points:
-        actual = np.array(point) + landscape_offset
+        actual = landscape_to_world(landscape_offset, landscape_z_scale, point)
         print('actual', format_point_as_unreal(actual))
         print('point', format_point_as_unreal(point))
         for segment in segment_point_map[point]:
@@ -77,8 +79,9 @@ def main():
             else:
                 visited_segments.add(segment)
             # rights = interpolate(landscape_offset, segment, 'Right')
-            center_points = get_interpolated_points(landscape_offset, point, segment, 'Center')
-            all_center_points.append(center_points)
+            center_points = get_interpolated_points(landscape_offset, landscape_z_scale,
+                                                    point, segment, 'Center')
+            segment['interp_center_points'] = center_points
 
             # TODO: Use the guard rails to get the right and left edges of the road
 
@@ -111,11 +114,12 @@ def main():
 USE_TANGENTS = False
 
 
-def get_interpolated_points(landscape_offset, point, segment, side_name):
+def get_interpolated_points(landscape_offset, landscape_z_scale, point, segment, side_name):
     if not USE_TANGENTS:
-        return interpolate(landscape_offset, segment, side_name)
+        return interpolate(landscape_offset, landscape_z_scale, segment, side_name)
     else:
-        side_points, tangents = get_side_points_and_tangents(landscape_offset, segment, side_name)
+        side_points, tangents = get_side_points_and_tangents(landscape_offset, landscape_z_scale,
+            segment, side_name)
 
         if tangents is None:
             return side_points
@@ -128,10 +132,11 @@ def get_interpolated_points(landscape_offset, point, segment, side_name):
             return new_points
 
 
-def interpolate(landscape_offset, segment, side):
+def interpolate(landscape_offset, landscape_z_scale, segment, side):
     """
 
     :param landscape_offset: Center of landscape which Unreal uses as origin for segment point coordinates
+    :param landscape_offset: Z-scale of landscape in Unreal transform
     :param segment: Unreal segment
     :param side: Left, Center, or Right
     :return:
@@ -139,7 +144,7 @@ def interpolate(landscape_offset, segment, side):
 
     # TODO: Vectorize all operations in this method
 
-    orig = get_side_points(landscape_offset, segment, side)
+    orig = get_side_points(landscape_offset, landscape_z_scale, segment, side)
 
     if len(orig) <= 2:
         return np.array(orig)
@@ -226,10 +231,10 @@ def sample_cubic_splines_with_derivative(points, tangents, resolution):
     return samples
 
 
-def get_side_points(landscape_offset, segment, side):
+def get_side_points(landscape_offset, landscape_z_scale, segment, side):
     orig = []
     for p in segment['Points']:
-        p = np.array(p[side]) + landscape_offset
+        p = landscape_to_world(landscape_offset, landscape_z_scale, p[side])
         orig.append(p)
     return orig
 
@@ -243,7 +248,6 @@ def get_segment_tangent_at_point(segment, point):
             if arrive != leave:
                 raise NotImplementedError('Unequal tangents not supported')
             return np.array(arrive)
-
 
 def get_side_points_and_tangents(landscape_offset, segment, side_name):
     points = []
