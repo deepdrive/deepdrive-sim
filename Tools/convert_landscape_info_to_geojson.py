@@ -47,7 +47,7 @@ def main():
     graphs_by_side = match_graphs_to_side(graphs)
     side_point_mapping = match_points_to_sides(graphs_by_side, points)
     sides = interpolate_points_by_segment(points, segment_point_map, side_point_mapping)
-    get_lanes(sides, graphs_by_side)
+    inner_lanes, outer_lanes = get_lanes(sides, graphs_by_side)
     with open('deepdrive-canyons-map.json', 'w') as outfile:
         json.dump(serialize_as_geojson(segments), outfile)
         print('Saved map to %s' % os.path.realpath(outfile.name))
@@ -77,28 +77,32 @@ def get_lanes(sides, graphs_by_side):
     while True:
         inner, inner_dist = get_closest_point(center, inner_kd_tree)
         outer, outer_dist = get_closest_point(center, outer_kd_tree)
-
-        if max(inner_dist, outer_dist) > 15 * 100:
-            raise ValueError('Got lane width way wider than expected')
-
+        check_lane_width(max(inner_dist, outer_dist))
         if prev_inner is None or prev_outer is None:
             print('Boostrapping previous points')
         else:
+            # TODO: Add adjacent lane references
             inner_lane = get_lane(center, inner, prev_inner, visited_inner, is_opposite=False)
             outer_lane = get_lane(center, outer, prev_outer, visited_outer, is_opposite=True)
-            # TODO: Add adjacent lane references
             inner_lanes.append(inner_lane)
             outer_lanes.append(outer_lane)
-
-        prev_inner = inner
-        prev_outer = outer
-
-        for neighbor in graphs_by_side['center'][center]:
-            if neighbor != prev:
-                center = neighbor
-
+        prev_inner, prev_outer = inner, outer
+        center = get_next_center(center, graphs_by_side, prev)
         if center == start_point:
             break
+    return inner_lanes, outer_lanes
+
+
+def get_next_center(center, graphs_by_side, prev):
+    for neighbor in graphs_by_side['center'][center]:
+        if neighbor != prev:
+            return neighbor
+    else:
+        raise ValueError('Could not get next center point')
+
+def check_lane_width(dist):
+    if dist > 15 * 100:
+        raise ValueError('Got lane width way wider than expected')
 
 
 def get_lane(left, right, prev, visited, is_opposite):
