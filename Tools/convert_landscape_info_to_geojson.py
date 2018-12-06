@@ -8,6 +8,9 @@ from scipy import spatial
 from scipy.interpolate import interp1d, BPoly
 
 GAP_CM = 100
+USE_TANGENTS = False
+CANYONS_FILENAME = 'landscape_segments.json'
+MESA_FILENAME = 'landscape_segments_mesa.json'
 
 
 class HashableSegment(collections.MutableMapping):
@@ -34,31 +37,7 @@ class HashableSegment(collections.MutableMapping):
         return hash(self.store['full_name'])
 
 
-def cubic_example():
-    x = np.linspace(0, 10, num=11, endpoint=True)
-    y = np.cos(-x ** 2 / 9.0)
-    f = interp1d(x, y)
-    f2 = interp1d(x, y, kind='cubic')
-    pass
-
-
-FILENAME = 'landscape_segments.json'
-# FILENAME = 'landscape_segments_mesa.json'
-
-
 def main():
-    # DONE: For each point in the segment_point map
-    # DONE: Check that interp points make sense in the editor
-    # DONE: Use left and right to get left and right road edge from interp points
-    # DONE: Spot check above
-    # DONE: Do cubic interpolation on those points to get 1m increments
-    # DONE: Visualize results
-    # DONE: String segments
-    # TODO: Assign drive paths to points in between center and right, left edges of road
-    # TODO: Add the previous and next nodes per JSON map spec
-    # TODO: Add adjacent lanes (not yet in JSON spec but will be)
-    # DONE: Subtract the Landscape center from the points
-    # DONE: Use interpolated points to and cubic spline interpolation to get points sep by 1m
     with open('landscape_segments.json') as f:
         segments = json.load(f)
     segments = set(HashableSegment(s) for s in segments)
@@ -81,12 +60,6 @@ def get_closest_point(point, kd_tree):
 
 
 def get_lanes(sides, graphs_by_side):
-    # Start in a known direction along center
-    # Find closest right / left to center not visited, then mark as visited
-    # If visited, raise exception and check it out
-    # Else get midpoints and use those for drive path points
-    # Reverse direction for opposite lane
-    # for p
     inner_lanes = []
     outer_lanes = []
     start_point = (-27059.478515625, 22658.291015750001, 20553.831906106912)  #  (-5844.791015625, 43699.85546875, 1484.7515869140625)
@@ -141,10 +114,6 @@ def get_lane(left, right, prev, visited, is_opposite):
     visited.add(right)
     return lane
 
-
-"""
--21348.18270874  30332.50195325  19115.9702746
-"""
 
 def interpolate_points_by_segment(points, segment_point_map, side_point_mapping):
     visited_segments = set()
@@ -255,9 +224,6 @@ def get_geojson_lane_segment(end, segment_id, start, vector):
             'speed_limit': 60,
         },
         'type': "Feature"}
-
-
-USE_TANGENTS = False
 
 
 def get_interpolated_points(landscape_offset, landscape_z_scale, point, segment, side_name):
@@ -397,8 +363,6 @@ def get_segment_tangent_at_point(segment, point):
 
 def get_side_points_and_tangents(landscape_offset, landscape_z_scale, segment, side_name):
     points = []
-    # TODO: If there are three points, average the tangent of the two end points for the center tangent
-    # TODO: Also generate a point between each endpoint and the center whose tangent matches the endpoint
     orig = segment['Points']
     if len(orig) == 2:
         return orig, None
