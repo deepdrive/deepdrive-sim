@@ -85,9 +85,9 @@ def get_lanes(sides):
     # Reverse direction for opposite lane
     # for p
     lanes = []
-    first = (-5844.791015625, 43699.85546875, 1484.7515869140625)
-    second = (-1131.97998046875, 52382.1171875, 613.6241455078125)
-    last = (-8673.3046875, 42718.24609375, 1666.61572265625)
+    first = (-27059.478515625, 22658.291015750001, 20553.831906106912)  #  (-5844.791015625, 43699.85546875, 1484.7515869140625)
+    second = (-26989.210175210432, 22727.784224634106, 20537.975077496125) #  (-1131.97998046875, 52382.1171875, 613.6241455078125)
+    last = (-27059.478515625, 22658.291015750001, 20553.831906106912)  # (-8673.3046875, 42718.24609375, 1666.61572265625)
     center = first
     prev = last
     prev_inner = None
@@ -97,16 +97,19 @@ def get_lanes(sides):
     visited_center = set(first)
     while True:
         inner = get_closest_point(center, sides['inner'])
-        inner, inner_lane = get_lane(center, inner, prev_inner, visited_inner, is_opposite=False)
-        prev_inner = inner
-
         outer = get_closest_point(center, sides['outer'])
-        outer_lane = get_lane(center, outer, prev_outer, visited_inner, is_opposite=True)
-        prev_outer = outer
 
-        # TODO: Add adjacent lane references
-        lanes.append(inner_lane)
-        lanes.append(outer_lane)
+        if prev_inner is None or prev_outer is None:
+            print('Boostrapping previous points')
+        else:
+            inner, inner_lane = get_lane(center, inner, prev_inner, visited_inner, is_opposite=False)
+            outer_lane = get_lane(center, outer, prev_outer, visited_inner, is_opposite=True)
+            # TODO: Add adjacent lane references
+            lanes.append(inner_lane)
+            lanes.append(outer_lane)
+
+        prev_inner = inner
+        prev_outer = outer
 
         for neighbor in graphs_by_side['center'][center]:
             if neighbor != prev:
@@ -120,16 +123,19 @@ def get_lane(left, right, prev, visited, is_opposite):
     if right in visited:
         raise ValueError('Right side of lane point is the closest point to two center points')
     drive = left + (right - left) * 0.5
-    if prev is not None:
-        if is_opposite:
-            vector = prev - right
-        else:
-            vector = right - prev
-        direction = np.arctan(vector[1] / vector[0])
-        lane = {'left': left, 'drive': drive, 'right': right, 'direction': direction}
-        visited.add(right)
+    if is_opposite:
+        vector = prev - right
+    else:
+        vector = right - prev
+    direction = np.arctan(vector[1] / vector[0])
+    lane = {'left': left, 'drive': drive, 'right': right, 'direction': direction}
+    visited.add(right)
     return right, lane
 
+
+"""
+-21348.18270874  30332.50195325  19115.9702746
+"""
 
 def interpolate_points_by_segment(points, segment_point_map, side_point_mapping):
     visited_segments = set()
