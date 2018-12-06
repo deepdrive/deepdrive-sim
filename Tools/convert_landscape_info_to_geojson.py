@@ -250,7 +250,6 @@ def get_interpolated_points(landscape_offset, landscape_z_scale, point, segment,
 
 def interpolate(landscape_offset, landscape_z_scale, segment, side):
     """
-
     :param landscape_offset: Center of landscape which Unreal uses as origin for segment point coordinates
     :param landscape_offset: Z-scale of landscape in Unreal transform
     :param segment: Unreal segment
@@ -258,24 +257,17 @@ def interpolate(landscape_offset, landscape_z_scale, segment, side):
     :return:
     """
 
-    # TODO: Vectorize all operations in this method
-
     orig = get_side_points(landscape_offset, landscape_z_scale, segment, side)
-
     if len(orig) <= 2:
         return np.array(orig)
     else:
         # Do cubic interpolation to smooth out inner points
-
         if len(orig) < 4:
             points = add_midpoints(orig)
         else:
             points = orig
-
-        distances = np.cumsum(
-            np.linalg.norm(np.diff(points, axis=0), axis=1))
+        distances = np.cumsum(np.linalg.norm(np.diff(points, axis=0), axis=1))
         distances = np.hstack([[0], distances])
-
         points = np.array(points)
         total_points = distances[-1] // GAP_CM + 1
         chords = list(np.arange(0, total_points) * GAP_CM)
@@ -284,12 +276,6 @@ def interpolate(landscape_offset, landscape_z_scale, segment, side):
             chords.append(distances[-1])
         cubic_interpolator = interp1d(distances, points, 'cubic', axis=0)
         ret = cubic_interpolator(chords)
-        for i in range(len(ret) - 1):
-            pt = ret[i]
-            next_pt = ret[i + 1]
-            print(format_point_as_unreal(pt))
-            print('distance', np.linalg.norm(next_pt - pt))
-        print('')
         return ret
 
 
