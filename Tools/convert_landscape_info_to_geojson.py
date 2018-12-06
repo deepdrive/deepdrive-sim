@@ -4,6 +4,7 @@ import collections
 import os
 
 import numpy as np
+from scipy import spatial
 from scipy.interpolate import interp1d, BPoly
 
 GAP_CM = 100
@@ -67,46 +68,54 @@ def main():
     graphs_by_side = match_graphs_to_side(graphs)
     side_point_mapping = match_points_to_sides(graphs_by_side, points)
     sides = interpolate_points_by_segment(points, segment_point_map, side_point_mapping)
-    get_lanes(sides)
+    get_lanes(sides, graphs_by_side)
     with open('deepdrive-canyons-map.json', 'w') as outfile:
         json.dump(serialize_as_geojson(segments), outfile)
         print('Saved map to %s' % os.path.realpath(outfile.name))
 
 
-def get_closest_point(point, side):
-    raise NotImplementedError()
+def get_closest_point(point, kd_tree):
+    distance, index = kd_tree.query(point)
+    point = kd_tree.data[index]
+    return point, distance
 
 
-def get_lanes(sides):
+def get_lanes(sides, graphs_by_side):
     # Start in a known direction along center
     # Find closest right / left to center not visited, then mark as visited
     # If visited, raise exception and check it out
     # Else get midpoints and use those for drive path points
     # Reverse direction for opposite lane
     # for p
-    lanes = []
-    first = (-27059.478515625, 22658.291015750001, 20553.831906106912)  #  (-5844.791015625, 43699.85546875, 1484.7515869140625)
-    second = (-26989.210175210432, 22727.784224634106, 20537.975077496125) #  (-1131.97998046875, 52382.1171875, 613.6241455078125)
-    last = (-27059.478515625, 22658.291015750001, 20553.831906106912)  # (-8673.3046875, 42718.24609375, 1666.61572265625)
-    center = first
-    prev = last
+    inner_lanes = []
+    outer_lanes = []
+    start_point = (-27059.478515625, 22658.291015750001, 20553.831906106912)  #  (-5844.791015625, 43699.85546875, 1484.7515869140625)
+    second_point = (-26989.210175210432, 22727.784224634106, 20537.975077496125) #  (-1131.97998046875, 52382.1171875, 613.6241455078125)
+    end_point = (-27128.758053206424, 22593.083229395124, 20568.862235249715)  # (-8673.3046875, 42718.24609375, 1666.61572265625)
+    center = start_point
+    prev = end_point
     prev_inner = None
     prev_outer = None
     visited_inner = set()
     visited_outer = set()
-    visited_center = set(first)
+    visited_center = set(start_point)
+    inner_kd_tree = spatial.KDTree(sides['inner'])
+    outer_kd_tree = spatial.KDTree(sides['outer'])
     while True:
-        inner = get_closest_point(center, sides['inner'])
-        outer = get_closest_point(center, sides['outer'])
+        inner, inner_dist = get_closest_point(center, inner_kd_tree)
+        outer, outer_dist = get_closest_point(center, outer_kd_tree)
+
+        if max(inner_dist, outer_dist) > 15 * 100:
+            raise ValueError('Got lane width way wider than expected')
 
         if prev_inner is None or prev_outer is None:
             print('Boostrapping previous points')
         else:
-            inner, inner_lane = get_lane(center, inner, prev_inner, visited_inner, is_opposite=False)
-            outer_lane = get_lane(center, outer, prev_outer, visited_inner, is_opposite=True)
+            inner_lane = get_lane(center, inner, prev_inner, visited_inner, is_opposite=False)
+            outer_lane = get_lane(center, outer, prev_outer, visited_outer, is_opposite=True)
             # TODO: Add adjacent lane references
-            lanes.append(inner_lane)
-            lanes.append(outer_lane)
+            inner_lanes.append(inner_lane)
+            outer_lanes.append(outer_lane)
 
         prev_inner = inner
         prev_outer = outer
@@ -115,7 +124,7 @@ def get_lanes(sides):
             if neighbor != prev:
                 center = neighbor
 
-        if center == first:
+        if center == start_point:
             break
 
 
@@ -130,7 +139,7 @@ def get_lane(left, right, prev, visited, is_opposite):
     direction = np.arctan(vector[1] / vector[0])
     lane = {'left': left, 'drive': drive, 'right': right, 'direction': direction}
     visited.add(right)
-    return right, lane
+    return lane
 
 
 """
