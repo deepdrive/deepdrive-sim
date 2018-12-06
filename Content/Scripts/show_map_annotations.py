@@ -22,9 +22,7 @@ def main():
         end = lane_seg['geometry']['coordinates'][1]
         spawn_point_marker(start)
         spawn_point_marker(end)
-        print('spawned start: %r end: %r' % (start, end))
-        if i == 100:
-            break
+        # print('spawned start: %r end: %r' % (start, end))
 
 
 if __name__ == '__main__':

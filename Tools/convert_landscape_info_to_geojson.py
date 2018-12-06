@@ -1,3 +1,4 @@
+import copy
 import json
 import collections
 import os
@@ -41,18 +42,158 @@ def cubic_example():
 
 
 FILENAME = 'landscape_segments.json'
-
-
 # FILENAME = 'landscape_segments_mesa.json'
 
+
 def main():
+    # DONE: For each point in the segment_point map
+    # DONE: Check that interp points make sense in the editor
+    # DONE: Use left and right to get left and right road edge from interp points
+    # DONE: Spot check above
+    # DONE: Do cubic interpolation on those points to get 1m increments
+    # DONE: Visualize results
+    # DONE: String segments
+    # TODO: Assign drive paths to points in between center and right, left edges of road
+    # TODO: Add the previous and next nodes per JSON map spec
+    # TODO: Add adjacent lanes (not yet in JSON spec but will be)
+    # DONE: Subtract the Landscape center from the points
+    # DONE: Use interpolated points to and cubic spline interpolation to get points sep by 1m
     with open('landscape_segments.json') as f:
         segments = json.load(f)
     segments = set(HashableSegment(s) for s in segments)
-    visited_segments = set()
     segment_point_map = get_segment_point_map(segments)
     points = list(segment_point_map.keys())
+    graphs = get_map_graphs(points, segment_point_map)
+    graphs_by_side = match_graphs_to_side(graphs)
+    side_point_mapping = match_points_to_sides(graphs_by_side, points)
+    sides = interpolate_points_by_segment(points, segment_point_map, side_point_mapping)
+    get_lanes(sides)
+    with open('deepdrive-canyons-map.json', 'w') as outfile:
+        json.dump(serialize_as_geojson(segments), outfile)
+        print('Saved map to %s' % os.path.realpath(outfile.name))
 
+
+def get_closest_point(point, side):
+    raise NotImplementedError()
+
+
+def get_lanes(sides):
+    # Start in a known direction along center
+    # Find closest right / left to center not visited, then mark as visited
+    # If visited, raise exception and check it out
+    # Else get midpoints and use those for drive path points
+    # Reverse direction for opposite lane
+    # for p
+    lanes = []
+    first = (-5844.791015625, 43699.85546875, 1484.7515869140625)
+    second = (-1131.97998046875, 52382.1171875, 613.6241455078125)
+    last = (-8673.3046875, 42718.24609375, 1666.61572265625)
+    center = first
+    prev = last
+    prev_inner = None
+    prev_outer = None
+    visited_inner = set()
+    visited_outer = set()
+    visited_center = set(first)
+    while True:
+        inner = get_closest_point(center, sides['inner'])
+        inner, inner_lane = get_lane(center, inner, prev_inner, visited_inner, is_opposite=False)
+        prev_inner = inner
+
+        outer = get_closest_point(center, sides['outer'])
+        outer_lane = get_lane(center, outer, prev_outer, visited_inner, is_opposite=True)
+        prev_outer = outer
+
+        # TODO: Add adjacent lane references
+        lanes.append(inner_lane)
+        lanes.append(outer_lane)
+
+        for neighbor in graphs_by_side['center'][center]:
+            if neighbor != prev:
+                center = neighbor
+
+        if center == first:
+            break
+
+
+def get_lane(left, right, prev, visited, is_opposite):
+    if right in visited:
+        raise ValueError('Right side of lane point is the closest point to two center points')
+    drive = left + (right - left) * 0.5
+    if prev is not None:
+        if is_opposite:
+            vector = prev - right
+        else:
+            vector = right - prev
+        direction = np.arctan(vector[1] / vector[0])
+        lane = {'left': left, 'drive': drive, 'right': right, 'direction': direction}
+        visited.add(right)
+    return right, lane
+
+
+def interpolate_points_by_segment(points, segment_point_map, side_point_mapping):
+    visited_segments = set()
+    # landscape_offset = np.array([-11200.000000, -11200.000000, 100.000000])  # Mesa offset
+    landscape_offset = np.array([-21214.687500, -21041.564453, 18179.121094])  # Canyons TODO: Get this from Unreal
+    landscape_z_scale = np.array([1, 1, 159.939941 / 100])
+    sides = collections.defaultdict(list)
+    for point in points:
+        if point not in side_point_mapping:
+            print('Ignoring point %r - not on track and should be deleted')
+            continue
+        for segment in segment_point_map[point]:
+            if segment in visited_segments:
+                continue
+            else:
+                visited_segments.add(segment)
+            center_points = get_interpolated_points(landscape_offset, landscape_z_scale, point, segment, 'Center')
+            segment['interp_center_points'] = center_points
+            sides[side_point_mapping[point]].extend(center_points)  # Guard rails define inner and outer road edges
+            # TODO: Eventually we need to start with the map and build the level
+            #       OR if we want to extract the map from landscape splines, we can use the mesh name
+            #       to know the lanes and directions, then do a raycast search for the edges of the road
+            #       starting from the center (either straight down or along the normal to the plane formed
+            #       by the segment), so we are not reliant on matching Unreal's interpolation and
+            #       we don't have to correct for Unreal's width segment connection tangents and control point tangents.
+
+    return sides
+
+
+def match_points_to_sides(graphs_by_side, points):
+    side_point_mapping = {}
+    for p1 in points:
+        for s in graphs_by_side:
+            if p1 in graphs_by_side[s]:
+                side_point_mapping[p1] = s
+    return side_point_mapping
+
+
+def match_graphs_to_side(graphs):
+    sides = {}
+    for g in graphs:
+        if (16453.779296875, 16242.0615234375, 1334.0733642578125) in g:
+            sides['inner'] = g
+        elif (25330.23046875, 56882.2890625, 2772.235595703125) in g:
+            sides['center'] = g
+        elif (25125.541015625, 55631.3828125, 2850.599365234375) in g:
+            sides['outer'] = g
+
+    return sides
+
+
+def get_landscape_spline_name(segment):
+    seg_name = segment['full_name']
+    comps = [c for c in segment['full_name'].split('.') if 'component' in c.lower()]
+    if len(comps) != 1:
+        raise ValueError('Could not get landscape spline name from %s' % seg_name)
+    return comps[0]
+
+def landscape_to_world(landscape_offset, landscape_z_scale, point):
+    point_with_z_scale = point * landscape_z_scale
+    actual = np.array(point_with_z_scale) + landscape_offset
+    return actual
+
+def serialize_as_geojson(in_segments):
     out = {
         'crosswalks': {},
         'driveways': {},
@@ -62,67 +203,6 @@ def main():
         'roadblocks': {},
         'stoplines': {},
     }
-
-    # landscape_offset = np.array([-11200.000000, -11200.000000, 100.000000])
-    landscape_offset = np.array([-21214.687500, -21041.564453, 18179.121094])  # TODO: Get this from Unreal
-    landscape_z_scale = np.array([1, 1, 159.939941 / 100])
-
-    all_center_points = []
-
-    for point in points:
-        actual = landscape_to_world(landscape_offset, landscape_z_scale, point)
-        print('actual', format_point_as_unreal(actual))
-        print('point', format_point_as_unreal(point))
-        for segment in segment_point_map[point]:
-            if segment in visited_segments:
-                continue
-            else:
-                visited_segments.add(segment)
-            # rights = interpolate(landscape_offset, segment, 'Right')
-            center_points = get_interpolated_points(landscape_offset, landscape_z_scale,
-                                                    point, segment, 'Center')
-            segment['interp_center_points'] = center_points
-
-            # TODO: Use the guard rails to get the right and left edges of the road
-
-            # TODO: Eventually we need to start with the map and build the level
-            #       OR if we want to extract the map from landscape splines, we can use the mesh name
-            #       to know the lanes and directions, then do a raycast search for the edges of the road
-            #       starting from the center (either straight down or along the normal to the plane formed
-            #       by the segment), so we are not reliant on matching Unreal's interpolation and
-            #       we don't have to correct for Unreal's width segment connection tangents and control point tangents.
-
-            # interpolate(distances, landscape_offset, segment, 'Center')
-            # interpolate(distances, landscape_offset, segment, 'Left')
-
-    # DONE: For each point in the segment_point map
-    # DONE: Check that interp points make sense in the editor
-    # DONE: Use left and right to get left and right road edge from interp points
-    # DONE: Spot check above
-    # DONE: Do cubic interpolation on those points to get 1m increments
-    # DONE: Visualize results
-    # TODO: String segments
-    # TODO: Assign drive paths to points in between center and right, left edges of road
-    # TODO: Add the previous and next nodes per JSON map spec
-    # TODO: Add adjacent lanes (not yet in JSON spec but will be)
-    # TODO: Subtract the Landscape center from the points
-    # TODO: Use interpolated points to and cubic spline interpolation to get points sep by 1m
-    # graphs =  get_map_graphs(graphs, points, segment_point_map)
-    # print('Num splines', len(graphs))
-
-    serialize_as_geojson(segments, out)
-
-    with open('deepdrive-canyons-map.json', 'w') as outfile:
-        json.dump(out, outfile)
-        print('Saved map to %s' % os.path.realpath(outfile.name))
-
-
-def landscape_to_world(landscape_offset, landscape_z_scale, point):
-    point_with_z_scale = point * landscape_z_scale
-    actual = np.array(point_with_z_scale) + landscape_offset
-    return actual
-
-def serialize_as_geojson(in_segments, out):
     lane_segments = []
     out_segment_id = 0
     for s in in_segments:
@@ -135,7 +215,7 @@ def serialize_as_geojson(in_segments, out):
                 get_geojson_lane_segment(end, out_segment_id, start, vector))
             out_segment_id += 1
     out['lanes'] = {'features': lane_segments, 'type': 'FeatureCollection'}
-
+    return out
 
 
 def get_geojson_lane_segment(end, segment_id, start, vector):
@@ -300,7 +380,7 @@ def get_segment_tangent_at_point(segment, point):
                 raise NotImplementedError('Unequal tangents not supported')
             return np.array(arrive)
 
-def get_side_points_and_tangents(landscape_offset, segment, side_name):
+def get_side_points_and_tangents(landscape_offset, landscape_z_scale, segment, side_name):
     points = []
     # TODO: If there are three points, average the tangent of the two end points for the center tangent
     # TODO: Also generate a point between each endpoint and the center whose tangent matches the endpoint
@@ -312,7 +392,7 @@ def get_side_points_and_tangents(landscape_offset, segment, side_name):
         end_tangent = get_segment_tangent_at_point(segment, orig[2]['Center'])
         mid_tangent = (begin_tangent + end_tangent) / 2
         for i, p in enumerate(orig):
-            p = np.array(p[side_name]) + landscape_offset
+            p = landscape_to_world(landscape_offset, landscape_z_scale, np.array(p))
             points.append(p)
         points = add_midpoints(points)
         tangents = np.array([begin_tangent, begin_tangent, mid_tangent, end_tangent, end_tangent])
@@ -339,12 +419,11 @@ def format_point_as_unreal(point):
 
 def get_map_graphs(points, segment_point_map):
     graphs = []
+    points = copy.deepcopy(points)
     while points:
         # Find overlapping segments using OutVal of control point
         # String mid points together    unique_segments = dict()
-        start_point = list(segment_point_map.items())[0]
-        del segment_point_map[start_point]
-        graph = get_map_graph(segment_point_map, start_point, points)
+        graph = get_map_graph(segment_point_map, points)
         graphs.append(graph)
     return graphs
 
@@ -374,45 +453,30 @@ def get_unique_segments(segments):
 
 def get_neighboring_points(p, segment_point_map):
     segments = segment_point_map[p]
+    ret = []
     for s in segments:
         for pt in get_segment_points(s):
             if pt != p:
-                yield pt
-        else:
-            raise RuntimeError('Could not match segment')
-    else:
-        print('Only one segment with this control point')
-        yield None
+                ret.append(pt)
+    return ret
 
 
-def get_map_graph(segment_point_map, start_point, points):
-    # TODO BFS here
-
-    # def breadth_first_search(graph, root):
-    #     visited, queue = set(), collections.deque([root])
-    #     while queue:
-    #         vertex = queue.popleft()
-    #         for neighbour in graph[vertex]:
-    #             if neighbour not in visited:
-    #                 visited.add(neighbour)
-    #                 queue.append(neighbour)
-
-    visited = set()
-    q = collections.deque([start_point])
-    graph = []
-
+def get_map_graph(segment_point_map, points):
     # Use BFS to find connected points
+    visited = {points[0]}
+    q = collections.deque([points[0]])
+    graph = {}
     while q:
-        p = q.popleft()
-        for p in get_neighboring_points(p, segment_point_map):
-            if p not in visited:
-                visited.add(p)
-                q.append(p)
-                points.remove(p)  # Don't start a search from here
-
-                # graph
-
-        # for p in get_segment_points(s):
+        vertex = q.popleft()
+        points.remove(vertex)  # Don't start a search from here
+        neighbors = list(get_neighboring_points(vertex, segment_point_map))
+        graph[vertex] = neighbors
+        if len(neighbors) > 2:
+            print('Found a fork / intersection')
+        for neighbor in neighbors:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                q.append(neighbor)
 
     return graph
 
