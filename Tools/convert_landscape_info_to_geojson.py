@@ -194,7 +194,7 @@ def get_center_idxs(centers):
 def get_next_center(center, graphs_by_side, prev, kd_tree):
     seg_end_points = graphs_by_side['center'].get(tuple(center), None)
     if INTERSECTIONS and seg_end_points is not None:
-        # TODO: Actually don't do this for intersections. Just do BFS on the interpolated graph segments.
+        # TODO: BFS on the interpolated graph segments.
 
         # Get the next segment. Same as getting next interpolated point when there are no intersections,
         # but I don't want to fail silently if there are intersections.
