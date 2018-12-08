@@ -41,11 +41,6 @@ def main():
         spawn_point_marker(to_unreal(right[1], 60), right_orb)
         spawn_point_marker(to_unreal(center[0], 30), center_orb)
         spawn_point_marker(to_unreal(center[1], 30), center_orb)
-        for p1, p2 in (left, center, right):
-            spawn_point_marker(p1, right_orb)
-            spawn_point_marker(p2, right_orb)
-            print('spawned: %r' % p1)
-            print('spawned: %r\n' % p2)
 
 
 if __name__ == '__main__':
