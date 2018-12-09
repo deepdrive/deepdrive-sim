@@ -84,6 +84,10 @@ def disable_traffic_next_reset():
         input_controller.HasAdditionalAgents = False
 
 
+def ueprint(*args):
+    print(' '.join(str(x) for x in args))
+
+
 if __name__ == '__main__':
     # disable_traffic_next_reset()
     pass
