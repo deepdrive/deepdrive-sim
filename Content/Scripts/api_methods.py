@@ -10,12 +10,13 @@ except ImportError:
 
 import pyarrow
 
-world = None
+WORLD = None
 
-def get_actor_by_name(name):
-    global world
-    if world is None:
-        world = get_world()
+def get_actor_by_name(name, world=None):
+    global WORLD
+    if WORLD is None:
+        WORLD = get_world()
+    world = world or WORLD
     pattern = name + r'(_.*\d+)?$'
     r = re.compile(pattern)
     actors = [a for a in world.all_actors() if a.get_display_name() == name or r.match(a.get_display_name())]
@@ -32,7 +33,7 @@ def get_actor_by_name(name):
 
 
 def get_world():
-    global world
+    global WORLD
     worlds = ue.all_worlds()
     # print('All worlds length ' + str(len(worlds)))
 
@@ -52,14 +53,14 @@ def get_world():
         ai_controllers = [a for a in w.all_actors()
                                if 'LocalAIController_'.lower() in a.get_full_name().lower()]
         if ai_controllers:
-            world = w
+            WORLD = w
             print('Found current world: ' + str(w))
             break
     else:
         # print('Current world not detected')
         pass
 
-    return world
+    return WORLD
 
 
 def enable_traffic_next_reset():
