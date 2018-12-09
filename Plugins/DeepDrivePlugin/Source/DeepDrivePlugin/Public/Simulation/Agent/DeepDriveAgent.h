@@ -126,6 +126,8 @@ public:
 	ADeepDriveAgent* getPrevAgent(float maxDistance, float *distance = 0);
 
 	void setAgentController(ADeepDriveAgentControllerBase *ctrl);
+
+	UFUNCTION(BlueprintCallable, Category = "Agents")
 	ADeepDriveAgentControllerBase *getAgentController();
 
 protected:
