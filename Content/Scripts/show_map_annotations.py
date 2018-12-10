@@ -4,7 +4,7 @@ try:
     from unreal_engine.classes import Blueprint
     from unreal_engine import FVector, FRotator
     DRY_RUN = False
-    world = ue.get_editor_world()
+    WORLD = ue.get_editor_world()
 except ImportError:
     DRY_RUN = True
 
@@ -14,14 +14,17 @@ with open(r'C:\Users\a\src\deepdrive-sim\Tools\deepdrive-canyons-map.json') as f
 
 def spawn_point_marker(point, map_point_class):
     if not DRY_RUN:
-        actor = world.actor_spawn(map_point_class,
-                                     FVector(*point), FRotator(0, 0, 0))
+        actor = WORLD.actor_spawn(map_point_class,
+                                  FVector(*point), FRotator(0, 0, 0))
 
 def to_unreal(point, lift_cm):
     return point[0] * 100, point[1] * 100, point[2] * 100 + lift_cm
 
 
 def main():
+    """
+    Output https://youtu.be/kqfTDl2p9ts
+    """
     if DRY_RUN:
         right_orb = None
         left_orb = None
