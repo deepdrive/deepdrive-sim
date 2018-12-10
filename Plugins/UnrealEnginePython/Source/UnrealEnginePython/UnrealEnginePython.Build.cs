@@ -175,6 +175,7 @@ public class UnrealEnginePython : ModuleRules
         if (UEBuildConfiguration.bBuildEditor)
 #endif
         {
+            System.Console.WriteLine("Adding UEPy Editor dependencies");
             PrivateDependencyModuleNames.AddRange(new string[]{
                 "UnrealEd",
                 "LevelEditor",
@@ -200,6 +201,9 @@ public class UnrealEnginePython : ModuleRules
                 "LandscapeEditor",
                 "MaterialEditor"
             });
+        }
+        else {
+        	System.Console.WriteLine("Not adding UEPy Editor dependencies");
         }
 
         if ((Target.Platform == UnrealTargetPlatform.Win64) || (Target.Platform == UnrealTargetPlatform.Win32))
