@@ -103,6 +103,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Agents")
 	EDeepDriveAgentState GetAgentState();
 
+	UFUNCTION(BlueprintCallable, Category = "Agents")
+	bool IsEgoAgent();
+
 	void setCollisionMode(bool simple);
 	void setCollisionVisibility(bool visible);
 
@@ -209,6 +212,8 @@ private:
 	float								m_DistanceToNextAgent = -1.0f;
 	ADeepDriveAgent						*m_PrevAgent = 0;
 	float								m_DistanceToPrevAgent = -1.0f;
+
+	bool								m_isEgoAgent = false;
 
 	ADeepDriveAgentControllerBase		*m_AgentController = 0;
 

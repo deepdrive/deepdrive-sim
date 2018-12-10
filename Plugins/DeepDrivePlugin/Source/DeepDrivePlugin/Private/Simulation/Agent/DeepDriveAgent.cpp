@@ -141,6 +141,8 @@ int32 ADeepDriveAgent::RegisterCaptureCamera(float fieldOfView, int32 captureWid
 			m_CaptureCameras.Add(camId, captureCamCmp);
 			OnCaptureCameraAdded(camId, sceneTexture, label);
 			SetCaptureEncoding(camId, EDeepDriveInternalCaptureEncoding::RGB_DEPTH, 0);
+
+			m_isEgoAgent = true;
 		}
 	}
 
@@ -184,6 +186,8 @@ void ADeepDriveAgent::UnregisterCaptureCamera(uint32 camId)
 		}
 		m_CaptureCameras.Empty();
 	}
+	
+	m_isEgoAgent = m_CaptureCameras.Num() > 0;
 }
 
 void ADeepDriveAgent::setCollisionMode(bool simple)
@@ -471,4 +475,9 @@ void ADeepDriveAgent::OnBeginOverlap(UPrimitiveComponent *OverlappedComponent, A
 EDeepDriveAgentState ADeepDriveAgent::GetAgentState()
 {
 	return EDeepDriveAgentState::CRUSING;
+}
+
+bool ADeepDriveAgent::IsEgoAgent()
+{
+	return m_isEgoAgent;
 }
