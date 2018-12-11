@@ -52,11 +52,18 @@ public class DeepDrivePlugin : ModuleRules
                 "RenderCore",
                 "RHI",
 	            "PhysXVehicles",
-                "EditorStyle",
-                "PropertyEditor"
             }
             );
-		
+
+		 if (UEBuildConfiguration.bBuildEditor)
+		 {
+			 PublicDependencyModuleNames.AddRange(
+				 new string[] {
+					"EditorStyle",
+					"PropertyEditor",
+				 }
+			 );
+		 }
 		
 		DynamicallyLoadedModuleNames.AddRange(
 			new string[]
