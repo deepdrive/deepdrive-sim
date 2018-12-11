@@ -35,8 +35,14 @@ def main():
         ctrlr = agent.getAgentController()
         ueprint('agent controller', ctrlr.get_name())
         try:
-            ueprint('speed range start', ctrlr.m_Configuration.SpeedRange.x)
-            ueprint('speed range end', ctrlr.m_Configuration.SpeedRange.y)
+            config = ctrlr.m_Configuration
+            ueprint('speed range start1', config.SpeedRange.x)
+            ueprint('speed range end1', config.SpeedRange.y)
+            ctrlr.m_Configuration.SpeedRange.x = 70
+            ctrlr.m_Configuration.SpeedRange.y = 90
+            ueprint('after speed range start', config.SpeedRange.x)
+            ueprint('after speed range end', config.SpeedRange.y)
+
         except Exception as e:
             print(e)
 
