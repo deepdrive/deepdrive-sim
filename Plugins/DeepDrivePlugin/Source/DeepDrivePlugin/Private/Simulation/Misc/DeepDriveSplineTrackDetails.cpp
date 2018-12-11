@@ -1,3 +1,4 @@
+#if WITH_EDITOR
 
 #include "DeepDrivePluginPrivatePCH.h"
 
@@ -80,3 +81,5 @@ FReply FDeepDriveSplineTrackDetails::OnExportSpline()
 }
 
 #undef LOCTEXT_NAMESPACE
+
+#endif

@@ -1,6 +1,7 @@
 
 #pragma once
 
+#if WITH_EDITOR
 #include "CoreMinimal.h"
 #include "UObject/WeakObjectPtr.h"
 #include "Input/Reply.h"
@@ -24,3 +25,4 @@ private:
 	/** The selected sky light */
 	TWeakObjectPtr<ADeepDriveSplineTrack>   m_Track;
 };
+#endif
