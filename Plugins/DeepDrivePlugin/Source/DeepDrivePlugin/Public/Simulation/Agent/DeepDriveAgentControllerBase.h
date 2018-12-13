@@ -48,6 +48,8 @@ public:
 	
 	virtual void OnRemoveAgent();
 
+	virtual void SetSpeedRange(float MinSpeed, float MaxSpeed);
+
 	virtual void OnCheckpointReached();
 
 	virtual void OnDebugTrigger();

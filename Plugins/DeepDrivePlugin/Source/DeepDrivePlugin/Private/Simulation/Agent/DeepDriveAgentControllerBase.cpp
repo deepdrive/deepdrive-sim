@@ -206,6 +206,10 @@ void ADeepDriveAgentControllerBase::OnCheckpointReached()
 {
 }
 
+void ADeepDriveAgentControllerBase::SetSpeedRange(float MinSpeed, float MaxSpeed)
+{
+}
+
 void ADeepDriveAgentControllerBase::OnDebugTrigger()
 {
 }

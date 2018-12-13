@@ -112,6 +112,8 @@ public:
 
 	virtual bool ResetAgent();
 
+	virtual void SetSpeedRange(float MinSpeed, float MaxSpeed);
+
 	virtual void OnCheckpointReached();
 
 	virtual void OnDebugTrigger();

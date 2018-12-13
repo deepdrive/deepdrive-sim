@@ -488,3 +488,10 @@ bool ADeepDriveAgent::IsEgoAgent()
 {
 	return m_isEgoAgent || (m_hasFocus && m_Simulation->hasEgoAgent() == false);
 }
+
+void ADeepDriveAgent::SetSpeedRange(float MinSpeed, float MaxSpeed)
+{
+	ADeepDriveAgentControllerBase *ctrl = getAgentController();
+	if(ctrl)
+		ctrl->SetSpeedRange(MinSpeed, MaxSpeed);
+}

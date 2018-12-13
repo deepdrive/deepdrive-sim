@@ -106,6 +106,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Agents")
 	bool IsEgoAgent();
 
+	UFUNCTION(BlueprintCallable, Category = "Agents")
+	void SetSpeedRange(float MinSpeed, float MaxSpeed);
+
 	void setCollisionMode(bool simple);
 	void setCollisionVisibility(bool visible);
 

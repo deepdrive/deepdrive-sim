@@ -87,6 +87,10 @@ bool ADeepDriveAgentLocalAIController::ResetAgent()
 	return false;
 }
 
+void ADeepDriveAgentLocalAIController::SetSpeedRange(float MinSpeed, float MaxSpeed)
+{
+	m_DesiredSpeed = FMath::RandRange(MinSpeed, MaxSpeed);
+}
 
 void ADeepDriveAgentLocalAIController::Configure(const FDeepDriveLocalAIControllerConfiguration &Configuration, int32 StartPositionSlot, ADeepDriveSimulation* DeepDriveSimulation)
 {
