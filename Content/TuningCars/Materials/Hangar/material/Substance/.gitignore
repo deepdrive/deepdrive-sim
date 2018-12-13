@@ -1,0 +1,3 @@
+# These are needlessly changed to windows only format when opening the editor. If you want to change these, use
+#   git add --force
+*.uasset
