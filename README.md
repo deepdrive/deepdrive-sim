@@ -10,6 +10,8 @@ Checkout our [main repo](https://github.com/deepdrive/deepdrive)
 
 ## Development
 
+- [Associate your GitHub username with your Unreal account](https://www.unrealengine.com/en-US/ue4-on-github) to get access to Unreal sources on GitHub. 
+
 ### Set your python bin
 
 This is where the Python extension is installed which enables communication between Unreal and Python.
@@ -28,59 +30,75 @@ Create `~/.deepdrive/python_bin` on Unix or `%HOMEPATH%\.deepdrive\python_bin` o
 
 ### Windows
 
-- Clone the repo
-- Download and extract our [embedded python](https://s3-us-west-1.amazonaws.com/deepdrive/embedded_python_for_unreal/windows/python_bin_with_libs.zip) into `Plugins/UnrealEnginePython/Binaries/Win64`  
+#### Prerequisites
+
 - Use Visual Studio 2015 with the [C++ build tools](https://stackoverflow.com/a/31955339)
-- Get Unreal v4.17 via the Epic Launcher -> Unreal Enngine tab -> Library
+- Get Unreal v4.18 via the Epic Launcher -> Unreal Engine tab -> Library
+- Download Unreal sources and optionally the debugging symbols using the Epic Launcher ![Windows Unreal Install Options](https://i.imgur.com/Khxc6HV.jpg)
+- Download and extract our [embedded python](https://s3-us-west-1.amazonaws.com/deepdrive/embedded_python_for_unreal/windows/UnrealEnginePython.zip) into your Unreal Engine Plugins path, e.g. ```C:\Program Files\Epic Games\UE_4.18\Engine\Plugins```  
 - Install the Substance Plugin through the Marketplace in Epic Launcher
 - Make sure rc.exe is in your PATH, if not follow [these](https://stackoverflow.com/a/14373113/134077) instructions but for Visual Studio 14.0 and x64 instead of Visual Studio 11, x86.
-- Open Unreal and use it to open DeepDrive.uproject - if there are errors, check `Saved/Logs` for details
+
+#### Development
+
+- Clone this, the deepdrive-sim repo containing our Unreal project
+- Open DeepDrive.uproject with the version of Unreal Editor you just installed - if there are errors, check `Saved/Logs` for details
 - Refresh / Create Visual Studio project
 - On Windows, Right click the DeepDrive project and set as Startup Project, debug...
 
 - Run game full speed when the window is not focused
   - Uncheck Edit->Editor Preferences->Use Less CPU when in Background
 
-Opening the project in Unreal will update the Substance textures to Windows-only versions. 
-Once you see these files changed, you can run the following to avoid ever checking them in
-```
-cd Content/TuningCars/Materials/Hangar/material/Substance
-git update-index --assume-unchanged $(git ls-files | tr '\n' ' ')
-```
-
-
 
 ### Linux
 
-Download the Substance plugin from [here](https://forum.allegorithmic.com/index.php/topic,21919.msg87141/highlight,4.18+Released.html#msg87141) to
-<kbd>Plugins/Runtime</kbd> for Unreal 4.18. For other releases, see [this thread](https://forum.allegorithmic.com/index.php/board,23.0.html).
+#### Prerequisites
 
-Build Unreal
+* Clone Unreal
+
+```
+git clone git@github.com:EpicGames/UnrealEngine --branch 4.18
+# or if you are using http: 
+# git clone https://github.com/EpicGames/UnrealEngine --branch 4.18
+```
+
+* Download the Substance plugin from [here](https://forum.allegorithmic.com/index.php/topic,21919.msg87141/highlight,4.18+Released.html#msg87141) to
+<kbd>UnrealEngine/Plugins/Runtime</kbd> for Unreal 4.18. For other releases, see [here](https://forum.allegorithmic.com/index.php/board,23.0.html) or you can just use the sources downloaded by Windows / Mac marketplace.
+
+* Download and extract our [embedded python](https://s3-us-west-1.amazonaws.com/deepdrive/embedded_python_for_unreal/linux/UnrealEnginePython.zip) into <kbd>UnrealEngine/Plugins</kbd>
+
+Build Unreal 
+
+_Takes an hour with 12 cores_
 
 ```
 cd UnrealEngine
-./Setup.sh && ./GenerateProjectFiles.sh && make  # Takes about an hour
+./Setup.sh && ./GenerateProjectFiles.sh && make
 ```
 
-More details on building Unreal [here](https://wiki.unrealengine.com/Building_On_Linux) - though the above commands should be sufficient.
+More details on building Unreal [here](https://wiki.unrealengine.com/Building_On_Linux), though the above commands should be sufficient.
 
 Run 
 ```
 ./Engine/Binaries/Linux/UE4Editor
 ```
 
-Open deepdrive uproject file - choose other -> Skip Conversion
+Open the Deepdrive uproject file - choose other -> Skip Conversion
 
 ## Building the Python Extension
+
+Note that this will happen automatically when you build the Unreal project, so is only needed if you are building this separately.
 
 ```
 cd Plugins/DeepDrivePlugin/Source/DeepDrivePython
 python build/build.py --type dev
 ```
-This will also happen automatically when building the Unreal project.
 
 
 ## Push PyPi module
+
+Pushing to the release branch causes CI to publish wheels to the PyPi cheese shop.
+
 `git push origin master && git push origin master:release`
 
 ## Setting key binds
@@ -89,16 +107,14 @@ Unreal->Project Settings->Input->Action Mappings OR in Blueprints->Find (uncheck
 
 ## Commit your VERSION file
 
-Until Unreal binary uploads are automated, the server and client version will not match unless the VERSION file changes 
-are pushed. This because the client version is determined by latest git timestamp and the server version is determined
-by the VERSION file. The VERSION file will automatically update when you build, so all that's needed is to push it.
-The only time you shouldn't push your VERSION file is when you are just packaging and uploading the sim.
+Used for checking compatibility between sim and agents and will update automatically after building in Unreal. Please check it in.
 
 ## Clean builds
 
 You'll often want to run `clean.sh` or `clean.bat` after pulling in changes, especially to the plugin as Unreal will spuriously cache old binaries.
 
 ## PyCharm
+
 If you open an Unreal project in Pycharm, add Binaries, Build, Content, Intermediate, and Saved to your project’s “Excluded” directories in Project Structure or simply by right clicking and choosing “Mark Directory as” => “Excluded”. Keeping these large binary directories in the project will cause PyCharm to index them. Do the same with these directories (Binaries, Build, Content, Intermediate, and Saved) within any of the Plugins in the Plugins folder.
 
 ## Logging
@@ -181,10 +197,3 @@ Verbose
 VeryVerbose
 
     VeryVerbose level logs are printed to log files but not the in-game console. This is usually used for very detailed logging that would otherwise spam output.
-
-
-#### UnrealEnginePython aka UEPY
-
-On Linux, we've included the binaries for the embedded Python here: `Plugins/UnrealEnginePython/linux`. Our dependencies are downloaded separately (zmq, and pyarrow) currently. You will see log messages on whether you need to download.
-
-If you need to change the UnrealEnginePython extension and rebuild, you may get seg faults. To workaround, do a `./clean.sh` and delete UnrealEnginePython/Intermediate and UnrealEnginePython/Binaries. This is a very long and tedious process, so please let me know if something else works. Perhaps doing a "Compile" in the Unreal Editor (instead of Modules->Rebuild) or changing things in Windows would be faster, idk.
