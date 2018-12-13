@@ -142,6 +142,8 @@ int32 ADeepDriveAgent::RegisterCaptureCamera(float fieldOfView, int32 captureWid
 			OnCaptureCameraAdded(camId, sceneTexture, label);
 			SetCaptureEncoding(camId, EDeepDriveInternalCaptureEncoding::RGB_DEPTH, 0);
 
+			if(m_Simulation && m_isEgoAgent == false)
+				m_Simulation->onEgoAgentChanged(true);
 			m_isEgoAgent = true;
 		}
 	}
@@ -188,6 +190,8 @@ void ADeepDriveAgent::UnregisterCaptureCamera(uint32 camId)
 	}
 	
 	m_isEgoAgent = m_CaptureCameras.Num() > 0;
+	if(m_Simulation && m_isEgoAgent == false)
+		m_Simulation->onEgoAgentChanged(false);
 }
 
 void ADeepDriveAgent::setCollisionMode(bool simple)
@@ -316,6 +320,7 @@ void ADeepDriveAgent::SetHandbrake(bool on)
 
 void ADeepDriveAgent::ActivateCamera(EDeepDriveAgentCameraType cameraType)
 {
+	m_hasFocus = true;
 	ChaseCamera->Deactivate();
 	InteriorCamera->Deactivate();
 	OrbitCamera->Deactivate();
@@ -345,6 +350,8 @@ void ADeepDriveAgent::ActivateCamera(EDeepDriveAgentCameraType cameraType)
 
 void ADeepDriveAgent::DeactivateCameras()
 {
+	m_hasFocus = false;
+
 	ChaseCamera->Deactivate();
 	InteriorCamera->Deactivate();
 	OrbitCamera->Deactivate();
@@ -479,5 +486,5 @@ EDeepDriveAgentState ADeepDriveAgent::GetAgentState()
 
 bool ADeepDriveAgent::IsEgoAgent()
 {
-	return m_isEgoAgent;
+	return m_isEgoAgent || (m_hasFocus && m_Simulation->hasEgoAgent() == false);
 }

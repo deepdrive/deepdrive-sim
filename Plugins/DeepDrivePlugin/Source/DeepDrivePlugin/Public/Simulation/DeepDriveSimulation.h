@@ -185,6 +185,9 @@ public:
 	void spawnAdditionalAgents();
 	bool hasAdditionalAgents();
 
+	bool hasEgoAgent() const;
+	void onEgoAgentChanged(bool added);
+
 	static FDateTime getSimulationStartTime();
 
 private:
@@ -224,6 +227,8 @@ private:
 	bool									m_SimpleCollisionMode = false;
 	bool									m_CollisionVisibility = false;
 
+	int32									m_numEgoAgents = 0;
+	
 	static FDateTime						m_SimulationStartTime;
 };
 

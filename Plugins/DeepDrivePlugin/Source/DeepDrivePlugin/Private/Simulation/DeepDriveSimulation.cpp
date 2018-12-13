@@ -593,3 +593,16 @@ TArray<ADeepDriveAgent*> ADeepDriveSimulation::GetAgentsList(EDeepDriveAgentsLis
 
 	return agents;
 }
+
+bool ADeepDriveSimulation::hasEgoAgent() const
+{
+	return m_numEgoAgents > 0;
+}
+
+void ADeepDriveSimulation::onEgoAgentChanged(bool added)
+{
+	if(added)
+		m_numEgoAgents++;
+	else
+		m_numEgoAgents = FMath::Max(0, m_numEgoAgents - 1);
+}

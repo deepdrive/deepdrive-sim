@@ -214,6 +214,7 @@ private:
 	float								m_DistanceToPrevAgent = -1.0f;
 
 	bool								m_isEgoAgent = false;
+	bool								m_hasFocus = false;
 
 	ADeepDriveAgentControllerBase		*m_AgentController = 0;
 
