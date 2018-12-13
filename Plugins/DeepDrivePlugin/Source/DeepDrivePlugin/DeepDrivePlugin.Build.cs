@@ -55,7 +55,7 @@ public class DeepDrivePlugin : ModuleRules
             }
             );
 
-		 if (UEBuildConfiguration.bBuildEditor)
+		 if (Target.bBuildEditor)
 		 {
 			 PublicDependencyModuleNames.AddRange(
 				 new string[] {
