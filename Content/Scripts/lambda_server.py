@@ -49,7 +49,7 @@ class LambdaServer(object):
 
     async def run(self, world):
         await self.create_socket()
-        print('Unreal Lambda server started at %s v0.5' % self.conn_string)
+        print('Unreal Lambda server started at %s v0.4' % self.conn_string)
         while True:
             try:
                 await self.check_for_messages(world)
@@ -103,17 +103,11 @@ class LambdaServer(object):
             print('Error closing lambda server ' + str(e))
 
 
-def event_loop_thread(world, loop):
-    # loop.set_debug(enabled=True)
-    loop.run_until_complete(LambdaServer().run(world=world))
-
-
 def add_api_methods(_locals):
     for attr_name in dir(api):
         attr = getattr(api, attr_name)
         if isinstance(attr, types.FunctionType):
             _locals[attr_name] = attr
-
 
 def serialize(obj):
     try:
