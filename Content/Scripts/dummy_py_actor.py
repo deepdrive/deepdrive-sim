@@ -6,6 +6,8 @@ import sys
 from lambda_server import LambdaServer
 import api_methods as api
 
+from lambda_server import event_loop_thread
+
 IS_LINUX = sys.platform == 'linux' or sys.platform == 'linux2'
 IS_WINDOWS = sys.platform == 'win32'
 
@@ -16,6 +18,7 @@ print('Loading DummyPyActor')
 try:
     import zmq
     import pyarrow
+    import threading
 
     START_UNREAL_API_SERVER = True
     print('Starting UnrealPython server on zmq!')
@@ -46,6 +49,7 @@ class DummyPyActor:
         self.started_server = False
         self.event_loop = None
         self.lambda_server = None
+        self.event_loop_thread = None
 
     def begin_play(self):
         print('Begin Play on DummyPyActor class')
@@ -58,15 +62,9 @@ class DummyPyActor:
         elif not self.started_server:
             print('Creating new event loop. You should only see this once!')
             self.event_loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(self.event_loop)
-            # self.event_loop.set_debug(enabled=True)
-            print('Creating server task')
-            self.lambda_server = LambdaServer()
-            asyncio.ensure_future(self.lambda_server.run(self.world))
+            self.event_loop_thread = threading.Thread(target=event_loop_thread, args=(self.world, self.event_loop,))
+            self.event_loop_thread.start()
             self.started_server = True
-        elif self.event_loop is not None:
-            self.event_loop.stop()
-            self.event_loop.run_forever()
 
     def end_play(self, end_code):
         self.lambda_server.close()
