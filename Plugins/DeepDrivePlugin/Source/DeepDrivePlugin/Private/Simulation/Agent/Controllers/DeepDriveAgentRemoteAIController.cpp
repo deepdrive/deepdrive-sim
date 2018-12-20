@@ -34,7 +34,7 @@ void ADeepDriveAgentRemoteAIController::SetControlValues(float steering, float t
 	if (m_Agent)
 	{
 		m_Agent->SetControlValues(steering, throttle, brake, handbrake);
-		m_Agent->setIsGameDriving(true);
+		m_Agent->setIsGameDriving(false);
 	}
 }
 
