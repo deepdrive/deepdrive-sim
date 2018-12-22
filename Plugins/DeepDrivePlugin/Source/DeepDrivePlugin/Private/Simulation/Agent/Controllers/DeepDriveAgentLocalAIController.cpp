@@ -60,6 +60,8 @@ bool ADeepDriveAgentLocalAIController::Activate(ADeepDriveAgent &agent, bool kee
 					m_StateMachine.registerState(new DeepDriveAgentAbortOvertakingState(m_StateMachine));
 
 					m_StateMachine.setNextState("Cruise");
+					
+					m_StateMachine.update(*m_StateMachineCtx, 0.0f);
 
 					activated = true;
 				}
