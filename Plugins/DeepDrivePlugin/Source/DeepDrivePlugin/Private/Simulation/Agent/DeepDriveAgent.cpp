@@ -89,7 +89,7 @@ void ADeepDriveAgent::BeginPlay()
 		FrontBumperDistance = FMath::Abs(FVector2D::DotProduct(forward, forwardBumperLoc));
 		BackBumperDistance = FMath::Abs(FVector2D::DotProduct(forward, rearBumperLoc));
 
-		UE_LOG(LogDeepDriveAgent, Log, TEXT("Calculated FrontBumperDist to %f and BackBmperDistance to %f"), FrontBumperDistance, BackBumperDistance);
+		UE_LOG(LogDeepDriveAgent, Log, TEXT("Calculated FrontBumperDist to %f and BackBumperDistance to %f"), FrontBumperDistance, BackBumperDistance);
 	}
 }
 
