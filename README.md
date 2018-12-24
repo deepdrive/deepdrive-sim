@@ -38,19 +38,17 @@ Create `~/.deepdrive/python_bin` on Unix or `%HOMEPATH%\.deepdrive\python_bin` o
 
 - Use Visual Studio 2015 with the [C++ build tools](https://stackoverflow.com/a/31955339)
 - Get Unreal v4.18 via the Epic Launcher -> Unreal Engine tab -> Library
-- Download Unreal sources and optionally the debugging symbols using the Epic Launcher ![Windows Unreal Install Options](https://i.imgur.com/Khxc6HV.jpg)
-- Download and extract our [embedded python](https://s3-us-west-1.amazonaws.com/deepdrive/embedded_python_for_unreal/windows/UnrealEnginePython.zip) into your Unreal Engine Plugins path, e.g. ```C:\Program Files\Epic Games\UE_4.18\Engine\Plugins```  
+- Optionally download Unreal sources and debugging symbols in the Epic Launcher ![Windows Unreal Install Options](https://i.imgur.com/Khxc6HV.jpg)
 - Install the Substance Plugin through the Marketplace in Epic Launcher
-- Make sure rc.exe is in your PATH, if not follow [these](https://stackoverflow.com/a/14373113/134077) instructions but for Visual Studio 14.0 and x64 instead of Visual Studio 11, x86.
 
 #### Development
 
-- Clone this, the deepdrive-sim repo containing our Unreal project
 - Open DeepDrive.uproject with the version of Unreal Editor you just installed - if there are errors, check `Saved/Logs` for details
 - Refresh / Create Visual Studio project
-- On Windows, Right click the DeepDrive project and set as Startup Project, debug...
-
-- Run game full speed when the window is not focused
+- Open the Visual Studio Project
+- Close Unreal
+- Right click the DeepDrive project and set as Startup Project, debug...
+- To run game full speed when the window is not focused
   - Uncheck Edit->Editor Preferences->Use Less CPU when in Background
 
 
