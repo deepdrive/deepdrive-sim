@@ -383,6 +383,7 @@ void ADeepDriveAgent::reset()
 	GetVehicleMovementComponent()->SetBrakeInput(1.0f);
 	GetVehicleMovementComponent()->StopMovementImmediately();
 	GetMesh()->SetAllPhysicsLinearVelocity(FVector::ZeroVector);
+	GetMesh()->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
 
 	OnSimulationReset();
 }

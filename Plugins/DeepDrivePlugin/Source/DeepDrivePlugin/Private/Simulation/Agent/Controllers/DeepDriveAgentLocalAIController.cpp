@@ -79,8 +79,8 @@ bool ADeepDriveAgentLocalAIController::ResetAgent()
 	if(m_Track && m_Agent)
 	{
 		UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Reset Agent") );
-		m_Agent->reset();
 		resetAgentPosOnSpline(*m_Agent, m_Track->GetSpline(), m_StartDistance);
+		m_Agent->reset();
 		m_StateMachine.setNextState("Cruise");
 		m_SpeedController->reset();
 		m_SteeringController->reset();

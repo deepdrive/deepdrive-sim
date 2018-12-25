@@ -34,10 +34,11 @@ bool ADeepDriveAgentManualController::Activate(ADeepDriveAgent &agent, bool keep
 bool ADeepDriveAgentManualController::ResetAgent()
 {
 	bool res = false;
-	if(m_Agent)
+	if(m_Track && m_Agent)
 	{
 		UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("Reset Agent") );
-		res = initAgentOnTrack(*m_Agent);
+		resetAgentPosOnSpline(*m_Agent, m_Track->GetSpline(), m_StartDistance);
+		m_Agent->reset();
 	}
 	return res;
 }

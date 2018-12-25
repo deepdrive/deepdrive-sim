@@ -52,6 +52,7 @@ public class DeepDrivePlugin : ModuleRules
                 "RenderCore",
                 "RHI",
 	            "PhysXVehicles",
+				"Landscape"
             }
             );
 

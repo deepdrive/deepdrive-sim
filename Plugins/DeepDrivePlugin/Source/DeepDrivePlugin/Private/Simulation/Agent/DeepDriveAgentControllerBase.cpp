@@ -7,6 +7,7 @@
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 #include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
 #include "Runtime/Engine/Classes/Components/SplineComponent.h"
+#include "Runtime/Landscape/Classes/Landscape.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveAgentControllerBase);
 
@@ -171,7 +172,17 @@ void ADeepDriveAgentControllerBase::resetAgentPosOnSpline(ADeepDriveAgent &agent
 	FVector agentLocation = spline->GetLocationAtDistanceAlongSpline(distance, ESplineCoordinateSpace::World) + FVector(0.0f, 0.0f, 200.0f);
 	float curDistanceOnSpline = getClosestDistanceOnSpline(spline, agentLocation);
 	FVector curPosOnSpline = spline->GetLocationAtDistanceAlongSpline(curDistanceOnSpline, ESplineCoordinateSpace::World);
-	curPosOnSpline.Z = agentLocation.Z + 50.0f;
+	curPosOnSpline.Z = agentLocation.Z + 100.0f;
+
+	FHitResult hitRes;
+	if(GetWorld()->LineTraceSingleByChannel(hitRes, curPosOnSpline, curPosOnSpline - FVector(0.0f, 0.0f, 1000.0f), ECC_Visibility, FCollisionQueryParams(), FCollisionResponseParams()))
+	{
+		if(Cast<ALandscape>(hitRes.Actor.Get()) != 0)
+		{
+			curPosOnSpline = hitRes.ImpactPoint + FVector(0.0f, 0.0f, 5.0f);
+		}
+	}
+
 
 	FQuat quat = spline->GetQuaternionAtDistanceAlongSpline(curDistanceOnSpline, ESplineCoordinateSpace::World);
 
