@@ -11,7 +11,7 @@ Checkout our [main repo](https://github.com/deepdrive/deepdrive)
 ## Development
 
 - Clone this repo
-- Close our UnrealEnginePython fork into the root of this project (not a submodule as we are going to make this a binary only)
+- Clone our UnrealEnginePython fork into the root of this project (not a submodule as we are going to make this a binary only)
 - Tip: To avoid rebuilding UnrealEnginePython after clean.sh, move this folder to your Engine plugins after you build it the first time.
 
 - [Associate your GitHub username with your Unreal account](https://www.unrealengine.com/en-US/ue4-on-github) to get access to Unreal sources on GitHub. 
