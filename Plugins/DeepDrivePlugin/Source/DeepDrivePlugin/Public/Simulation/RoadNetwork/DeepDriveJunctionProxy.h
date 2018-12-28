@@ -43,6 +43,10 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	const TArray<ADeepDriveRoadLinkProxy*>& getLinks();
+
+	const TArray<FDeepDriveLaneConnectionProxy>& getLaneConnections();
+
 protected:
 
 	UPROPERTY(EditAnywhere, Category = Configuration)
@@ -52,3 +56,14 @@ protected:
 	TArray<FDeepDriveLaneConnectionProxy>	LaneConnections;
 
 };
+
+
+inline const TArray<ADeepDriveRoadLinkProxy*>& ADeepDriveJunctionProxy::getLinks()
+{
+	return Links;
+}
+
+inline const TArray<FDeepDriveLaneConnectionProxy>& ADeepDriveJunctionProxy::getLaneConnections()
+{
+	return LaneConnections;
+}

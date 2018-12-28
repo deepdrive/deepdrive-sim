@@ -51,8 +51,39 @@ void UDeepDriveRoadNetworkComponent::PlaceAgentOnRoad(ADeepDriveAgent *Agent, bo
 
 void UDeepDriveRoadNetworkComponent::collectRoadNetwork()
 {
+	TMap<FString, int32> segmentMap;
+
+	//	extract all segments (proxies) from scene
+	TArray<AActor*> segments;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), TSubclassOf<ADeepDriveRoadSegmentProxy>(), segments);
+	for(auto &actor : segments)
+	{
+		ADeepDriveRoadSegmentProxy* segmentProxy = Cast<ADeepDriveRoadSegmentProxy>(actor);
+		if(segmentProxy)
+		{
+			SDeepDriveRoadSegment segment;
+
+			segment.StartPoint = segmentProxy->getStartPoint();
+			segment.EndPoint = segmentProxy->getEndPoint();
+
+			const FSplineCurves *splineCurves = segmentProxy->getSplineCurves();
+			if(splineCurves)
+			{
+				segment.Spline = new FSplineCurves;
+				segment.Spline->Position = splineCurves->Position;
+				segment.Spline->Rotation = splineCurves->Rotation;
+				segment.Spline->Scale = splineCurves->Scale;
+				segment.Spline->ReparamTable = splineCurves->ReparamTable;
+			}
+
+			m_RoadNetwork.Segments.Add(segment);
+			segmentMap.Add(UKismetSystemLibrary::GetObjectName(segmentProxy), m_RoadNetwork.Segments.Num());
+		}
+	}
+
 	TMap<FString, int32> linkMap;
 
+	//	extract all road links (proxies) from scene
 	TArray<AActor*> links;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), TSubclassOf<ADeepDriveRoadLinkProxy>(), links);
 	for(auto &actor : links)
@@ -71,22 +102,11 @@ void UDeepDriveRoadNetworkComponent::collectRoadNetwork()
 
 				for(auto &segProxy : laneProxy.Segments)
 				{
-					SDeepDriveRoadSegment segment;
-
-					segment.StartPoint = segProxy->getStartPoint();
-					segment.EndPoint = segProxy->getEndPoint();
-
-					const FSplineCurves *splineCurves = segProxy->getSplineCurves();
-					if(splineCurves)
+					if(segmentMap.Contains(UKismetSystemLibrary::GetObjectName(segProxy)))
 					{
-						segment.Spline = new FSplineCurves;
-						segment.Spline->Position = splineCurves->Position;
-						segment.Spline->Rotation = splineCurves->Rotation;
-						segment.Spline->Scale = splineCurves->Scale;
-						segment.Spline->ReparamTable = splineCurves->ReparamTable;
+						lane.Segments.Add( &m_RoadNetwork.Segments[segmentMap[UKismetSystemLibrary::GetObjectName(segProxy)]] );
 					}
 
-					lane.Segments.Add(segment);
 				}
 				link.Lanes.Add(lane);
 			}
@@ -97,7 +117,7 @@ void UDeepDriveRoadNetworkComponent::collectRoadNetwork()
 		}
 	}
 
-
+	// extract all junctions (proxies) from scene
 	TArray<AActor*> junctions;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), TSubclassOf<ADeepDriveJunctionProxy>(), junctions);
 	for(auto &actor : junctions)
@@ -105,6 +125,37 @@ void UDeepDriveRoadNetworkComponent::collectRoadNetwork()
 		ADeepDriveJunctionProxy* junctionProxy = Cast<ADeepDriveJunctionProxy>(actor);
 		if(junctionProxy)
 		{
+			SDeepDriveJunction junction;
+
+			for(auto &linkProxy : junctionProxy->getLinks())
+			{
+				if(linkMap.Contains(UKismetSystemLibrary::GetObjectName(linkProxy)))
+				{
+					junction.RoadLinks.Add( &m_RoadNetwork.Links[linkMap[UKismetSystemLibrary::GetObjectName(linkProxy)]] );
+				}
+			}
+
+			for(auto &connectionProxy : junctionProxy->getLaneConnections())
+			{
+				SDeepDriveLaneConnection connection;
+
+				if	(	segmentMap.Contains(UKismetSystemLibrary::GetObjectName(connectionProxy.FromSegment))
+					&&	segmentMap.Contains(UKismetSystemLibrary::GetObjectName(connectionProxy.ToSegment))
+					&&	(	connectionProxy.ConnectionSegment == 0
+						|| 	segmentMap.Contains(UKismetSystemLibrary::GetObjectName(connectionProxy.ConnectionSegment))
+						)
+					)
+				{
+					connection.FromSegment = &m_RoadNetwork.Segments[segmentMap[UKismetSystemLibrary::GetObjectName(connectionProxy.FromSegment)]];
+					connection.ToSegment = &m_RoadNetwork.Segments[segmentMap[UKismetSystemLibrary::GetObjectName(connectionProxy.ToSegment)]];
+					if(connectionProxy.ConnectionSegment)
+						connection.ConnectionSegment = &m_RoadNetwork.Segments[segmentMap[UKismetSystemLibrary::GetObjectName(connectionProxy.ConnectionSegment)]];
+				}
+
+				junction.Connections.Add(connection);
+			}
+
+			m_RoadNetwork.Junctions.Add(junction);
 		}
 	}
 
