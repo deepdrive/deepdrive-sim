@@ -19,6 +19,7 @@
 #include "Public/Simulation/Agent/DeepDriveAgentControllerCreator.h"
 #include "Public/Simulation/Misc/DeepDriveSimulationFreeCamera.h"
 #include "Public/Simulation/Misc/DeepDriveRandomStream.h"
+#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetworkComponent.h"
 
 #include "Public/CaptureSink/CaptureSinkComponentBase.h"
 
@@ -31,6 +32,9 @@ ADeepDriveSimulation::ADeepDriveSimulation()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	RoadNetwork = CreateDefaultSubobject<UDeepDriveRoadNetworkComponent>(TEXT("RoadNetwork"));
+	AddOwnedComponent(RoadNetwork);
 
 }
 

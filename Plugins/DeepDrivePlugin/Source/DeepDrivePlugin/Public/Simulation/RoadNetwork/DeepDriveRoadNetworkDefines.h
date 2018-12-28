@@ -32,7 +32,7 @@ struct SDeepDriveLane
 {
 	EDeepDriveLaneType				LaneType = EDeepDriveLaneType::MAJOR_LANE;
 
-	TArray<SDeepDriveRoadSegment*>  Segments;
+	TArray<SDeepDriveRoadSegment>	Segments;
 };
 
 struct SDeepDriveRoadLink
@@ -56,3 +56,19 @@ struct SDeepDriveJunction
 	TArray<SDeepDriveLaneConnection>	Connections;
 };
 
+struct SDeepDriveRoute
+{
+	FVector							Start;
+	FVector							Destination;
+
+	TArray<SDeepDriveRoadLink*>		Links;
+
+};
+
+struct SDeepDriveRoadNetwork
+{
+	TArray<SDeepDriveJunction>		Junctions;
+	TArray<SDeepDriveRoadLink>		Links;
+
+
+};

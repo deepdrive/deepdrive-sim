@@ -25,6 +25,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	FVector getStartPoint();
+	FVector getEndPoint();
+
+	const FSplineCurves* getSplineCurves();
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = Default)
@@ -46,3 +51,19 @@ protected:
 	ADeepDriveRoadSegmentProxy	*RightLane = 0;
 
 };
+
+
+inline FVector ADeepDriveRoadSegmentProxy::getStartPoint()
+{
+	return StartPoint->GetComponentLocation();
+}
+
+inline FVector ADeepDriveRoadSegmentProxy::getEndPoint()
+{
+	return EndPoint->GetComponentLocation();
+}
+
+inline const FSplineCurves* ADeepDriveRoadSegmentProxy::getSplineCurves()
+{
+	return Spline ? &Spline->SplineCurves : 0;
+}

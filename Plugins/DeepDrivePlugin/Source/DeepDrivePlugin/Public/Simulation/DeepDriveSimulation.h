@@ -31,6 +31,8 @@ class ADeepDriveSimulationFreeCamera;
 class ADeepDriveSplineTrack;
 class UDeepDriveRandomStream;
 
+class UDeepDriveRoadNetworkComponent;
+
 struct SimulationGraphicsSettings;
 
 namespace deepdrive { namespace server {
@@ -108,6 +110,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ViewModes)
 	TMap<FString, FDeepDriveViewMode>	ViewModes;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = RoadNetwork)
+	UDeepDriveRoadNetworkComponent	*RoadNetwork = 0;
 
 	UFUNCTION(BlueprintCallable, Category = "Simulation")
 	void ResetSimulation(bool ActivateAdditionalAgents);

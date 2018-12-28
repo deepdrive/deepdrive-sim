@@ -39,6 +39,11 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	FVector getStartPoint();
+	FVector getEndPoint();
+	
+	const TArray<FDeepDriveLaneProxy>& getLanes();
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = Default)
@@ -54,3 +59,18 @@ protected:
 	TArray<FDeepDriveLaneProxy>	Lanes;
 	
 };
+
+inline FVector ADeepDriveRoadLinkProxy::getStartPoint()
+{
+	return StartPoint->GetComponentLocation();
+}
+
+inline FVector ADeepDriveRoadLinkProxy::getEndPoint()
+{
+	return EndPoint->GetComponentLocation();
+}
+
+inline const TArray<FDeepDriveLaneProxy>& ADeepDriveRoadLinkProxy::getLanes()
+{
+	return Lanes;
+}
