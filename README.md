@@ -37,7 +37,7 @@ Create `~/.deepdrive/python_bin` on Unix or `%HOMEPATH%\.deepdrive\python_bin` o
 #### Prerequisites
 
 - Use Visual Studio 2015 with the [C++ build tools](https://stackoverflow.com/a/31955339)
-- Get Unreal v4.18 via the Epic Launcher -> Unreal Engine tab -> Library
+- Get Unreal v4.21 via the Epic Launcher -> Unreal Engine tab -> Library
 - Optionally download Unreal sources and debugging symbols in the Epic Launcher ![Windows Unreal Install Options](https://i.imgur.com/Khxc6HV.jpg)
 - Install the Substance Plugin through the Marketplace in Epic Launcher
 
@@ -59,13 +59,13 @@ Create `~/.deepdrive/python_bin` on Unix or `%HOMEPATH%\.deepdrive\python_bin` o
 * Clone Unreal
 
 ```
-git clone git@github.com:EpicGames/UnrealEngine --branch 4.18
+git clone git@github.com:EpicGames/UnrealEngine --branch 4.21
 # or if you are using http: 
-# git clone https://github.com/EpicGames/UnrealEngine --branch 4.18
+# git clone https://github.com/EpicGames/UnrealEngine --branch 4.21
 ```
 
-* Download the Substance plugin from [here](https://forum.allegorithmic.com/index.php/topic,21919.msg87141/highlight,4.18+Released.html#msg87141) to
-<kbd>UnrealEngine/Plugins/Runtime</kbd> for Unreal 4.18. For other releases, see [here](https://forum.allegorithmic.com/index.php/board,23.0.html) or you can just use the sources downloaded by Windows / Mac marketplace.
+* Download the Substance plugin from [here](https://forum.allegorithmic.com/index.php?action=post;topic=26732.0;last_msg=103420) to
+<kbd>UnrealEngine/Plugins/Runtime</kbd> for Unreal 4.21. For other releases, see [here](https://forum.allegorithmic.com/index.php/board,23.0.html) or you can just use the sources downloaded by Windows / Mac marketplace.
 
 * Download and extract our [embedded python](https://s3-us-west-1.amazonaws.com/deepdrive/embedded_python_for_unreal/linux/UnrealEnginePython.zip) into <kbd>UnrealEngine/Plugins</kbd>
 
