@@ -32,17 +32,15 @@ Create `~/.deepdrive/python_bin` on Unix or `%HOMEPATH%\.deepdrive\python_bin` o
 /home/[YOU]/.local/share/virtualenvs/my-env/bin/python
 ```
 
-### Windows
-
-#### Prerequisites
+### Windows Development
 
 - Use Visual Studio 2015 with the [C++ build tools](https://stackoverflow.com/a/31955339)
 - Get Unreal v4.21 via the Epic Launcher -> Unreal Engine tab -> Library
-- Optionally download Unreal sources and debugging symbols in the Epic Launcher ![Windows Unreal Install Options](https://i.imgur.com/Khxc6HV.jpg)
+- Optionally download Unreal sources and debugging symbols in the Epic Launcher
+
+![Windows Unreal Install Options](https://i.imgur.com/Khxc6HV.jpg)
+
 - Install the Substance Plugin through the Marketplace in Epic Launcher
-
-#### Development
-
 - Open DeepDrive.uproject with the version of Unreal Editor you just installed - if there are errors, check `Saved/Logs` for details
 - Refresh / Create Visual Studio project
 - Open the Visual Studio Project
@@ -52,11 +50,9 @@ Create `~/.deepdrive/python_bin` on Unix or `%HOMEPATH%\.deepdrive\python_bin` o
   - Uncheck Edit->Editor Preferences->Use Less CPU when in Background
 
 
-### Linux
+### Linux Development
 
-#### Prerequisites
-
-* Clone Unreal
+##### Clone Unreal
 
 ```
 git clone git@github.com:EpicGames/UnrealEngine --branch 4.21
@@ -64,12 +60,7 @@ git clone git@github.com:EpicGames/UnrealEngine --branch 4.21
 # git clone https://github.com/EpicGames/UnrealEngine --branch 4.21
 ```
 
-* Download the Substance plugin from [here](https://forum.allegorithmic.com/index.php?action=post;topic=26732.0;last_msg=103420) to
-<kbd>UnrealEngine/Plugins/Runtime</kbd> for Unreal 4.21. For other releases, see [here](https://forum.allegorithmic.com/index.php/board,23.0.html) or you can just use the sources downloaded by Windows / Mac marketplace.
-
-* Download and extract our [embedded python](https://s3-us-west-1.amazonaws.com/deepdrive/embedded_python_for_unreal/linux/UnrealEnginePython.zip) into <kbd>UnrealEngine/Plugins</kbd>
-
-Build Unreal 
+##### Build Unreal
 
 _Takes an hour with 12 cores_
 
@@ -80,7 +71,12 @@ cd UnrealEngine
 
 More details on building Unreal [here](https://wiki.unrealengine.com/Building_On_Linux), though the above commands should be sufficient.
 
-Run 
+##### Get the substance plugin
+
+Download the Substance plugin from [here](https://forum.allegorithmic.com/index.php/topic,26732.0.html) to
+<kbd>UnrealEngine/Plugins/Runtime</kbd> for Unreal 4.21. For other releases, see [here](https://forum.allegorithmic.com/index.php/board,23.0.html) or you can just use the sources downloaded by Windows / Mac marketplace.
+
+##### Run the editor
 ```
 ./Engine/Binaries/Linux/UE4Editor
 ```
