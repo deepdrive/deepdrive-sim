@@ -12,7 +12,7 @@ Checkout our [main repo](https://github.com/deepdrive/deepdrive)
 
 - Clone this repo
 - Clone our UnrealEnginePython fork into the root of this project (not a submodule as we are going to make this a binary only)
-- Tip: To avoid rebuilding UnrealEnginePython after clean.sh, move this folder to your Engine plugins after you build it the first time.
+- Tip: To avoid rebuilding UnrealEnginePython, move `Plugins/UnrealEnginePython` to your Engine plugins after you've built it in side `deepdrive-sim/Plugins`.
 
 - [Associate your GitHub username with your Unreal account](https://www.unrealengine.com/en-US/ue4-on-github) to get access to Unreal sources on GitHub. 
 
@@ -40,6 +40,7 @@ Create `~/.deepdrive/python_bin` on Unix or `%HOMEPATH%\.deepdrive\python_bin` o
 
 ![Windows Unreal Install Options](https://i.imgur.com/Khxc6HV.jpg)
 
+- Download UnrealEnginePython [python binaries] into `Plugins/UnrealEnginePython/Binaries`
 - Install the Substance Plugin through the Marketplace in Epic Launcher
 - Open DeepDrive.uproject with the version of Unreal Editor you just installed - if there are errors, check `Saved/Logs` for details
 - Refresh / Create Visual Studio project
