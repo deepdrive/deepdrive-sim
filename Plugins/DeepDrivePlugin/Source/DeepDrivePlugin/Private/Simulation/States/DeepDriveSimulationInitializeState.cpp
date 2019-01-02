@@ -2,6 +2,7 @@
 #include "DeepDrivePluginPrivatePCH.h"
 #include "Private/Simulation/States/DeepDriveSimulationInitializeState.h"
 #include "Public/Simulation/DeepDriveSimulation.h"
+#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetworkComponent.h"
 
 DeepDriveSimulationInitializeState::DeepDriveSimulationInitializeState(DeepDriveSimulationStateMachine &stateMachine)
 	: DeepDriveSimulationStateBase(stateMachine, "Initialize")
@@ -27,6 +28,7 @@ void DeepDriveSimulationInitializeState::update(ADeepDriveSimulation &deepDriveS
 	*/
 
 	deepDriveSim.RegisterRandomStream("AgentPlacement", false);
+	deepDriveSim.RoadNetwork->Initialize();
 	deepDriveSim.initializeAgents();
 
 	m_StateMachine.setNextState("Running");

@@ -9,6 +9,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveAgentSpeedController, Log, All);
 
 class ADeepDriveAgent;
 class ADeepDriveSplineTrack;
+class ADeepDriveRoute;
 
 /**
  * 
@@ -24,6 +25,8 @@ public:
 	~DeepDriveAgentSpeedController();
 
 	void initialize(ADeepDriveAgent &agent, ADeepDriveSplineTrack &track, float safetyDistanceFactor);
+
+	void initialize(ADeepDriveAgent &agent, ADeepDriveRoute &route, float safetyDistanceFactor);
 
 	float limitSpeedByTrack(float desiredSpeed, float speedBoost);
 
@@ -41,6 +44,7 @@ private:
 
 	ADeepDriveAgent					*m_Agent = 0;
 	ADeepDriveSplineTrack			*m_Track = 0;
+	ADeepDriveRoute					*m_Route = 0;
 
 	PIDController					m_ThrottlePIDCtrl;
 	PIDController					m_BrakePIDCtrl;

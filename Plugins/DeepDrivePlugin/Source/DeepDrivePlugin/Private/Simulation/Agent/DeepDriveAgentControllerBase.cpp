@@ -139,30 +139,36 @@ bool ADeepDriveAgentControllerBase::updateAgentOnTrack()
 
 float ADeepDriveAgentControllerBase::getRouteLength()
 {
-    return m_Track->GetSpline()->GetSplineLength();
+    return m_Track ? m_Track->GetSpline()->GetSplineLength() : 0.0f;
 }
 
 float ADeepDriveAgentControllerBase::getDistanceAlongRoute()
 {
-    auto spline = m_Track->GetSpline();
-    float curDistanceOnSpline = getClosestDistanceOnSpline(m_Track->GetSpline(), m_Agent->GetActorLocation());
-    float delta = curDistanceOnSpline - m_StartDistance;
-    if (delta < 0.0)
-    {
-        curDistanceOnSpline += (spline->GetSplineLength() - m_StartDistance);
-    }
+	float curDistanceOnSpline = 0.0f;
+	if(m_Track)
+	{
+		auto spline = m_Track->GetSpline();
+		getClosestDistanceOnSpline(m_Track->GetSpline(), m_Agent->GetActorLocation());
+		float delta = curDistanceOnSpline - m_StartDistance;
+		if (delta < 0.0)
+		{
+			curDistanceOnSpline += (spline->GetSplineLength() - m_StartDistance);
+		}
+	}
     return curDistanceOnSpline;
 }
 
 float ADeepDriveAgentControllerBase::getDistanceToCenterOfTrack()
 {
 	float res = 0.0f;
-	auto spline = m_Track->GetSpline();
-	if (spline)
-	{
-		FVector curLoc = m_Agent->GetActorLocation();
-		const float closestKey = spline->FindInputKeyClosestToWorldLocation(curLoc);
-		res = (spline->GetLocationAtSplineInputKey(closestKey, ESplineCoordinateSpace::World) - curLoc).Size();
+	if(m_Track)
+	{	auto spline = m_Track->GetSpline();
+		if (spline)
+		{
+			FVector curLoc = m_Agent->GetActorLocation();
+			const float closestKey = spline->FindInputKeyClosestToWorldLocation(curLoc);
+			res = (spline->GetLocationAtSplineInputKey(closestKey, ESplineCoordinateSpace::World) - curLoc).Size();
+		}
 	}
 	return res;
 }

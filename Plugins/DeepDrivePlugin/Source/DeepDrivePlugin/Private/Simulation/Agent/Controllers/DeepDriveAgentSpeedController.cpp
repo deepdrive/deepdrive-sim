@@ -4,6 +4,7 @@
 #include "Private/Simulation/Agent/Controllers/DeepDriveAgentSpeedController.h"
 #include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
+#include "Public/Simulation/RoadNetwork/DeepDriveRoute.h"
 #include "WheeledVehicleMovementComponent.h"
 #include "Runtime/Engine/Classes/Components/SplineComponent.h"
 
@@ -23,6 +24,13 @@ void DeepDriveAgentSpeedController::initialize(ADeepDriveAgent &agent, ADeepDriv
 {
 	m_Agent = &agent;
 	m_Track = &track;
+	m_SafetyDistanceFactor = safetyDistanceFactor;
+}
+
+void DeepDriveAgentSpeedController::initialize(ADeepDriveAgent &agent, ADeepDriveRoute &route, float safetyDistanceFactor)
+{
+	m_Agent = &agent;
+	m_Route = &route;
 	m_SafetyDistanceFactor = safetyDistanceFactor;
 }
 
@@ -119,7 +127,8 @@ void DeepDriveAgentSpeedController::brake(float strength)
 
 float DeepDriveAgentSpeedController::limitSpeedByTrack(float desiredSpeed, float speedBoost)
 {
-	const float trackSpeedLimit = m_Track->getSpeedLimit(0.0f);
+	// const float trackSpeedLimit = m_Track->getSpeedLimit(0.0f);
+	const float trackSpeedLimit = m_Track ? m_Track->getSpeedLimit(0.0f) : m_Route->getSpeedLimit();
 	return trackSpeedLimit > 0.0f ? FMath::Min(desiredSpeed, trackSpeedLimit * speedBoost) : desiredSpeed;
 }
 

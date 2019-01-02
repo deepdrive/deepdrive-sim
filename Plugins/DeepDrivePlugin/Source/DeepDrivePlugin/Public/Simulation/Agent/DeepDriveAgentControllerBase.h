@@ -62,10 +62,13 @@ public:
 
 	bool updateAgentOnTrack();
 
+	//	ToDo: make virtual
 	float getDistanceAlongRoute();
 
+	//	ToDo: make virtual
 	float getRouteLength();
 
+	//	ToDo: make virtual
 	float getDistanceToCenterOfTrack();
 
 	void setIsPassing(bool isPassing);

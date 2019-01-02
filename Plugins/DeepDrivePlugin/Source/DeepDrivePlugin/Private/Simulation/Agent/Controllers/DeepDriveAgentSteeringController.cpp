@@ -4,6 +4,7 @@
 #include "Private/Simulation/Agent/Controllers/DeepDriveAgentSteeringController.h"
 #include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
+#include "Public/Simulation/RoadNetwork/DeepDriveRoute.h"
 #include "WheeledVehicleMovementComponent.h"
 #include "Runtime/Engine/Classes/Components/SplineComponent.h"
 
@@ -24,6 +25,12 @@ void DeepDriveAgentSteeringController::initialize(ADeepDriveAgent &agent, ADeepD
 	m_Track = &track;
 }
 
+void DeepDriveAgentSteeringController::initialize(ADeepDriveAgent &agent, ADeepDriveRoute &route)
+{
+	m_Agent = &agent;
+	m_Route = &route;
+}
+
 void DeepDriveAgentSteeringController::reset()
 {
 	m_SteeringPIDCtrl.reset();
@@ -34,11 +41,16 @@ void DeepDriveAgentSteeringController::reset()
 
 void DeepDriveAgentSteeringController::update(float dT, float desiredSpeed, float offset)
 {
-	if(m_Track && m_Agent)
+	if	(	m_Agent
+		&&	(m_Track || m_Route)
+		)
 	{
 		FVector curAgentLocation = m_Agent->GetActorLocation();
 		const float lookAheadDist = 500.0f; //  FMath::Max(1000.0f, curSpeed * 1.5f);
-		FVector projLocAhead = m_Track->getLocationAhead(lookAheadDist, offset);
+		FVector projLocAhead =		m_Track
+								?	m_Track->getLocationAhead(lookAheadDist, offset)
+								:	m_Route->getLocationAhead(lookAheadDist, offset)
+								;
 
 		FVector desiredForward = projLocAhead - curAgentLocation;
 		desiredForward.Normalize();

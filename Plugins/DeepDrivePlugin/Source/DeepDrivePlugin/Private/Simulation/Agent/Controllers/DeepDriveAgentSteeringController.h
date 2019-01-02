@@ -9,6 +9,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveAgentSteeringController, Log, All);
 
 class ADeepDriveAgent;
 class ADeepDriveSplineTrack;
+class ADeepDriveRoute;
 
 /**
  * 
@@ -26,6 +27,8 @@ public:
 
 	void initialize(ADeepDriveAgent &agent, ADeepDriveSplineTrack &track);
 
+	void initialize(ADeepDriveAgent &agent, ADeepDriveRoute &route);
+
 	void update(float dT, float desiredSpeed, float offset);
 
 private:
@@ -35,6 +38,7 @@ private:
 
 	ADeepDriveAgent					*m_Agent = 0;
 	ADeepDriveSplineTrack			*m_Track = 0;
+	ADeepDriveRoute					*m_Route = 0;
 
 
 	PIDController					m_SteeringPIDCtrl;

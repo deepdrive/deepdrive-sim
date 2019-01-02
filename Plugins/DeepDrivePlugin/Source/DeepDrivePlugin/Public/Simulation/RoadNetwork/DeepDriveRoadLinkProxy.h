@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetworkDefines.h"
+#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
 #include "DeepDriveRoadLinkProxy.generated.h"
 
 class ADeepDriveRoadSegmentProxy;
@@ -44,6 +44,8 @@ public:
 	
 	const TArray<FDeepDriveLaneProxy>& getLanes();
 
+	float getSpeedLimit();
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = Default)
@@ -57,7 +59,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Configuration)
 	TArray<FDeepDriveLaneProxy>	Lanes;
-	
+
+	UPROPERTY(EditAnywhere, Category = Configuration)
+	float	SpeedLimit = DeepDriveRoadNetwork::SpeedLimitInTown;
+
 };
 
 inline FVector ADeepDriveRoadLinkProxy::getStartPoint()
@@ -73,4 +78,9 @@ inline FVector ADeepDriveRoadLinkProxy::getEndPoint()
 inline const TArray<FDeepDriveLaneProxy>& ADeepDriveRoadLinkProxy::getLanes()
 {
 	return Lanes;
+}
+
+inline float ADeepDriveRoadLinkProxy::getSpeedLimit()
+{
+	return SpeedLimit;
 }

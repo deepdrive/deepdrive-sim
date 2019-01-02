@@ -3,7 +3,6 @@
 #include "DeepDrivePluginPrivatePCH.h"
 #include "DeepDrivePlugin.h"
 #include "DeepDriveRoadSegmentProxy.h"
-#include "Components/SplineComponent.h"
 
 
 // Sets default values
@@ -23,6 +22,7 @@ ADeepDriveRoadSegmentProxy::ADeepDriveRoadSegmentProxy()
 
 	Spline = CreateDefaultSubobject<USplineComponent>(TEXT("Spline"));
 	Spline->SetupAttachment(Root);
+	Spline->ClearSplinePoints(true);
 
 }
 

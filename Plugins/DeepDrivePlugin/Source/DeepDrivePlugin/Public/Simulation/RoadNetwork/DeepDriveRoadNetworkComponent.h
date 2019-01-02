@@ -4,13 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetworkDefines.h"
+#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
 #include "DeepDriveRoadNetworkComponent.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveRoadNetwork, Log, All);
 
 class ADeepDriveJunctionProxy;
 class ADeepDriveRoadLinkProxy;
 class ADeepDriveAgent;
+class ADeepDriveRoute;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class DEEPDRIVEPLUGIN_API UDeepDriveRoadNetworkComponent : public UActorComponent
@@ -29,18 +31,33 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	//	Route CalculateRoute(const FVector Start, const FVector Destination);
+	void Initialize();
 
 	UFUNCTION(BlueprintCallable, Category = "Route")
 	FVector GetRandomLocation(EDeepDriveLaneType PreferredLaneType);
 
 	UFUNCTION(BlueprintCallable, Category = "Route")
-	void PlaceAgentOnRoad(ADeepDriveAgent *Agent, bool RandomLocation);
+	void PlaceAgentOnRoad(ADeepDriveAgent *Agent, FVector Location);
+
+	UFUNCTION(BlueprintCallable, Category = "Route")
+	void PlaceAgentOnRoadRandomly(ADeepDriveAgent *Agent);
+
+	UFUNCTION(BlueprintCallable, Category = "Route")
+	ADeepDriveRoute* CalculateRoute(const FVector Start, const FVector Destination);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
+	TArray<ADeepDriveRoadLinkProxy*>	Route;
 
 protected:
 
 	void collectRoadNetwork();
 
-	SDeepDriveRoadNetwork			m_RoadNetwork;
+	SDeepDriveRoadLink* findClosestLink(const FVector &pos);
+
+	float calcHeading(const FVector &from, const FVector &to);
+
+	SDeepDriveRoadNetwork		m_RoadNetwork;
+
+	TArray<uint32>				m_DebugRoute;
 
 };

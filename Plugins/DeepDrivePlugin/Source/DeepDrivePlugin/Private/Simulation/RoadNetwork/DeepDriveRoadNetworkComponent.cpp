@@ -6,7 +6,11 @@
 #include "Public/Simulation/RoadNetwork/DeepDriveRoadLinkProxy.h"
 #include "Public/Simulation/RoadNetwork/DeepDriveJunctionProxy.h"
 #include "Public/Simulation/RoadNetwork/DeepDriveRoadSegmentProxy.h"
+#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetworkExtractor.h"
+#include "Public/Simulation/RoadNetwork/DeepDriveRoute.h"
+#include "Public/Simulation/Agent/DeepDriveAgent.h"
 
+DEFINE_LOG_CATEGORY(LogDeepDriveRoadNetwork);
 
 // Sets default values for this component's properties
 UDeepDriveRoadNetworkComponent::UDeepDriveRoadNetworkComponent()
@@ -24,6 +28,10 @@ void UDeepDriveRoadNetworkComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+}
+
+void UDeepDriveRoadNetworkComponent::Initialize()
+{
 	collectRoadNetwork();
 }
 
@@ -43,120 +51,78 @@ FVector UDeepDriveRoadNetworkComponent::GetRandomLocation(EDeepDriveLaneType Pre
 	return location;
 }
 
-void UDeepDriveRoadNetworkComponent::PlaceAgentOnRoad(ADeepDriveAgent *Agent, bool RandomLocation)
+void UDeepDriveRoadNetworkComponent::PlaceAgentOnRoad(ADeepDriveAgent *Agent, FVector Location)
 {
-
+	SDeepDriveRoadLink *link = UDeepDriveRoadNetworkComponent::findClosestLink(Location);
+	if(link)
+	{
+		FTransform transform(FRotator(0.0f, link->Heading, 0.0f), link->StartPoint, FVector(1.0f, 1.0f, 1.0f));
+		Agent->SetActorTransform(transform, false, 0, ETeleportType::TeleportPhysics);
+	}
 }
 
+void UDeepDriveRoadNetworkComponent::PlaceAgentOnRoadRandomly(ADeepDriveAgent *Agent)
+{
+}
+
+ADeepDriveRoute* UDeepDriveRoadNetworkComponent::CalculateRoute(const FVector Start, const FVector Destination)
+{
+	ADeepDriveRoute *route = 0;
+	if (m_DebugRoute.Num() > 0)
+	{	
+		route = GetWorld()->SpawnActor<ADeepDriveRoute>(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f), FActorSpawnParameters());;
+
+		if(route)
+		{
+			SDeepDriveRouteData routeData;
+			routeData.Start = m_RoadNetwork.Links[m_DebugRoute[0]].StartPoint;
+			routeData.Destination = m_RoadNetwork.Links[m_DebugRoute[m_DebugRoute.Num() - 1]].EndPoint;
+			routeData.Links = m_DebugRoute;
+
+			route->initialize(m_RoadNetwork, routeData);
+		}
+	}
+	return route;
+}
+
+SDeepDriveRoadLink* UDeepDriveRoadNetworkComponent::findClosestLink(const FVector &pos)
+{
+	uint32 key = 0;
+	float dist = 1000000.0f;
+
+	for (auto curIt = m_RoadNetwork.Links.CreateIterator(); curIt; ++curIt)
+	{
+		const float curDist = (curIt.Value().StartPoint - pos).Size();
+		if(curDist < dist)
+		{
+			dist = curDist;
+			key = curIt.Key();
+		}
+	}
+
+	return key ? &m_RoadNetwork.Links[key] : 0;
+}
 
 void UDeepDriveRoadNetworkComponent::collectRoadNetwork()
 {
-	TMap<FString, int32> segmentMap;
+	DeepDriveRoadNetworkExtractor extractor(GetWorld());
 
-	//	extract all segments (proxies) from scene
-	TArray<AActor*> segments;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), TSubclassOf<ADeepDriveRoadSegmentProxy>(), segments);
-	for(auto &actor : segments)
+	extractor.extract(m_RoadNetwork);
+
+	for(auto &rl : Route)
 	{
-		ADeepDriveRoadSegmentProxy* segmentProxy = Cast<ADeepDriveRoadSegmentProxy>(actor);
-		if(segmentProxy)
-		{
-			SDeepDriveRoadSegment segment;
-
-			segment.StartPoint = segmentProxy->getStartPoint();
-			segment.EndPoint = segmentProxy->getEndPoint();
-
-			const FSplineCurves *splineCurves = segmentProxy->getSplineCurves();
-			if(splineCurves)
-			{
-				segment.Spline = new FSplineCurves;
-				segment.Spline->Position = splineCurves->Position;
-				segment.Spline->Rotation = splineCurves->Rotation;
-				segment.Spline->Scale = splineCurves->Scale;
-				segment.Spline->ReparamTable = splineCurves->ReparamTable;
-			}
-
-			m_RoadNetwork.Segments.Add(segment);
-			segmentMap.Add(UKismetSystemLibrary::GetObjectName(segmentProxy), m_RoadNetwork.Segments.Num());
-		}
+		uint32 linkId = extractor.getRoadLink(rl);
+		if(linkId)
+			m_DebugRoute.Add(linkId);
 	}
 
-	TMap<FString, int32> linkMap;
+	UE_LOG(LogDeepDriveRoadNetwork, Log, TEXT("Collected road network %d juntions %d links %d segments dgbRoute %d"), m_RoadNetwork.Junctions.Num(), m_RoadNetwork.Links.Num(), m_RoadNetwork.Segments.Num(), m_DebugRoute.Num() );
+}
 
-	//	extract all road links (proxies) from scene
-	TArray<AActor*> links;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), TSubclassOf<ADeepDriveRoadLinkProxy>(), links);
-	for(auto &actor : links)
-	{
-		ADeepDriveRoadLinkProxy* linkProxy = Cast<ADeepDriveRoadLinkProxy>(actor);
-		if(linkProxy)
-		{
-			SDeepDriveRoadLink link;
-			link.StartPoint = linkProxy->getStartPoint();
-			link.EndPoint = linkProxy->getEndPoint();
-
-			for(auto &laneProxy : linkProxy->getLanes())
-			{
-				SDeepDriveLane lane;
-				lane.LaneType = laneProxy.LaneType;
-
-				for(auto &segProxy : laneProxy.Segments)
-				{
-					if(segmentMap.Contains(UKismetSystemLibrary::GetObjectName(segProxy)))
-					{
-						lane.Segments.Add( &m_RoadNetwork.Segments[segmentMap[UKismetSystemLibrary::GetObjectName(segProxy)]] );
-					}
-
-				}
-				link.Lanes.Add(lane);
-			}
-
-			m_RoadNetwork.Links.Add(link);
-
-			linkMap.Add(UKismetSystemLibrary::GetObjectName(linkProxy), m_RoadNetwork.Links.Num());
-		}
-	}
-
-	// extract all junctions (proxies) from scene
-	TArray<AActor*> junctions;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), TSubclassOf<ADeepDriveJunctionProxy>(), junctions);
-	for(auto &actor : junctions)
-	{
-		ADeepDriveJunctionProxy* junctionProxy = Cast<ADeepDriveJunctionProxy>(actor);
-		if(junctionProxy)
-		{
-			SDeepDriveJunction junction;
-
-			for(auto &linkProxy : junctionProxy->getLinks())
-			{
-				if(linkMap.Contains(UKismetSystemLibrary::GetObjectName(linkProxy)))
-				{
-					junction.RoadLinks.Add( &m_RoadNetwork.Links[linkMap[UKismetSystemLibrary::GetObjectName(linkProxy)]] );
-				}
-			}
-
-			for(auto &connectionProxy : junctionProxy->getLaneConnections())
-			{
-				SDeepDriveLaneConnection connection;
-
-				if	(	segmentMap.Contains(UKismetSystemLibrary::GetObjectName(connectionProxy.FromSegment))
-					&&	segmentMap.Contains(UKismetSystemLibrary::GetObjectName(connectionProxy.ToSegment))
-					&&	(	connectionProxy.ConnectionSegment == 0
-						|| 	segmentMap.Contains(UKismetSystemLibrary::GetObjectName(connectionProxy.ConnectionSegment))
-						)
-					)
-				{
-					connection.FromSegment = &m_RoadNetwork.Segments[segmentMap[UKismetSystemLibrary::GetObjectName(connectionProxy.FromSegment)]];
-					connection.ToSegment = &m_RoadNetwork.Segments[segmentMap[UKismetSystemLibrary::GetObjectName(connectionProxy.ToSegment)]];
-					if(connectionProxy.ConnectionSegment)
-						connection.ConnectionSegment = &m_RoadNetwork.Segments[segmentMap[UKismetSystemLibrary::GetObjectName(connectionProxy.ConnectionSegment)]];
-				}
-
-				junction.Connections.Add(connection);
-			}
-
-			m_RoadNetwork.Junctions.Add(junction);
-		}
-	}
+float UDeepDriveRoadNetworkComponent::calcHeading(const FVector &from, const FVector &to)
+{
+	FVector2D dir = FVector2D(to - from);
+	dir.Normalize();
+	return FMath::RadiansToDegrees(FMath::Atan2(dir.Y, dir.X));
 
 }

@@ -1,0 +1,176 @@
+
+
+#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetworkExtractor.h"
+#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
+#include "Public/Simulation/RoadNetwork/DeepDriveRoadSegmentProxy.h"
+#include "Public/Simulation/RoadNetwork/DeepDriveRoadLinkProxy.h"
+#include "Public/Simulation/RoadNetwork/DeepDriveJunctionProxy.h"
+
+DeepDriveRoadNetworkExtractor::DeepDriveRoadNetworkExtractor(UWorld *world)
+	:	m_World(world)
+{
+
+}
+
+void DeepDriveRoadNetworkExtractor::extract(SDeepDriveRoadNetwork &roadNetwork)
+{
+	TArray<AActor *> junctions;
+	UGameplayStatics::GetAllActorsOfClass(m_World, ADeepDriveJunctionProxy::StaticClass(), junctions);
+	for (auto &actor : junctions)
+	{
+		ADeepDriveJunctionProxy *junctionProxy = Cast<ADeepDriveJunctionProxy>(actor);
+		if (junctionProxy)
+		{
+			uint32 junctionId = m_nextJunctionId++;
+
+			SDeepDriveJunction junction;
+			junction.JunctionId = junctionId;
+
+			for (auto &linkProxy : junctionProxy->getLinksIn())
+			{
+				const uint32 linkId = addLink(roadNetwork, *linkProxy);
+				if (linkId)
+				{
+					junction.LinksIn.Add(linkId);
+					roadNetwork.Links[linkId].ToJunctionId = junctionId;
+				}
+			}
+
+			for (auto &linkProxy : junctionProxy->getLinksOut())
+			{
+				const uint32 linkId = addLink(roadNetwork, *linkProxy);
+				if (linkId)
+				{
+					junction.LinksOut.Add(linkId);
+					roadNetwork.Links[linkId].FromJunctionId = junctionId;
+				}
+			}
+
+			for (auto &connectionProxy : junctionProxy->getLaneConnections())
+			{
+				SDeepDriveLaneConnection connection;
+
+				FString fromName = UKismetSystemLibrary::GetObjectName(connectionProxy.FromSegment);
+				FString toName = UKismetSystemLibrary::GetObjectName(connectionProxy.ToSegment);
+
+				if	(	m_SegmentCache.Contains(fromName)
+					&&	m_SegmentCache.Contains(toName)
+					)
+				{
+					connection.FromSegment = m_SegmentCache[fromName];
+					connection.ToSegment = m_SegmentCache[toName];
+					if(connectionProxy.ConnectionSegment)
+					{
+						connection.ConnectionSegment = addSegment(roadNetwork, *connectionProxy.ConnectionSegment, 0);
+					}
+				}
+
+				junction.Connections.Add(connection);
+			}
+
+			roadNetwork.Junctions.Add(junctionId, junction);
+		}
+	}
+}
+
+uint32 DeepDriveRoadNetworkExtractor::getRoadLink(ADeepDriveRoadLinkProxy *linkProxy)
+{
+	FString proxyObjName = UKismetSystemLibrary::GetObjectName(linkProxy);
+	return m_LinkCache.Contains(proxyObjName) ? m_LinkCache[proxyObjName] : 0;
+}
+
+uint32 DeepDriveRoadNetworkExtractor::addLink(SDeepDriveRoadNetwork &roadNetwork, ADeepDriveRoadLinkProxy &linkProxy)
+{
+	uint32 linkId = 0;
+	FString proxyObjName = UKismetSystemLibrary::GetObjectName(&linkProxy);
+	if (m_LinkCache.Contains(proxyObjName) == false)
+	{
+		linkId = m_nextLinkId++;
+
+		SDeepDriveRoadLink link;
+		link.LinkId = linkId;
+		link.StartPoint = linkProxy.getStartPoint();
+		link.EndPoint = linkProxy.getEndPoint();
+		link.Heading = calcHeading(link.StartPoint, link.EndPoint);
+		link.SpeedLimit = linkProxy.getSpeedLimit();
+
+		for (auto &laneProxy : linkProxy.getLanes())
+		{
+			SDeepDriveLane lane;
+			lane.LaneType = laneProxy.LaneType;
+
+			for (auto &segProxy : laneProxy.Segments)
+			{
+				uint32 segmentId = addSegment(roadNetwork, *segProxy, &link);
+				lane.Segments.Add(segmentId);
+			}
+			link.Lanes.Add(lane);
+		}
+
+		m_LinkCache.Add(proxyObjName, linkId);
+		roadNetwork.Links.Add(linkId, link);
+	}
+	else
+	{
+		linkId = m_LinkCache.FindChecked(proxyObjName);
+	}
+
+	return linkId;
+}
+
+uint32 DeepDriveRoadNetworkExtractor::addSegment(SDeepDriveRoadNetwork &roadNetwork, ADeepDriveRoadSegmentProxy &segmentProxy, const SDeepDriveRoadLink *link)
+{
+	uint32 segmentId = 0;
+	FString proxyObjName = UKismetSystemLibrary::GetObjectName(&segmentProxy);
+	if (m_SegmentCache.Contains(proxyObjName) == false)
+	{
+		segmentId = m_nextSegmentId++;
+
+		SDeepDriveRoadSegment segment;
+		segment.SegmentId = segmentId;
+		segment.LinkId = link ? link->LinkId : 0;
+		segment.StartPoint = segmentProxy.getStartPoint();
+		segment.EndPoint = segmentProxy.getEndPoint();
+		segment.Heading = calcHeading(segment.StartPoint, segment.EndPoint);
+
+		TArray<FVector2D> speedLimits = segmentProxy.getSpeedLimits();
+		if(speedLimits.Num() > 1)
+		{
+			// ensure correct order
+			speedLimits.Sort([](const FVector2D &lhs, const FVector2D &rhs) { return lhs.X > rhs.X; });
+		}
+		if (speedLimits.Num() <= 0 || speedLimits[0].X > 0.0f)
+		{
+			// ensure valid speed limit at start of segment (consider as connection if no link)
+			segment.SpeedLimits.Add(FVector2D(0.0f, link ? link->SpeedLimit : DeepDriveRoadNetwork::SpeedLimitConnection));
+		}
+		if (speedLimits.Num() > 0)
+			segment.SpeedLimits.Append(speedLimits);
+
+		const FSplineCurves *splineCurves = segmentProxy.getSplineCurves();
+		if(splineCurves && splineCurves->Position.Points.Num() > 0)
+		{
+			segment.Spline = new FSplineCurves;
+			segment.Spline->Position = splineCurves->Position;
+			segment.Spline->Rotation = splineCurves->Rotation;
+			segment.Spline->Scale = splineCurves->Scale;
+			segment.Spline->ReparamTable = splineCurves->ReparamTable;
+		}
+
+		m_SegmentCache.Add(proxyObjName, segmentId);
+		roadNetwork.Segments.Add(segmentId, segment);
+	}
+	else
+	{
+		segmentId = m_SegmentCache.FindChecked(proxyObjName);
+	}
+
+	return segmentId;
+}
+
+float DeepDriveRoadNetworkExtractor::calcHeading(const FVector &from, const FVector &to)
+{
+	FVector2D dir = FVector2D(to - from);
+	dir.Normalize();
+	return FMath::RadiansToDegrees(FMath::Atan2(dir.Y, dir.X));
+}

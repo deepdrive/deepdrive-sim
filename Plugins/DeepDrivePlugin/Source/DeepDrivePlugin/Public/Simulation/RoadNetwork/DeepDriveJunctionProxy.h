@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetworkDefines.h"
+#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
 #include "DeepDriveJunctionProxy.generated.h"
 
 class ADeepDriveRoadSegmentProxy;
@@ -43,24 +43,33 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	const TArray<ADeepDriveRoadLinkProxy*>& getLinks();
+	const TArray<ADeepDriveRoadLinkProxy*>& getLinksIn();
+
+	const TArray<ADeepDriveRoadLinkProxy*>& getLinksOut();
 
 	const TArray<FDeepDriveLaneConnectionProxy>& getLaneConnections();
 
 protected:
 
 	UPROPERTY(EditAnywhere, Category = Configuration)
-	TArray<ADeepDriveRoadLinkProxy*>	Links;
+	TArray<ADeepDriveRoadLinkProxy*>	LinksIn;
+
+	UPROPERTY(EditAnywhere, Category = Configuration)
+	TArray<ADeepDriveRoadLinkProxy*>	LinksOut;
 
 	UPROPERTY(EditAnywhere, Category = Configuration)
 	TArray<FDeepDriveLaneConnectionProxy>	LaneConnections;
 
 };
 
-
-inline const TArray<ADeepDriveRoadLinkProxy*>& ADeepDriveJunctionProxy::getLinks()
+inline const TArray<ADeepDriveRoadLinkProxy*>& ADeepDriveJunctionProxy::getLinksIn()
 {
-	return Links;
+	return LinksIn;
+}
+
+inline const TArray<ADeepDriveRoadLinkProxy*>& ADeepDriveJunctionProxy::getLinksOut()
+{
+	return LinksOut;
 }
 
 inline const TArray<FDeepDriveLaneConnectionProxy>& ADeepDriveJunctionProxy::getLaneConnections()

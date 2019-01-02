@@ -4,9 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Components/SplineComponent.h"
 #include "DeepDriveRoadSegmentProxy.generated.h"
-
-class USplineComponent;
 
 UCLASS()
 class DEEPDRIVEPLUGIN_API ADeepDriveRoadSegmentProxy : public AActor
@@ -30,6 +29,8 @@ public:
 
 	const FSplineCurves* getSplineCurves();
 
+	const TArray<FVector2D>& getSpeedLimits();
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = Default)
@@ -50,6 +51,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Configuration)
 	ADeepDriveRoadSegmentProxy	*RightLane = 0;
 
+	UPROPERTY(EditAnywhere, Category = Configuration)
+	TArray<FVector2D> SpeedLimits;
+
 };
 
 
@@ -66,4 +70,9 @@ inline FVector ADeepDriveRoadSegmentProxy::getEndPoint()
 inline const FSplineCurves* ADeepDriveRoadSegmentProxy::getSplineCurves()
 {
 	return Spline ? &Spline->SplineCurves : 0;
+}
+
+inline const TArray<FVector2D>& ADeepDriveRoadSegmentProxy::getSpeedLimits()
+{
+	return SpeedLimits;
 }
