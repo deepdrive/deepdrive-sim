@@ -91,14 +91,16 @@ def ensure_latest_uepy_binaries():
     UEPY does not compile as an engine plugin so we compile locally then move it to the engine's
     plugins to avoid recompiling later
     """
-    if github_repo_is_stale(UEPY_DIR):
-        print('%s is stale. Grabbing latest and recompiling as local plugin', UEPY_NAME)
+    if not github_repo_same_as_local(UEPY_DIR):
+        print('%s is not in sync with github. Grabbing latest and recompiling as local plugin', UEPY_NAME)
+        git_pull_latest(UEPY_DIR)
+        if not github_repo_same_as_local(UEPY_DIR):
+            raise RuntimeError('Not able to sync local and github repo. Do you have local commits that aren\'t pushed?')
         shutil.move(UEPY_DIR, LOCAL_UEPY_DIR)
         print('Moved %s to %s' % (UEPY_DIR, LOCAL_UEPY_DIR))
         print('Running git clean in %s...' % LOCAL_UEPY_DIR)
         git_clean(LOCAL_UEPY_DIR)
         print('Pulling latest from %s...' % LOCAL_UEPY_DIR)
-        git_pull_latest(LOCAL_UEPY_DIR)
         print('Building project to create working UnrealEnginePython binaries')
         build_sim()
         shutil.move(LOCAL_UEPY_DIR, UEPY_DIR)
@@ -137,7 +139,7 @@ def get_clean_sim_sources():
         git_pull_latest(SIM_DIR)
 
 
-def github_repo_is_stale(repo_dir, remote='origin'):
+def github_repo_same_as_local(repo_dir, remote='origin'):
     import git
     from github import Github
     local_repo = git.Repo(repo_dir)
@@ -145,8 +147,8 @@ def github_repo_is_stale(repo_dir, remote='origin'):
     remote_repo = Github().get_repo(url[url.find(':') + 1:])
     remote_commit = remote_repo.get_branch(local_repo.active_branch.name).commit.sha
     local_commit = str(local_repo.commit())
-    stale = remote_commit != local_commit
-    return stale
+    same = remote_commit == local_commit
+    return same
 
 
 def git_clean(repo_dir):
