@@ -33,13 +33,14 @@ LOCAL_UEPY_DIR = os.path.join(LOCAL_PLUGINS_DIR, UEPY_NAME)
 def main():
     assert_in_ue4_docker()
     pypip.ensure(PYTHON_REQUIREMENTS)
-    ensure_repo_clean()
+    maybe_clean_repo()
     ensure_uepy()
     package_sim()
 
 
-def ensure_repo_clean():
+def maybe_clean_repo():
     if IS_CUSTOM_CI:
+        print('Setting up a clean source directory in %s' % SIM_DIR)
         get_clean_sim_sources()
 
 
@@ -93,10 +94,15 @@ def ensure_latest_uepy_binaries():
     if github_repo_is_stale(UEPY_DIR):
         print('%s is stale. Grabbing latest and recompiling as local plugin', UEPY_NAME)
         shutil.move(UEPY_DIR, LOCAL_UEPY_DIR)
+        print('Moved %s to %s' % (UEPY_DIR, LOCAL_UEPY_DIR))
+        print('Running git clean in %s...' % LOCAL_UEPY_DIR)
         git_clean(LOCAL_UEPY_DIR)
+        print('Pulling latest from %s...' % LOCAL_UEPY_DIR)
         git_pull_latest(LOCAL_UEPY_DIR)
+        print('Building project to create working UnrealEnginePython binaries')
         build_sim()
         shutil.move(LOCAL_UEPY_DIR, UEPY_DIR)
+        print('Moved %s to %s' % (LOCAL_UEPY_DIR, UEPY_DIR))
 
 
 def build_sim():
@@ -107,12 +113,13 @@ def build_sim():
 def assert_in_ue4_docker():
     if not is_docker():
         raise RuntimeError('Package is expected to be run within docker')
-
+    print('Confirmed running in a docker container')
     if HOME_DIR != '/home/ue4':
         raise RuntimeError('Unexpected home directory, '
                            'expected /home/ue4 '
                            'got %s. Are you running with docker?' %
                            HOME_DIR)
+    print('Confirmed home directory is /home/ue4')
 
 
 def git_pull_latest(repo_dir, remote='origin'):
@@ -125,8 +132,9 @@ def get_clean_sim_sources():
     # For local testing or not using Jenkins / Travis
     if not os.path.exists(SIM_DIR):
         git_clone(url=SIM_GITHUB, path=SIM_DIR, branch=SIM_BRANCH)
-        # TODO: # cd deepdrive-sim
-        # TODO: git clean, clean.sh and pull latest
+    else:
+        git_clean(SIM_DIR)
+        git_pull_latest(SIM_DIR)
 
 
 def github_repo_is_stale(repo_dir, remote='origin'):
