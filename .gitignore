@@ -47,7 +47,6 @@
 *.pro
 *.workspace
 *.kdev4
-Makefile
 Timestamp
 CMakeLists.txt
 

@@ -11,7 +11,13 @@ Checkout our [main repo](https://github.com/deepdrive/deepdrive)
 ## Development
 
 - Clone this repo
-- Clone our UnrealEnginePython fork into the root of this project (not a submodule as we are going to make this a binary only)
+- Clone our [UnrealEnginePython fork](https://github.com/deepdrive/UnrealEnginePython) into the root of this project (not a submodule as we are going to make this a binary only)
+
+```
+cd Plugins
+git clone https://github.com/deepdrive/UnrealEnginePython
+```
+
 - Tip: To avoid rebuilding UnrealEnginePython, move `Plugins/UnrealEnginePython` to your Engine plugins after you've built it in side `deepdrive-sim/Plugins`.
 
 - [Associate your GitHub username with your Unreal account](https://www.unrealengine.com/en-US/ue4-on-github) to get access to Unreal sources on GitHub. 

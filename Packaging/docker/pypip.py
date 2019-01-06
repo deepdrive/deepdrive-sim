@@ -11,12 +11,9 @@ import traceback
 # TODO: Check for local modules that shadow PyPI package names
 # TODO: Don't use sys.path for target - do something more persistent
 
-def ensure(requirements, requirements_dir=None):
-    if requirements_dir is not None:
-        curr_dir = os.path.dirname(get_this_filename())
-        req_path = str(Path(curr_dir).parent.parent.joinpath(requirements_dir))
-        if req_path not in sys.path:
-            sys.path.insert(0, req_path)
+def ensure(requirements, req_path=None):
+    if req_path is not None and req_path not in sys.path:
+        sys.path.insert(0, req_path)
     else:
         req_path = None
     for req in requirements:
@@ -26,7 +23,7 @@ def ensure(requirements, requirements_dir=None):
         pip_name = req['pip']
         try:
             importlib.import_module(module)
-        except ImportError:
+        except (ModuleNotFoundError, ImportError):
             print('Could not import %s' % module)
             if req_path is not None:
                 print('Installing to %s' % req_path)
@@ -34,13 +31,25 @@ def ensure(requirements, requirements_dir=None):
         else:
             print('Found %s' % pip_name)
 
+    if req_path is not None:
+        # TODO: Use site.addsitedir, PYTHONPATH, .pth files, or site.PREFIXES as below does not work
+        raise NotImplementedError('Custom requirement directory not supported')
+    else:
+        # Reload packages
+        import site
+        importlib.reload(site)
+
 
 def pip_install(package, req_path=None):
     if hasattr(pip, 'main'):
         args = ['install']
         if req_path is not None:
             args += ['--target', req_path]
-        pip.main(args.append(package))
+            # Ubuntu bug workaround - https://github.com/pypa/pip/issues/3826#issuecomment-427622702
+            args.append('--system')
+
+        args.append(package)
+        pip.main(args)
 
 
 def get_this_filename():
