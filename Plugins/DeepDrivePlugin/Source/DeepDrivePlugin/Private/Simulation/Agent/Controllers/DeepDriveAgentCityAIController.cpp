@@ -23,13 +23,23 @@ void ADeepDriveAgentCityAIController::Tick( float DeltaSeconds )
 	{
 		m_Route->update(*m_Agent);
 
-		float desiredSpeed = m_DesiredSpeed;
 
-		desiredSpeed = m_SpeedController->limitSpeedByTrack(desiredSpeed, 1.0f);
+		if (m_hasActiveGuidance)
+		{
+			if (m_Route->getRemainingDistance() < 1000.0f)
+				m_hasActiveGuidance = false;
+			float desiredSpeed = m_DesiredSpeed;
 
-		m_SpeedController->update(DeltaSeconds, desiredSpeed, -1.0f, 0.0f);
-
-		m_SteeringController->update(DeltaSeconds, desiredSpeed, 0.0f);
+			desiredSpeed = m_SpeedController->limitSpeedByTrack(desiredSpeed, 1.0f);
+			m_SpeedController->update(DeltaSeconds, desiredSpeed, -1.0f, 0.0f);
+			m_SteeringController->update(DeltaSeconds, desiredSpeed, 0.0f);
+		}
+		else
+		{
+			m_Agent->SetThrottle(0.0f);
+			m_Agent->SetBrake(1.0f);
+			m_Agent->SetSteering(0.0f);
+		}
 	}
 }
 
@@ -40,8 +50,9 @@ bool ADeepDriveAgentCityAIController::Activate(ADeepDriveAgent &agent, bool keep
 	{
 		m_DeepDriveSimulation->RoadNetwork->PlaceAgentOnRoad(&agent, m_StartPos);
 
-		m_Route = m_DeepDriveSimulation->RoadNetwork->CalculateRoute(FVector::OneVector, FVector::OneVector);
-		if(m_Route)
+		//m_Route = m_DeepDriveSimulation->RoadNetwork->CalculateRoute(FVector::OneVector, FVector::OneVector);
+		m_Route = m_DeepDriveSimulation->RoadNetwork->CalculateRoute(m_DebugRoutes[0]);
+		if (m_Route)
 		{
 			m_Route->convert(FVector::OneVector);
 
@@ -50,6 +61,7 @@ bool ADeepDriveAgentCityAIController::Activate(ADeepDriveAgent &agent, bool keep
 
 			m_SteeringController = new DeepDriveAgentSteeringController(m_Configuration.PIDSteering);
 			m_SteeringController->initialize(agent, *m_Route);
+			m_hasActiveGuidance = true;
 		}
 
 		activateController(agent);
@@ -74,6 +86,18 @@ void ADeepDriveAgentCityAIController::Configure(const FDeepDriveCityAIController
 	m_Configuration = Configuration;
 	m_DeepDriveSimulation = DeepDriveSimulation;
 	m_StartPos = Configuration.StartPositions[StartPositionSlot];
+
+	for (auto &srcRoute : m_Configuration.Routes)
+	{
+		TArray<uint32> route;
+		for(auto &linkProxy : srcRoute.Links)
+		{
+			uint32 linkId = m_DeepDriveSimulation->RoadNetwork->getRoadLink(linkProxy);
+			if (linkId)
+				route.Add(linkId);
+		}
+		m_DebugRoutes.Add(route);
+	}
 
 	m_DesiredSpeed = FMath::RandRange(Configuration.SpeedRange.X, Configuration.SpeedRange.Y);
 }

@@ -11,11 +11,46 @@ DEFINE_LOG_CATEGORY(LogDeepDriveRoute);
 ADeepDriveRoute::ADeepDriveRoute()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	m_RouteSpline = CreateDefaultSubobject<USplineComponent>(TEXT("RouteSpline"));
 	RootComponent = m_RouteSpline;
 
+}
+
+void ADeepDriveRoute::Tick(float DeltaTime)
+{
+	if(m_RoutePoints.Num() > 0)
+	{
+		FColor col = FColor::Green;
+		const uint8 prio = 40;
+
+		DrawDebugPoint(GetWorld(), m_RoutePoints[0].Location, 10.0f, col, false, 0.0f, prio);
+		for(signed i = 1; i < m_RoutePoints.Num(); ++i)
+		{
+			DrawDebugPoint(GetWorld(), m_RoutePoints[i].Location, 10.0f, col, false, 0.0f, prio);
+			DrawDebugLine(GetWorld(), m_RoutePoints[i - 1].Location, m_RoutePoints[i].Location, col, false, 0.0f, prio, 4.0f);
+		}
+	}
+	else
+	{
+		const float length = m_RouteSpline->GetSplineLength();
+		if (length > 110.0f)
+		{
+			FColor col = FColor::Green;
+			const uint8 prio = 40;
+			float curDist = 0.0f;
+			const float deltaDist = 100.0f;
+			DrawDebugPoint(GetWorld(), getSplinePoint(curDist), 10.0f, col, false, 0.0f, prio);
+			while (curDist < length)
+			{
+				float lastDist = curDist;
+				curDist += deltaDist;
+				DrawDebugPoint(GetWorld(), getSplinePoint(curDist), 10.0f, col, false, 0.0f, prio);
+				DrawDebugLine(GetWorld(), getSplinePoint(lastDist), getSplinePoint(curDist), col, false, 0.0f, prio, 4.0f);
+			}
+		}
+	}
 }
 
 void ADeepDriveRoute::initialize(const SDeepDriveRoadNetwork &roadNetwork, const SDeepDriveRouteData &routeData)
@@ -24,16 +59,19 @@ void ADeepDriveRoute::initialize(const SDeepDriveRoadNetwork &roadNetwork, const
 	m_RouteData = routeData;
 }
 
-
 void ADeepDriveRoute::convert(const FVector &location)
 {
-	if(m_RoadNetwork)
-	{
-		m_RouteSpline->ClearSplinePoints(true);
-		m_KeySegmentMap.Empty();
+	// convertToSpline(location);
+	convertToPoints(location);
+}
 
-		float curInputKey = 0.0f;
-		for(signed i = 0; i < m_RouteData.Links.Num(); ++i)
+void ADeepDriveRoute::convertToPoints(const FVector &location)
+{
+	m_RoutePoints.Empty();
+	if (m_RoadNetwork)
+	{
+		float carryOverDistance = 0.0f;
+		for (signed i = 0; i < m_RouteData.Links.Num(); ++i)
 		{
 			const SDeepDriveRoadLink &link = m_RoadNetwork->Links[m_RouteData.Links[i]];
 			const bool lastLink = (i + 1) == m_RouteData.Links.Num();
@@ -44,10 +82,10 @@ void ADeepDriveRoute::convert(const FVector &location)
 			{
 				const SDeepDriveRoadSegment &segment = m_RoadNetwork->Segments[lane.Segments[j]];
 				const bool lastSegment = (j + 1) == lane.Segments.Num();
-				curInputKey = addSegment(segment, lastLink && lastSegment, curInputKey);
+				carryOverDistance = addSegmentToPoints(segment, lastLink && lastSegment, carryOverDistance);
 			}
 
-			if(!lastLink)
+			if (!lastLink)
 			{
 				const SDeepDriveRoadLink &nextLink = m_RoadNetwork->Links[m_RouteData.Links[i + 1]];
 				const SDeepDriveRoadSegment &segment = m_RoadNetwork->Segments[lane.Segments[lane.Segments.Num() - 1]];
@@ -55,7 +93,91 @@ void ADeepDriveRoute::convert(const FVector &location)
 				const SDeepDriveJunction &junction = m_RoadNetwork->Junctions[link.ToJunctionId];
 				const uint32 connectionSegmentId = junction.findConnectionSegment(segment.SegmentId, nextLink.Lanes[0].Segments[0]);
 				if (connectionSegmentId)
-					curInputKey = addSegment(m_RoadNetwork->Segments[connectionSegmentId], false, curInputKey);
+					carryOverDistance = addSegmentToPoints(m_RoadNetwork->Segments[connectionSegmentId], false, carryOverDistance);
+			}
+		}
+		UE_LOG(LogDeepDriveRoute, Log, TEXT("Route converted numPoints %d"), m_RoutePoints.Num());
+	}
+}
+
+float ADeepDriveRoute::addSegmentToPoints(const SDeepDriveRoadSegment &segment, bool addEnd, float carryOverDistance)
+{
+	float curDist = carryOverDistance;
+	float segmentLength = 0.0f;
+	if (segment.SplinePoints.Num() > 0)
+	{
+		segmentLength = segment.SplineCurves.GetSplineLength();
+		while (curDist < segmentLength)
+		{
+			SRoutePoint rp;
+			rp.SegmentId = segment.SegmentId;
+			rp.RelativePosition = curDist / segmentLength;
+			const float key = segment.SplineCurves.ReparamTable.Eval(curDist, 0.0f);
+			rp.Location = segment.Transform.TransformPosition(segment.SplineCurves.Position.Eval(key, FVector::ZeroVector));
+
+			m_RoutePoints.Add(rp);
+
+			curDist += m_StepSize;
+		}
+	}
+	else
+	{
+		const FVector dir = segment.EndPoint - segment.StartPoint;
+		segmentLength = dir.Size();
+		while (curDist < segmentLength)
+		{
+			SRoutePoint rp;
+			rp.SegmentId = segment.SegmentId;
+			rp.RelativePosition = curDist / segmentLength;
+			rp.Location = rp.RelativePosition * dir + segment.StartPoint;
+			m_RoutePoints.Add(rp);
+
+			curDist += m_StepSize;
+		}
+	}
+	carryOverDistance = curDist - segmentLength;
+	return carryOverDistance;
+}
+
+void ADeepDriveRoute::convertToSpline(const FVector &location)
+{
+	if(m_RoadNetwork)
+	{
+		m_RouteSpline->ClearSplinePoints(true);
+		m_KeySegmentMap.Empty();
+
+		float curInputKey = 0.0f;
+		if (m_RouteData.Links.Num() == 1)
+		{
+			const SDeepDriveRoadLink &link = m_RoadNetwork->Links[m_RouteData.Links[0]];
+			curInputKey = addSegmentToSpline(m_RoadNetwork->Segments[link.Lanes[0].Segments[0]], true, curInputKey);
+		}
+		else
+		{
+			for (signed i = 0; i < m_RouteData.Links.Num(); ++i)
+			{
+				const SDeepDriveRoadLink &link = m_RoadNetwork->Links[m_RouteData.Links[i]];
+				const bool lastLink = (i + 1) == m_RouteData.Links.Num();
+
+				const SDeepDriveLane &lane = link.Lanes[0];
+
+				for (signed j = 0; j < lane.Segments.Num(); ++j)
+				{
+					const SDeepDriveRoadSegment &segment = m_RoadNetwork->Segments[lane.Segments[j]];
+					const bool lastSegment = (j + 1) == lane.Segments.Num();
+					curInputKey = addSegmentToSpline(segment, lastLink && lastSegment, curInputKey);
+				}
+
+				if (!lastLink)
+				{
+					const SDeepDriveRoadLink &nextLink = m_RoadNetwork->Links[m_RouteData.Links[i + 1]];
+					const SDeepDriveRoadSegment &segment = m_RoadNetwork->Segments[lane.Segments[lane.Segments.Num() - 1]];
+
+					const SDeepDriveJunction &junction = m_RoadNetwork->Junctions[link.ToJunctionId];
+					const uint32 connectionSegmentId = junction.findConnectionSegment(segment.SegmentId, nextLink.Lanes[0].Segments[0]);
+					if (connectionSegmentId)
+						curInputKey = addSegmentToSpline(m_RoadNetwork->Segments[connectionSegmentId], false, curInputKey);
+				}
 			}
 		}
 
@@ -67,11 +189,31 @@ void ADeepDriveRoute::convert(const FVector &location)
 
 void ADeepDriveRoute::update(ADeepDriveAgent &agent)
 {
-	m_BaseKey = m_RouteSpline->FindInputKeyClosestToWorldLocation(agent.GetActorLocation());
+	//	find closest point
+	// m_BaseKey = m_RouteSpline->FindInputKeyClosestToWorldLocation(agent.GetActorLocation());
+
+	findClosestRoutePoint(agent);
+
+}
+
+float ADeepDriveRoute::getRemainingDistance()
+{
+	return 2000.0f;
+	const int32 index0 = floor(m_BaseKey);
+	const int32 index1 = ceil(m_BaseKey);
+
+	const float dist0 = m_RouteSpline->GetDistanceAlongSplineAtSplinePoint(index0);
+	const float dist1 = m_RouteSpline->GetDistanceAlongSplineAtSplinePoint(index1);
+
+	const float fac = m_BaseKey - static_cast<float>(index0);
+
+	return FMath::Max(0.0f, m_RouteSpline->GetSplineLength() - (dist0 + fac * (dist1 - dist0)));
 }
 
 FVector ADeepDriveRoute::getLocationAhead(float distanceAhead, float sideOffset)
 {
+#if 0
+	// skip distance points
 	const float curKey = getInputKeyAhead(distanceAhead);
 	FVector locAhead = m_RouteSpline->GetLocationAtSplineInputKey(curKey, ESplineCoordinateSpace::World);
 
@@ -84,33 +226,33 @@ FVector ADeepDriveRoute::getLocationAhead(float distanceAhead, float sideOffset)
 		locAhead += tng * sideOffset;
 	}
 
+#else
+
+	int32 ind = m_curRoutePointIndex + static_cast<int32> (distanceAhead / m_StepSize);
+	FVector locAhead = m_RoutePoints[ind % m_RoutePoints.Num()].Location;
+
+#endif
+
 	return locAhead;
 }
 
 float ADeepDriveRoute::getSpeedLimit()
 {
+	return 50.0f;
 	const int32 key = FMath::FloorToInt(m_BaseKey);
 	return m_KeySegmentMap.Contains(key) ? m_RoadNetwork->getSpeedLimit(m_KeySegmentMap[key], FMath::Frac(m_BaseKey)) : -1.0f;
 }
 
-float ADeepDriveRoute::addSegment(const SDeepDriveRoadSegment &segment, bool addEnd, float curInputKey)
+float ADeepDriveRoute::addSegmentToSpline(const SDeepDriveRoadSegment &segment, bool addEnd, float curInputKey)
 {
-	if(segment.Spline)
+	if(segment.SplinePoints.Num() > 0)
 	{
-		const int32 count = segment.Spline->Position.Points.Num() - (addEnd ? 0 : 1);
-		for(int32 i = 0; i < count; ++i)
+		const int32 count = segment.SplinePoints.Num() - 1;//(addEnd ? 0 : 1);
+		for(int32 i = 1; i < count; ++i)
 		{
-			auto pos = segment.Spline->Position.Points[i];
-			pos.InVal = curInputKey;
-			m_RouteSpline->SplineCurves.Position.Points.Add(pos);
-
-			auto rot = segment.Spline->Rotation.Points[i];
-			rot.InVal = curInputKey;
-			m_RouteSpline->SplineCurves.Rotation.Points.Add(rot);
-
-			auto scale = segment.Spline->Scale.Points[i];
-			scale.InVal = curInputKey;
-			m_RouteSpline->SplineCurves.Scale.Points.Add(scale);
+			FSplinePoint point = segment.SplinePoints[i];
+			point.InputKey = curInputKey;
+			m_RouteSpline->AddPoint(point, false);
 
 			m_KeySegmentMap.Add(static_cast<int32>(curInputKey), segment.SegmentId);
 			curInputKey = curInputKey + 1.0f;
@@ -118,9 +260,12 @@ float ADeepDriveRoute::addSegment(const SDeepDriveRoadSegment &segment, bool add
 	}
 	else
 	{
-		curInputKey = addSplinePoint(curInputKey, segment.StartPoint, segment.Heading, segment.SegmentId);
-		if(addEnd)
-			curInputKey = addSplinePoint(curInputKey, segment.EndPoint, segment.Heading, segment.SegmentId);
+		const FVector dir = segment.EndPoint - segment.StartPoint;
+		curInputKey = addSplinePoint(curInputKey, 0.15f * dir + segment.StartPoint, segment.Heading, segment.SegmentId);
+		curInputKey = addSplinePoint(curInputKey, 0.5f * dir + segment.StartPoint , segment.Heading, segment.SegmentId);
+		curInputKey = addSplinePoint(curInputKey, 0.85f * dir + segment.StartPoint, segment.Heading, segment.SegmentId);
+		// if (addEnd)
+		// 	curInputKey = addSplinePoint(curInputKey, segment.EndPoint, segment.Heading, segment.SegmentId);
 	}
 
 	return curInputKey;
@@ -160,6 +305,22 @@ float ADeepDriveRoute::addSplinePoint(const SDeepDriveRoadSegment &segment, bool
 	return curInputKey + 1.0f;
 }
 
+void ADeepDriveRoute::findClosestRoutePoint(ADeepDriveAgent &agent)
+{
+	FVector agentPos = agent.GetActorLocation();
+	float bestDist = 1000000.0f;
+	m_curRoutePointIndex = -1;
+	for(signed i = m_RoutePoints.Num() - 1; i >= 0; --i)
+	{
+		const float curDist = (agentPos - m_RoutePoints[i].Location).Size();
+		if (curDist <= bestDist)
+		{
+			bestDist = curDist;
+			m_curRoutePointIndex = i;
+		}
+	}
+}
+
 float ADeepDriveRoute::getInputKeyAhead(float distanceAhead)
 {
 	float key = m_BaseKey;
@@ -195,4 +356,16 @@ float ADeepDriveRoute::getInputKeyAhead(float distanceAhead)
 	}
 
 	return key;
+}
+
+FVector ADeepDriveRoute::getSplinePoint(float distance)
+{
+	FVector location = m_RouteSpline->GetLocationAtDistanceAlongSpline(distance, ESplineCoordinateSpace::World);
+	FHitResult hitRes;
+	if (GetWorld()->LineTraceSingleByChannel(hitRes, location + FVector(0.0f, 0.0f, 50.0f), location - FVector(0.0f, 0.0f, 50.0f), ECC_Visibility, FCollisionQueryParams(), FCollisionResponseParams()))
+	{
+		location.Z = hitRes.ImpactPoint.Z;
+	}
+	location.Z += 5.0f;
+	return location;
 }

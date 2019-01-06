@@ -20,18 +20,23 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+	virtual bool ShouldTickIfViewportsOnly() const override;
+
+  public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	FVector getStartPoint();
 	FVector getEndPoint();
 
+	const USplineComponent* getSpline();
 	const FSplineCurves* getSplineCurves();
 
 	const TArray<FVector2D>& getSpeedLimits();
 
 protected:
+
+	FVector getSplinePoint(int32 index);
 
 	UPROPERTY(EditDefaultsOnly, Category = Default)
 	USceneComponent				*Root = 0;
@@ -54,6 +59,16 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Configuration)
 	TArray<FVector2D> SpeedLimits;
 
+	UPROPERTY(EditAnywhere, Category = Debug)
+	FColor						Color = FColor::Red;
+
+	bool						m_IsGameRunning = false;
+
+	FVector						m_LastStartLocation = FVector::ZeroVector;
+	FRotator					m_LastStartRotation = FRotator(0.0f, 0.0f, 0.0f);
+
+	FVector						m_LastEndLocation = FVector::ZeroVector;
+	FRotator					m_LastEndRotatior = FRotator(0.0f, 0.0f, 0.0f);
 };
 
 
@@ -65,6 +80,11 @@ inline FVector ADeepDriveRoadSegmentProxy::getStartPoint()
 inline FVector ADeepDriveRoadSegmentProxy::getEndPoint()
 {
 	return EndPoint->GetComponentLocation();
+}
+
+inline const USplineComponent* ADeepDriveRoadSegmentProxy::getSpline()
+{
+	return Spline;
 }
 
 inline const FSplineCurves* ADeepDriveRoadSegmentProxy::getSplineCurves()

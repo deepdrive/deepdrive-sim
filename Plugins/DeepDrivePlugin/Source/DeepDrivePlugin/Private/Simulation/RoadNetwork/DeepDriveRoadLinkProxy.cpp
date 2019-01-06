@@ -24,13 +24,30 @@ ADeepDriveRoadLinkProxy::ADeepDriveRoadLinkProxy()
 void ADeepDriveRoadLinkProxy::BeginPlay()
 {
 	Super::BeginPlay();
+
+	m_IsGameRunning = true;
 	
 }
 
 // Called every frame
 void ADeepDriveRoadLinkProxy::Tick(float DeltaTime)
 {
+#if WITH_EDITOR
+
 	Super::Tick(DeltaTime);
 
+	if (!m_IsGameRunning)
+	{
+		const uint8 prio = 200;
+		DrawDebugLine(GetWorld(), StartPoint->GetComponentLocation(), EndPoint->GetComponentLocation(), Color, false, 0.0f, prio, 8.0f);
+	}
+
+#endif
+
+}
+
+bool ADeepDriveRoadLinkProxy::ShouldTickIfViewportsOnly() const
+{
+	return true;
 }
 

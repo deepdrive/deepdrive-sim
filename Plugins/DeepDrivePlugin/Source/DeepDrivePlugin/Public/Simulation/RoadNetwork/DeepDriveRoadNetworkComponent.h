@@ -13,6 +13,7 @@ class ADeepDriveJunctionProxy;
 class ADeepDriveRoadLinkProxy;
 class ADeepDriveAgent;
 class ADeepDriveRoute;
+class DeepDriveRoadNetworkExtractor;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class DEEPDRIVEPLUGIN_API UDeepDriveRoadNetworkComponent : public UActorComponent
@@ -45,8 +46,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Route")
 	ADeepDriveRoute* CalculateRoute(const FVector Start, const FVector Destination);
 
+	ADeepDriveRoute *CalculateRoute(const TArray<uint32> &routeLinks);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
 	TArray<ADeepDriveRoadLinkProxy*>	Route;
+
+	uint32 getRoadLink(ADeepDriveRoadLinkProxy *linkProxy);
 
 protected:
 
@@ -57,6 +62,8 @@ protected:
 	float calcHeading(const FVector &from, const FVector &to);
 
 	SDeepDriveRoadNetwork		m_RoadNetwork;
+
+	DeepDriveRoadNetworkExtractor	*m_Extractor;
 
 	TArray<uint32>				m_DebugRoute;
 

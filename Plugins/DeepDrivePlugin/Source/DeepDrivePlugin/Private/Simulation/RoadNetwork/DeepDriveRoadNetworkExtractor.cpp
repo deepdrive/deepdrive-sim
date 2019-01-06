@@ -147,14 +147,25 @@ uint32 DeepDriveRoadNetworkExtractor::addSegment(SDeepDriveRoadNetwork &roadNetw
 		if (speedLimits.Num() > 0)
 			segment.SpeedLimits.Append(speedLimits);
 
-		const FSplineCurves *splineCurves = segmentProxy.getSplineCurves();
-		if(splineCurves && splineCurves->Position.Points.Num() > 0)
+		const USplineComponent *spline = segmentProxy.getSpline();
+		if(spline && spline->GetNumberOfSplinePoints() > 2)
 		{
-			segment.Spline = new FSplineCurves;
-			segment.Spline->Position = splineCurves->Position;
-			segment.Spline->Rotation = splineCurves->Rotation;
-			segment.Spline->Scale = splineCurves->Scale;
-			segment.Spline->ReparamTable = splineCurves->ReparamTable;
+			for (signed i = 0; i < spline->GetNumberOfSplinePoints(); ++i)
+			{
+				FSplinePoint splinePoint;
+
+				splinePoint.Type = spline->GetSplinePointType(i);
+				splinePoint.Position = spline->GetLocationAtSplinePoint(i, ESplineCoordinateSpace::World);
+				splinePoint.Rotation = spline->GetRotationAtSplinePoint(i, ESplineCoordinateSpace::World);
+				splinePoint.Scale = spline->GetScaleAtSplinePoint(i);
+				splinePoint.ArriveTangent = spline->GetArriveTangentAtSplinePoint(i, ESplineCoordinateSpace::World);
+				splinePoint.LeaveTangent = spline->GetLeaveTangentAtSplinePoint(i, ESplineCoordinateSpace::World);
+
+				segment.SplinePoints.Add(splinePoint);
+				segment.Transform = spline->GetComponentTransform();
+			}
+
+			segment.SplineCurves = spline->SplineCurves;
 		}
 
 		m_SegmentCache.Add(proxyObjName, segmentId);

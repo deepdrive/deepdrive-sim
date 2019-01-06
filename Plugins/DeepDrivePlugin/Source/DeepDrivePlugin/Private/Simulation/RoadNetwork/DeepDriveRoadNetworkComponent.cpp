@@ -70,7 +70,7 @@ ADeepDriveRoute* UDeepDriveRoadNetworkComponent::CalculateRoute(const FVector St
 	ADeepDriveRoute *route = 0;
 	if (m_DebugRoute.Num() > 0)
 	{	
-		route = GetWorld()->SpawnActor<ADeepDriveRoute>(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f), FActorSpawnParameters());;
+		route = GetWorld()->SpawnActor<ADeepDriveRoute>(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f), FActorSpawnParameters());
 
 		if(route)
 		{
@@ -81,6 +81,23 @@ ADeepDriveRoute* UDeepDriveRoadNetworkComponent::CalculateRoute(const FVector St
 
 			route->initialize(m_RoadNetwork, routeData);
 		}
+	}
+	return route;
+}
+
+ADeepDriveRoute* UDeepDriveRoadNetworkComponent::CalculateRoute(const TArray<uint32> &routeLinks)
+{
+	ADeepDriveRoute *route = 0;
+	route = GetWorld()->SpawnActor<ADeepDriveRoute>(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f), FActorSpawnParameters());
+
+	if (route)
+	{
+		SDeepDriveRouteData routeData;
+		routeData.Start = FVector::ZeroVector;
+		routeData.Destination = FVector::ZeroVector;
+		routeData.Links = routeLinks;
+
+		route->initialize(m_RoadNetwork, routeData);
 	}
 	return route;
 }
@@ -105,18 +122,24 @@ SDeepDriveRoadLink* UDeepDriveRoadNetworkComponent::findClosestLink(const FVecto
 
 void UDeepDriveRoadNetworkComponent::collectRoadNetwork()
 {
-	DeepDriveRoadNetworkExtractor extractor(GetWorld());
+	if(m_Extractor == 0)
+		m_Extractor = new DeepDriveRoadNetworkExtractor(GetWorld());
 
-	extractor.extract(m_RoadNetwork);
+	m_Extractor->extract(m_RoadNetwork);
 
 	for(auto &rl : Route)
 	{
-		uint32 linkId = extractor.getRoadLink(rl);
+		uint32 linkId = m_Extractor->getRoadLink(rl);
 		if(linkId)
 			m_DebugRoute.Add(linkId);
 	}
 
 	UE_LOG(LogDeepDriveRoadNetwork, Log, TEXT("Collected road network %d juntions %d links %d segments dgbRoute %d"), m_RoadNetwork.Junctions.Num(), m_RoadNetwork.Links.Num(), m_RoadNetwork.Segments.Num(), m_DebugRoute.Num() );
+}
+
+uint32 UDeepDriveRoadNetworkComponent::getRoadLink(ADeepDriveRoadLinkProxy *linkProxy)
+{
+	return m_Extractor ? m_Extractor->getRoadLink(linkProxy) : 0;
 }
 
 float UDeepDriveRoadNetworkComponent::calcHeading(const FVector &from, const FVector &to)

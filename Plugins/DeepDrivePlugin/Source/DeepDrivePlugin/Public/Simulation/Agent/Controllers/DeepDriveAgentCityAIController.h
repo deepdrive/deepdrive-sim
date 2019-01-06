@@ -9,6 +9,15 @@
 class DeepDriveAgentSpeedController;
 class DeepDriveAgentSteeringController;
 class ADeepDriveRoute;
+class ADeepDriveRoadLinkProxy;
+
+USTRUCT(BlueprintType) struct FDeepDriveStaticRoute
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
+	TArray<ADeepDriveRoadLinkProxy*> Links;
+};
 
 USTRUCT(BlueprintType) struct FDeepDriveCityAIControllerConfiguration
 {
@@ -16,6 +25,9 @@ USTRUCT(BlueprintType) struct FDeepDriveCityAIControllerConfiguration
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
 	FString		ConfigurationName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
+	TArray<FDeepDriveStaticRoute> Routes;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Control)
 	TArray<FVector>		StartPositions;
@@ -70,7 +82,11 @@ protected:
 	DeepDriveAgentSpeedController		*m_SpeedController = 0;
 	DeepDriveAgentSteeringController	*m_SteeringController = 0;
 
+	TArray< TArray<uint32> >		m_DebugRoutes;
+
 	FVector							m_StartPos;
 
 	float							m_DesiredSpeed = 0.0f;
+
+	bool							m_hasActiveGuidance = false;
 };

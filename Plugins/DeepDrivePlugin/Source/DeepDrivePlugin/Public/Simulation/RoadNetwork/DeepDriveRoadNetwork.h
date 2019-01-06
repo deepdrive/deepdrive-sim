@@ -24,7 +24,9 @@ struct SDeepDriveRoadSegment
 
 	float						Heading;
 
-	FSplineCurves				*Spline = 0;
+	TArray<FSplinePoint>		SplinePoints;
+	FSplineCurves				SplineCurves;
+	FTransform					Transform;
 
 	uint32						LinkId;
 

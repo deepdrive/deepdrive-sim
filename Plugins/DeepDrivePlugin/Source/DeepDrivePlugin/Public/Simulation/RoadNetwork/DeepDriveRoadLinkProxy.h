@@ -35,6 +35,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual bool ShouldTickIfViewportsOnly() const override;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -63,6 +65,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Configuration)
 	float	SpeedLimit = DeepDriveRoadNetwork::SpeedLimitInTown;
 
+	UPROPERTY(EditAnywhere, Category = Debug)
+	FColor						Color = FColor::Blue;
+
+	bool						m_IsGameRunning = false;
 };
 
 inline FVector ADeepDriveRoadLinkProxy::getStartPoint()
