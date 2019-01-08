@@ -4,6 +4,8 @@ import zipfile
 
 
 import logging as log
+log.basicConfig(level=log.INFO)
+
 
 import requests
 from clint.textui import progress
@@ -65,3 +67,14 @@ def dir_has_stuff(path):
 def file_has_stuff(path):
     return os.path.isfile(path) and os.path.getsize(path) > 0
 
+
+def run_command_async(cmd, throw=True):
+    """Allows streaming stdout and stderr to user while command executes"""
+    from sarge import run, Capture
+    # TODO: p = run(..., stdout=Capture(buffer_size=-1), stderr=Capture(buffer_size=-1))
+    # TODO: Then log p.stdout. while process not complete in realtime and to file
+    p = run(cmd, async_=True)
+    p.close()
+    if p.returncode != 0:
+        if throw:
+            raise RuntimeError('Command failed, see above')
