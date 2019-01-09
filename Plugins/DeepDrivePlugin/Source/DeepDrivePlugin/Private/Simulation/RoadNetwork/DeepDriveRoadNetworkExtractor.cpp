@@ -133,19 +133,14 @@ uint32 DeepDriveRoadNetworkExtractor::addSegment(SDeepDriveRoadNetwork &roadNetw
 		segment.EndPoint = segmentProxy.getEndPoint();
 		segment.Heading = calcHeading(segment.StartPoint, segment.EndPoint);
 
-		TArray<FVector2D> speedLimits = segmentProxy.getSpeedLimits();
-		if(speedLimits.Num() > 1)
-		{
-			// ensure correct order
-			speedLimits.Sort([](const FVector2D &lhs, const FVector2D &rhs) { return lhs.X > rhs.X; });
-		}
-		if (speedLimits.Num() <= 0 || speedLimits[0].X > 0.0f)
-		{
-			// ensure valid speed limit at start of segment (consider as connection if no link)
-			segment.SpeedLimits.Add(FVector2D(0.0f, link ? link->SpeedLimit : DeepDriveRoadNetwork::SpeedLimitConnection));
-		}
-		if (speedLimits.Num() > 0)
-			segment.SpeedLimits.Append(speedLimits);
+		const float speedLimit = segmentProxy.getSpeedLimit();
+		if (speedLimit <= 0.0f)
+			segment.SpeedLimit = link ? link->SpeedLimit : DeepDriveRoadNetwork::SpeedLimitConnection;
+		else
+			segment.SpeedLimit = speedLimit;
+
+		segment.IsConnection = segmentProxy.isConnection();
+		segment.SlowDownDistance = segmentProxy.getSlowDownDistance();
 
 		const USplineComponent *spline = segmentProxy.getSpline();
 		if(spline && spline->GetNumberOfSplinePoints() > 2)

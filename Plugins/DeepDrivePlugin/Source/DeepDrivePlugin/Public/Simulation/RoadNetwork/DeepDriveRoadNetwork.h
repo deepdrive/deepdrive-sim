@@ -30,7 +30,9 @@ struct SDeepDriveRoadSegment
 
 	uint32						LinkId;
 
-	TArray<FVector2D>			SpeedLimits;	// rel. position, speed limit
+	float						SpeedLimit;
+	bool						IsConnection;
+	float						SlowDownDistance;
 
 	SDeepDriveRoadSegment		*LeftLane = 0;
 	SDeepDriveRoadSegment		*RightLane = 0;
@@ -95,9 +97,6 @@ struct SDeepDriveRoadNetwork
 	TMap<uint32, SDeepDriveJunction>		Junctions;
 	TMap<uint32, SDeepDriveRoadLink>		Links;
 	TMap<uint32, SDeepDriveRoadSegment> 	Segments;
-
-	float getSpeedLimit(uint32 segmentId, float relativePos) const;
-
 };
 
 namespace DeepDriveRoadNetwork

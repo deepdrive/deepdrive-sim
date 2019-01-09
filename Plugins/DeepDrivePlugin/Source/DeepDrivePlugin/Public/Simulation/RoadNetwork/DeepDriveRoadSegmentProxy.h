@@ -32,7 +32,9 @@ protected:
 	const USplineComponent* getSpline();
 	const FSplineCurves* getSplineCurves();
 
-	const TArray<FVector2D>& getSpeedLimits();
+	float getSpeedLimit();
+	bool isConnection();
+	float getSlowDownDistance();
 
 protected:
 
@@ -57,7 +59,13 @@ protected:
 	ADeepDriveRoadSegmentProxy	*RightLane = 0;
 
 	UPROPERTY(EditAnywhere, Category = Configuration)
-	TArray<FVector2D> SpeedLimits;
+	float	SpeedLimit = -1.0f;
+
+	UPROPERTY(EditAnywhere, Category = Configuration)
+	bool	IsConnection = false;
+
+	UPROPERTY(EditAnywhere, Category = Configuration, meta = (EditCondition = "IsConnection"))
+	float	SlowDownDistance = -1.0f;
 
 	UPROPERTY(EditAnywhere, Category = Debug)
 	FColor						Color = FColor::Red;
@@ -92,7 +100,17 @@ inline const FSplineCurves* ADeepDriveRoadSegmentProxy::getSplineCurves()
 	return Spline ? &Spline->SplineCurves : 0;
 }
 
-inline const TArray<FVector2D>& ADeepDriveRoadSegmentProxy::getSpeedLimits()
+inline float ADeepDriveRoadSegmentProxy::getSpeedLimit()
 {
-	return SpeedLimits;
+	return SpeedLimit;
+}
+
+inline bool ADeepDriveRoadSegmentProxy::isConnection()
+{
+	return IsConnection;
+}
+
+inline float ADeepDriveRoadSegmentProxy::getSlowDownDistance()
+{
+	return SlowDownDistance;
 }

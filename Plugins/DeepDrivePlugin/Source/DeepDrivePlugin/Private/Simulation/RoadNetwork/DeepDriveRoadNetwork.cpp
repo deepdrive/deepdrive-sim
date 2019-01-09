@@ -17,25 +17,3 @@ uint32 SDeepDriveJunction::findConnectionSegment(uint32 fromSegment, uint32 toSe
 
 	return connectionSegment;
 }
-
-float SDeepDriveRoadNetwork::getSpeedLimit(uint32 segmentId, float relativePos) const
-{
-	const SDeepDriveRoadSegment &segment = Segments[segmentId];
-
-	float speedLimit = -1.0f;
-
-	if (segment.SpeedLimits.Num() > 0)
-	{
-		for (signed i = 0; i < segment.SpeedLimits.Num(); ++i)
-		{
-			if (relativePos >= segment.SpeedLimits[i].X)
-			{
-				speedLimit = segment.SpeedLimits[i].Y;
-			}
-			else
-				break;
-		}
-	}
-
-	return speedLimit;
-}

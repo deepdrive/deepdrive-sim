@@ -25,6 +25,11 @@ private:
 		uint32				SegmentId;
 		float				RelativePosition;
 
+		float				SpeedLimit;
+		bool				IsConnectionSegment;
+
+		float				RemainingDistance;
+
 		FVector				Location;
 	};
 
@@ -53,16 +58,9 @@ public:
 
 private:
 
-	void convertToSpline(const FVector &location);
-	
 	void convertToPoints(const FVector &location);
-
-	float addSegmentToSpline(const SDeepDriveRoadSegment &segment, bool addEnd, float curInputKey);
-	float addSplinePoint(float curInputKey, const FVector &location, float heading, float segmentId);
-
 	float addSegmentToPoints(const SDeepDriveRoadSegment &segment, bool addEnd, float carryOverDistance);
-
-	float addSplinePoint(const SDeepDriveRoadSegment &segment, bool start, float curInputKey);
+	void annotateRoute();
 
 	float getInputKeyAhead(float distanceAhead);
 
@@ -73,15 +71,8 @@ private:
  	const SDeepDriveRoadNetwork		*m_RoadNetwork = 0;
 	SDeepDriveRouteData 			m_RouteData;
 
-	UPROPERTY()
-	USplineComponent				*m_RouteSpline = 0;
-
 	const float						m_StepSize = 100.0f;
 	RoutePoints						m_RoutePoints;
 	int32							m_curRoutePointIndex = -1;
-
-	SplineKeyMap					m_KeyLinkMap;
-	SplineKeyMap					m_KeySegmentMap;
-
-	float							m_BaseKey = 0.0f;
+	float							m_RouteLength = 0.0f;
 };
