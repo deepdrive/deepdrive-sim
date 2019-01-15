@@ -114,6 +114,12 @@ Unreal->Project Settings->Input->Action Mappings OR in Blueprints->Find (uncheck
 
 Used for checking compatibility between sim and agents and will update automatically after building in Unreal. Please check it in.
 
+## Compiling changes to plugins
+
+If you make a change to the DeepDrivePlugin, you'll often have to recompile the module to see the changes.
+To do so in Unreal Editor, open Window->Developer->Modules and search for DeepDrivePlugin.
+Then hit Recompile to compile your plugin changes.
+
 ## Clean builds
 
 You'll often want to run `clean.sh` or `clean.bat` after pulling in changes, especially to the plugin as Unreal will spuriously cache old binaries.
