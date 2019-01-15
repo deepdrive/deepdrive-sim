@@ -14,6 +14,8 @@
 
 FROM deepdriveio/ue4-full:4.21.1
 
+ENV DEEPDRIVE_UNREAL_SOURCE_DIR /home/ue4/UnrealEngine
+
 WORKDIR /home/ue4/deepdrive-sim/Packaging/docker
 
 #RUN PKG_STAGE=requirements python3 package.py

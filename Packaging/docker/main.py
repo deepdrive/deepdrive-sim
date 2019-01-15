@@ -4,7 +4,7 @@ import sys
 import logging as log
 
 import docker
-import utils
+from Packaging import utils
 
 log.basicConfig(format='%(asctime)-15s - %(clientip)s - %(levelname)s - %(message)s"', level=log.INFO)
 

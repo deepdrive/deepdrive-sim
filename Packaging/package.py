@@ -14,7 +14,7 @@ import time
 from glob import glob
 import logging as log
 
-import pypip
+from Packaging import pypip
 
 PYTHON_REQUIREMENTS = [
     {'module': 'git', 'pip': 'gitpython'},
@@ -28,12 +28,12 @@ PYTHON_REQUIREMENTS = [
 
 CUR_DIR = os.path.dirname(os.path.realpath(__file__))
 HOME_DIR = os.environ['HOME']
-SIM_DIR = os.path.join(HOME_DIR, 'deepdrive-sim')
+SIM_DIR = os.path.dirname(CUR_DIR)
 SIM_GITHUB = 'https://github.com/deepdrive/deepdrive-sim'
 SIM_BRANCH = 'deepdrive_sim'
 UEPY_GITHUB = 'https://github.com/deepdrive/UnrealEnginePython'
 IS_CUSTOM_CI = 'CUSTOM_CI' in os.environ
-UNREAL_DIR = os.path.join(HOME_DIR, 'UnrealEngine')
+UNREAL_DIR = os.environ['DEEPDRIVE_UNREAL_SOURCE_DIR']
 UNREAL_PLUGINS_DIR = os.path.join(UNREAL_DIR, 'Engine', 'Plugins')
 UEPY_NAME = 'UnrealEnginePython'
 UEPY_DIR = os.path.join(UNREAL_PLUGINS_DIR, UEPY_NAME)
@@ -46,7 +46,7 @@ LOCAL_SUBSTANCE_DIR = os.path.join(LOCAL_PLUGINS_DIR, SUBSTANCE_NAME)
 SUBSTANCE_URL = 'https://s3-us-west-1.amazonaws.com/deepdrive/substance/SubstanceUE4_Plugin_Public_4.21.0.31.zip'
 
 
-cwd = os.getcwd()
+ORIG_CWD = os.getcwd()
 os.chdir(SIM_DIR)  # Hack around os.getcwd() used for cli
 from ue4cli import UnrealManagerFactory  # Included with ue4-full docker image
 
@@ -54,12 +54,13 @@ log.basicConfig(format='%(asctime)-15s - %(levelname)s - %(message)s', level=log
 
 
 def main():
-    assert_in_ue4_docker()
     run_all = STAGE == 'all'
-    log.info('Cleaning derived data (Intermediate, Binaries, etc...)')
-    unreal_clean(SIM_DIR)
+
     if not run_all:
         log.info('PKG_STAGE set to "%s" *Only* running this stage' % STAGE)
+    else:
+        log.info('Cleaning derived data (Intermediate, Binaries, etc...)')
+        unreal_clean(SIM_DIR)
     if run_all or STAGE == 'requirements':
         pypip.ensure(PYTHON_REQUIREMENTS)
         maybe_get_sources()
@@ -82,7 +83,7 @@ def main():
 
 
 def ensure_substance_binaries():
-    import utils
+    from Packaging import utils
     if os.name == 'nt':
         if utils.has_stuff(os.path.join(SUBSTANCE_DIR, 'Binaries', 'Win64')):
             log.info('Substance for Windows is already compiled')
@@ -92,13 +93,19 @@ def ensure_substance_binaries():
     else:
         log.info('No Substance binaries, compiling Substance')
         print()
-        system(os.path.join(UNREAL_DIR, 'Setup.sh'))
-        system(os.path.join(UNREAL_DIR, 'GenerateProjectFiles.sh'))
-        system(os.path.join(UNREAL_DIR, 'make'))
+        cwd = os.getcwd()
+        os.chdir(UNREAL_DIR)
+        try:
+            # TODO: Copy these files into the container
+            system(os.path.join(UNREAL_DIR, 'Setup.sh'), UNREAL_DIR)
+            system(os.path.join(UNREAL_DIR, 'GenerateProjectFiles.sh'), UNREAL_DIR)
+            system(os.path.join(UNREAL_DIR, 'make'), UNREAL_DIR)
+        finally:
+            os.chdir(cwd)
 
 
-def system(command):
-    ret = os.system(command)
+def system(command, cwd):
+    ret = os.system('cd %s && %s' % (command, cwd))
     if ret != 0:
         raise RuntimeError('The following command failed: %s' % command)
 
@@ -110,7 +117,7 @@ def maybe_get_sources():
 
 
 def ensure_substance_sources():
-    import utils
+    from Packaging import utils
 
     if os.path.exists(SUBSTANCE_DIR):
         log.info('Found Substance Plugin sources')
@@ -135,7 +142,7 @@ def compile_plugin_locally(local_dir, final_dir, name):
                 log.info('Cleaning derived data from %s...', local_dir)
                 unreal_clean(local_dir)
         if os.path.exists(local_dir):
-            raise RuntimeError('Local %s plugin exists - cannot move engine plugin' % name)
+            raise RuntimeError('Local and Engine %s plugin exists - cannot move engine plugin' % name)
         shutil.move(final_dir, local_dir)
         log.info('Moved %s to %s', final_dir, local_dir)
         clean_local_dir()
@@ -230,7 +237,7 @@ def ensure_latest_uepy_binaries():
     UEPY does not compile as an engine plugin so we compile locally then move it to the engine's
     plugins to avoid recompiling later
     """
-    import utils
+    from Packaging import utils
     if UEPY_DIR is None:
         raise ValueError('Could not find UEPy')
     if github_repo_same_as_local(UEPY_DIR):
@@ -308,7 +315,7 @@ def get_remote_path(local_repo, remote='origin'):
     return remote_path
 
 
-def git_clean(repo_dirMoved ):
+def git_clean(repo_dir):
     import git
     git.Repo(repo_dir).git.clean('-xdf')
 
