@@ -42,14 +42,18 @@ def ensure(requirements, req_path=None):
 
 def pip_install(package, req_path=None):
     if hasattr(pip, 'main'):
-        args = ['install']
-        if req_path is not None:
-            args += ['--target', req_path]
-            # Ubuntu bug workaround - https://github.com/pypa/pip/issues/3826#issuecomment-427622702
-            args.append('--system')
+        pip_main = pip.main
+    else:
+        from pip._internal import main as pip_main
 
-        args.append(package)
-        pip.main(args)
+    args = ['install']
+    if req_path is not None:
+        args += ['--target', req_path]
+        # Ubuntu bug workaround - https://github.com/pypa/pip/issues/3826#issuecomment-427622702
+        args.append('--system')
+
+    args.append(package)
+    pip_main(args)
 
 
 def get_this_filename():
