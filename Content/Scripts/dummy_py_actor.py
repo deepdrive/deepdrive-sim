@@ -12,7 +12,6 @@ importlib.reload(lambda_server)
 importlib.reload(api_methods)
 
 from lambda_server import LambdaServer
-import api_methods as api
 
 IS_LINUX = sys.platform == 'linux' or sys.platform == 'linux2'
 IS_WINDOWS = sys.platform == 'win32'
@@ -57,7 +56,6 @@ class DummyPyActor:
 
     def begin_play(self):
         print('Begin Play on DummyPyActor class')
-        api.world = None
         self._find_world()
 
     def tick(self, delta_time):
@@ -67,16 +65,17 @@ class DummyPyActor:
             print('Creating new event loop. You should only see this once!')
             self.event_loop = asyncio.new_event_loop()
             asyncio.set_event_loop(self.event_loop)
-            # self.event_loop.set_debug(enabled=True)
+            self.event_loop.set_debug(enabled=True)
             print('Creating server task')
             self.lambda_server = LambdaServer()
-            asyncio.ensure_future(self.lambda_server.run(self.world))
+            asyncio.ensure_future(self.lambda_server.run())
             self.started_server = True
         elif self.event_loop is not None:
             self.event_loop.stop()
             self.event_loop.run_forever()
 
     def end_play(self, end_code):
+        self.event_loop.stop()
         self.lambda_server.close()
         print('Closing lambda server event loop')
         self.event_loop.close()
