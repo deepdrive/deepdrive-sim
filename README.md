@@ -117,7 +117,7 @@ Used for checking compatibility between sim and agents and will update automatic
 ## Compiling changes to plugins
 
 If you make a change to the DeepDrivePlugin, you'll often have to recompile the module to see the changes.
-To do so in Unreal Editor, open Window->Developer->Modules and search for DeepDrivePlugin.
+To do so in Unreal Editor, open Window->Developer Tools->Modules and search for DeepDrivePlugin.
 Then hit Recompile to compile your plugin changes.
 
 ## Clean builds
