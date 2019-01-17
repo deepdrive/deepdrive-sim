@@ -32,7 +32,11 @@ def ensure_requirements():
 
 def pip_install(package, dirname):
     if hasattr(pip, 'main'):
-        pip.main(['install', '--target', dirname, package])
+        pip_main = pip.main
+    else:
+        from pip._internal import main as pip_main
+
+    pip_main(['install', '--target', dirname, package])
 
 
 def get_this_filename():
