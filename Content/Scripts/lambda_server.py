@@ -94,12 +94,6 @@ class LambdaServer(object):
                 print('Error destroying zmq context in lambda server')
 
 
-def add_api_methods(_locals):
-    for attr_name in dir(api):
-        attr = getattr(api, attr_name)
-        if isinstance(attr, types.FunctionType):
-            _locals[attr_name] = attr
-
 def serialize(obj):
     try:
         ret = pyarrow.serialize(obj).to_buffer()
@@ -116,10 +110,11 @@ def start_server_test():
     print('Testing event loop server')
     loop = asyncio.get_event_loop()
     loop.set_debug(enabled=True)
-    loop.run_until_complete(LambdaServer().run(world=None))
+    loop.run_until_complete(LambdaServer().run())
 
 
 if __name__ == '__main__':
-    print([getattr(api, a) for a in dir(api)
-      if isinstance(getattr(api, a), types.FunctionType)])
+    print([getattr(api_methods, a) for a in dir(api_methods)
+           if isinstance(getattr(api_methods, a), types.FunctionType)])
 
+    start_server_test()
