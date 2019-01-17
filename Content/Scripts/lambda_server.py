@@ -12,7 +12,7 @@ except ImportError:
 import pyarrow
 import zmq.asyncio
 import zmq
-import api_methods as api
+import api_methods
 
 
 API_PORT = 5657
@@ -25,6 +25,7 @@ class LambdaServer(object):
         self.context = None
         self.env = None
         self.conn_string = "tcp://*:%s" % API_PORT
+        self.api = None
 
     async def create_socket(self):
         if self.socket is not None:
@@ -41,52 +42,37 @@ class LambdaServer(object):
 
         # Creating a new socket on timeout is not working when other ZMQ connections are present in the process.
         # socket.RCVTIMEO = API_TIMEOUT_MS
-        # socket.SNDTIMEO = API_TIMEOUT_MS
+        socket.SNDTIMEO = API_TIMEOUT_MS
 
         socket.bind(self.conn_string)
         self.socket = socket
         return socket
 
-    async def run(self, world):
+    async def run(self):
+        self.api = api_methods.LambdaApi()
         await self.create_socket()
-        print('Unreal Lambda server started at %s v0.4' % self.conn_string)
+        print('Unreal Lambda server started at %s v0.7' % self.conn_string)
         while True:
             try:
-                await self.check_for_messages(world)
+                await self.check_for_messages()
             except asyncio.CancelledError:
                 print('Server shut down signal detected')
                 self.close()
                 break
 
-    async def check_for_messages(self, world):
+    async def check_for_messages(self):
         try:
-            _locals = {'world': world}
-            add_api_methods(_locals)
             msg = await self.socket.recv()
-            expression_str, local_vars = pyarrow.deserialize(msg)
-            _locals.update(local_vars)
-            await self.eval(expression_str, _locals)
-
-            """
-            TODO: support simpler RPC as well
-            ```
-                method_name, args, kwargs = pyarrow.deserialize(msg)
-                fn = eval(method_name)
-                resp = fn(*args, **kwargs)
-                self.socket.send(pyarrow.serialize(resp).to_buffer())
-            ```                
-            """
-
+            await self.eval(msg)
         except zmq.error.Again:
             print('Waiting for client')
             await self.create_socket()
 
-
-
-    async def eval(self, expression_str, local_vars):
+    async def eval(self, msg):
         try:
-            # Expression can be something like [(a.get_full_name(), a) for a in world.all_actors() if 'localaicontroller_' in a.get_full_name().lower()]
-            resp = eval(expression_str, None, local_vars)
+            method_name, args, kwargs = pyarrow.deserialize(msg)
+            fn = getattr(self.api, method_name)
+            resp = fn(*args, **kwargs)
         except Exception:
             await self.socket.send(serialize({'success': False, 'result': traceback.format_exc()}))
         else:
