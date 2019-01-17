@@ -2,6 +2,14 @@ import unreal_engine as ue
 from pathlib import Path
 import asyncio
 import sys
+import importlib
+
+import lambda_server
+import api_methods
+
+# Reload modules so we don't have to restart Unreal Editor after changing them
+importlib.reload(lambda_server)
+importlib.reload(api_methods)
 
 from lambda_server import LambdaServer
 import api_methods as api
