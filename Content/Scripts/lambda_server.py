@@ -86,7 +86,12 @@ class LambdaServer(object):
         try:
             self.socket.close()
         except Exception as e:
-            print('Error closing lambda server ' + str(e))
+            print('Error closing lambda server zmq socket' + str(e))
+        finally:
+            try:
+                self.context.destroy()
+            except Exception as e:
+                print('Error destroying zmq context in lambda server')
 
 
 def add_api_methods(_locals):
