@@ -12,6 +12,12 @@ DeepDriveRoadNetworkExtractor::DeepDriveRoadNetworkExtractor(UWorld *world)
 
 }
 
+/**
+ * 	Extract road network by iterating over all junctions.
+ * 	Add each referenced link and each segment referenced by this link.
+ * 	If a link is empty a segment equal to that link is automatically generated and added as a single lane for that link.
+ */
+
 void DeepDriveRoadNetworkExtractor::extract(SDeepDriveRoadNetwork &roadNetwork)
 {
 	TArray<AActor *> junctions;
@@ -94,16 +100,30 @@ uint32 DeepDriveRoadNetworkExtractor::addLink(SDeepDriveRoadNetwork &roadNetwork
 		link.Heading = calcHeading(link.StartPoint, link.EndPoint);
 		link.SpeedLimit = linkProxy.getSpeedLimit();
 
-		for (auto &laneProxy : linkProxy.getLanes())
+		const TArray<FDeepDriveLaneProxy> &lanes = linkProxy.getLanes();
+		if(lanes.Num() > 0)
+		{
+			for (auto &laneProxy : lanes)
+			{
+				SDeepDriveLane lane;
+				lane.LaneType = laneProxy.LaneType;
+
+				for (auto &segProxy : laneProxy.Segments)
+				{
+					const uint32 segmentId = addSegment(roadNetwork, *segProxy, &link);
+					lane.Segments.Add(segmentId);
+				}
+				link.Lanes.Add(lane);
+			}
+		}
+		else
 		{
 			SDeepDriveLane lane;
-			lane.LaneType = laneProxy.LaneType;
+			lane.LaneType = EDeepDriveLaneType::MAJOR_LANE;
 
-			for (auto &segProxy : laneProxy.Segments)
-			{
-				uint32 segmentId = addSegment(roadNetwork, *segProxy, &link);
-				lane.Segments.Add(segmentId);
-			}
+			const uint32 segmentId = addSegment(roadNetwork, linkProxy, &link);
+			lane.Segments.Add(segmentId);
+
 			link.Lanes.Add(lane);
 		}
 
@@ -162,6 +182,38 @@ uint32 DeepDriveRoadNetworkExtractor::addSegment(SDeepDriveRoadNetwork &roadNetw
 
 			segment.SplineCurves = spline->SplineCurves;
 		}
+
+		m_SegmentCache.Add(proxyObjName, segmentId);
+		roadNetwork.Segments.Add(segmentId, segment);
+	}
+	else
+	{
+		segmentId = m_SegmentCache.FindChecked(proxyObjName);
+	}
+
+	return segmentId;
+}
+
+// add segment based on link proxy
+uint32 DeepDriveRoadNetworkExtractor::addSegment(SDeepDriveRoadNetwork &roadNetwork, ADeepDriveRoadLinkProxy &linkProxy, const SDeepDriveRoadLink *link)
+{
+	uint32 segmentId = 0;
+	FString proxyObjName = UKismetSystemLibrary::GetObjectName(&linkProxy) + "_RS";
+	if (m_SegmentCache.Contains(proxyObjName) == false)
+	{
+		segmentId = m_nextSegmentId++;
+
+		SDeepDriveRoadSegment segment;
+		segment.SegmentId = segmentId;
+		segment.LinkId = link ? link->LinkId : 0;
+		segment.StartPoint = linkProxy.getStartPoint();
+		segment.EndPoint = linkProxy.getEndPoint();
+		segment.Heading = calcHeading(segment.StartPoint, segment.EndPoint);
+
+		segment.SpeedLimit = link ? link->SpeedLimit : DeepDriveRoadNetwork::SpeedLimitConnection;
+
+		segment.IsConnection = false;
+		segment.SlowDownDistance = -1.0f;
 
 		m_SegmentCache.Add(proxyObjName, segmentId);
 		roadNetwork.Segments.Add(segmentId, segment);

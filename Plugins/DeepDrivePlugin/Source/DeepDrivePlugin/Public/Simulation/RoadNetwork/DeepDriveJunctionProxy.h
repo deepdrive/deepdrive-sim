@@ -39,6 +39,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual bool ShouldTickIfViewportsOnly() const override;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -59,6 +61,11 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Configuration)
 	TArray<FDeepDriveLaneConnectionProxy>	LaneConnections;
+
+	UPROPERTY(EditAnywhere, Category = Debug)
+	FColor						Color = FColor::Green;
+
+	bool						m_IsGameRunning = false;
 
 };
 

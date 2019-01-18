@@ -23,7 +23,6 @@ void ADeepDriveAgentCityAIController::Tick( float DeltaSeconds )
 	{
 		m_Route->update(*m_Agent);
 
-
 		if (m_hasActiveGuidance)
 		{
 			if (m_Route->getRemainingDistance() < 1000.0f)
@@ -50,8 +49,8 @@ bool ADeepDriveAgentCityAIController::Activate(ADeepDriveAgent &agent, bool keep
 	{
 		m_DeepDriveSimulation->RoadNetwork->PlaceAgentOnRoad(&agent, m_StartPos);
 
-		//m_Route = m_DeepDriveSimulation->RoadNetwork->CalculateRoute(FVector::OneVector, FVector::OneVector);
-		m_Route = m_DeepDriveSimulation->RoadNetwork->CalculateRoute(m_DebugRoutes[0]);
+		m_Route = m_DeepDriveSimulation->RoadNetwork->CalculateRoute(FVector::OneVector, FVector::OneVector);
+		//m_Route = m_DebugRoutes.Num() > 0 ? m_DeepDriveSimulation->RoadNetwork->CalculateRoute(m_DebugRoutes[0]) : 0;
 		if (m_Route)
 		{
 			m_Route->convert(FVector::OneVector);
