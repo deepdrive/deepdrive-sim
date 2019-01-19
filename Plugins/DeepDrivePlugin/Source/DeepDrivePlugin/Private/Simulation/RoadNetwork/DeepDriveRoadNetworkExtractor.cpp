@@ -70,6 +70,22 @@ void DeepDriveRoadNetworkExtractor::extract(SDeepDriveRoadNetwork &roadNetwork)
 						connection.ConnectionSegment = addSegment(roadNetwork, *connectionProxy.ConnectionSegment, 0);
 					}
 				}
+				else
+				{
+					fromName = buildSegmentName(UKismetSystemLibrary::GetObjectName(connectionProxy.FromLink));
+					toName = buildSegmentName(UKismetSystemLibrary::GetObjectName(connectionProxy.ToLink));
+					if	(	m_SegmentCache.Contains(fromName)
+						&&	m_SegmentCache.Contains(toName)
+						)
+					{
+						connection.FromSegment = m_SegmentCache[fromName];
+						connection.ToSegment = m_SegmentCache[toName];
+						if (connectionProxy.ConnectionSegment)
+						{
+							connection.ConnectionSegment = addSegment(roadNetwork, *connectionProxy.ConnectionSegment, 0);
+						}
+					}
+				}
 
 				junction.Connections.Add(connection);
 			}
@@ -198,7 +214,7 @@ uint32 DeepDriveRoadNetworkExtractor::addSegment(SDeepDriveRoadNetwork &roadNetw
 uint32 DeepDriveRoadNetworkExtractor::addSegment(SDeepDriveRoadNetwork &roadNetwork, ADeepDriveRoadLinkProxy &linkProxy, const SDeepDriveRoadLink *link)
 {
 	uint32 segmentId = 0;
-	FString proxyObjName = UKismetSystemLibrary::GetObjectName(&linkProxy) + "_RS";
+	FString proxyObjName = buildSegmentName(UKismetSystemLibrary::GetObjectName(&linkProxy));
 	if (m_SegmentCache.Contains(proxyObjName) == false)
 	{
 		segmentId = m_nextSegmentId++;

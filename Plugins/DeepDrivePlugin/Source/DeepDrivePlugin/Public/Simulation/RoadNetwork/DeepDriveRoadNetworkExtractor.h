@@ -34,6 +34,8 @@ private:
 
 	float calcHeading(const FVector &from, const FVector &to);
 
+	FString buildSegmentName(const FString &linkName);
+
 	UWorld							*m_World = 0;
 
 	TMap<FString, uint32>			m_SegmentCache;
@@ -43,3 +45,8 @@ private:
 	uint32							m_nextLinkId = 1;
 	uint32							m_nextJunctionId = 1;
 };
+
+inline FString DeepDriveRoadNetworkExtractor::buildSegmentName(const FString &linkName)
+{
+	return linkName + "_RS";
+}

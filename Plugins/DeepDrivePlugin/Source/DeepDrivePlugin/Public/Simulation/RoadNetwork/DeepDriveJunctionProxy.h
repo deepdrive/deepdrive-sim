@@ -22,6 +22,12 @@ struct FDeepDriveLaneConnectionProxy
 	ADeepDriveRoadSegmentProxy	*ToSegment = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	ADeepDriveRoadLinkProxy *FromLink = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	ADeepDriveRoadLinkProxy *ToLink = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	ADeepDriveRoadSegmentProxy	*ConnectionSegment = 0;
 };
 
