@@ -69,7 +69,7 @@ protected:
 	TArray<FDeepDriveLaneConnectionProxy>	LaneConnections;
 
 	UPROPERTY(EditAnywhere, Category = Debug)
-	FColor						Color = FColor::Green;
+	FColor						Color = FColor(0, 255, 0, 128);
 
 	bool						m_IsGameRunning = false;
 

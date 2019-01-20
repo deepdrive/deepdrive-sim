@@ -28,6 +28,8 @@ private:
 	// add segment based on link proxy
 	uint32 addSegment(SDeepDriveRoadNetwork &roadNetwork, ADeepDriveRoadLinkProxy &linkProxy, const SDeepDriveRoadLink *link);
 
+	uint32 addConnectionSegment(SDeepDriveRoadNetwork &roadNetwork, uint32 fromSegment, uint32 toSegment);
+
 	uint32 addLink(SDeepDriveRoadNetwork &roadNetwork, ADeepDriveRoadLinkProxy &linkProxy);
 
 	void addJunction();

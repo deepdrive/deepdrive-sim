@@ -57,34 +57,28 @@ void DeepDriveRoadNetworkExtractor::extract(SDeepDriveRoadNetwork &roadNetwork)
 				SDeepDriveLaneConnection connection;
 
 				FString fromName = UKismetSystemLibrary::GetObjectName(connectionProxy.FromSegment);
-				FString toName = UKismetSystemLibrary::GetObjectName(connectionProxy.ToSegment);
-
-				if	(	m_SegmentCache.Contains(fromName)
-					&&	m_SegmentCache.Contains(toName)
-					)
-				{
-					connection.FromSegment = m_SegmentCache[fromName];
-					connection.ToSegment = m_SegmentCache[toName];
-					if(connectionProxy.ConnectionSegment)
-					{
-						connection.ConnectionSegment = addSegment(roadNetwork, *connectionProxy.ConnectionSegment, 0);
-					}
-				}
-				else
+				uint32 fromSegment = m_SegmentCache.Contains(fromName) ? m_SegmentCache[fromName] : 0;
+				if(fromSegment == 0)
 				{
 					fromName = buildSegmentName(UKismetSystemLibrary::GetObjectName(connectionProxy.FromLink));
+					fromSegment = m_SegmentCache.Contains(fromName) ? m_SegmentCache[fromName] : 0;
+				}
+
+				FString toName = UKismetSystemLibrary::GetObjectName(connectionProxy.ToSegment);
+				uint32 toSegment = m_SegmentCache.Contains(toName) ? m_SegmentCache[toName] : 0;
+				if(toSegment == 0)
+				{
 					toName = buildSegmentName(UKismetSystemLibrary::GetObjectName(connectionProxy.ToLink));
-					if	(	m_SegmentCache.Contains(fromName)
-						&&	m_SegmentCache.Contains(toName)
-						)
-					{
-						connection.FromSegment = m_SegmentCache[fromName];
-						connection.ToSegment = m_SegmentCache[toName];
-						if (connectionProxy.ConnectionSegment)
-						{
-							connection.ConnectionSegment = addSegment(roadNetwork, *connectionProxy.ConnectionSegment, 0);
-						}
-					}
+					toSegment = m_SegmentCache.Contains(toName) ? m_SegmentCache[toName] : 0;
+				}
+
+				if(fromSegment && toSegment)
+				{
+					connection.FromSegment = fromSegment;
+					connection.ToSegment = toSegment;
+					connection.ConnectionSegment 	=	connectionProxy.ConnectionSegment
+													?	addSegment(roadNetwork, *connectionProxy.ConnectionSegment, 0)
+													:	addConnectionSegment(roadNetwork, connection.FromSegment, connection.ToSegment);
 				}
 
 				junction.Connections.Add(connection);
@@ -93,6 +87,27 @@ void DeepDriveRoadNetworkExtractor::extract(SDeepDriveRoadNetwork &roadNetwork)
 			roadNetwork.Junctions.Add(junctionId, junction);
 		}
 	}
+}
+
+uint32 DeepDriveRoadNetworkExtractor::addConnectionSegment(SDeepDriveRoadNetwork &roadNetwork, uint32 fromSegment, uint32 toSegment)
+{
+	uint32 connectionId = m_nextSegmentId++;
+
+	SDeepDriveRoadSegment segment;
+	segment.SegmentId = connectionId;
+	segment.LinkId = 0;
+	segment.StartPoint = roadNetwork.Segments[fromSegment].EndPoint;
+	segment.EndPoint = roadNetwork.Segments[toSegment].StartPoint;
+	segment.Heading = calcHeading(segment.StartPoint, segment.EndPoint);
+
+	segment.SpeedLimit = roadNetwork.Segments[fromSegment].SpeedLimit;
+
+	segment.IsConnection = true;
+	segment.SlowDownDistance = -1;
+
+	roadNetwork.Segments.Add(connectionId, segment);
+
+	return connectionId;
 }
 
 uint32 DeepDriveRoadNetworkExtractor::getRoadLink(ADeepDriveRoadLinkProxy *linkProxy)

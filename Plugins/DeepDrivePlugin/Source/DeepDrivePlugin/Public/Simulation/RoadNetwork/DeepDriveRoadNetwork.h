@@ -61,6 +61,8 @@ struct SDeepDriveRoadLink
 
 	TArray<SDeepDriveLane>		Lanes;
 
+	int32 getRightMostLane(EDeepDriveLaneType type) const;
+
 };
 
 struct SDeepDriveLaneConnection

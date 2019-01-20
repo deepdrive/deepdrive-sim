@@ -50,15 +50,18 @@ void ADeepDriveRoute::convertToPoints(const FVector &location)
 {
 	m_RouteLength = 0.0f;
 	m_RoutePoints.Empty();
-	if (m_RoadNetwork)
+	if	(	m_RoadNetwork
+		&&	m_RouteData.Links.Num() > 0
+		)
 	{
 		float carryOverDistance = 0.0f;
+		uint32 curLane = m_RoadNetwork->Links[m_RouteData.Links[0]].getRightMostLane(EDeepDriveLaneType::MAJOR_LANE);
 		for (signed i = 0; i < m_RouteData.Links.Num(); ++i)
 		{
 			const SDeepDriveRoadLink &link = m_RoadNetwork->Links[m_RouteData.Links[i]];
 			const bool lastLink = (i + 1) == m_RouteData.Links.Num();
 
-			const SDeepDriveLane &lane = link.Lanes[0];
+			const SDeepDriveLane &lane = link.Lanes[curLane];
 
 			for (signed j = 0; j < lane.Segments.Num(); ++j)
 			{
@@ -72,8 +75,10 @@ void ADeepDriveRoute::convertToPoints(const FVector &location)
 				const SDeepDriveRoadLink &nextLink = m_RoadNetwork->Links[m_RouteData.Links[i + 1]];
 				const SDeepDriveRoadSegment &segment = m_RoadNetwork->Segments[lane.Segments[lane.Segments.Num() - 1]];
 
+				curLane = nextLink.getRightMostLane(EDeepDriveLaneType::MAJOR_LANE);
+
 				const SDeepDriveJunction &junction = m_RoadNetwork->Junctions[link.ToJunctionId];
-				const uint32 connectionSegmentId = junction.findConnectionSegment(segment.SegmentId, nextLink.Lanes[0].Segments[0]);
+				const uint32 connectionSegmentId = junction.findConnectionSegment(segment.SegmentId, nextLink.Lanes[curLane].Segments[0]);
 				if (connectionSegmentId)
 					carryOverDistance = addSegmentToPoints(m_RoadNetwork->Segments[connectionSegmentId], false, carryOverDistance);
 			}
