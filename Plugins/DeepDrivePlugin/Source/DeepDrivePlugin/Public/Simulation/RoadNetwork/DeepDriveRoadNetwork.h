@@ -99,6 +99,9 @@ struct SDeepDriveRoadNetwork
 	TMap<uint32, SDeepDriveJunction>		Junctions;
 	TMap<uint32, SDeepDriveRoadLink>		Links;
 	TMap<uint32, SDeepDriveRoadSegment> 	Segments;
+
+	uint32 findClosestLink(const FVector &pos) const;
+
 };
 
 namespace DeepDriveRoadNetwork

@@ -30,3 +30,34 @@ uint32 SDeepDriveJunction::findConnectionSegment(uint32 fromSegment, uint32 toSe
 
 	return connectionSegment;
 }
+
+uint32 SDeepDriveRoadNetwork::findClosestLink(const FVector &pos) const
+{
+	uint32 linkInd = 0;
+
+	float bestDist = TNumericLimits<float>::Max();
+	for(auto &link : Links)
+	{
+		for(auto &lane : link.Value.Lanes)
+		{
+			for(auto &segmentId : lane.Segments)
+			{
+				const SDeepDriveRoadSegment &curSegment = Segments[segmentId];
+				float dist = (curSegment.StartPoint - pos).Size();
+				if(dist < bestDist)
+				{
+					linkInd = curSegment.LinkId;
+					bestDist = dist;
+				}
+				dist = (curSegment.EndPoint - pos).Size();
+				if(dist < bestDist)
+				{
+					linkInd = curSegment.LinkId;
+					bestDist = dist;
+				}
+			}
+		}
+	}
+
+	return linkInd;
+}
