@@ -23,6 +23,7 @@ SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, co
 
 		routeData.Start = start;
 		routeData.Destination = destination;
+		m_Destination = destination;
 
 		const SDeepDriveRoadLink &startLink = m_RoadNetwork.Links[startLinkId];
 		const SDeepDriveRoadLink &destLink = m_RoadNetwork.Links[destLinkId];
@@ -37,7 +38,7 @@ SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, co
 		}
 		else
 		{
-			const uint32 destJunctionId = destLink.ToJunctionId;
+			const uint32 destJunctionId = destLink.FromJunctionId;
 			m_OpenList.add( acquireNode(startLink.ToJunctionId, 0, startLinkId, 0.0f) );
 			bool success = false;
 
@@ -89,7 +90,9 @@ void DeepDriveRouteCalculator::expandNode(const Node &currentNode)
 	{
 		const SDeepDriveRoadLink &outLink = m_RoadNetwork.Links[outLinkId];
 
-        if(m_ClosedList.Contains(outLink.ToJunctionId))
+        if	(	outLink.ToJunctionId == 0
+			||	m_ClosedList.Contains(outLink.ToJunctionId)
+			)
 			continue;
 
 		const FVector junctionPos = m_RoadNetwork.Junctions[outLink.ToJunctionId].Center;

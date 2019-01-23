@@ -17,22 +17,22 @@ enum class EDeepDriveLaneType : uint8
 
 struct SDeepDriveRoadSegment
 {
-	uint32						SegmentId;
+	uint32						SegmentId = 0;
 
-	FVector						StartPoint;
-	FVector						EndPoint;
+	FVector						StartPoint = FVector::ZeroVector;
+	FVector						EndPoint = FVector::ZeroVector;
 
-	float						Heading;
+	float						Heading = 0.0f;
 
 	TArray<FSplinePoint>		SplinePoints;
 	FSplineCurves				SplineCurves;
 	FTransform					Transform;
 
-	uint32						LinkId;
+	uint32						LinkId = 0;
 
-	float						SpeedLimit;
-	bool						IsConnection;
-	float						SlowDownDistance;
+	float						SpeedLimit = -1.0f;
+	bool						IsConnection = false;
+	float						SlowDownDistance = -1.0f;
 
 	SDeepDriveRoadSegment		*LeftLane = 0;
 	SDeepDriveRoadSegment		*RightLane = 0;
@@ -48,16 +48,16 @@ struct SDeepDriveLane
 
 struct SDeepDriveRoadLink
 {
-	uint32						LinkId;
+	uint32						LinkId = 0;
 
-	FVector						StartPoint;
-	FVector						EndPoint;
+	FVector						StartPoint = FVector::ZeroVector;
+	FVector						EndPoint = FVector::ZeroVector;
 
-	uint32						FromJunctionId;
-	uint32						ToJunctionId;
+	uint32						FromJunctionId = 0;
+	uint32						ToJunctionId = 0;
 
-	float						Heading;
-	float						SpeedLimit;
+	float						Heading = 0.0f;
+	float						SpeedLimit = -1.0f;
 
 	TArray<SDeepDriveLane>		Lanes;
 
@@ -74,8 +74,8 @@ struct SDeepDriveLaneConnection
 
 struct SDeepDriveJunction
 {
-	uint32								JunctionId;
-	FVector								Center;
+	uint32								JunctionId = 0;
+	FVector								Center = FVector::ZeroVector;
 
 	TArray<uint32> 						LinksIn;
 	TArray<uint32>				 		LinksOut;
@@ -88,8 +88,8 @@ struct SDeepDriveJunction
 
 struct SDeepDriveRouteData
 {
-	FVector				Start;
-	FVector				Destination;
+	FVector				Start = FVector::ZeroVector;
+	FVector				Destination = FVector::ZeroVector;
 
 	TArray<uint32>		Links;
 

@@ -32,6 +32,8 @@ void DeepDriveRoadNetworkExtractor::extract(SDeepDriveRoadNetwork &roadNetwork)
 			SDeepDriveJunction junction;
 			junction.JunctionId = junctionId;
 
+			junction.Center = FVector::ZeroVector;
+			int32 count = 0;
 			for (auto &linkProxy : junctionProxy->getLinksIn())
 			{
 				const uint32 linkId = addLink(roadNetwork, *linkProxy);
@@ -39,6 +41,8 @@ void DeepDriveRoadNetworkExtractor::extract(SDeepDriveRoadNetwork &roadNetwork)
 				{
 					junction.LinksIn.Add(linkId);
 					roadNetwork.Links[linkId].ToJunctionId = junctionId;
+					junction.Center += roadNetwork.Links[linkId].StartPoint;
+					count++;
 				}
 			}
 
@@ -49,8 +53,11 @@ void DeepDriveRoadNetworkExtractor::extract(SDeepDriveRoadNetwork &roadNetwork)
 				{
 					junction.LinksOut.Add(linkId);
 					roadNetwork.Links[linkId].FromJunctionId = junctionId;
+					junction.Center += roadNetwork.Links[linkId].EndPoint;
+					count++;
 				}
 			}
+			junction.Center /= static_cast<float> (count);
 
 			for (auto &connectionProxy : junctionProxy->getLaneConnections())
 			{
@@ -130,6 +137,8 @@ uint32 DeepDriveRoadNetworkExtractor::addLink(SDeepDriveRoadNetwork &roadNetwork
 		link.EndPoint = linkProxy.getEndPoint();
 		link.Heading = calcHeading(link.StartPoint, link.EndPoint);
 		link.SpeedLimit = linkProxy.getSpeedLimit();
+		link.FromJunctionId = 0;
+		link.ToJunctionId = 0;
 
 		const TArray<FDeepDriveLaneProxy> &lanes = linkProxy.getLanes();
 		if(lanes.Num() > 0)
