@@ -50,8 +50,8 @@ bool ADeepDriveAgentCityAIController::Activate(ADeepDriveAgent &agent, bool keep
 		UDeepDriveRoadNetworkComponent *roadNetwork = m_DeepDriveSimulation->RoadNetwork;
 		roadNetwork->PlaceAgentOnRoad(&agent, m_StartPos);
 
-		m_Route = roadNetwork->CalculateRoute	(	FVector(12429.0f, 9794.0f, 32.0f)		//	roadNetwork->GetRandomLocation(EDeepDriveLaneType::MAJOR_LANE, 0)
-												,	FVector(4892.0f, -17119.0f, 32.0f)		//	roadNetwork->GetRandomLocation(EDeepDriveLaneType::MAJOR_LANE, 1)
+		m_Route = roadNetwork->CalculateRoute	(	m_Configuration.Start ? m_Configuration.Start->GetActorLocation() : FVector(12429.0f, 9794.0f, 32.0f)		//	roadNetwork->GetRandomLocation(EDeepDriveLaneType::MAJOR_LANE, 0)
+												,	m_Configuration.Destination ? m_Configuration.Destination->GetActorLocation() : FVector(4892.0f, -17119.0f, 32.0f)		//	roadNetwork->GetRandomLocation(EDeepDriveLaneType::MAJOR_LANE, 1)
 												);
 		//m_Route = m_DebugRoutes.Num() > 0 ? m_DeepDriveSimulation->RoadNetwork->CalculateRoute(m_DebugRoutes[0]) : 0;
 		if (m_Route)

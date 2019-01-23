@@ -46,6 +46,14 @@ USTRUCT(BlueprintType) struct FDeepDriveCityAIControllerConfiguration
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Safety)
 	float SafetyDistanceFactor = 1.0f;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
+	AActor *Start = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
+	AActor *Destination = 0;
+
 };
 
 /**

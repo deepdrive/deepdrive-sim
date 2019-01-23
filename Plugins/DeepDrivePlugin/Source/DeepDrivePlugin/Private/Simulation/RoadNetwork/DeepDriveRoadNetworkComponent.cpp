@@ -10,6 +10,8 @@
 #include "Public/Simulation/RoadNetwork/DeepDriveRoute.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 
+#include "Private/Simulation/RoadNetwork/DeepDriveRouteCalculator.h"
+
 DEFINE_LOG_CATEGORY(LogDeepDriveRoadNetwork);
 
 // Sets default values for this component's properties
@@ -93,16 +95,15 @@ ADeepDriveRoute* UDeepDriveRoadNetworkComponent::CalculateRoute(const FVector St
 	{
 		UE_LOG(LogDeepDriveRoadNetwork, Log, TEXT("Calc route from %d(%s) to %d(%s)"), startLink->LinkId, *(startLink->StartPoint.ToString()), destLink->LinkId, *(destLink->EndPoint.ToString()) );
 
-		//route = GetWorld()->SpawnActor<ADeepDriveRoute>(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f), FActorSpawnParameters());
+		// route = GetWorld()->SpawnActor<ADeepDriveRoute>(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f), FActorSpawnParameters());
 
-		if(route)
+		// if(route)
 		{
-			SDeepDriveRouteData routeData;
-			routeData.Start = Start;
-			routeData.Destination = Destination;
-			routeData.Links = m_DebugRoute;
+			DeepDriveRouteCalculator routeCalculator(m_RoadNetwork);
 
-			route->initialize(m_RoadNetwork, routeData);
+			SDeepDriveRouteData routeData = routeCalculator.calculate(Start, Destination);
+
+			// route->initialize(m_RoadNetwork, routeData);
 		}
 	}
 	else

@@ -75,6 +75,7 @@ struct SDeepDriveLaneConnection
 struct SDeepDriveJunction
 {
 	uint32								JunctionId;
+	FVector								Center;
 
 	TArray<uint32> 						LinksIn;
 	TArray<uint32>				 		LinksOut;
