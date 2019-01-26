@@ -3,6 +3,8 @@
 
 #include "CoreMinimal.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveRoadNetworkExtractor, Log, All);
+
 struct SDeepDriveRoadNetwork;
 struct SDeepDriveRoadLink;
 

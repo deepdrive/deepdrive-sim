@@ -6,6 +6,8 @@
 #include "Public/Simulation/RoadNetwork/DeepDriveRoadLinkProxy.h"
 #include "Public/Simulation/RoadNetwork/DeepDriveJunctionProxy.h"
 
+DEFINE_LOG_CATEGORY(LogDeepDriveRoadNetworkExtractor);
+
 DeepDriveRoadNetworkExtractor::DeepDriveRoadNetworkExtractor(UWorld *world)
 	:	m_World(world)
 {
@@ -28,6 +30,8 @@ void DeepDriveRoadNetworkExtractor::extract(SDeepDriveRoadNetwork &roadNetwork)
 		if (junctionProxy)
 		{
 			uint32 junctionId = m_nextJunctionId++;
+
+			UE_LOG(LogDeepDriveRoadNetworkExtractor, Log, TEXT("Extracting junction %d %s"), junctionId, *(UKismetSystemLibrary::GetObjectName(junctionProxy)) );
 
 			SDeepDriveJunction junction;
 			junction.JunctionId = junctionId;
@@ -169,6 +173,9 @@ uint32 DeepDriveRoadNetworkExtractor::addLink(SDeepDriveRoadNetwork &roadNetwork
 
 		m_LinkCache.Add(proxyObjName, linkId);
 		roadNetwork.Links.Add(linkId, link);
+
+		UE_LOG(LogDeepDriveRoadNetworkExtractor, Log, TEXT("Added link %d %s"), linkId, *(proxyObjName) );
+
 	}
 	else
 	{

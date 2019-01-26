@@ -10,6 +10,12 @@ DeepDriveRouteCalculator::DeepDriveRouteCalculator(const SDeepDriveRoadNetwork &
 
 }
 
+DeepDriveRouteCalculator::~DeepDriveRouteCalculator()
+{
+	for(auto &n : m_AllocatedNodes)
+		delete n;
+}
+
 SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, const FVector &destination)
 {
 	SDeepDriveRouteData routeData;
@@ -19,7 +25,6 @@ SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, co
 
 	if(startLinkId && destLinkId)
 	{
-		UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Route calculation from %d to %d"), startLinkId, destLinkId );
 
 		routeData.Start = start;
 		routeData.Destination = destination;
@@ -27,6 +32,9 @@ SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, co
 
 		const SDeepDriveRoadLink &startLink = m_RoadNetwork.Links[startLinkId];
 		const SDeepDriveRoadLink &destLink = m_RoadNetwork.Links[destLinkId];
+
+		UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Route calculation from %d to %d starting at %d"), startLinkId, destLinkId, destLink.FromJunctionId );
+
 		if(startLinkId == destLinkId)
 		{
 			routeData.Links.Add(startLinkId);
@@ -41,11 +49,12 @@ SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, co
 			const uint32 destJunctionId = destLink.FromJunctionId;
 			m_OpenList.add( acquireNode(startLink.ToJunctionId, 0, startLinkId, 0.0f) );
 			bool success = false;
+			const Node *currentNode = 0;
 
 			do
 			{
 				// Knoten mit dem geringsten f-Wert aus der Open List entfernen
-				Node *currentNode = m_OpenList.pop();
+				currentNode = m_OpenList.pop();
 				// Wurde das Ziel gefunden?
 				if(currentNode->JunctionId == destJunctionId)
 				{
@@ -65,7 +74,25 @@ SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, co
 
 			if(success)
 			{
-				UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Route successfully calculated") );
+				TArray<uint32> routeLinks;
+
+				if(currentNode->LinkId != destLinkId)
+					routeLinks.Add(destLinkId);
+				while(currentNode)
+				{
+					routeLinks.Add(currentNode->LinkId);
+					currentNode = currentNode->Predecessor;
+				}
+				if(routeLinks[routeLinks.Num() - 1] != startLinkId)
+					routeLinks.Add(startLinkId);
+
+				for(int32 i = routeLinks.Num() - 1; i>= 0; --i)
+				{
+					routeData.Links.Add(routeLinks[i]);
+					UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("  %d"), routeLinks[i] );
+				}
+
+				UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Route successfully calculated %d links"), routeData.Links.Num() );
 
 			}
 			else
@@ -84,8 +111,7 @@ SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, co
 
 void DeepDriveRouteCalculator::expandNode(const Node &currentNode)
 {
-	UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Expanding node %p %d"), &currentNode );
-	UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Expanding junction %d"), currentNode.JunctionId );
+	UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Expanding junction node %d"), currentNode.JunctionId );
 	for(auto &outLinkId : m_RoadNetwork.Junctions[currentNode.JunctionId].LinksOut)
 	{
 		const SDeepDriveRoadLink &outLink = m_RoadNetwork.Links[outLinkId];
@@ -100,7 +126,7 @@ void DeepDriveRouteCalculator::expandNode(const Node &currentNode)
         float tentativeG = currentNode.CostG + curC;
 
 		Node *successorNode = m_OpenList.get(outLink.ToJunctionId);
-		UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Successor node %p"), successorNode );
+		UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Successor node %d %p"), outLink.ToJunctionId, successorNode );
 		if(successorNode && tentativeG >= successorNode->CostG)
             continue;
 
@@ -122,20 +148,14 @@ DeepDriveRouteCalculator::Node* DeepDriveRouteCalculator::acquireNode(uint32 jun
 
 	if(node)
 	{
+		m_AllocatedNodes.Add(node);
+
 		node->Position = m_RoadNetwork.Junctions[junctionId].Center;
 		node->CostG = costG;
 		node->CostF = costG + (m_Destination - node->Position).Size();
 	}
 
-	UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("acquireNode %p"), node );
-
-
 	return node;
-}
-
-void DeepDriveRouteCalculator::releaseNode(Node &node)
-{
-	delete &node;
 }
 
 DeepDriveRouteCalculator::Node::Node(uint32 junctionId, const Node *predecessor, uint32 linkId)

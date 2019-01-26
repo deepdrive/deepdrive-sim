@@ -50,6 +50,7 @@ class DeepDriveRouteCalculator
 public:
 
 	DeepDriveRouteCalculator(const SDeepDriveRoadNetwork &roadNetwork);
+	~DeepDriveRouteCalculator();
 
 	SDeepDriveRouteData calculate(const FVector &start, const FVector &destination);
 
@@ -60,13 +61,13 @@ private:
 
 	Node* acquireNode(uint32 junctionId, const Node *predecessor, uint32 linkId, float costG);
 
-	void releaseNode(Node &node);
-
 	const SDeepDriveRoadNetwork         &m_RoadNetwork;
 
 	FVector                             m_Destination;
 
 	OpenList                            m_OpenList;
 	TSet<uint32>                        m_ClosedList;
+
+	TArray<Node*>						m_AllocatedNodes;
 
 };

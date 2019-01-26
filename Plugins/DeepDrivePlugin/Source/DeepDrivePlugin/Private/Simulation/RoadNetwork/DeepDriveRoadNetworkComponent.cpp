@@ -95,15 +95,15 @@ ADeepDriveRoute* UDeepDriveRoadNetworkComponent::CalculateRoute(const FVector St
 	{
 		UE_LOG(LogDeepDriveRoadNetwork, Log, TEXT("Calc route from %d(%s) to %d(%s)"), startLink->LinkId, *(startLink->StartPoint.ToString()), destLink->LinkId, *(destLink->EndPoint.ToString()) );
 
-		// route = GetWorld()->SpawnActor<ADeepDriveRoute>(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f), FActorSpawnParameters());
+		route = GetWorld()->SpawnActor<ADeepDriveRoute>(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f), FActorSpawnParameters());
 
-		// if(route)
+		if(route)
 		{
 			DeepDriveRouteCalculator routeCalculator(m_RoadNetwork);
 
 			SDeepDriveRouteData routeData = routeCalculator.calculate(Start, Destination);
 
-			// route->initialize(m_RoadNetwork, routeData);
+			route->initialize(m_RoadNetwork, routeData);
 		}
 	}
 	else
