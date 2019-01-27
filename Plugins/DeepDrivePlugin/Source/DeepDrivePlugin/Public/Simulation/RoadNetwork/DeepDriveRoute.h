@@ -52,7 +52,7 @@ public:
 
 	FVector getLocationAhead(float distanceAhead, float sideOffset);
 
-	float getSpeedLimit();
+	float getSpeedLimit(float distanceAhead);
 
 	float getRemainingDistance();
 
@@ -62,7 +62,7 @@ private:
 	float addSegmentToPoints(const SDeepDriveRoadSegment &segment, bool addEnd, float carryOverDistance);
 	void annotateRoute();
 
-	float getInputKeyAhead(float distanceAhead);
+	int32 getPointIndexAhead(float distanceAhead);
 
 	void findClosestRoutePoint(ADeepDriveAgent &agent);
 

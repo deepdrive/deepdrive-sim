@@ -128,7 +128,7 @@ void DeepDriveAgentSpeedController::brake(float strength)
 float DeepDriveAgentSpeedController::limitSpeedByTrack(float desiredSpeed, float speedBoost)
 {
 	// const float trackSpeedLimit = m_Track->getSpeedLimit(0.0f);
-	const float trackSpeedLimit = m_Track ? m_Track->getSpeedLimit(0.0f) : m_Route->getSpeedLimit();
+	const float trackSpeedLimit = m_Track ? m_Track->getSpeedLimit(0.0f) : m_Route->getSpeedLimit(m_Agent->getFrontBumperDistance());
 	return trackSpeedLimit > 0.0f ? FMath::Min(desiredSpeed, trackSpeedLimit * speedBoost) : desiredSpeed;
 }
 

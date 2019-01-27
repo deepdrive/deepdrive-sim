@@ -198,11 +198,22 @@ FVector ADeepDriveRoute::getLocationAhead(float distanceAhead, float sideOffset)
 	return locAhead;
 }
 
-float ADeepDriveRoute::getSpeedLimit()
+float ADeepDriveRoute::getSpeedLimit(float distanceAhead)
 {
-	return		m_curRoutePointIndex >= 0
-			?	m_RoutePoints[m_curRoutePointIndex % m_RoutePoints.Num()].SpeedLimit
-			:	DeepDriveRoadNetwork::SpeedLimitInTown;
+	float speedLimit = 0.0f;
+	if(m_curRoutePointIndex >= 0)
+	{
+		if(distanceAhead > 0.0f)
+		{
+			const int32 index = getPointIndexAhead(distanceAhead);
+			if(index >= 0)
+				speedLimit = m_RoutePoints[index].SpeedLimit;
+		}
+		else
+			speedLimit = m_RoutePoints[m_curRoutePointIndex % m_RoutePoints.Num()].SpeedLimit;
+	}
+
+	return speedLimit;
 }
 
 void ADeepDriveRoute::findClosestRoutePoint(ADeepDriveAgent &agent)
@@ -219,4 +230,18 @@ void ADeepDriveRoute::findClosestRoutePoint(ADeepDriveAgent &agent)
 			m_curRoutePointIndex = i;
 		}
 	}
+}
+
+int32 ADeepDriveRoute::getPointIndexAhead(float distanceAhead)
+{
+	int32 curIndex = m_curRoutePointIndex;
+	FVector lastPoint = m_RoutePoints[curIndex].Location;
+	for( ; curIndex < m_RoutePoints.Num() && distanceAhead > 0.0f; ++curIndex)
+	{
+		FVector curPoint = m_RoutePoints[curIndex].Location;
+		distanceAhead -= (curPoint - lastPoint).Size();
+		lastPoint = curPoint;
+	}
+
+	return curIndex < m_RoutePoints.Num() ? curIndex : m_RoutePoints.Num() - 1;
 }
