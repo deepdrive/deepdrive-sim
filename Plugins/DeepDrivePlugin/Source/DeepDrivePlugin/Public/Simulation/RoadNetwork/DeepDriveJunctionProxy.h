@@ -29,6 +29,13 @@ struct FDeepDriveLaneConnectionProxy
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	ADeepDriveRoadSegmentProxy	*ConnectionSegment = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float	SpeedLimit = 15.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float	SlowDownDistance = 1000.0f;
+
 };
 
 
@@ -58,6 +65,9 @@ public:
 	const TArray<FDeepDriveLaneConnectionProxy>& getLaneConnections();
 
 protected:
+
+	UPROPERTY(EditDefaultsOnly, Category = Default)
+	USceneComponent				*Root = 0;
 
 	UPROPERTY(EditAnywhere, Category = Configuration)
 	TArray<ADeepDriveRoadLinkProxy*>	LinksIn;
