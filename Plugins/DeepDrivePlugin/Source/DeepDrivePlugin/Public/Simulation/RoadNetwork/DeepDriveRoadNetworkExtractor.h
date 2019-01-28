@@ -16,23 +16,23 @@ class DeepDriveRoadNetworkExtractor
 
 public:
 
-	DeepDriveRoadNetworkExtractor(UWorld *world);
+	DeepDriveRoadNetworkExtractor(UWorld *world, SDeepDriveRoadNetwork &roadNetwork);
 
-	void extract(SDeepDriveRoadNetwork &roadNetwork);
+	void extract();
 
 	uint32 getRoadLink(ADeepDriveRoadLinkProxy *linkProxy);
 
 private:
 
 	// add segment based on segment proxy
-	uint32 addSegment(SDeepDriveRoadNetwork &roadNetwork, ADeepDriveRoadSegmentProxy &segmentProxy, const SDeepDriveRoadLink *link);
+	uint32 addSegment(ADeepDriveRoadSegmentProxy &segmentProxy, const SDeepDriveRoadLink *link);
 
 	// add segment based on link proxy
-	uint32 addSegment(SDeepDriveRoadNetwork &roadNetwork, ADeepDriveRoadLinkProxy &linkProxy, const SDeepDriveRoadLink *link);
+	uint32 addSegment(ADeepDriveRoadLinkProxy &linkProxy, const SDeepDriveRoadLink *link);
 
-	uint32 addConnectionSegment(SDeepDriveRoadNetwork &roadNetwork, uint32 fromSegment, uint32 toSegment);
+	uint32 addStraightConnectionSegment(uint32 fromSegment, uint32 toSegment, float speedLimit, float slowDownDistance, bool generateCurve);
 
-	uint32 addLink(SDeepDriveRoadNetwork &roadNetwork, ADeepDriveRoadLinkProxy &linkProxy);
+	uint32 addLink(ADeepDriveRoadLinkProxy &linkProxy);
 
 	void addJunction();
 
@@ -41,6 +41,7 @@ private:
 	FString buildSegmentName(const FString &linkName);
 
 	UWorld							*m_World = 0;
+	SDeepDriveRoadNetwork 			&m_RoadNetwork;
 
 	TMap<FString, uint32>			m_SegmentCache;
 	TMap<FString, uint32>			m_LinkCache;

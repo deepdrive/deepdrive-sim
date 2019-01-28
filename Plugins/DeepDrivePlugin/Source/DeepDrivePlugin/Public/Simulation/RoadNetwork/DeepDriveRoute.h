@@ -60,6 +60,7 @@ private:
 
 	void convertToPoints(const FVector &location);
 	float addSegmentToPoints(const SDeepDriveRoadSegment &segment, bool addEnd, float carryOverDistance);
+	float addCurvedConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, float carryOverDistance);
 	void annotateRoute();
 
 	int32 getPointIndexAhead(float distanceAhead);

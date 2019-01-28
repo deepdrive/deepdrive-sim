@@ -80,7 +80,12 @@ void ADeepDriveRoute::convertToPoints(const FVector &location)
 				const SDeepDriveJunction &junction = m_RoadNetwork->Junctions[link.ToJunctionId];
 				const uint32 connectionSegmentId = junction.findConnectionSegment(segment.SegmentId, nextLink.Lanes[curLane].Segments[0]);
 				if (connectionSegmentId)
-					carryOverDistance = addSegmentToPoints(m_RoadNetwork->Segments[connectionSegmentId], false, carryOverDistance);
+				{
+					const SDeepDriveRoadSegment &connectionSegment = m_RoadNetwork->Segments[connectionSegmentId];
+					carryOverDistance =		connectionSegment.GenerateCurve ==	false
+										? 	addSegmentToPoints(connectionSegment, false, carryOverDistance)
+										:	addCurvedConnectionSegment(m_RoadNetwork->Segments[segment.SegmentId], m_RoadNetwork->Segments[nextLink.Lanes[curLane].Segments[0]], carryOverDistance);
+				}
 			}
 		}
 	}
@@ -175,6 +180,12 @@ float ADeepDriveRoute::addSegmentToPoints(const SDeepDriveRoadSegment &segment, 
 		}
 	}
 	carryOverDistance = curDist - segmentLength;
+	return carryOverDistance;
+}
+
+float ADeepDriveRoute::addCurvedConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, float carryOverDistance)
+{
+
 	return carryOverDistance;
 }
 

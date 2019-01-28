@@ -32,6 +32,7 @@ struct SDeepDriveRoadSegment
 
 	float						SpeedLimit = -1.0f;
 	bool						IsConnection = false;
+	bool						GenerateCurve = false;
 	float						SlowDownDistance = -1.0f;
 
 	SDeepDriveRoadSegment		*LeftLane = 0;

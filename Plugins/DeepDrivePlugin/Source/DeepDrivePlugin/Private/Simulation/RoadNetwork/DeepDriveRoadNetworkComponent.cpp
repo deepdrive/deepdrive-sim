@@ -156,9 +156,9 @@ SDeepDriveRoadLink* UDeepDriveRoadNetworkComponent::findClosestLink(const FVecto
 void UDeepDriveRoadNetworkComponent::collectRoadNetwork()
 {
 	if(m_Extractor == 0)
-		m_Extractor = new DeepDriveRoadNetworkExtractor(GetWorld());
+		m_Extractor = new DeepDriveRoadNetworkExtractor(GetWorld(), m_RoadNetwork);
 
-	m_Extractor->extract(m_RoadNetwork);
+	m_Extractor->extract();
 
 	for(auto &rl : Route)
 	{

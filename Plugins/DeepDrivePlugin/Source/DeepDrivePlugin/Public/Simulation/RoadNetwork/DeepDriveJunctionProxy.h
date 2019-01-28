@@ -28,13 +28,19 @@ struct FDeepDriveLaneConnectionProxy
 	ADeepDriveRoadLinkProxy *ToLink = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	ADeepDriveRoadSegmentProxy	*ConnectionSegment = 0;
+	bool	GenerateAutoConnection;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default, meta = (EditCondition = "GenerateAutoConnection"))
+	bool	GenerateCurve = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default, meta = (EditCondition = "GenerateAutoConnection"))
 	float	SpeedLimit = 15.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default, meta = (EditCondition = "GenerateAutoConnection"))
 	float	SlowDownDistance = 1000.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default, meta = (EditCondition = "!GenerateAutoConnection"))
+	ADeepDriveRoadSegmentProxy	*ConnectionSegment = 0;
 
 };
 
