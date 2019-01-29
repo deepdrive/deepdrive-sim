@@ -273,6 +273,7 @@ int32 ADeepDriveRoute::getPointIndexAhead(float distanceAhead)
 	return curIndex < m_RoutePoints.Num() ? curIndex : m_RoutePoints.Num() - 1;
 }
 
+#if 0
 
 FVector ADeepDriveRoute::calcControlPoint(const SDeepDriveRoadSegment &segA, const SDeepDriveRoadSegment &segB)
 {
@@ -286,30 +287,31 @@ FVector ADeepDriveRoute::calcControlPoint(const SDeepDriveRoadSegment &segA, con
 	return ctr + 0.5f * dist * nrm;
 }
 
+#else
 
-#if 0
 FVector ADeepDriveRoute::calcControlPoint(const SDeepDriveRoadSegment &segA, const SDeepDriveRoadSegment &segB)
 {
-	FVector da = segB.StartPoint - segA.StartPoint;
-	FVector db = segB.EndPoint - segA.EndPoint;
-	FVector dc = segA.EndPoint - segA.StartPoint;
+	FVector2D r = FVector2D(segA.EndPoint - segA.StartPoint);
+	FVector2D s = FVector2D(segB.StartPoint - segB.EndPoint);
 
-	da.Normalize();
-	db.Normalize();
-	dc.Normalize();
+	//r.Normalize();
+	//s.Normalize();
 
-	FVector crossDaDb = FVector::CrossProduct(da, db);
-	float prod = crossDaDb.X * crossDaDb.X + crossDaDb.Y * crossDaDb.Y + crossDaDb.Z * crossDaDb.Z;
+	float cRS = FVector2D::CrossProduct(r, s);
 
-	UE_LOG(LogDeepDriveRoute, Log, TEXT("  prod %f  %f"), prod, FVector::DotProduct(dc,crossDaDb));
-
-	if(FMath::Abs(prod) < 0.01 || FMath::Abs(FVector::DotProduct(dc,crossDaDb)) > 0.01)
+	if (FMath::Abs(cRS) > 0.001f)
 	{
-		UE_LOG(LogDeepDriveRoute, Log, TEXT("no intersection, taking center"));
-		return 0.5f * (segA.EndPoint + segB.StartPoint);
+		FVector2D qp(segB.EndPoint - segA.StartPoint);
+		//qp.Normalize();
+		float t = FVector2D::CrossProduct(qp, s) / cRS;
+		FVector2D intersection(FVector2D(segA.StartPoint) + r * t);
+		const float z = 0.5f * (segA.EndPoint.Z + segB.StartPoint.Z);
+
+		return FVector(intersection, z);
 	}
 
-	float res = FVector::DotProduct(FVector::CrossProduct(dc, db), FVector::CrossProduct(da, db)) / prod;
-	return segA.StartPoint + da * FVector(res, res, res);
+
+	UE_LOG(LogDeepDriveRoute, Log, TEXT("no intersection, taking center"));
+	return 0.5f * (segA.EndPoint + segB.StartPoint); 
 }
 #endif
