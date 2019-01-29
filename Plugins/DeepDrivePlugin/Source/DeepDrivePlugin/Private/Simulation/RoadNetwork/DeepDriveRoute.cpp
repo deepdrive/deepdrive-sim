@@ -84,7 +84,7 @@ void ADeepDriveRoute::convertToPoints(const FVector &location)
 					const SDeepDriveRoadSegment &connectionSegment = m_RoadNetwork->Segments[connectionSegmentId];
 					carryOverDistance =		connectionSegment.GenerateCurve ==	false
 										? 	addSegmentToPoints(connectionSegment, false, carryOverDistance)
-										:	addCurvedConnectionSegment(m_RoadNetwork->Segments[segment.SegmentId], m_RoadNetwork->Segments[nextLink.Lanes[curLane].Segments[0]], carryOverDistance);
+										:	addCurvedConnectionSegment(m_RoadNetwork->Segments[segment.SegmentId], m_RoadNetwork->Segments[nextLink.Lanes[curLane].Segments[0]], connectionSegmentId, carryOverDistance);
 				}
 			}
 		}
@@ -183,10 +183,26 @@ float ADeepDriveRoute::addSegmentToPoints(const SDeepDriveRoadSegment &segment, 
 	return carryOverDistance;
 }
 
-float ADeepDriveRoute::addCurvedConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, float carryOverDistance)
+float ADeepDriveRoute::addCurvedConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, uint32 segmentId, float carryOverDistance)
 {
+	const FVector &p0 = fromSegment.EndPoint;
+	FVector p1 = calcControlPoint(fromSegment, toSegment);
+	const FVector &p2 = toSegment.StartPoint;
+	UE_LOG(LogDeepDriveRoute, Log, TEXT("Intersection point %s"), *(p1.ToString()));
 
-	return carryOverDistance;
+	for(float t = 0.0f; t < 1.0f; t+= 0.05f)
+	{
+		SRoutePoint rp;
+		rp.SegmentId = segmentId;
+		rp.RelativePosition = t;
+
+		const float oneMinusT = (1.0f - t);
+		rp.Location = oneMinusT * oneMinusT * p0 + 2.0f * oneMinusT * t * p1 + t * t *p2;
+
+		m_RoutePoints.Add(rp);
+	}
+
+	return 0.0f;
 }
 
 void ADeepDriveRoute::update(ADeepDriveAgent &agent)
@@ -256,3 +272,44 @@ int32 ADeepDriveRoute::getPointIndexAhead(float distanceAhead)
 
 	return curIndex < m_RoutePoints.Num() ? curIndex : m_RoutePoints.Num() - 1;
 }
+
+
+FVector ADeepDriveRoute::calcControlPoint(const SDeepDriveRoadSegment &segA, const SDeepDriveRoadSegment &segB)
+{
+	FVector ctr = (segB.StartPoint + segA.EndPoint) * 0.5f;
+	FVector2D dir(segB.StartPoint - segA.EndPoint);
+
+	const float dist = dir.Size();
+	dir.Normalize();
+	FVector nrm(dir.Y, -dir.X, 0.0f);
+
+	return ctr + 0.5f * dist * nrm;
+}
+
+
+#if 0
+FVector ADeepDriveRoute::calcControlPoint(const SDeepDriveRoadSegment &segA, const SDeepDriveRoadSegment &segB)
+{
+	FVector da = segB.StartPoint - segA.StartPoint;
+	FVector db = segB.EndPoint - segA.EndPoint;
+	FVector dc = segA.EndPoint - segA.StartPoint;
+
+	da.Normalize();
+	db.Normalize();
+	dc.Normalize();
+
+	FVector crossDaDb = FVector::CrossProduct(da, db);
+	float prod = crossDaDb.X * crossDaDb.X + crossDaDb.Y * crossDaDb.Y + crossDaDb.Z * crossDaDb.Z;
+
+	UE_LOG(LogDeepDriveRoute, Log, TEXT("  prod %f  %f"), prod, FVector::DotProduct(dc,crossDaDb));
+
+	if(FMath::Abs(prod) < 0.01 || FMath::Abs(FVector::DotProduct(dc,crossDaDb)) > 0.01)
+	{
+		UE_LOG(LogDeepDriveRoute, Log, TEXT("no intersection, taking center"));
+		return 0.5f * (segA.EndPoint + segB.StartPoint);
+	}
+
+	float res = FVector::DotProduct(FVector::CrossProduct(dc, db), FVector::CrossProduct(da, db)) / prod;
+	return segA.StartPoint + da * FVector(res, res, res);
+}
+#endif

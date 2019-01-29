@@ -60,7 +60,7 @@ private:
 
 	void convertToPoints(const FVector &location);
 	float addSegmentToPoints(const SDeepDriveRoadSegment &segment, bool addEnd, float carryOverDistance);
-	float addCurvedConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, float carryOverDistance);
+	float addCurvedConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, uint32 segmentId, float carryOverDistance);
 	void annotateRoute();
 
 	int32 getPointIndexAhead(float distanceAhead);
@@ -68,6 +68,8 @@ private:
 	void findClosestRoutePoint(ADeepDriveAgent &agent);
 
 	FVector getSplinePoint(float distance);
+
+	FVector calcControlPoint(const SDeepDriveRoadSegment &segA, const SDeepDriveRoadSegment &segB);
 
  	const SDeepDriveRoadNetwork		*m_RoadNetwork = 0;
 	SDeepDriveRouteData 			m_RouteData;
