@@ -291,8 +291,16 @@ FVector ADeepDriveRoute::calcControlPoint(const SDeepDriveRoadSegment &segA, con
 
 FVector ADeepDriveRoute::calcControlPoint(const SDeepDriveRoadSegment &segA, const SDeepDriveRoadSegment &segB)
 {
-	FVector2D r = FVector2D(segA.EndPoint - segA.StartPoint);
-	FVector2D s = FVector2D(segB.StartPoint - segB.EndPoint);
+	FVector aStart;
+	FVector aEnd;
+	FVector bStart;
+	FVector bEnd;
+
+	extractTangentFromSegment(segA, aStart, aEnd, false);
+	extractTangentFromSegment(segB, bStart, bEnd, true);
+
+	FVector2D r = FVector2D(aEnd - aStart);
+	FVector2D s = FVector2D(bStart - bEnd);
 
 	//r.Normalize();
 	//s.Normalize();
@@ -301,11 +309,11 @@ FVector ADeepDriveRoute::calcControlPoint(const SDeepDriveRoadSegment &segA, con
 
 	if (FMath::Abs(cRS) > 0.001f)
 	{
-		FVector2D qp(segB.EndPoint - segA.StartPoint);
+		FVector2D qp(bEnd - aStart);
 		//qp.Normalize();
 		float t = FVector2D::CrossProduct(qp, s) / cRS;
-		FVector2D intersection(FVector2D(segA.StartPoint) + r * t);
-		const float z = 0.5f * (segA.EndPoint.Z + segB.StartPoint.Z);
+		FVector2D intersection(FVector2D(aStart) + r * t);
+		const float z = 0.5f * (aEnd.Z + bStart.Z);
 
 		return FVector(intersection, z);
 	}
@@ -314,4 +322,33 @@ FVector ADeepDriveRoute::calcControlPoint(const SDeepDriveRoadSegment &segA, con
 	UE_LOG(LogDeepDriveRoute, Log, TEXT("no intersection, taking center"));
 	return 0.5f * (segA.EndPoint + segB.StartPoint); 
 }
+
+void ADeepDriveRoute::extractTangentFromSegment(const SDeepDriveRoadSegment &segment, FVector &start, FVector &end, bool atStart)
+{
+	if (segment.SplinePoints.Num() > 0)
+	{
+		const int32 index = atStart ? 0 : (segment.SplinePoints.Num() - 1);
+		const FInterpCurvePointVector& point = segment.SplineCurves.Position.Points[index];
+		FVector direction = segment.Transform.TransformVector(atStart ? point.ArriveTangent : point.LeaveTangent);
+		direction.Normalize();
+		direction *= 100.0f;
+		if(atStart)
+		{
+		start = segment.StartPoint;
+		end = segment.EndPoint + direction;
+		}
+		else
+		{
+			start = segment.EndPoint - direction;
+			end = segment.EndPoint;
+		}
+	}
+	else
+	{
+		start = segment.StartPoint;
+		end = segment.EndPoint;
+	}
+}
+
+
 #endif

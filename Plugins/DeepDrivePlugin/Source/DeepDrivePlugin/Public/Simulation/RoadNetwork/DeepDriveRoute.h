@@ -70,6 +70,7 @@ private:
 	FVector getSplinePoint(float distance);
 
 	FVector calcControlPoint(const SDeepDriveRoadSegment &segA, const SDeepDriveRoadSegment &segB);
+	void extractTangentFromSegment(const SDeepDriveRoadSegment &segment, FVector &start, FVector &end, bool atStart);
 
  	const SDeepDriveRoadNetwork		*m_RoadNetwork = 0;
 	SDeepDriveRouteData 			m_RouteData;
