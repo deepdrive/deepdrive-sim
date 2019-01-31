@@ -3,10 +3,9 @@
 
 #include "CoreMinimal.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveRoadNetworkExtractor, Log, All);
+#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
 
-struct SDeepDriveRoadNetwork;
-struct SDeepDriveRoadLink;
+DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveRoadNetworkExtractor, Log, All);
 
 class ADeepDriveRoadLinkProxy;
 class ADeepDriveRoadSegmentProxy;
@@ -25,7 +24,7 @@ public:
 private:
 
 	// add segment based on segment proxy
-	uint32 addSegment(ADeepDriveRoadSegmentProxy &segmentProxy, const SDeepDriveRoadLink *link);
+	uint32 addSegment(ADeepDriveRoadSegmentProxy &segmentProxy, const SDeepDriveRoadLink *link, EDeepDriveLaneType laneType);
 
 	// add segment based on link proxy
 	uint32 addSegment(ADeepDriveRoadLinkProxy &linkProxy, const SDeepDriveRoadLink *link);

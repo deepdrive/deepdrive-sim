@@ -207,8 +207,17 @@ float ADeepDriveRoute::addCurvedConnectionSegment(const SDeepDriveRoadSegment &f
 
 void ADeepDriveRoute::update(ADeepDriveAgent &agent)
 {
-	findClosestRoutePoint(agent);
+	m_curRoutePointIndex = findClosestRoutePoint(agent.GetActorLocation());
+}
 
+void ADeepDriveRoute::placeAgentAtStart(ADeepDriveAgent &agent)
+{
+	int32 index = findClosestRoutePoint(m_RouteData.Start);
+	if(index >= 0)
+	{
+		FTransform transform(FRotator(0.0f, -180.0f, 0.0f), m_RoutePoints[index].Location, FVector(1.0f, 1.0f, 1.0f));
+		agent.SetActorTransform(transform, false, 0, ETeleportType::TeleportPhysics);
+	}
 }
 
 float ADeepDriveRoute::getRemainingDistance()
@@ -243,23 +252,23 @@ float ADeepDriveRoute::getSpeedLimit(float distanceAhead)
 	return speedLimit;
 }
 
-void ADeepDriveRoute::findClosestRoutePoint(ADeepDriveAgent &agent)
+int32 ADeepDriveRoute::findClosestRoutePoint(const FVector &location) const
 {
-	FVector agentPos = agent.GetActorLocation();
-	float bestDist = 1000000.0f;
-	m_curRoutePointIndex = -1;
+	float bestDist = TNumericLimits<float>::Max();
+	int32 index = -1;
 	for(signed i = m_RoutePoints.Num() - 1; i >= 0; --i)
 	{
-		const float curDist = (agentPos - m_RoutePoints[i].Location).Size();
+		const float curDist = (location - m_RoutePoints[i].Location).Size();
 		if (curDist <= bestDist)
 		{
 			bestDist = curDist;
-			m_curRoutePointIndex = i;
+			index = i;
 		}
 	}
+	return index;
 }
 
-int32 ADeepDriveRoute::getPointIndexAhead(float distanceAhead)
+int32 ADeepDriveRoute::getPointIndexAhead(float distanceAhead) const
 {
 	int32 curIndex = m_curRoutePointIndex;
 	FVector lastPoint = m_RoutePoints[curIndex].Location;

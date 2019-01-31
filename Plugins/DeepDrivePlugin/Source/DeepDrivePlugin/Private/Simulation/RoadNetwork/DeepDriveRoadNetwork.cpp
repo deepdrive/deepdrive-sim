@@ -61,3 +61,31 @@ uint32 SDeepDriveRoadNetwork::findClosestLink(const FVector &pos) const
 
 	return linkInd;
 }
+
+uint32 SDeepDriveRoadNetwork::findClosestSegment(const FVector &pos, EDeepDriveLaneType laneType) const
+{
+	uint32 key = 0;
+	float dist = TNumericLimits<float>::Max();
+
+	for (auto curIt = Segments.CreateConstIterator(); curIt; ++curIt)
+	{
+		auto segment = curIt.Value();
+		if(segment.LaneType == laneType)
+		{
+			float curDist = (segment.StartPoint - pos).Size();
+			if(curDist < dist)
+			{
+				dist = curDist;
+				key = curIt.Key();
+			}
+			curDist = (segment.EndPoint - pos).Size();
+			if(curDist < dist)
+			{
+				dist = curDist;
+				key = curIt.Key();
+			}
+		}
+	}
+
+	return key;
+}

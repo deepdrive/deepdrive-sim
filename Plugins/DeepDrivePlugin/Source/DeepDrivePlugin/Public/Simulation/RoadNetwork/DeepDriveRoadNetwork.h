@@ -11,7 +11,8 @@ enum class EDeepDriveLaneType : uint8
 {
 	MAJOR_LANE			= 0	UMETA(DisplayName = "Major Lane"),
 	ADDITIONAL_LANE 	= 1	UMETA(DisplayName = "Additional Lane"),
-	PARKING_LANE	    = 2	UMETA(DisplayName = "Parking Lane")
+	PARKING_LANE	    = 2	UMETA(DisplayName = "Parking Lane"),
+	CONNECTION	    	= 3	UMETA(DisplayName = "Connection")
 };
 
 
@@ -23,6 +24,7 @@ struct SDeepDriveRoadSegment
 	FVector						EndPoint = FVector::ZeroVector;
 
 	float						Heading = 0.0f;
+	EDeepDriveLaneType			LaneType = EDeepDriveLaneType::MAJOR_LANE;
 
 	TArray<FSplinePoint>		SplinePoints;
 	FSplineCurves				SplineCurves;
@@ -103,6 +105,7 @@ struct SDeepDriveRoadNetwork
 	TMap<uint32, SDeepDriveRoadSegment> 	Segments;
 
 	uint32 findClosestLink(const FVector &pos) const;
+	uint32 findClosestSegment(const FVector &pos, EDeepDriveLaneType laneType) const;
 
 };
 

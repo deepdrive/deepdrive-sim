@@ -57,8 +57,6 @@ protected:
 
 	void collectRoadNetwork();
 
-	SDeepDriveRoadLink* findClosestLink(const FVector &pos);
-
 	float calcHeading(const FVector &from, const FVector &to);
 
 	SDeepDriveRoadNetwork		m_RoadNetwork;

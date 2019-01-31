@@ -105,7 +105,7 @@ void DeepDriveRoadNetworkExtractor::extract()
 					}
 					else
 					{
-						connection.ConnectionSegment = addSegment(*connectionProxy.ConnectionSegment, 0);
+						connection.ConnectionSegment = addSegment(*connectionProxy.ConnectionSegment, 0, EDeepDriveLaneType::CONNECTION);
 					}
 				}
 
@@ -127,6 +127,7 @@ uint32 DeepDriveRoadNetworkExtractor::addStraightConnectionSegment(uint32 fromSe
 	segment.StartPoint = m_RoadNetwork.Segments[fromSegment].EndPoint;
 	segment.EndPoint = m_RoadNetwork.Segments[toSegment].StartPoint;
 	segment.Heading = calcHeading(segment.StartPoint, segment.EndPoint);
+	segment.LaneType = EDeepDriveLaneType::CONNECTION;
 
 	segment.SpeedLimit = speedLimit;
 
@@ -172,7 +173,7 @@ uint32 DeepDriveRoadNetworkExtractor::addLink(ADeepDriveRoadLinkProxy &linkProxy
 
 				for (auto &segProxy : laneProxy.Segments)
 				{
-					const uint32 segmentId = addSegment(*segProxy, &link);
+					const uint32 segmentId = addSegment(*segProxy, &link, lane.LaneType);
 					lane.Segments.Add(segmentId);
 				}
 				link.Lanes.Add(lane);
@@ -203,7 +204,7 @@ uint32 DeepDriveRoadNetworkExtractor::addLink(ADeepDriveRoadLinkProxy &linkProxy
 	return linkId;
 }
 
-uint32 DeepDriveRoadNetworkExtractor::addSegment(ADeepDriveRoadSegmentProxy &segmentProxy, const SDeepDriveRoadLink *link)
+uint32 DeepDriveRoadNetworkExtractor::addSegment(ADeepDriveRoadSegmentProxy &segmentProxy, const SDeepDriveRoadLink *link, EDeepDriveLaneType laneType)
 {
 	uint32 segmentId = 0;
 	FString proxyObjName = UKismetSystemLibrary::GetObjectName(&segmentProxy);
@@ -217,6 +218,7 @@ uint32 DeepDriveRoadNetworkExtractor::addSegment(ADeepDriveRoadSegmentProxy &seg
 		segment.StartPoint = segmentProxy.getStartPoint();
 		segment.EndPoint = segmentProxy.getEndPoint();
 		segment.Heading = calcHeading(segment.StartPoint, segment.EndPoint);
+		segment.LaneType = laneType;
 
 		const float speedLimit = segmentProxy.getSpeedLimit();
 		if (speedLimit <= 0.0f)
@@ -274,6 +276,7 @@ uint32 DeepDriveRoadNetworkExtractor::addSegment(ADeepDriveRoadLinkProxy &linkPr
 		segment.StartPoint = linkProxy.getStartPoint();
 		segment.EndPoint = linkProxy.getEndPoint();
 		segment.Heading = calcHeading(segment.StartPoint, segment.EndPoint);
+		segment.LaneType = EDeepDriveLaneType::MAJOR_LANE;
 
 		segment.SpeedLimit = link ? link->SpeedLimit : DeepDriveRoadNetwork::SpeedLimitConnection;
 

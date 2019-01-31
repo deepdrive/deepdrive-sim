@@ -56,6 +56,8 @@ public:
 
 	float getRemainingDistance();
 
+	void placeAgentAtStart(ADeepDriveAgent &agent);
+
 private:
 
 	void convertToPoints(const FVector &location);
@@ -63,9 +65,9 @@ private:
 	float addCurvedConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, uint32 segmentId, float carryOverDistance);
 	void annotateRoute();
 
-	int32 getPointIndexAhead(float distanceAhead);
+	int32 getPointIndexAhead(float distanceAhead) const;
 
-	void findClosestRoutePoint(ADeepDriveAgent &agent);
+	int32 findClosestRoutePoint(const FVector &location) const;
 
 	FVector getSplinePoint(float distance);
 

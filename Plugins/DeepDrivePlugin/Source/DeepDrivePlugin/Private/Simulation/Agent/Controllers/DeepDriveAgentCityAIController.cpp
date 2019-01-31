@@ -25,7 +25,7 @@ void ADeepDriveAgentCityAIController::Tick( float DeltaSeconds )
 
 		if (m_hasActiveGuidance)
 		{
-			if (m_Route->getRemainingDistance() < 1000.0f)
+			if (m_Route->getRemainingDistance() - m_Agent->getFrontBumperDistance() < 800.0f)
 				m_hasActiveGuidance = false;
 			float desiredSpeed = m_DesiredSpeed;
 
@@ -51,8 +51,6 @@ bool ADeepDriveAgentCityAIController::Activate(ADeepDriveAgent &agent, bool keep
 
 		if(m_StartIndex < m_Configuration.Routes.Num())
 		{
-			roadNetwork->PlaceAgentOnRoad(&agent, m_Configuration.Routes[m_StartIndex].Start);
-
 			m_Route = roadNetwork->CalculateRoute	(	m_Configuration.Routes[m_StartIndex].Start
 													,	m_Configuration.Routes[m_StartIndex].Destination
 													);
@@ -61,6 +59,10 @@ bool ADeepDriveAgentCityAIController::Activate(ADeepDriveAgent &agent, bool keep
 			{
 				m_Route->convert(FVector::OneVector);
 
+				//m_Route->trim();
+
+				m_Route->placeAgentAtStart(agent);
+
 				m_SpeedController = new DeepDriveAgentSpeedController(m_Configuration.PIDThrottle, m_Configuration.PIDBrake);
 				m_SpeedController->initialize(agent, *m_Route, m_Configuration.SafetyDistanceFactor);
 
@@ -68,6 +70,9 @@ bool ADeepDriveAgentCityAIController::Activate(ADeepDriveAgent &agent, bool keep
 				m_SteeringController->initialize(agent, *m_Route);
 				m_hasActiveGuidance = true;
 			}
+			else
+				roadNetwork->PlaceAgentOnRoad(&agent, m_Configuration.Routes[m_StartIndex].Start);
+
 			res = true;
 		}
 		else if(m_StartIndex < m_Configuration.StartPositions.Num())
