@@ -96,16 +96,20 @@ ADeepDriveRoute* UDeepDriveRoadNetworkComponent::CalculateRoute(const FVector St
 	{
 		UE_LOG(LogDeepDriveRoadNetwork, Log, TEXT("Calc route from %d(%s) to %d(%s)"), startLinkId, *(m_RoadNetwork.Links[startLinkId].StartPoint.ToString()), destLinkId, *(m_RoadNetwork.Links[destLinkId].EndPoint.ToString()) );
 
-		route = GetWorld()->SpawnActor<ADeepDriveRoute>(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f), FActorSpawnParameters());
+		DeepDriveRouteCalculator routeCalculator(m_RoadNetwork);
 
-		if(route)
+		SDeepDriveRouteData routeData = routeCalculator.calculate(Start, Destination);
+
+		if (routeData.Links.Num() > 0)
 		{
-			DeepDriveRouteCalculator routeCalculator(m_RoadNetwork);
+			route = GetWorld()->SpawnActor<ADeepDriveRoute>(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f), FActorSpawnParameters());
 
-			SDeepDriveRouteData routeData = routeCalculator.calculate(Start, Destination);
-
-			route->initialize(m_RoadNetwork, routeData);
+			if (route)
+			{
+				route->initialize(m_RoadNetwork, routeData);
+			}
 		}
+
 	}
 	else
 		UE_LOG(LogDeepDriveRoadNetwork, Log, TEXT("Calc route failed %d / %d"), startLinkId, destLinkId );
