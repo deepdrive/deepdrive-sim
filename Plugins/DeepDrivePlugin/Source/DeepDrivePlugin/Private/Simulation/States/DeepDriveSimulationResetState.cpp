@@ -4,10 +4,12 @@
 #include "Public/Simulation/DeepDriveSimulation.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 #include "Public/Simulation/Agent/DeepDriveAgentControllerBase.h"
+#include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
 #include "Public/Simulation/Misc/DeepDriveRandomStream.h"
 
-DeepDriveSimulationResetState::DeepDriveSimulationResetState(DeepDriveSimulationStateMachine &stateMachine)
-	: DeepDriveSimulationStateBase(stateMachine, "Reset")
+DeepDriveSimulationResetState::DeepDriveSimulationResetState(DeepDriveSimulationStateMachine &stateMachine, UWorld *world)
+	:	DeepDriveSimulationStateBase(stateMachine, "Reset")
+	,	m_World(world)
 {
 }
 
@@ -27,6 +29,15 @@ void DeepDriveSimulationResetState::update(ADeepDriveSimulation &deepDriveSim, f
 	{
 		if (rs.Value.ReSeedOnReset && rs.Value.getRandomStream())
 			rs.Value.getRandomStream()->initialize(deepDriveSim.Seed);
+	}
+
+	TArray< AActor*> actors;
+	UGameplayStatics::GetAllActorsOfClass(m_World, ADeepDriveSplineTrack::StaticClass(), actors);
+	for (auto actor : actors)
+	{
+		ADeepDriveSplineTrack *track = Cast<ADeepDriveSplineTrack>(actor);
+		if (track)
+			track->resetRandomSlots();
 	}
 
 	if(m_ActivateAdditionalAgents)

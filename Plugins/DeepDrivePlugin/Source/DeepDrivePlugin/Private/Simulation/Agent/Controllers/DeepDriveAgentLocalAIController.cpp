@@ -79,6 +79,9 @@ bool ADeepDriveAgentLocalAIController::ResetAgent()
 	if(m_Track && m_Agent)
 	{
 		UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Reset Agent") );
+		if(m_StartPositionSlot < 0)
+			m_StartDistance = m_Track->getRandomDistanceAlongTrack(*m_DeepDriveSimulation->GetRandomStream(FName("AgentPlacement")));
+
 		resetAgentPosOnSpline(*m_Agent, m_Track->GetSpline(), m_StartDistance);
 		m_Agent->reset();
 		m_StateMachine.setNextState("Cruise");
@@ -101,6 +104,7 @@ void ADeepDriveAgentLocalAIController::Configure(const FDeepDriveLocalAIControll
 
 	m_DesiredSpeed = FMath::RandRange(Configuration.SpeedRange.X, Configuration.SpeedRange.Y);
 	m_Track = Configuration.Track;
+	m_StartPositionSlot = StartPositionSlot;
 	m_StartDistance = StartPositionSlot >= 0 && StartPositionSlot < Configuration.StartDistances.Num() ? Configuration.StartDistances[StartPositionSlot] : -1.0f;
 	m_SafetyDistanceFactor = Configuration.SafetyDistanceFactor;
 }
