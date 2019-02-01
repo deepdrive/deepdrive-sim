@@ -41,9 +41,44 @@ void ADeepDriveRoute::convert(const FVector &location)
 	convertToPoints(location);
 	if (m_RoutePoints.Num() > 0)
 	{
+		trim(location, m_RouteData.Destination);
 		annotateRoute();
 	}
 	UE_LOG(LogDeepDriveRoute, Log, TEXT("Route converted numPoints %d length %f"), m_RoutePoints.Num(), m_RouteLength);
+}
+
+void ADeepDriveRoute::trim(const FVector &start, const FVector &end)
+{
+	const int32 numRoutePoints = m_RoutePoints.Num();
+	float bestDistStart = TNumericLimits<float>::Max();
+	float bestDistEnd = TNumericLimits<float>::Max();
+	int32 bestIndStart = -1;
+	int32 bestIndEnd = -1;
+	for(signed i = numRoutePoints - 1; i >= 0; --i)
+	{
+		const float curDistStart = (start - m_RoutePoints[i].Location).Size();
+		if (curDistStart <= bestDistStart)
+		{
+			bestDistStart = curDistStart;
+			bestIndStart = i;
+		}
+		const float curDistEnd = (end - m_RoutePoints[i].Location).Size();
+		if (curDistEnd <= bestDistEnd)
+		{
+			bestDistEnd = curDistEnd;
+			bestIndEnd = i;
+		}
+	}
+
+	if(bestIndStart >= 0)
+	{
+		RoutePoints trimmedPoints;
+		for(int32 i = bestIndStart; i < bestIndEnd; ++i)
+			trimmedPoints.Add(m_RoutePoints[i]);
+
+		m_RoutePoints = trimmedPoints;
+		UE_LOG(LogDeepDriveRoute, Log, TEXT("Trimmed %d %s %s"), m_RoutePoints.Num(), *(m_RoutePoints[0].Location.ToString()), *(m_RoutePoints[m_RoutePoints.Num() - 1].Location.ToString()) );
+	}
 }
 
 void ADeepDriveRoute::convertToPoints(const FVector &location)

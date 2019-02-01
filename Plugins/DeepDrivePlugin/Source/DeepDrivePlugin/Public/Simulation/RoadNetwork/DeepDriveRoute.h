@@ -65,6 +65,8 @@ private:
 	float addCurvedConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, uint32 segmentId, float carryOverDistance);
 	void annotateRoute();
 
+	void trim(const FVector &start, const FVector &end);
+
 	int32 getPointIndexAhead(float distanceAhead) const;
 
 	int32 findClosestRoutePoint(const FVector &location) const;

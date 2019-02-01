@@ -72,18 +72,32 @@ uint32 SDeepDriveRoadNetwork::findClosestSegment(const FVector &pos, EDeepDriveL
 		auto segment = curIt.Value();
 		if(segment.LaneType == laneType)
 		{
-			float curDist = (segment.StartPoint - pos).Size();
-			if(curDist < dist)
+			if(segment.SplineCurves.Position.Points.Num() > 0)
 			{
-				dist = curDist;
-				key = curIt.Key();
+				float curDist = (segment.StartPoint - pos).Size();
+				if(curDist < dist)
+				{
+					dist = curDist;
+					key = curIt.Key();
+				}
+				curDist = (segment.EndPoint - pos).Size();
+				if(curDist < dist)
+				{
+					dist = curDist;
+					key = curIt.Key();
+				}
 			}
-			curDist = (segment.EndPoint - pos).Size();
-			if(curDist < dist)
+			else
 			{
-				dist = curDist;
-				key = curIt.Key();
+				FVector cp = FMath::ClosestPointOnLine(segment.StartPoint, segment.EndPoint, pos);
+				const float curDist = (cp - pos).Size();
+				if(curDist < dist)
+				{
+					dist = curDist;
+					key = curIt.Key();
+				}
 			}
+
 		}
 	}
 

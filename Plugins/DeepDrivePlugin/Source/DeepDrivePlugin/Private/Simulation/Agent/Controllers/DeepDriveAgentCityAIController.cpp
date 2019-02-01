@@ -57,10 +57,7 @@ bool ADeepDriveAgentCityAIController::Activate(ADeepDriveAgent &agent, bool keep
 
 			if (m_Route)
 			{
-				m_Route->convert(FVector::OneVector);
-
-				//m_Route->trim();
-
+				m_Route->convert(m_Configuration.Routes[m_StartIndex].Start);
 				m_Route->placeAgentAtStart(agent);
 
 				m_SpeedController = new DeepDriveAgentSpeedController(m_Configuration.PIDThrottle, m_Configuration.PIDBrake);
