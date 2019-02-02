@@ -93,7 +93,7 @@ void ADeepDriveSimulation::PreInitializeComponents()
 			{
 				m_StateMachine->registerState(new DeepDriveSimulationInitializeState(*m_StateMachine));
 				m_StateMachine->registerState(new DeepDriveSimulationRunningState(*m_StateMachine));
-				m_ResetState = new DeepDriveSimulationResetState(*m_StateMachine);
+				m_ResetState = new DeepDriveSimulationResetState(*m_StateMachine, GetWorld());
 				m_StateMachine->registerState(m_ResetState);
 			}
 
