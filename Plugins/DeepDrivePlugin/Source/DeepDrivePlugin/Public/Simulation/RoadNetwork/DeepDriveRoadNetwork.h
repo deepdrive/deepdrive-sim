@@ -39,6 +39,9 @@ struct SDeepDriveRoadSegment
 
 	SDeepDriveRoadSegment		*LeftLane = 0;
 	SDeepDriveRoadSegment		*RightLane = 0;
+
+	FVector findClosestPoint(const FVector &pos) const;
+
 };
 
 

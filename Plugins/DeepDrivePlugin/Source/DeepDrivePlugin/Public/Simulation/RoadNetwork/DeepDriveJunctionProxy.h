@@ -34,7 +34,7 @@ struct FDeepDriveLaneConnectionProxy
 	bool	GenerateCurve = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default, meta = (EditCondition = "GenerateAutoConnection"))
-	float	SpeedLimit = 15.0f;
+	float	SpeedLimit = 25.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default, meta = (EditCondition = "GenerateAutoConnection"))
 	float	SlowDownDistance = 1000.0f;

@@ -43,17 +43,12 @@ uint32 SDeepDriveRoadNetwork::findClosestLink(const FVector &pos) const
 			for(auto &segmentId : lane.Segments)
 			{
 				const SDeepDriveRoadSegment &curSegment = Segments[segmentId];
-				float dist = (curSegment.StartPoint - pos).Size();
-				if(dist < bestDist)
+				FVector closestPos = curSegment.findClosestPoint(pos);
+				const float curDist = (closestPos - pos).Size();
+				if (curDist < bestDist)
 				{
+					bestDist = curDist;
 					linkInd = curSegment.LinkId;
-					bestDist = dist;
-				}
-				dist = (curSegment.EndPoint - pos).Size();
-				if(dist < bestDist)
-				{
-					linkInd = curSegment.LinkId;
-					bestDist = dist;
 				}
 			}
 		}
@@ -72,34 +67,34 @@ uint32 SDeepDriveRoadNetwork::findClosestSegment(const FVector &pos, EDeepDriveL
 		auto segment = curIt.Value();
 		if(segment.LaneType == laneType)
 		{
-			if(segment.SplineCurves.Position.Points.Num() > 0)
+			const SDeepDriveRoadSegment &curSegment = curIt.Value();
+			FVector closestPos = curSegment.findClosestPoint(pos);
+			const float curDist = (closestPos - pos).Size();
+			if(curDist < dist)
 			{
-				float curDist = (segment.StartPoint - pos).Size();
-				if(curDist < dist)
-				{
-					dist = curDist;
-					key = curIt.Key();
-				}
-				curDist = (segment.EndPoint - pos).Size();
-				if(curDist < dist)
-				{
-					dist = curDist;
-					key = curIt.Key();
-				}
+				dist = curDist;
+				key = curIt.Key();
 			}
-			else
-			{
-				FVector cp = FMath::ClosestPointOnLine(segment.StartPoint, segment.EndPoint, pos);
-				const float curDist = (cp - pos).Size();
-				if(curDist < dist)
-				{
-					dist = curDist;
-					key = curIt.Key();
-				}
-			}
-
 		}
 	}
 
 	return key;
+}
+
+FVector SDeepDriveRoadSegment::findClosestPoint(const FVector &pos) const
+{
+	FVector closestPos;
+	if (SplineCurves.Position.Points.Num() > 0)
+	{
+		const FVector localPos = Transform.InverseTransformPosition(pos);
+		float dummy;
+		const float key = SplineCurves.Position.InaccurateFindNearest(localPos, dummy);
+		closestPos = SplineCurves.Position.Eval(key, FVector::ZeroVector);
+		closestPos = Transform.TransformPosition(closestPos);
+	}
+	else
+	{
+		closestPos = FMath::ClosestPointOnLine(StartPoint, EndPoint, pos);
+	}
+	return closestPos;
 }
