@@ -15,7 +15,7 @@ ADeepDriveAgentRemoteAIController::ADeepDriveAgentRemoteAIController()
 	:	ADeepDriveAgentControllerBase()
 {
 	m_ControllerName = "Remote AI Controller";
-	m_isCollisionEnabled = false;
+	m_isCollisionEnabled = true;
 }
 
 void ADeepDriveAgentRemoteAIController::OnConfigureSimulation(const SimulationConfiguration &configuration, bool initialConfiguration)

@@ -78,8 +78,11 @@ void ADeepDriveAgentControllerBase::OnAgentCollision(AActor *OtherActor, const F
 		m_CollisionData.CollisionNormal = HitResult.ImpactNormal;
 		m_hasCollisionOccured = true;
 
-		// UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentControllerBase::OnAgentCollision %ld"), now.ToUnixTimestamp() );
+		UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentControllerBase::OnAgentCollision %ld"), now.ToUnixTimestamp() );
 
+	}
+	else {
+	    UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentControllerBase::OnAgentCollision ignored due to m_isCollisionEnabled == false"));
 	}
 }
 

@@ -95,7 +95,7 @@ protected:
 
 	bool								m_LapStarted = false;
 
-	bool								m_isCollisionEnabled = false;
+	bool								m_isCollisionEnabled = true;
 
 	bool								m_hasCollisionOccured = false;
 	DeepDriveCollisionData				m_CollisionData;
