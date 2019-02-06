@@ -250,7 +250,8 @@ void ADeepDriveRoute::placeAgentAtStart(ADeepDriveAgent &agent)
 	int32 index = findClosestRoutePoint(m_RouteData.Start);
 	if(index >= 0)
 	{
-		FTransform transform(FRotator(0.0f, -180.0f, 0.0f), m_RoutePoints[index].Location, FVector(1.0f, 1.0f, 1.0f));
+		const float heading = m_RoadNetwork->Segments[m_RoutePoints[index].SegmentId].Heading;
+		FTransform transform(FRotator(0.0f, heading, 0.0f), m_RoutePoints[index].Location, FVector(1.0f, 1.0f, 1.0f));
 		agent.SetActorTransform(transform, false, 0, ETeleportType::TeleportPhysics);
 	}
 }
