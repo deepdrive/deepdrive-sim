@@ -11,31 +11,37 @@ enum class EDeepDriveLaneType : uint8
 {
 	MAJOR_LANE			= 0	UMETA(DisplayName = "Major Lane"),
 	ADDITIONAL_LANE 	= 1	UMETA(DisplayName = "Additional Lane"),
-	PARKING_LANE	    = 2	UMETA(DisplayName = "Parking Lane")
+	PARKING_LANE	    = 2	UMETA(DisplayName = "Parking Lane"),
+	CONNECTION	    	= 3	UMETA(DisplayName = "Connection")
 };
 
 
 struct SDeepDriveRoadSegment
 {
-	uint32						SegmentId;
+	uint32						SegmentId = 0;
 
-	FVector						StartPoint;
-	FVector						EndPoint;
+	FVector						StartPoint = FVector::ZeroVector;
+	FVector						EndPoint = FVector::ZeroVector;
 
-	float						Heading;
+	float						Heading = 0.0f;
+	EDeepDriveLaneType			LaneType = EDeepDriveLaneType::MAJOR_LANE;
 
 	TArray<FSplinePoint>		SplinePoints;
 	FSplineCurves				SplineCurves;
 	FTransform					Transform;
 
-	uint32						LinkId;
+	uint32						LinkId = 0;
 
-	float						SpeedLimit;
-	bool						IsConnection;
-	float						SlowDownDistance;
+	float						SpeedLimit = -1.0f;
+	bool						IsConnection = false;
+	bool						GenerateCurve = false;
+	float						SlowDownDistance = -1.0f;
 
 	SDeepDriveRoadSegment		*LeftLane = 0;
 	SDeepDriveRoadSegment		*RightLane = 0;
+
+	FVector findClosestPoint(const FVector &pos) const;
+
 };
 
 
@@ -48,18 +54,20 @@ struct SDeepDriveLane
 
 struct SDeepDriveRoadLink
 {
-	uint32						LinkId;
+	uint32						LinkId = 0;
 
-	FVector						StartPoint;
-	FVector						EndPoint;
+	FVector						StartPoint = FVector::ZeroVector;
+	FVector						EndPoint = FVector::ZeroVector;
 
-	uint32						FromJunctionId;
-	uint32						ToJunctionId;
+	uint32						FromJunctionId = 0;
+	uint32						ToJunctionId = 0;
 
-	float						Heading;
-	float						SpeedLimit;
+	float						Heading = 0.0f;
+	float						SpeedLimit = -1.0f;
 
 	TArray<SDeepDriveLane>		Lanes;
+
+	int32 getRightMostLane(EDeepDriveLaneType type) const;
 
 };
 
@@ -72,7 +80,8 @@ struct SDeepDriveLaneConnection
 
 struct SDeepDriveJunction
 {
-	uint32								JunctionId;
+	uint32								JunctionId = 0;
+	FVector								Center = FVector::ZeroVector;
 
 	TArray<uint32> 						LinksIn;
 	TArray<uint32>				 		LinksOut;
@@ -85,8 +94,8 @@ struct SDeepDriveJunction
 
 struct SDeepDriveRouteData
 {
-	FVector				Start;
-	FVector				Destination;
+	FVector				Start = FVector::ZeroVector;
+	FVector				Destination = FVector::ZeroVector;
 
 	TArray<uint32>		Links;
 
@@ -97,6 +106,10 @@ struct SDeepDriveRoadNetwork
 	TMap<uint32, SDeepDriveJunction>		Junctions;
 	TMap<uint32, SDeepDriveRoadLink>		Links;
 	TMap<uint32, SDeepDriveRoadSegment> 	Segments;
+
+	uint32 findClosestLink(const FVector &pos) const;
+	uint32 findClosestSegment(const FVector &pos, EDeepDriveLaneType laneType) const;
+
 };
 
 namespace DeepDriveRoadNetwork

@@ -334,6 +334,12 @@ float ADeepDriveSplineTrack::getDistance(float key)
 	return FMath::Lerp(dist0, dist1, key - static_cast<float> (index0));
 }
 
+void ADeepDriveSplineTrack::resetRandomSlots()
+{
+	m_remainingSlots = m_RandomSlotCount;
+	m_RandomSlots.Empty();
+}
+
 float ADeepDriveSplineTrack::getRandomDistanceAlongTrack(FRandomStream &randomStream)
 {
 	float distance = -1.0f;
@@ -359,6 +365,7 @@ float ADeepDriveSplineTrack::getRandomDistanceAlongTrack(FRandomStream &randomSt
 
 	return distance;
 }
+
 
 float ADeepDriveSplineTrack::getRandomDistanceAlongTrack(UDeepDriveRandomStream &randomStream)
 {

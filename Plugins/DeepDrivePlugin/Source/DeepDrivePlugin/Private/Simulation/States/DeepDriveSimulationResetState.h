@@ -7,7 +7,7 @@ class DeepDriveSimulationResetState : public DeepDriveSimulationStateBase
 {
 public:
 
-	DeepDriveSimulationResetState(DeepDriveSimulationStateMachine &stateMachine);
+	DeepDriveSimulationResetState(DeepDriveSimulationStateMachine &stateMachine, UWorld *world);
 
 	virtual ~DeepDriveSimulationResetState();
 
@@ -21,6 +21,7 @@ public:
 
 private:
 
+	UWorld		*m_World = 0;
 	bool		m_ActivateAdditionalAgents = true;
 
 };

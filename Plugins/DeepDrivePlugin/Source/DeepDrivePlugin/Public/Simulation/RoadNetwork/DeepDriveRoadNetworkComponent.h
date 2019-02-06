@@ -35,7 +35,7 @@ public:
 	void Initialize();
 
 	UFUNCTION(BlueprintCallable, Category = "Route")
-	FVector GetRandomLocation(EDeepDriveLaneType PreferredLaneType);
+	FVector GetRandomLocation(EDeepDriveLaneType PreferredLaneType, int32 relPos);
 
 	UFUNCTION(BlueprintCallable, Category = "Route")
 	void PlaceAgentOnRoad(ADeepDriveAgent *Agent, FVector Location);
@@ -56,8 +56,6 @@ public:
 protected:
 
 	void collectRoadNetwork();
-
-	SDeepDriveRoadLink* findClosestLink(const FVector &pos);
 
 	float calcHeading(const FVector &from, const FVector &to);
 

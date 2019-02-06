@@ -41,24 +41,62 @@ void ADeepDriveRoute::convert(const FVector &location)
 	convertToPoints(location);
 	if (m_RoutePoints.Num() > 0)
 	{
+		trim(location, m_RouteData.Destination);
 		annotateRoute();
 	}
 	UE_LOG(LogDeepDriveRoute, Log, TEXT("Route converted numPoints %d length %f"), m_RoutePoints.Num(), m_RouteLength);
+}
+
+void ADeepDriveRoute::trim(const FVector &start, const FVector &end)
+{
+	const int32 numRoutePoints = m_RoutePoints.Num();
+	float bestDistStart = TNumericLimits<float>::Max();
+	float bestDistEnd = TNumericLimits<float>::Max();
+	int32 bestIndStart = -1;
+	int32 bestIndEnd = -1;
+	for(signed i = numRoutePoints - 1; i >= 0; --i)
+	{
+		const float curDistStart = (start - m_RoutePoints[i].Location).Size();
+		if (curDistStart <= bestDistStart)
+		{
+			bestDistStart = curDistStart;
+			bestIndStart = i;
+		}
+		const float curDistEnd = (end - m_RoutePoints[i].Location).Size();
+		if (curDistEnd <= bestDistEnd)
+		{
+			bestDistEnd = curDistEnd;
+			bestIndEnd = i;
+		}
+	}
+
+	if(bestIndStart >= 0)
+	{
+		RoutePoints trimmedPoints;
+		for(int32 i = bestIndStart; i < bestIndEnd; ++i)
+			trimmedPoints.Add(m_RoutePoints[i]);
+
+		m_RoutePoints = trimmedPoints;
+		UE_LOG(LogDeepDriveRoute, Log, TEXT("Trimmed %d %s %s"), m_RoutePoints.Num(), *(m_RoutePoints[0].Location.ToString()), *(m_RoutePoints[m_RoutePoints.Num() - 1].Location.ToString()) );
+	}
 }
 
 void ADeepDriveRoute::convertToPoints(const FVector &location)
 {
 	m_RouteLength = 0.0f;
 	m_RoutePoints.Empty();
-	if (m_RoadNetwork)
+	if	(	m_RoadNetwork
+		&&	m_RouteData.Links.Num() > 0
+		)
 	{
 		float carryOverDistance = 0.0f;
+		uint32 curLane = m_RoadNetwork->Links[m_RouteData.Links[0]].getRightMostLane(EDeepDriveLaneType::MAJOR_LANE);
 		for (signed i = 0; i < m_RouteData.Links.Num(); ++i)
 		{
 			const SDeepDriveRoadLink &link = m_RoadNetwork->Links[m_RouteData.Links[i]];
 			const bool lastLink = (i + 1) == m_RouteData.Links.Num();
 
-			const SDeepDriveLane &lane = link.Lanes[0];
+			const SDeepDriveLane &lane = link.Lanes[curLane];
 
 			for (signed j = 0; j < lane.Segments.Num(); ++j)
 			{
@@ -72,10 +110,17 @@ void ADeepDriveRoute::convertToPoints(const FVector &location)
 				const SDeepDriveRoadLink &nextLink = m_RoadNetwork->Links[m_RouteData.Links[i + 1]];
 				const SDeepDriveRoadSegment &segment = m_RoadNetwork->Segments[lane.Segments[lane.Segments.Num() - 1]];
 
+				curLane = nextLink.getRightMostLane(EDeepDriveLaneType::MAJOR_LANE);
+
 				const SDeepDriveJunction &junction = m_RoadNetwork->Junctions[link.ToJunctionId];
-				const uint32 connectionSegmentId = junction.findConnectionSegment(segment.SegmentId, nextLink.Lanes[0].Segments[0]);
+				const uint32 connectionSegmentId = junction.findConnectionSegment(segment.SegmentId, nextLink.Lanes[curLane].Segments[0]);
 				if (connectionSegmentId)
-					carryOverDistance = addSegmentToPoints(m_RoadNetwork->Segments[connectionSegmentId], false, carryOverDistance);
+				{
+					const SDeepDriveRoadSegment &connectionSegment = m_RoadNetwork->Segments[connectionSegmentId];
+					carryOverDistance =		connectionSegment.GenerateCurve ==	false
+										? 	addSegmentToPoints(connectionSegment, false, carryOverDistance)
+										:	addCurvedConnectionSegment(m_RoadNetwork->Segments[segment.SegmentId], m_RoadNetwork->Segments[nextLink.Lanes[curLane].Segments[0]], connectionSegmentId, carryOverDistance);
+				}
 			}
 		}
 	}
@@ -173,10 +218,41 @@ float ADeepDriveRoute::addSegmentToPoints(const SDeepDriveRoadSegment &segment, 
 	return carryOverDistance;
 }
 
+float ADeepDriveRoute::addCurvedConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, uint32 segmentId, float carryOverDistance)
+{
+	const FVector &p0 = fromSegment.EndPoint;
+	FVector p1 = calcControlPoint(fromSegment, toSegment);
+	const FVector &p2 = toSegment.StartPoint;
+	UE_LOG(LogDeepDriveRoute, Log, TEXT("Intersection point %s"), *(p1.ToString()));
+
+	for(float t = 0.0f; t < 1.0f; t+= 0.05f)
+	{
+		SRoutePoint rp;
+		rp.SegmentId = segmentId;
+		rp.RelativePosition = t;
+
+		const float oneMinusT = (1.0f - t);
+		rp.Location = oneMinusT * oneMinusT * p0 + 2.0f * oneMinusT * t * p1 + t * t *p2;
+
+		m_RoutePoints.Add(rp);
+	}
+
+	return 0.0f;
+}
+
 void ADeepDriveRoute::update(ADeepDriveAgent &agent)
 {
-	findClosestRoutePoint(agent);
+	m_curRoutePointIndex = findClosestRoutePoint(agent.GetActorLocation());
+}
 
+void ADeepDriveRoute::placeAgentAtStart(ADeepDriveAgent &agent)
+{
+	int32 index = findClosestRoutePoint(m_RouteData.Start);
+	if(index >= 0)
+	{
+		FTransform transform(FRotator(0.0f, -180.0f, 0.0f), m_RoutePoints[index].Location, FVector(1.0f, 1.0f, 1.0f));
+		agent.SetActorTransform(transform, false, 0, ETeleportType::TeleportPhysics);
+	}
 }
 
 float ADeepDriveRoute::getRemainingDistance()
@@ -193,25 +269,130 @@ FVector ADeepDriveRoute::getLocationAhead(float distanceAhead, float sideOffset)
 	return locAhead;
 }
 
-float ADeepDriveRoute::getSpeedLimit()
+float ADeepDriveRoute::getSpeedLimit(float distanceAhead)
 {
-	return		m_curRoutePointIndex >= 0
-			?	m_RoutePoints[m_curRoutePointIndex % m_RoutePoints.Num()].SpeedLimit
-			:	DeepDriveRoadNetwork::SpeedLimitInTown;
+	float speedLimit = 0.0f;
+	if(m_curRoutePointIndex >= 0)
+	{
+		if(distanceAhead > 0.0f)
+		{
+			const int32 index = getPointIndexAhead(distanceAhead);
+			if(index >= 0)
+				speedLimit = m_RoutePoints[index].SpeedLimit;
+		}
+		else
+			speedLimit = m_RoutePoints[m_curRoutePointIndex % m_RoutePoints.Num()].SpeedLimit;
+	}
+
+	return speedLimit;
 }
 
-void ADeepDriveRoute::findClosestRoutePoint(ADeepDriveAgent &agent)
+int32 ADeepDriveRoute::findClosestRoutePoint(const FVector &location) const
 {
-	FVector agentPos = agent.GetActorLocation();
-	float bestDist = 1000000.0f;
-	m_curRoutePointIndex = -1;
+	float bestDist = TNumericLimits<float>::Max();
+	int32 index = -1;
 	for(signed i = m_RoutePoints.Num() - 1; i >= 0; --i)
 	{
-		const float curDist = (agentPos - m_RoutePoints[i].Location).Size();
+		const float curDist = (location - m_RoutePoints[i].Location).Size();
 		if (curDist <= bestDist)
 		{
 			bestDist = curDist;
-			m_curRoutePointIndex = i;
+			index = i;
 		}
 	}
+	return index;
 }
+
+int32 ADeepDriveRoute::getPointIndexAhead(float distanceAhead) const
+{
+	int32 curIndex = m_curRoutePointIndex;
+	FVector lastPoint = m_RoutePoints[curIndex].Location;
+	for( ; curIndex < m_RoutePoints.Num() && distanceAhead > 0.0f; ++curIndex)
+	{
+		FVector curPoint = m_RoutePoints[curIndex].Location;
+		distanceAhead -= (curPoint - lastPoint).Size();
+		lastPoint = curPoint;
+	}
+
+	return curIndex < m_RoutePoints.Num() ? curIndex : m_RoutePoints.Num() - 1;
+}
+
+#if 0
+
+FVector ADeepDriveRoute::calcControlPoint(const SDeepDriveRoadSegment &segA, const SDeepDriveRoadSegment &segB)
+{
+	FVector ctr = (segB.StartPoint + segA.EndPoint) * 0.5f;
+	FVector2D dir(segB.StartPoint - segA.EndPoint);
+
+	const float dist = dir.Size();
+	dir.Normalize();
+	FVector nrm(dir.Y, -dir.X, 0.0f);
+
+	return ctr + 0.5f * dist * nrm;
+}
+
+#else
+
+FVector ADeepDriveRoute::calcControlPoint(const SDeepDriveRoadSegment &segA, const SDeepDriveRoadSegment &segB)
+{
+	FVector aStart;
+	FVector aEnd;
+	FVector bStart;
+	FVector bEnd;
+
+	extractTangentFromSegment(segA, aStart, aEnd, false);
+	extractTangentFromSegment(segB, bStart, bEnd, true);
+
+	FVector2D r = FVector2D(aEnd - aStart);
+	FVector2D s = FVector2D(bStart - bEnd);
+
+	//r.Normalize();
+	//s.Normalize();
+
+	float cRS = FVector2D::CrossProduct(r, s);
+
+	if (FMath::Abs(cRS) > 0.001f)
+	{
+		FVector2D qp(bEnd - aStart);
+		//qp.Normalize();
+		float t = FVector2D::CrossProduct(qp, s) / cRS;
+		FVector2D intersection(FVector2D(aStart) + r * t);
+		const float z = 0.5f * (aEnd.Z + bStart.Z);
+
+		return FVector(intersection, z);
+	}
+
+
+	UE_LOG(LogDeepDriveRoute, Log, TEXT("no intersection, taking center"));
+	return 0.5f * (segA.EndPoint + segB.StartPoint); 
+}
+
+void ADeepDriveRoute::extractTangentFromSegment(const SDeepDriveRoadSegment &segment, FVector &start, FVector &end, bool atStart)
+{
+	if (segment.SplinePoints.Num() > 0)
+	{
+		const int32 index = atStart ? 0 : (segment.SplinePoints.Num() - 1);
+		const FInterpCurvePointVector& point = segment.SplineCurves.Position.Points[index];
+		FVector direction = segment.Transform.TransformVector(atStart ? point.ArriveTangent : point.LeaveTangent);
+		direction.Normalize();
+		direction *= 100.0f;
+		if(atStart)
+		{
+		start = segment.StartPoint;
+		end = segment.EndPoint + direction;
+		}
+		else
+		{
+			start = segment.EndPoint - direction;
+			end = segment.EndPoint;
+		}
+	}
+	else
+	{
+		start = segment.StartPoint;
+		end = segment.EndPoint;
+	}
+}
+
+
+#endif

@@ -10,6 +10,8 @@
 #include "Public/Simulation/RoadNetwork/DeepDriveRoute.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 
+#include "Private/Simulation/RoadNetwork/DeepDriveRouteCalculator.h"
+
 DEFINE_LOG_CATEGORY(LogDeepDriveRoadNetwork);
 
 // Sets default values for this component's properties
@@ -44,18 +46,37 @@ void UDeepDriveRoadNetworkComponent::TickComponent(float DeltaTime, ELevelTick T
 	// ...
 }
 
-FVector UDeepDriveRoadNetworkComponent::GetRandomLocation(EDeepDriveLaneType PreferredLaneType)
+FVector UDeepDriveRoadNetworkComponent::GetRandomLocation(EDeepDriveLaneType PreferredLaneType, int32 relPos)
 {
-	FVector location;
+	FVector location = FVector::ZeroVector;
+
+	const int32 numLinks = m_RoadNetwork.Links.Num();
+	if(numLinks > 0)
+	{
+		SDeepDriveRoadLink &link = m_RoadNetwork.Links[FMath::RandRange(0u, numLinks - 1)];
+
+		int32 laneInd = link.getRightMostLane(PreferredLaneType);
+		if(laneInd)
+		{
+			SDeepDriveLane &lane = link.Lanes[laneInd];
+			if(relPos == 0)
+				location = m_RoadNetwork.Segments[lane.Segments[0]].StartPoint;
+			else if(relPos > 0)
+				location = m_RoadNetwork.Segments[lane.Segments[lane.Segments.Num() - 1]].EndPoint;
+			else
+				location = 0.5f * (m_RoadNetwork.Segments[lane.Segments[0]].StartPoint + m_RoadNetwork.Segments[lane.Segments[0]].EndPoint);
+		}
+	}
 
 	return location;
 }
 
 void UDeepDriveRoadNetworkComponent::PlaceAgentOnRoad(ADeepDriveAgent *Agent, FVector Location)
 {
-	SDeepDriveRoadLink *link = UDeepDriveRoadNetworkComponent::findClosestLink(Location);
-	if(link)
+	const uint32 linkId = m_RoadNetwork.findClosestLink(Location);
+	if(linkId)
 	{
+		const SDeepDriveRoadLink *link = &m_RoadNetwork.Links[linkId];
 		FTransform transform(FRotator(0.0f, link->Heading, 0.0f), link->StartPoint, FVector(1.0f, 1.0f, 1.0f));
 		Agent->SetActorTransform(transform, false, 0, ETeleportType::TeleportPhysics);
 	}
@@ -68,20 +89,31 @@ void UDeepDriveRoadNetworkComponent::PlaceAgentOnRoadRandomly(ADeepDriveAgent *A
 ADeepDriveRoute* UDeepDriveRoadNetworkComponent::CalculateRoute(const FVector Start, const FVector Destination)
 {
 	ADeepDriveRoute *route = 0;
-	if (m_DebugRoute.Num() > 0)
-	{	
-		route = GetWorld()->SpawnActor<ADeepDriveRoute>(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f), FActorSpawnParameters());
+	const uint32 startLinkId = m_RoadNetwork.findClosestLink(Start);
+	const uint32 destLinkId = m_RoadNetwork.findClosestLink(Destination);
 
-		if(route)
+	if(startLinkId && destLinkId)
+	{
+		UE_LOG(LogDeepDriveRoadNetwork, Log, TEXT("Calc route from %d(%s) to %d(%s)"), startLinkId, *(m_RoadNetwork.Links[startLinkId].StartPoint.ToString()), destLinkId, *(m_RoadNetwork.Links[destLinkId].EndPoint.ToString()) );
+
+		DeepDriveRouteCalculator routeCalculator(m_RoadNetwork);
+
+		SDeepDriveRouteData routeData = routeCalculator.calculate(Start, Destination);
+
+		if (routeData.Links.Num() > 0)
 		{
-			SDeepDriveRouteData routeData;
-			routeData.Start = m_RoadNetwork.Links[m_DebugRoute[0]].StartPoint;
-			routeData.Destination = m_RoadNetwork.Links[m_DebugRoute[m_DebugRoute.Num() - 1]].EndPoint;
-			routeData.Links = m_DebugRoute;
+			route = GetWorld()->SpawnActor<ADeepDriveRoute>(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f), FActorSpawnParameters());
 
-			route->initialize(m_RoadNetwork, routeData);
+			if (route)
+			{
+				route->initialize(m_RoadNetwork, routeData);
+			}
 		}
+
 	}
+	else
+		UE_LOG(LogDeepDriveRoadNetwork, Log, TEXT("Calc route failed %d / %d"), startLinkId, destLinkId );
+
 	return route;
 }
 
@@ -102,30 +134,12 @@ ADeepDriveRoute* UDeepDriveRoadNetworkComponent::CalculateRoute(const TArray<uin
 	return route;
 }
 
-SDeepDriveRoadLink* UDeepDriveRoadNetworkComponent::findClosestLink(const FVector &pos)
-{
-	uint32 key = 0;
-	float dist = 1000000.0f;
-
-	for (auto curIt = m_RoadNetwork.Links.CreateIterator(); curIt; ++curIt)
-	{
-		const float curDist = (curIt.Value().StartPoint - pos).Size();
-		if(curDist < dist)
-		{
-			dist = curDist;
-			key = curIt.Key();
-		}
-	}
-
-	return key ? &m_RoadNetwork.Links[key] : 0;
-}
-
 void UDeepDriveRoadNetworkComponent::collectRoadNetwork()
 {
 	if(m_Extractor == 0)
-		m_Extractor = new DeepDriveRoadNetworkExtractor(GetWorld());
+		m_Extractor = new DeepDriveRoadNetworkExtractor(GetWorld(), m_RoadNetwork);
 
-	m_Extractor->extract(m_RoadNetwork);
+	m_Extractor->extract();
 
 	for(auto &rl : Route)
 	{

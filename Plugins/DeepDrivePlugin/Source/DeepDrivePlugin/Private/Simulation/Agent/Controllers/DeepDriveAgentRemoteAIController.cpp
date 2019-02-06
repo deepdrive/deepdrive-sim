@@ -55,6 +55,9 @@ bool ADeepDriveAgentRemoteAIController::ResetAgent()
 	bool res = false;
 	if(m_Agent)
 	{
+		if(m_StartPositionSlot < 0)
+			m_StartDistance = m_Track->getRandomDistanceAlongTrack(*m_DeepDriveSimulation->GetRandomStream(FName("AgentPlacement")));
+
 		resetAgentPosOnSpline(*m_Agent, m_Track->GetSpline(), m_StartDistance);
 		m_hasCollisionOccured = false;
 		res = true;
@@ -67,5 +70,6 @@ void ADeepDriveAgentRemoteAIController::Configure(const FDeepDriveRemoteAIContro
 {
 	m_DeepDriveSimulation = DeepDriveSimulation;
 	m_Track = Configuration.Track;
+	m_StartPositionSlot = StartPositionSlot;
 	m_StartDistance = StartPositionSlot >= 0 && StartPositionSlot < Configuration.StartDistances.Num() ? Configuration.StartDistances[StartPositionSlot] : -1.0f;
 }

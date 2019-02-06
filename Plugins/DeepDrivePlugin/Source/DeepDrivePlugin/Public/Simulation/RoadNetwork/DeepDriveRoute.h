@@ -52,21 +52,29 @@ public:
 
 	FVector getLocationAhead(float distanceAhead, float sideOffset);
 
-	float getSpeedLimit();
+	float getSpeedLimit(float distanceAhead);
 
 	float getRemainingDistance();
+
+	void placeAgentAtStart(ADeepDriveAgent &agent);
 
 private:
 
 	void convertToPoints(const FVector &location);
 	float addSegmentToPoints(const SDeepDriveRoadSegment &segment, bool addEnd, float carryOverDistance);
+	float addCurvedConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, uint32 segmentId, float carryOverDistance);
 	void annotateRoute();
 
-	float getInputKeyAhead(float distanceAhead);
+	void trim(const FVector &start, const FVector &end);
 
-	void findClosestRoutePoint(ADeepDriveAgent &agent);
+	int32 getPointIndexAhead(float distanceAhead) const;
+
+	int32 findClosestRoutePoint(const FVector &location) const;
 
 	FVector getSplinePoint(float distance);
+
+	FVector calcControlPoint(const SDeepDriveRoadSegment &segA, const SDeepDriveRoadSegment &segB);
+	void extractTangentFromSegment(const SDeepDriveRoadSegment &segment, FVector &start, FVector &end, bool atStart);
 
  	const SDeepDriveRoadNetwork		*m_RoadNetwork = 0;
 	SDeepDriveRouteData 			m_RouteData;

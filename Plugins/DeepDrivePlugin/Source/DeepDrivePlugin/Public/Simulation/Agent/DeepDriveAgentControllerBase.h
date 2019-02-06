@@ -87,6 +87,7 @@ protected:
 	ADeepDriveAgent						*m_Agent = 0;
 
 	ADeepDriveSplineTrack				*m_Track = 0;
+	int32								m_StartPositionSlot = 0;
 	float								m_StartDistance = 0.0f;
 	const float							m_LapDistanceThreshold = 500.0f;  // cm? (everything is in cm in Unreal)
 

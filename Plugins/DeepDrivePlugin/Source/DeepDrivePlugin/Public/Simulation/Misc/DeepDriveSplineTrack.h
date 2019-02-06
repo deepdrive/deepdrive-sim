@@ -98,6 +98,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Export")
 	float	RightSplineOffset = 400.0f;
 
+	void resetRandomSlots();
+
 	float getRandomDistanceAlongTrack(FRandomStream &randomStream);
 
 	float getRandomDistanceAlongTrack(UDeepDriveRandomStream &randomStream);

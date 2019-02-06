@@ -22,7 +22,26 @@ struct FDeepDriveLaneConnectionProxy
 	ADeepDriveRoadSegmentProxy	*ToSegment = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	ADeepDriveRoadLinkProxy *FromLink = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	ADeepDriveRoadLinkProxy *ToLink = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	bool	GenerateAutoConnection;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default, meta = (EditCondition = "GenerateAutoConnection"))
+	bool	GenerateCurve = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default, meta = (EditCondition = "GenerateAutoConnection"))
+	float	SpeedLimit = 25.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default, meta = (EditCondition = "GenerateAutoConnection"))
+	float	SlowDownDistance = 1000.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default, meta = (EditCondition = "!GenerateAutoConnection"))
 	ADeepDriveRoadSegmentProxy	*ConnectionSegment = 0;
+
 };
 
 
@@ -39,6 +58,8 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual bool ShouldTickIfViewportsOnly() const override;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -51,6 +72,9 @@ public:
 
 protected:
 
+	UPROPERTY(EditDefaultsOnly, Category = Default)
+	USceneComponent				*Root = 0;
+
 	UPROPERTY(EditAnywhere, Category = Configuration)
 	TArray<ADeepDriveRoadLinkProxy*>	LinksIn;
 
@@ -59,6 +83,11 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Configuration)
 	TArray<FDeepDriveLaneConnectionProxy>	LaneConnections;
+
+	UPROPERTY(EditAnywhere, Category = Debug)
+	FColor						Color = FColor(0, 255, 0, 128);
+
+	bool						m_IsGameRunning = false;
 
 };
 
