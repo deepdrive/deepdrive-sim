@@ -44,6 +44,18 @@ struct FDeepDriveLaneConnectionProxy
 
 };
 
+USTRUCT(BlueprintType)
+struct FDeepDriveTurningRestriction
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	ADeepDriveRoadLinkProxy *FromLink = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	ADeepDriveRoadLinkProxy *ToLink = 0;
+
+};
 
 UCLASS()
 class DEEPDRIVEPLUGIN_API ADeepDriveJunctionProxy : public AActor
@@ -70,6 +82,8 @@ public:
 
 	const TArray<FDeepDriveLaneConnectionProxy>& getLaneConnections();
 
+	const TArray<FDeepDriveTurningRestriction>& getTurningRestrictions();
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = Default)
@@ -83,6 +97,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Configuration)
 	TArray<FDeepDriveLaneConnectionProxy>	LaneConnections;
+
+	UPROPERTY(EditAnywhere, Category = Configuration)
+	TArray<FDeepDriveTurningRestriction>	TurningRestrictions;
 
 	UPROPERTY(EditAnywhere, Category = Debug)
 	FColor						Color = FColor(0, 255, 0, 128);
@@ -104,4 +121,9 @@ inline const TArray<ADeepDriveRoadLinkProxy*>& ADeepDriveJunctionProxy::getLinks
 inline const TArray<FDeepDriveLaneConnectionProxy>& ADeepDriveJunctionProxy::getLaneConnections()
 {
 	return LaneConnections;
+}
+
+inline const TArray<FDeepDriveTurningRestriction>& ADeepDriveJunctionProxy::getTurningRestrictions()
+{
+	return TurningRestrictions;
 }

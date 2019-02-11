@@ -347,12 +347,14 @@ FVector ADeepDriveRoute::calcControlPoint(const SDeepDriveRoadSegment &segA, con
 	FVector2D r = FVector2D(aEnd - aStart);
 	FVector2D s = FVector2D(bStart - bEnd);
 
+	float dot = FMath::Abs(FVector2D::DotProduct(r, s) / (r.Size() * s.Size()));
+
 	//r.Normalize();
 	//s.Normalize();
 
 	float cRS = FVector2D::CrossProduct(r, s);
 
-	if (FMath::Abs(cRS) > 0.001f)
+	if (FMath::Abs(cRS) > 0.001f && dot < 0.975f)
 	{
 		FVector2D qp(bEnd - aStart);
 		//qp.Normalize();

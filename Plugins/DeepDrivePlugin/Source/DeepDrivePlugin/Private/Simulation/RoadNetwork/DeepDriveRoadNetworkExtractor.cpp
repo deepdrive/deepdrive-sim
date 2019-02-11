@@ -108,8 +108,23 @@ void DeepDriveRoadNetworkExtractor::extract()
 						connection.ConnectionSegment = addSegment(*connectionProxy.ConnectionSegment, 0, EDeepDriveLaneType::CONNECTION);
 					}
 				}
-
 				junction.Connections.Add(connection);
+
+				for(auto &turningRestrictionProxy : junctionProxy->getTurningRestrictions())
+				{
+					FString fromName = UKismetSystemLibrary::GetObjectName(turningRestrictionProxy.FromLink);
+					FString toName = UKismetSystemLibrary::GetObjectName(turningRestrictionProxy.ToLink);
+					if	(	m_LinkCache.Contains(fromName)
+						&&	m_LinkCache.Contains(toName)
+						)
+					{
+						SDeepDriveTurningRestriction turningRestriction;
+						turningRestriction.FromLink = m_LinkCache[fromName];
+						turningRestriction.ToLink = m_LinkCache[toName];
+						junction.TurningRestrictions.Add(turningRestriction);
+					}
+				}
+
 			}
 
 			m_RoadNetwork.Junctions.Add(junctionId, junction);

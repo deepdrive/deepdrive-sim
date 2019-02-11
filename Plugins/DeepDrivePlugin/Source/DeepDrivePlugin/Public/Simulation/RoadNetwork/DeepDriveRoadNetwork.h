@@ -78,15 +78,23 @@ struct SDeepDriveLaneConnection
 	uint32		ConnectionSegment = 0;
 };
 
+struct SDeepDriveTurningRestriction
+{
+	uint32		FromLink = 0;
+	uint32		ToLink = 0;
+};
+
 struct SDeepDriveJunction
 {
-	uint32								JunctionId = 0;
-	FVector								Center = FVector::ZeroVector;
+	uint32									JunctionId = 0;
+	FVector									Center = FVector::ZeroVector;
 
-	TArray<uint32> 						LinksIn;
-	TArray<uint32>				 		LinksOut;
+	TArray<uint32> 							LinksIn;
+	TArray<uint32>				 			LinksOut;
 
-	TArray<SDeepDriveLaneConnection>	Connections;
+	TArray<SDeepDriveLaneConnection>		Connections;
+
+	TArray<SDeepDriveTurningRestriction>	TurningRestrictions;
 
 	uint32 findConnectionSegment(uint32 fromSegment, uint32 toSegment) const;
 

@@ -44,7 +44,7 @@ SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, co
 			routeData.Links.Add(startLinkId);
 			routeData.Links.Add(destLinkId);
 		}
-		else
+		else if (startLink.ToJunctionId && destLink.FromJunctionId)
 		{
 			const uint32 destJunctionId = destLink.FromJunctionId;
 			m_OpenList.add( acquireNode(startLink.ToJunctionId, 0, startLinkId, 0.0f) );
