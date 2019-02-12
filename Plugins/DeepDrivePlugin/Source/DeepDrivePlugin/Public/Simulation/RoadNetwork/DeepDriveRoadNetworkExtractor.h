@@ -39,15 +39,16 @@ private:
 
 	FString buildSegmentName(const FString &linkName);
 
-	UWorld							*m_World = 0;
-	SDeepDriveRoadNetwork 			&m_RoadNetwork;
+	UWorld								*m_World = 0;
+	SDeepDriveRoadNetwork 				&m_RoadNetwork;
 
-	TMap<FString, uint32>			m_SegmentCache;
-	TMap<FString, uint32>			m_LinkCache;
+	TMap<FString, uint32>				m_SegmentCache;
+	TMap<FString, uint32>				m_LinkCache;
+	TArray<ADeepDriveRoadLinkProxy*>	m_LinkProxies;
 
-	uint32							m_nextSegmentId = 1;
-	uint32							m_nextLinkId = 1;
-	uint32							m_nextJunctionId = 1;
+	uint32								m_nextSegmentId = 1;
+	uint32								m_nextLinkId = 1;
+	uint32								m_nextJunctionId = 1;
 };
 
 inline FString DeepDriveRoadNetworkExtractor::buildSegmentName(const FString &linkName)

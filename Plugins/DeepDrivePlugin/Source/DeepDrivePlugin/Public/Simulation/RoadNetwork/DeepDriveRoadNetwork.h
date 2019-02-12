@@ -59,6 +59,8 @@ struct SDeepDriveRoadLink
 	FVector						StartPoint = FVector::ZeroVector;
 	FVector						EndPoint = FVector::ZeroVector;
 
+	uint32						OppositeDirectionLink = 0;
+
 	uint32						FromJunctionId = 0;
 	uint32						ToJunctionId = 0;
 
@@ -97,6 +99,8 @@ struct SDeepDriveJunction
 	TArray<SDeepDriveTurningRestriction>	TurningRestrictions;
 
 	uint32 findConnectionSegment(uint32 fromSegment, uint32 toSegment) const;
+
+	bool isTurningAllowed(uint32 fromLink, uint32 toLink) const;
 
 };
 

@@ -76,6 +76,8 @@ SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, co
 			{
 				TArray<uint32> routeLinks;
 
+				const float totalCost = currentNode->CostF;
+
 				if(currentNode->LinkId != destLinkId)
 					routeLinks.Add(destLinkId);
 				while(currentNode)
@@ -92,7 +94,7 @@ SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, co
 					UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("  %d"), routeLinks[i] );
 				}
 
-				UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Route successfully calculated %d links"), routeData.Links.Num() );
+				UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Route successfully calculated %d links total cost %f"), routeData.Links.Num(), totalCost );
 
 			}
 			else
@@ -112,32 +114,36 @@ SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, co
 void DeepDriveRouteCalculator::expandNode(const Node &currentNode)
 {
 	UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Expanding junction node %d"), currentNode.JunctionId );
-	for(auto &outLinkId : m_RoadNetwork.Junctions[currentNode.JunctionId].LinksOut)
+	const SDeepDriveJunction &junction = m_RoadNetwork.Junctions[currentNode.JunctionId];
+	for(auto &outLinkId : junction.LinksOut)
 	{
-		const SDeepDriveRoadLink &outLink = m_RoadNetwork.Links[outLinkId];
-
-        if	(	outLink.ToJunctionId == 0
-			||	m_ClosedList.Contains(outLink.ToJunctionId)
-			)
-			continue;
-
-		const FVector junctionPos = m_RoadNetwork.Junctions[outLink.ToJunctionId].Center;
-		const float curC = (currentNode.Position - junctionPos).Size();
-        float tentativeG = currentNode.CostG + curC;
-
-		Node *successorNode = m_OpenList.get(outLink.ToJunctionId);
-		UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Successor node %d %p"), outLink.ToJunctionId, successorNode );
-		if(successorNode && tentativeG >= successorNode->CostG)
-            continue;
-
-		if(successorNode == 0)
+		if(junction.isTurningAllowed(currentNode.LinkId, outLinkId))
 		{
-			successorNode = acquireNode(outLink.ToJunctionId, &currentNode, outLinkId, tentativeG);
-			m_OpenList.add(successorNode);
-		}
-		else
-		{
-			successorNode->CostF = tentativeG + (m_Destination - junctionPos).Size();
+			const SDeepDriveRoadLink &outLink = m_RoadNetwork.Links[outLinkId];
+
+			if	(	outLink.ToJunctionId == 0
+				||	m_ClosedList.Contains(outLink.ToJunctionId)
+				)
+				continue;
+
+			const FVector junctionPos = m_RoadNetwork.Junctions[outLink.ToJunctionId].Center;
+			const float curC = (currentNode.Position - junctionPos).Size();
+			float tentativeG = currentNode.CostG + curC;
+
+			Node *successorNode = m_OpenList.get(outLink.ToJunctionId);
+			UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Successor node %d %p"), outLink.ToJunctionId, successorNode );
+			if(successorNode && tentativeG >= successorNode->CostG)
+				continue;
+
+			if(successorNode == 0)
+			{
+				successorNode = acquireNode(outLink.ToJunctionId, &currentNode, outLinkId, tentativeG);
+				m_OpenList.add(successorNode);
+			}
+			else
+			{
+				successorNode->CostF = tentativeG + (m_Destination - junctionPos).Size();
+			}
 		}
 	}
 }

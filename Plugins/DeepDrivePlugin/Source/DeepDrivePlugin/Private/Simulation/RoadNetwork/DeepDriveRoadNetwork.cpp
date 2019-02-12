@@ -31,6 +31,17 @@ uint32 SDeepDriveJunction::findConnectionSegment(uint32 fromSegment, uint32 toSe
 	return connectionSegment;
 }
 
+bool SDeepDriveJunction::isTurningAllowed(uint32 fromLink, uint32 toLink) const
+{
+	for(auto &turningRestriction : TurningRestrictions)
+	{
+		if(turningRestriction.FromLink == fromLink && turningRestriction.ToLink == toLink)
+			return false;
+	}
+
+	return true;
+}
+
 uint32 SDeepDriveRoadNetwork::findClosestLink(const FVector &pos) const
 {
 	uint32 linkInd = 0;

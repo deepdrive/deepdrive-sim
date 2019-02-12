@@ -112,8 +112,8 @@ void DeepDriveRoadNetworkExtractor::extract()
 
 				for(auto &turningRestrictionProxy : junctionProxy->getTurningRestrictions())
 				{
-					FString fromName = UKismetSystemLibrary::GetObjectName(turningRestrictionProxy.FromLink);
-					FString toName = UKismetSystemLibrary::GetObjectName(turningRestrictionProxy.ToLink);
+					fromName = UKismetSystemLibrary::GetObjectName(turningRestrictionProxy.FromLink);
+					toName = UKismetSystemLibrary::GetObjectName(turningRestrictionProxy.ToLink);
 					if	(	m_LinkCache.Contains(fromName)
 						&&	m_LinkCache.Contains(toName)
 						)
@@ -130,6 +130,19 @@ void DeepDriveRoadNetworkExtractor::extract()
 			m_RoadNetwork.Junctions.Add(junctionId, junction);
 		}
 	}
+
+	for(auto &linkProxy : m_LinkProxies)
+	{
+		FString oppositeName = linkProxy->getOppositeDirection() ? UKismetSystemLibrary::GetObjectName(linkProxy->getOppositeDirection()) : "";
+		if(oppositeName != "")
+		{
+			m_RoadNetwork.Links[m_LinkCache[UKismetSystemLibrary::GetObjectName(linkProxy)]].OppositeDirectionLink = m_LinkCache[oppositeName];
+		}
+	}
+
+
+
+
 }
 
 uint32 DeepDriveRoadNetworkExtractor::addStraightConnectionSegment(uint32 fromSegment, uint32 toSegment, float speedLimit, float slowDownDistance, bool generateCurve)
@@ -207,6 +220,8 @@ uint32 DeepDriveRoadNetworkExtractor::addLink(ADeepDriveRoadLinkProxy &linkProxy
 
 		m_LinkCache.Add(proxyObjName, linkId);
 		m_RoadNetwork.Links.Add(linkId, link);
+
+		m_LinkProxies.Add(&linkProxy);
 
 		UE_LOG(LogDeepDriveRoadNetworkExtractor, Log, TEXT("Added link %d %s"), linkId, *(proxyObjName) );
 
