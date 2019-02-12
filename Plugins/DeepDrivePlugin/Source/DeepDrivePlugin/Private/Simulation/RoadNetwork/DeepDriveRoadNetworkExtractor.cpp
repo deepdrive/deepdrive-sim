@@ -89,7 +89,7 @@ void DeepDriveRoadNetworkExtractor::extract()
 					connection.FromSegment = fromSegment;
 					connection.ToSegment = toSegment;
 					if	(	connectionProxy.GenerateAutoConnection
-						||	connection.ConnectionSegment == false
+						|| connectionProxy.ConnectionSegment == false
 						)
 					{
 						const float speedLimit = connectionProxy.GenerateAutoConnection ? connectionProxy.SpeedLimit : m_RoadNetwork.Segments[fromSegment].SpeedLimit;
