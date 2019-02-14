@@ -15,6 +15,16 @@ enum class EDeepDriveLaneType : uint8
 	CONNECTION	    	= 3	UMETA(DisplayName = "Connection")
 };
 
+UENUM(BlueprintType)
+enum class EDeepDriveConnectionShape : uint8
+{
+	NO_CONNECTION 		= 0	UMETA(DisplayName = "No Connection"),
+	STRAIGHT_LINE 		= 1	UMETA(DisplayName = "Straight Line"),
+	QUADRATIC_SPLINE 	= 2	UMETA(DisplayName = "Quadratic Spline"),
+	CUBIC_SPLINE    	= 3	UMETA(DisplayName = "Cubic Spline"),
+	ROAD_SEGMENT		= 4 UMETA(DisplayName = "Road Segment")
+};
+
 
 struct SDeepDriveRoadSegment
 {
@@ -33,9 +43,8 @@ struct SDeepDriveRoadSegment
 	uint32						LinkId = 0;
 
 	float						SpeedLimit = -1.0f;
-	bool						IsConnection = false;
-	bool						GenerateCurve = false;
-	float						SlowDownDistance = -1.0f;
+	EDeepDriveConnectionShape	ConnectionShape = EDeepDriveConnectionShape::NO_CONNECTION;
+	float						SlowDownDistance = -1.0f;				//	should be detected automatically
 
 	SDeepDriveRoadSegment		*LeftLane = 0;
 	SDeepDriveRoadSegment		*RightLane = 0;

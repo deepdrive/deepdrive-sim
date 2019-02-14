@@ -117,9 +117,19 @@ void ADeepDriveRoute::convertToPoints(const FVector &location)
 				if (connectionSegmentId)
 				{
 					const SDeepDriveRoadSegment &connectionSegment = m_RoadNetwork->Segments[connectionSegmentId];
-					carryOverDistance =		connectionSegment.GenerateCurve ==	false
-										? 	addSegmentToPoints(connectionSegment, false, carryOverDistance)
-										:	addCurvedConnectionSegment(m_RoadNetwork->Segments[segment.SegmentId], m_RoadNetwork->Segments[nextLink.Lanes[curLane].Segments[0]], connectionSegmentId, carryOverDistance);
+					switch(connectionSegment.ConnectionShape)
+					{
+						case EDeepDriveConnectionShape::STRAIGHT_LINE:
+							break;
+						case EDeepDriveConnectionShape::QUADRATIC_SPLINE:
+							carryOverDistance =	addCurvedConnectionSegment(m_RoadNetwork->Segments[segment.SegmentId], m_RoadNetwork->Segments[nextLink.Lanes[curLane].Segments[0]], connectionSegmentId, carryOverDistance);
+							break;
+						case EDeepDriveConnectionShape::CUBIC_SPLINE:
+							break;
+						case EDeepDriveConnectionShape::ROAD_SEGMENT:
+							carryOverDistance =	addSegmentToPoints(connectionSegment, false, carryOverDistance);
+							break;
+					}
 				}
 			}
 		}
@@ -156,7 +166,7 @@ void ADeepDriveRoute::annotateRoute()
 			curSegmentId = rp.SegmentId;
 			const SDeepDriveRoadSegment &segment = m_RoadNetwork->Segments[curSegmentId];
 			speedLimit = segment.SpeedLimit;
-			if(segment.IsConnection && segment.SlowDownDistance > 0.0f)
+			if(segment.ConnectionShape != EDeepDriveConnectionShape::NO_CONNECTION && segment.SlowDownDistance > 0.0f)
 			{
 				float coveredDist = 0.0f;
 				FVector lastPoint = m_RoutePoints[i].Location;

@@ -33,8 +33,8 @@ protected:
 	const FSplineCurves* getSplineCurves();
 
 	float getSpeedLimit();
-	bool isConnection();
-	float getSlowDownDistance();
+
+	EDeepDriveConnectionShape getConnectionShape();
 
 protected:
 
@@ -60,12 +60,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Configuration)
 	float	SpeedLimit = -1.0f;
-
-	UPROPERTY(EditAnywhere, Category = Configuration)
-	bool	IsConnection = false;
-
-	UPROPERTY(EditAnywhere, Category = Configuration, meta = (EditCondition = "IsConnection"))
-	float	SlowDownDistance = -1.0f;
 
 	UPROPERTY(EditAnywhere, Category = Debug)
 	FColor						Color = FColor::Red;
@@ -103,14 +97,4 @@ inline const FSplineCurves* ADeepDriveRoadSegmentProxy::getSplineCurves()
 inline float ADeepDriveRoadSegmentProxy::getSpeedLimit()
 {
 	return SpeedLimit;
-}
-
-inline bool ADeepDriveRoadSegmentProxy::isConnection()
-{
-	return IsConnection;
-}
-
-inline float ADeepDriveRoadSegmentProxy::getSlowDownDistance()
-{
-	return SlowDownDistance;
 }

@@ -88,8 +88,26 @@ void DeepDriveRoadNetworkExtractor::extract()
 				{
 					connection.FromSegment = fromSegment;
 					connection.ToSegment = toSegment;
+
+					switch(connectionProxy.ConnectionShape)
+					{
+						case EDeepDriveConnectionShape::STRAIGHT_LINE:
+							break;
+						case EDeepDriveConnectionShape::QUADRATIC_SPLINE:
+							connection.ConnectionSegment = addStraightConnectionSegment(connection.FromSegment, connection.ToSegment, connectionProxy.SpeedLimit, connectionProxy.SlowDownDistance, true);
+							break;
+						case EDeepDriveConnectionShape::CUBIC_SPLINE:
+							break;
+						case EDeepDriveConnectionShape::ROAD_SEGMENT:
+							if(connectionProxy.ConnectionSegment)
+								connection.ConnectionSegment = addSegment(*connectionProxy.ConnectionSegment, 0, EDeepDriveLaneType::CONNECTION);
+							else
+								connection.ConnectionSegment = addStraightConnectionSegment(connection.FromSegment, connection.ToSegment, connectionProxy.SpeedLimit, connectionProxy.SlowDownDistance, false);
+							break;
+					}
+/*
 					if	(	connectionProxy.GenerateAutoConnection
-						|| connectionProxy.ConnectionSegment == false
+						||	connectionProxy.ConnectionSegment == false
 						)
 					{
 						const float speedLimit = connectionProxy.GenerateAutoConnection ? connectionProxy.SpeedLimit : m_RoadNetwork.Segments[fromSegment].SpeedLimit;
@@ -107,6 +125,7 @@ void DeepDriveRoadNetworkExtractor::extract()
 					{
 						connection.ConnectionSegment = addSegment(*connectionProxy.ConnectionSegment, 0, EDeepDriveLaneType::CONNECTION);
 					}
+*/
 				}
 				junction.Connections.Add(connection);
 
@@ -158,9 +177,7 @@ uint32 DeepDriveRoadNetworkExtractor::addStraightConnectionSegment(uint32 fromSe
 	segment.LaneType = EDeepDriveLaneType::CONNECTION;
 
 	segment.SpeedLimit = speedLimit;
-
-	segment.IsConnection = true;
-	segment.GenerateCurve = generateCurve;
+	segment.ConnectionShape = generateCurve ? EDeepDriveConnectionShape::QUADRATIC_SPLINE : EDeepDriveConnectionShape::STRAIGHT_LINE;
 	segment.SlowDownDistance = slowDownDistance;
 
 	m_RoadNetwork.Segments.Add(connectionId, segment);
@@ -250,14 +267,13 @@ uint32 DeepDriveRoadNetworkExtractor::addSegment(ADeepDriveRoadSegmentProxy &seg
 		segment.Heading = calcHeading(segment.StartPoint, segment.EndPoint);
 		segment.LaneType = laneType;
 
+		segment.ConnectionShape = segment.LaneType == EDeepDriveLaneType::CONNECTION ? EDeepDriveConnectionShape::ROAD_SEGMENT : EDeepDriveConnectionShape::NO_CONNECTION;
+
 		const float speedLimit = segmentProxy.getSpeedLimit();
 		if (speedLimit <= 0.0f)
 			segment.SpeedLimit = link ? link->SpeedLimit : DeepDriveRoadNetwork::SpeedLimitConnection;
 		else
 			segment.SpeedLimit = speedLimit;
-
-		segment.IsConnection = segmentProxy.isConnection();
-		segment.SlowDownDistance = segmentProxy.getSlowDownDistance();
 
 		const USplineComponent *spline = segmentProxy.getSpline();
 		if(spline && spline->GetNumberOfSplinePoints() > 2)
@@ -309,8 +325,7 @@ uint32 DeepDriveRoadNetworkExtractor::addSegment(ADeepDriveRoadLinkProxy &linkPr
 		segment.LaneType = EDeepDriveLaneType::MAJOR_LANE;
 
 		segment.SpeedLimit = link ? link->SpeedLimit : DeepDriveRoadNetwork::SpeedLimitConnection;
-
-		segment.IsConnection = false;
+		segment.ConnectionShape = EDeepDriveConnectionShape::NO_CONNECTION;
 		segment.SlowDownDistance = -1.0f;
 
 		m_SegmentCache.Add(proxyObjName, segmentId);
