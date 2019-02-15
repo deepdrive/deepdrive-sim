@@ -45,6 +45,7 @@ struct SDeepDriveRoadSegment
 	float						SpeedLimit = -1.0f;
 	EDeepDriveConnectionShape	ConnectionShape = EDeepDriveConnectionShape::NO_CONNECTION;
 	float						SlowDownDistance = -1.0f;				//	should be detected automatically
+	FVector						CustomCurveParam;
 
 	SDeepDriveRoadSegment		*LeftLane = 0;
 	SDeepDriveRoadSegment		*RightLane = 0;

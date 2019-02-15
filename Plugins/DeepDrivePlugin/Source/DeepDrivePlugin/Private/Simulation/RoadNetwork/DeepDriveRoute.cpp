@@ -122,9 +122,10 @@ void ADeepDriveRoute::convertToPoints(const FVector &location)
 						case EDeepDriveConnectionShape::STRAIGHT_LINE:
 							break;
 						case EDeepDriveConnectionShape::QUADRATIC_SPLINE:
-							carryOverDistance =	addCurvedConnectionSegment(m_RoadNetwork->Segments[segment.SegmentId], m_RoadNetwork->Segments[nextLink.Lanes[curLane].Segments[0]], connectionSegmentId, carryOverDistance);
+							carryOverDistance =	addQuadraticConnectionSegment(m_RoadNetwork->Segments[segment.SegmentId], m_RoadNetwork->Segments[nextLink.Lanes[curLane].Segments[0]], connectionSegmentId, carryOverDistance);
 							break;
 						case EDeepDriveConnectionShape::CUBIC_SPLINE:
+							carryOverDistance = addCubicConnectionSegment(m_RoadNetwork->Segments[segment.SegmentId], m_RoadNetwork->Segments[nextLink.Lanes[curLane].Segments[0]], connectionSegmentId, carryOverDistance);
 							break;
 						case EDeepDriveConnectionShape::ROAD_SEGMENT:
 							carryOverDistance =	addSegmentToPoints(connectionSegment, false, carryOverDistance);
@@ -228,7 +229,7 @@ float ADeepDriveRoute::addSegmentToPoints(const SDeepDriveRoadSegment &segment, 
 	return carryOverDistance;
 }
 
-float ADeepDriveRoute::addCurvedConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, uint32 segmentId, float carryOverDistance)
+float ADeepDriveRoute::addQuadraticConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, uint32 segmentId, float carryOverDistance)
 {
 	const FVector &p0 = fromSegment.EndPoint;
 	FVector p1 = calcControlPoint(fromSegment, toSegment);
@@ -243,6 +244,35 @@ float ADeepDriveRoute::addCurvedConnectionSegment(const SDeepDriveRoadSegment &f
 
 		const float oneMinusT = (1.0f - t);
 		rp.Location = oneMinusT * oneMinusT * p0 + 2.0f * oneMinusT * t * p1 + t * t *p2;
+
+		m_RoutePoints.Add(rp);
+	}
+
+	return 0.0f;
+}
+
+float ADeepDriveRoute::addCubicConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, uint32 segmentId, float carryOverDistance)
+{
+	const FVector &p0 = fromSegment.EndPoint;
+	const FVector &p3 = toSegment.StartPoint;
+
+	const float length = (p3 - p0).Size();
+	FVector dir = p0 - fromSegment.StartPoint;
+	dir.Normalize();
+	const FVector p1 = p0 + length * dir;
+	dir = toSegment.EndPoint -  p3;
+	dir.Normalize();
+	const FVector p2 = p3 - length * dir;
+
+
+	for(float t = 0.0f; t < 1.0f; t+= 0.05f)
+	{
+		SRoutePoint rp;
+		rp.SegmentId = segmentId;
+		rp.RelativePosition = t;
+
+		const float oneMinusT = (1.0f - t);
+		rp.Location = oneMinusT * oneMinusT * oneMinusT * p0 + (3.0f * oneMinusT * oneMinusT * t) * p1 + (3.0f * oneMinusT * t * t) * p2 + t * t * t * p3;
 
 		m_RoutePoints.Add(rp);
 	}

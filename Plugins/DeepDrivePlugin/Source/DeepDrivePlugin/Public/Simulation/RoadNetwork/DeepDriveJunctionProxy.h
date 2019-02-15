@@ -37,6 +37,9 @@ struct FDeepDriveLaneConnectionProxy
 	float	SlowDownDistance = 1000.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	FVector	CustomCurveParam;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	ADeepDriveRoadSegmentProxy	*ConnectionSegment = 0;
 
 };

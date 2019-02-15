@@ -62,7 +62,8 @@ private:
 
 	void convertToPoints(const FVector &location);
 	float addSegmentToPoints(const SDeepDriveRoadSegment &segment, bool addEnd, float carryOverDistance);
-	float addCurvedConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, uint32 segmentId, float carryOverDistance);
+	float addQuadraticConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, uint32 segmentId, float carryOverDistance);
+	float addCubicConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, uint32 segmentId, float carryOverDistance);
 	void annotateRoute();
 
 	void trim(const FVector &start, const FVector &end);

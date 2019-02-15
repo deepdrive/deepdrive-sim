@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/SplineComponent.h"
+#include "Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
 #include "DeepDriveRoadSegmentProxy.generated.h"
 
 UCLASS()
