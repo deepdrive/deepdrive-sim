@@ -8,6 +8,7 @@
 #include "DeepDriveRoute.generated.h"
 
 class ADeepDriveAgent;
+class UBezierCurveComponent;
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveRoute, Log, All);
 
@@ -63,7 +64,7 @@ private:
 	void convertToPoints(const FVector &location);
 	float addSegmentToPoints(const SDeepDriveRoadSegment &segment, bool addEnd, float carryOverDistance);
 	float addQuadraticConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, uint32 segmentId, float carryOverDistance);
-	float addCubicConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, uint32 segmentId, float carryOverDistance);
+	float addCubicConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, const SDeepDriveRoadSegment &connectionSegment, float carryOverDistance);
 	void annotateRoute();
 
 	void trim(const FVector &start, const FVector &end);
@@ -84,4 +85,7 @@ private:
 	RoutePoints						m_RoutePoints;
 	int32							m_curRoutePointIndex = -1;
 	float							m_RouteLength = 0.0f;
+
+	UPROPERTY()
+	UBezierCurveComponent			*m_BezierCurve = 0;
 };

@@ -9,6 +9,7 @@
 
 class ADeepDriveRoadSegmentProxy;
 class ADeepDriveRoadLinkProxy;
+class UBezierCurveComponent;
 
 USTRUCT(BlueprintType)
 struct FDeepDriveLaneConnectionProxy
@@ -102,7 +103,17 @@ protected:
 	TArray<FDeepDriveTurningRestriction>	TurningRestrictions;
 
 	UPROPERTY(EditAnywhere, Category = Debug)
-	FColor						Color = FColor(0, 255, 0, 128);
+	FColor	JunctionColor = FColor(0, 255, 0, 64);
+
+	UPROPERTY(EditAnywhere, Category = Debug)
+	FColor	ConnectionColor = FColor(255, 0, 255, 255);
+
+private:
+
+	bool extractConnection(const FDeepDriveLaneConnectionProxy &connectionProxy, FVector &fromStart, FVector &fromEnd, FVector &toStart, FVector &toEnd);
+
+	UPROPERTY()
+	UBezierCurveComponent		*m_BezierCurve = 0;
 
 	bool						m_IsGameRunning = false;
 

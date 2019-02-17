@@ -103,27 +103,6 @@ void DeepDriveRoadNetworkExtractor::extract()
 								connection.ConnectionSegment = addStraightConnectionSegment(connection.FromSegment, connection.ToSegment, connectionProxy.SpeedLimit, connectionProxy.SlowDownDistance, false);
 							break;
 					}
-/*
-					if	(	connectionProxy.GenerateAutoConnection
-						||	connectionProxy.ConnectionSegment == false
-						)
-					{
-						const float speedLimit = connectionProxy.GenerateAutoConnection ? connectionProxy.SpeedLimit : m_RoadNetwork.Segments[fromSegment].SpeedLimit;
-						const float slowDownDist = connectionProxy.GenerateAutoConnection ? connectionProxy.SlowDownDistance : -1.0f;
-						if(connectionProxy.GenerateAutoConnection && connectionProxy.GenerateCurve)
-						{
-							connection.ConnectionSegment = addStraightConnectionSegment(connection.FromSegment, connection.ToSegment, speedLimit, slowDownDist, true);
-						}
-						else
-						{
-							connection.ConnectionSegment = addStraightConnectionSegment(connection.FromSegment, connection.ToSegment, speedLimit, slowDownDist, false);
-						}
-					}
-					else
-					{
-						connection.ConnectionSegment = addSegment(*connectionProxy.ConnectionSegment, 0, EDeepDriveLaneType::CONNECTION);
-					}
-*/
 				}
 				junction.Connections.Add(connection);
 
