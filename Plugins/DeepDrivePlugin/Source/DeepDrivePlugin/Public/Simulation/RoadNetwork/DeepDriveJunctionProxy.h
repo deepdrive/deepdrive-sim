@@ -111,12 +111,17 @@ protected:
 private:
 
 	bool extractConnection(const FDeepDriveLaneConnectionProxy &connectionProxy, FVector &fromStart, FVector &fromEnd, FVector &toStart, FVector &toEnd);
+	void drawQuadraticConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd);
+	void drawCubicConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const FVector &params);
 
-	UPROPERTY()
-	UBezierCurveComponent		*m_BezierCurve = 0;
+	FVector calcIntersectionPoint(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd);
+
+	// UPROPERTY()
+	// UBezierCurveComponent		*m_BezierCurve = 0;
 
 	bool						m_IsGameRunning = false;
 
+	const uint8					m_DrawPrioConnection = 120;
 };
 
 inline const TArray<ADeepDriveRoadLinkProxy*>& ADeepDriveJunctionProxy::getLinksIn()

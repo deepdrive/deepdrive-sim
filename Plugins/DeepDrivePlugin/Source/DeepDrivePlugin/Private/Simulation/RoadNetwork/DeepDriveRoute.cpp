@@ -4,7 +4,7 @@
 #include "Public/Simulation/RoadNetwork/DeepDriveRoute.h"
 #include "Runtime/Engine/Classes/Components/SplineComponent.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
-#include "Public/Simulation/Misc/BezierCurveComponent.h"
+// #include "Public/Simulation/Misc/BezierCurveComponent.h"
 
 
 DEFINE_LOG_CATEGORY(LogDeepDriveRoute);
@@ -15,7 +15,7 @@ ADeepDriveRoute::ADeepDriveRoute()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	m_BezierCurve = CreateDefaultSubobject<UBezierCurveComponent>(TEXT("BezierCurve"));
+	// m_BezierCurve = CreateDefaultSubobject<UBezierCurveComponent>(TEXT("BezierCurve"));
 }
 
 void ADeepDriveRoute::Tick(float DeltaTime)
@@ -198,7 +198,7 @@ float ADeepDriveRoute::addSegmentToPoints(const SDeepDriveRoadSegment &segment, 
 {
 	float curDist = carryOverDistance;
 	float segmentLength = 0.0f;
-	if (segment.SplinePoints.Num() > 0)
+	if (segment.SplineCurves.Position.Points.Num() > 0)
 	{
 		segmentLength = segment.SplineCurves.GetSplineLength();
 		while (curDist < segmentLength)
@@ -368,22 +368,6 @@ int32 ADeepDriveRoute::getPointIndexAhead(float distanceAhead) const
 	return curIndex < m_RoutePoints.Num() ? curIndex : m_RoutePoints.Num() - 1;
 }
 
-#if 0
-
-FVector ADeepDriveRoute::calcControlPoint(const SDeepDriveRoadSegment &segA, const SDeepDriveRoadSegment &segB)
-{
-	FVector ctr = (segB.StartPoint + segA.EndPoint) * 0.5f;
-	FVector2D dir(segB.StartPoint - segA.EndPoint);
-
-	const float dist = dir.Size();
-	dir.Normalize();
-	FVector nrm(dir.Y, -dir.X, 0.0f);
-
-	return ctr + 0.5f * dist * nrm;
-}
-
-#else
-
 FVector ADeepDriveRoute::calcControlPoint(const SDeepDriveRoadSegment &segA, const SDeepDriveRoadSegment &segB)
 {
 	FVector aStart;
@@ -422,9 +406,9 @@ FVector ADeepDriveRoute::calcControlPoint(const SDeepDriveRoadSegment &segA, con
 
 void ADeepDriveRoute::extractTangentFromSegment(const SDeepDriveRoadSegment &segment, FVector &start, FVector &end, bool atStart)
 {
-	if (segment.SplinePoints.Num() > 0)
+	if (segment.SplineCurves.Position.Points.Num() > 0)
 	{
-		const int32 index = atStart ? 0 : (segment.SplinePoints.Num() - 1);
+		const int32 index = atStart ? 0 : (segment.SplineCurves.Position.Points.Num() - 1);
 		const FInterpCurvePointVector& point = segment.SplineCurves.Position.Points[index];
 		FVector direction = segment.Transform.TransformVector(atStart ? point.ArriveTangent : point.LeaveTangent);
 		direction.Normalize();
@@ -446,6 +430,3 @@ void ADeepDriveRoute::extractTangentFromSegment(const SDeepDriveRoadSegment &seg
 		end = segment.EndPoint;
 	}
 }
-
-
-#endif

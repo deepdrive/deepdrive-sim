@@ -86,6 +86,6 @@ private:
 	int32							m_curRoutePointIndex = -1;
 	float							m_RouteLength = 0.0f;
 
-	UPROPERTY()
-	UBezierCurveComponent			*m_BezierCurve = 0;
+	// UPROPERTY()
+	// UBezierCurveComponent			*m_BezierCurve = 0;
 };

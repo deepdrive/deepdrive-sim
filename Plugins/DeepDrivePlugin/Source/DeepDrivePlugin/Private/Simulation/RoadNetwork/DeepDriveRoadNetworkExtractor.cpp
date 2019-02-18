@@ -278,20 +278,20 @@ uint32 DeepDriveRoadNetworkExtractor::addSegment(ADeepDriveRoadSegmentProxy &seg
 		const USplineComponent *spline = segmentProxy.getSpline();
 		if(spline && spline->GetNumberOfSplinePoints() > 2)
 		{
-			for (signed i = 0; i < spline->GetNumberOfSplinePoints(); ++i)
-			{
-				FSplinePoint splinePoint;
+			// for (signed i = 0; i < spline->GetNumberOfSplinePoints(); ++i)
+			// {
+			// 	FSplinePoint splinePoint;
 
-				splinePoint.Type = spline->GetSplinePointType(i);
-				splinePoint.Position = spline->GetLocationAtSplinePoint(i, ESplineCoordinateSpace::World);
-				splinePoint.Rotation = spline->GetRotationAtSplinePoint(i, ESplineCoordinateSpace::World);
-				splinePoint.Scale = spline->GetScaleAtSplinePoint(i);
-				splinePoint.ArriveTangent = spline->GetArriveTangentAtSplinePoint(i, ESplineCoordinateSpace::World);
-				splinePoint.LeaveTangent = spline->GetLeaveTangentAtSplinePoint(i, ESplineCoordinateSpace::World);
+			// 	splinePoint.Type = spline->GetSplinePointType(i);
+			// 	splinePoint.Position = spline->GetLocationAtSplinePoint(i, ESplineCoordinateSpace::World);
+			// 	splinePoint.Rotation = spline->GetRotationAtSplinePoint(i, ESplineCoordinateSpace::World);
+			// 	splinePoint.Scale = spline->GetScaleAtSplinePoint(i);
+			// 	splinePoint.ArriveTangent = spline->GetArriveTangentAtSplinePoint(i, ESplineCoordinateSpace::World);
+			// 	splinePoint.LeaveTangent = spline->GetLeaveTangentAtSplinePoint(i, ESplineCoordinateSpace::World);
 
-				segment.SplinePoints.Add(splinePoint);
-				segment.Transform = spline->GetComponentTransform();
-			}
+			// 	segment.SplinePoints.Add(splinePoint);
+			// 	segment.Transform = spline->GetComponentTransform();
+			// }
 
 			segment.SplineCurves = spline->SplineCurves;
 		}

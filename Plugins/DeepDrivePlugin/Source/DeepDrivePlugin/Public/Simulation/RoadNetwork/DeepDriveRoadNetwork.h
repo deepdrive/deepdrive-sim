@@ -36,7 +36,7 @@ struct SDeepDriveRoadSegment
 	float						Heading = 0.0f;
 	EDeepDriveLaneType			LaneType = EDeepDriveLaneType::MAJOR_LANE;
 
-	TArray<FSplinePoint>		SplinePoints;
+	// TArray<FSplinePoint>		SplinePoints;
 	FSplineCurves				SplineCurves;
 	FTransform					Transform;
 
