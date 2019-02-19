@@ -126,7 +126,7 @@ void ADeepDriveRoute::convertToPoints(const FVector &location)
 						case EDeepDriveConnectionShape::STRAIGHT_LINE:
 							break;
 						case EDeepDriveConnectionShape::QUADRATIC_SPLINE:
-							carryOverDistance =	addQuadraticConnectionSegment(m_RoadNetwork->Segments[segment.SegmentId], m_RoadNetwork->Segments[nextLink.Lanes[curLane].Segments[0]], connectionSegmentId, carryOverDistance);
+							carryOverDistance =	addQuadraticConnectionSegment(m_RoadNetwork->Segments[segment.SegmentId], m_RoadNetwork->Segments[nextLink.Lanes[curLane].Segments[0]], connectionSegment, carryOverDistance);
 							break;
 						case EDeepDriveConnectionShape::CUBIC_SPLINE:
 							carryOverDistance = addCubicConnectionSegment(m_RoadNetwork->Segments[segment.SegmentId], m_RoadNetwork->Segments[nextLink.Lanes[curLane].Segments[0]], connectionSegment, carryOverDistance);
@@ -233,17 +233,21 @@ float ADeepDriveRoute::addSegmentToPoints(const SDeepDriveRoadSegment &segment, 
 	return carryOverDistance;
 }
 
-float ADeepDriveRoute::addQuadraticConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, uint32 segmentId, float carryOverDistance)
+float ADeepDriveRoute::addQuadraticConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, const SDeepDriveRoadSegment &connectionSegment, float carryOverDistance)
 {
+	FVector dir = fromSegment.EndPoint - fromSegment.StartPoint;
+	FVector nrm(-dir.Y, dir.X, 0.0f);
+	dir.Normalize();
+	nrm.Normalize();
+
 	const FVector &p0 = fromSegment.EndPoint;
-	FVector p1 = calcControlPoint(fromSegment, toSegment);
 	const FVector &p2 = toSegment.StartPoint;
-	UE_LOG(LogDeepDriveRoute, Log, TEXT("Intersection point %s"), *(p1.ToString()));
+	FVector p1 = p0 + dir * connectionSegment.CustomCurveParams[0] + nrm * connectionSegment.CustomCurveParams[1];
 
 	for(float t = 0.0f; t < 1.0f; t+= 0.05f)
 	{
 		SRoutePoint rp;
-		rp.SegmentId = segmentId;
+		rp.SegmentId = connectionSegment.SegmentId;
 		rp.RelativePosition = t;
 
 		const float oneMinusT = (1.0f - t);
@@ -272,8 +276,8 @@ float ADeepDriveRoute::addCubicConnectionSegment(const SDeepDriveRoadSegment &fr
 
 	const FVector &p0 = fromEnd;
 	const FVector &p3 = toStart;
-	FVector p1 = p0 + dir0 * connectionSegment.CustomCurveParam.X;
-	FVector p2 = p3 + dir1 * connectionSegment.CustomCurveParam.Y;
+	FVector p1 = p0 + dir0 * connectionSegment.CustomCurveParams[0];
+	FVector p2 = p3 + dir1 * connectionSegment.CustomCurveParams[1];
 
 	for(float t = 0.0f; t < 1.0f; t+= 0.05f)
 	{

@@ -22,7 +22,8 @@ enum class EDeepDriveConnectionShape : uint8
 	STRAIGHT_LINE 		= 1	UMETA(DisplayName = "Straight Line"),
 	QUADRATIC_SPLINE 	= 2	UMETA(DisplayName = "Quadratic Spline"),
 	CUBIC_SPLINE    	= 3	UMETA(DisplayName = "Cubic Spline"),
-	ROAD_SEGMENT		= 4 UMETA(DisplayName = "Road Segment")
+	UTURN_SPLINE    	= 4	UMETA(DisplayName = "U-Turn Spline"),
+	ROAD_SEGMENT		= 5 UMETA(DisplayName = "Road Segment")
 };
 
 
@@ -36,7 +37,6 @@ struct SDeepDriveRoadSegment
 	float						Heading = 0.0f;
 	EDeepDriveLaneType			LaneType = EDeepDriveLaneType::MAJOR_LANE;
 
-	// TArray<FSplinePoint>		SplinePoints;
 	FSplineCurves				SplineCurves;
 	FTransform					Transform;
 
@@ -45,7 +45,7 @@ struct SDeepDriveRoadSegment
 	float						SpeedLimit = -1.0f;
 	EDeepDriveConnectionShape	ConnectionShape = EDeepDriveConnectionShape::NO_CONNECTION;
 	float						SlowDownDistance = -1.0f;				//	should be detected automatically
-	FVector						CustomCurveParam;
+	TArray<float>				CustomCurveParams;
 
 	SDeepDriveRoadSegment		*LeftLane = 0;
 	SDeepDriveRoadSegment		*RightLane = 0;

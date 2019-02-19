@@ -4,7 +4,7 @@
 
 #include "Public/Simulation/RoadNetwork/DeepDriveRoadLinkProxy.h"
 #include "Public/Simulation/RoadNetwork/DeepDriveRoadSegmentProxy.h"
-// #include "Public/Simulation/Misc/BezierCurveComponent.h"
+#include "Public/Simulation/Misc/BezierCurveComponent.h"
 
 // Sets default values
 ADeepDriveJunctionProxy::ADeepDriveJunctionProxy()
@@ -15,7 +15,7 @@ ADeepDriveJunctionProxy::ADeepDriveJunctionProxy()
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	SetRootComponent(Root);
 
-	// m_BezierCurve = CreateDefaultSubobject<UBezierCurveComponent>(TEXT("BezierCurve"));
+	m_BezierCurve = CreateDefaultSubobject<UBezierCurveComponent>(TEXT("BezierCurve"));
 }
 
 // Called when the game starts or when spawned
@@ -73,12 +73,16 @@ void ADeepDriveJunctionProxy::Tick(float DeltaTime)
 						break;
 
 					case EDeepDriveConnectionShape::QUADRATIC_SPLINE:
-						drawQuadraticConnectionSegment(fromStart, fromEnd, toStart, toEnd);
+						drawQuadraticConnectionSegment(fromStart, fromEnd, toStart, toEnd, lc.CustomCurveParams);
 						// carryOverDistance = addQuadraticConnectionSegment(m_RoadNetwork->Segments[segment.SegmentId], m_RoadNetwork->Segments[nextLink.Lanes[curLane].Segments[0]], connectionSegmentId, carryOverDistance);
 						break;
 
 					case EDeepDriveConnectionShape::CUBIC_SPLINE:
-						drawCubicConnectionSegment(fromStart, fromEnd, toStart, toEnd, lc.CustomCurveParam);
+						drawCubicConnectionSegment(fromStart, fromEnd, toStart, toEnd, lc.CustomCurveParams);
+						break;
+
+					case EDeepDriveConnectionShape::UTURN_SPLINE:
+						drawUTurnConnectionSegment(fromStart, fromEnd, toStart, toEnd, lc.CustomCurveParams);
 						break;
 
 					case EDeepDriveConnectionShape::ROAD_SEGMENT:
@@ -154,11 +158,17 @@ bool ADeepDriveJunctionProxy::extractConnection(const FDeepDriveLaneConnectionPr
 	return found == 3;
 }
 
-void ADeepDriveJunctionProxy::drawQuadraticConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd)
+void ADeepDriveJunctionProxy::drawQuadraticConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const TArray<float> &params)
 {
+	FVector dir = fromEnd - fromStart;
+	FVector nrm(-dir.Y, dir.X, 0.0f);
+	dir.Normalize();
+	nrm.Normalize();
+
 	const FVector &p0 = fromEnd;
-	FVector p1 = calcIntersectionPoint(fromStart, fromEnd, toStart, toEnd);
 	const FVector &p2 = toStart;
+	FVector p1 = p0 + dir * params[0] + nrm * params[1];
+
 
 	FVector a = p0;
 	const float dT = 0.05f;
@@ -175,7 +185,8 @@ void ADeepDriveJunctionProxy::drawQuadraticConnectionSegment(const FVector &from
 
 }
 
-void ADeepDriveJunctionProxy::drawCubicConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const FVector &params)
+
+void ADeepDriveJunctionProxy::drawCubicConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const TArray<float> &params)
 {
 	FVector dir0 = fromEnd - fromStart;
 	FVector dir1 = toStart - toEnd;
@@ -184,8 +195,8 @@ void ADeepDriveJunctionProxy::drawCubicConnectionSegment(const FVector &fromStar
 
 	const FVector &p0 = fromEnd;
 	const FVector &p3 = toStart;
-	FVector p1 = p0 + dir0 * params.X;
-	FVector p2 = p3 + dir1 * params.Y;
+	FVector p1 = p0 + dir0 * params[0];
+	FVector p2 = p3 + dir1 * params[1];
 
 	FVector a = p0;
 	const float dT = 0.05f;
@@ -199,6 +210,41 @@ void ADeepDriveJunctionProxy::drawCubicConnectionSegment(const FVector &fromStar
 		a = b;
 	}
 	DrawDebugLine(GetWorld(), a, p3, ConnectionColor, false, 0.0f, m_DrawPrioConnection, 10.0f);
+}
+
+void ADeepDriveJunctionProxy::drawUTurnConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const TArray<float> &params)
+{
+	FVector dir = toStart - fromEnd;
+	dir.Normalize();
+	FVector nrm(-dir.Y, dir.X, 0.0f);
+	nrm.Normalize();
+
+	FVector middle = 0.5f * (fromEnd + toStart);
+
+	m_BezierCurve->ClearControlPoints();
+	m_BezierCurve->AddControlPoint(fromEnd);
+
+	m_BezierCurve->AddControlPoint(middle + nrm * params[3] - dir * params[4]);
+
+	m_BezierCurve->AddControlPoint(middle + nrm * params[1] - dir * params[2]);
+	m_BezierCurve->AddControlPoint(middle + nrm * params[0]);
+	m_BezierCurve->AddControlPoint(middle + nrm * params[1] + dir * params[2]);
+
+	m_BezierCurve->AddControlPoint(middle + nrm * params[3] + dir * params[4]);
+
+	m_BezierCurve->AddControlPoint(toStart);
+
+	FVector a = fromEnd;
+	const float dT = 0.05f;
+	for(float t = dT; t < 1.0f; t+= dT)
+	{
+		const FVector b = m_BezierCurve->Evaluate(t);
+
+		DrawDebugLine(GetWorld(), a, b, ConnectionColor, false, 0.0f, m_DrawPrioConnection, 10.0f);
+
+		a = b;
+	}
+	DrawDebugLine(GetWorld(), a, toStart, ConnectionColor, false, 0.0f, m_DrawPrioConnection, 10.0f);
 }
 
 
