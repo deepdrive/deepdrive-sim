@@ -1,6 +1,8 @@
 
 #include "Public/Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
 
+DEFINE_LOG_CATEGORY(LogDeepDriveRoadNetwork);
+
 int32 SDeepDriveRoadLink::getRightMostLane(EDeepDriveLaneType type) const
 {
 	int32 curLaneInd = Lanes.Num() - 1;
@@ -95,13 +97,13 @@ uint32 SDeepDriveRoadNetwork::findClosestSegment(const FVector &pos, EDeepDriveL
 FVector SDeepDriveRoadSegment::findClosestPoint(const FVector &pos) const
 {
 	FVector closestPos;
-	if (SplineCurves.Position.Points.Num() > 0)
+	if (hasSpline())
 	{
-		const FVector localPos = Transform.InverseTransformPosition(pos);
+		const FVector localPos = SplineTransform.InverseTransformPosition(pos);
 		float dummy;
 		const float key = SplineCurves.Position.InaccurateFindNearest(localPos, dummy);
 		closestPos = SplineCurves.Position.Eval(key, FVector::ZeroVector);
-		closestPos = Transform.TransformPosition(closestPos);
+		closestPos = SplineTransform.TransformPosition(closestPos);
 	}
 	else
 	{

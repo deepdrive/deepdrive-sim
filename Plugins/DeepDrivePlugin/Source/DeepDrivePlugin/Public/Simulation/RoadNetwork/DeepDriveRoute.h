@@ -65,6 +65,7 @@ private:
 	float addSegmentToPoints(const SDeepDriveRoadSegment &segment, bool addEnd, float carryOverDistance);
 	float addQuadraticConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, const SDeepDriveRoadSegment &connectionSegment, float carryOverDistance);
 	float addCubicConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, const SDeepDriveRoadSegment &connectionSegment, float carryOverDistance);
+	float addUTurnConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, const SDeepDriveRoadSegment &connectionSegment, float carryOverDistance);
 	void annotateRoute();
 
 	void trim(const FVector &start, const FVector &end);
@@ -86,6 +87,6 @@ private:
 	int32							m_curRoutePointIndex = -1;
 	float							m_RouteLength = 0.0f;
 
-	// UPROPERTY()
-	// UBezierCurveComponent			*m_BezierCurve = 0;
+	UPROPERTY()
+	UBezierCurveComponent			*m_BezierCurve = 0;
 };

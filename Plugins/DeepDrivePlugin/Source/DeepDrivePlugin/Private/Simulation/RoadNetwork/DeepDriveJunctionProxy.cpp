@@ -158,7 +158,7 @@ bool ADeepDriveJunctionProxy::extractConnection(const FDeepDriveLaneConnectionPr
 	return found == 3;
 }
 
-void ADeepDriveJunctionProxy::drawQuadraticConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const TArray<float> &params)
+void ADeepDriveJunctionProxy::drawQuadraticConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const FDeepDriveLaneConnectionCustomCurveParams &params)
 {
 	FVector dir = fromEnd - fromStart;
 	FVector nrm(-dir.Y, dir.X, 0.0f);
@@ -167,7 +167,7 @@ void ADeepDriveJunctionProxy::drawQuadraticConnectionSegment(const FVector &from
 
 	const FVector &p0 = fromEnd;
 	const FVector &p2 = toStart;
-	FVector p1 = p0 + dir * params[0] + nrm * params[1];
+	FVector p1 = p0 + dir * params.Parameter0 + nrm * params.Parameter1;
 
 
 	FVector a = p0;
@@ -186,7 +186,7 @@ void ADeepDriveJunctionProxy::drawQuadraticConnectionSegment(const FVector &from
 }
 
 
-void ADeepDriveJunctionProxy::drawCubicConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const TArray<float> &params)
+void ADeepDriveJunctionProxy::drawCubicConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const FDeepDriveLaneConnectionCustomCurveParams &params)
 {
 	FVector dir0 = fromEnd - fromStart;
 	FVector dir1 = toStart - toEnd;
@@ -195,8 +195,8 @@ void ADeepDriveJunctionProxy::drawCubicConnectionSegment(const FVector &fromStar
 
 	const FVector &p0 = fromEnd;
 	const FVector &p3 = toStart;
-	FVector p1 = p0 + dir0 * params[0];
-	FVector p2 = p3 + dir1 * params[1];
+	FVector p1 = p0 + dir0 * params.Parameter0;
+	FVector p2 = p3 + dir1 * params.Parameter1;
 
 	FVector a = p0;
 	const float dT = 0.05f;
@@ -212,7 +212,7 @@ void ADeepDriveJunctionProxy::drawCubicConnectionSegment(const FVector &fromStar
 	DrawDebugLine(GetWorld(), a, p3, ConnectionColor, false, 0.0f, m_DrawPrioConnection, 10.0f);
 }
 
-void ADeepDriveJunctionProxy::drawUTurnConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const TArray<float> &params)
+void ADeepDriveJunctionProxy::drawUTurnConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const FDeepDriveLaneConnectionCustomCurveParams &params)
 {
 	FVector dir = toStart - fromEnd;
 	dir.Normalize();
@@ -224,13 +224,13 @@ void ADeepDriveJunctionProxy::drawUTurnConnectionSegment(const FVector &fromStar
 	m_BezierCurve->ClearControlPoints();
 	m_BezierCurve->AddControlPoint(fromEnd);
 
-	m_BezierCurve->AddControlPoint(middle + nrm * params[3] - dir * params[4]);
+	m_BezierCurve->AddControlPoint(middle + nrm * params.Parameter3 - dir * params.Parameter4);
 
-	m_BezierCurve->AddControlPoint(middle + nrm * params[1] - dir * params[2]);
-	m_BezierCurve->AddControlPoint(middle + nrm * params[0]);
-	m_BezierCurve->AddControlPoint(middle + nrm * params[1] + dir * params[2]);
+	m_BezierCurve->AddControlPoint(middle + nrm * params.Parameter1 - dir * params.Parameter2);
+	m_BezierCurve->AddControlPoint(middle + nrm * params.Parameter0);
+	m_BezierCurve->AddControlPoint(middle + nrm * params.Parameter1 + dir * params.Parameter2);
 
-	m_BezierCurve->AddControlPoint(middle + nrm * params[3] + dir * params[4]);
+	m_BezierCurve->AddControlPoint(middle + nrm * params.Parameter3 + dir * params.Parameter4);
 
 	m_BezierCurve->AddControlPoint(toStart);
 

@@ -7,8 +7,6 @@
 #include "Public/Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
 #include "DeepDriveRoadNetworkComponent.generated.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveRoadNetwork, Log, All);
-
 class ADeepDriveJunctionProxy;
 class ADeepDriveRoadLinkProxy;
 class ADeepDriveAgent;

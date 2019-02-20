@@ -4,7 +4,7 @@
 #include "Public/Simulation/RoadNetwork/DeepDriveRoute.h"
 #include "Runtime/Engine/Classes/Components/SplineComponent.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
-// #include "Public/Simulation/Misc/BezierCurveComponent.h"
+#include "Public/Simulation/Misc/BezierCurveComponent.h"
 
 
 DEFINE_LOG_CATEGORY(LogDeepDriveRoute);
@@ -15,7 +15,7 @@ ADeepDriveRoute::ADeepDriveRoute()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	// m_BezierCurve = CreateDefaultSubobject<UBezierCurveComponent>(TEXT("BezierCurve"));
+	m_BezierCurve = CreateDefaultSubobject<UBezierCurveComponent>(TEXT("BezierCurve"));
 }
 
 void ADeepDriveRoute::Tick(float DeltaTime)
@@ -131,6 +131,9 @@ void ADeepDriveRoute::convertToPoints(const FVector &location)
 						case EDeepDriveConnectionShape::CUBIC_SPLINE:
 							carryOverDistance = addCubicConnectionSegment(m_RoadNetwork->Segments[segment.SegmentId], m_RoadNetwork->Segments[nextLink.Lanes[curLane].Segments[0]], connectionSegment, carryOverDistance);
 							break;
+						case EDeepDriveConnectionShape::UTURN_SPLINE:
+							carryOverDistance = addUTurnConnectionSegment(m_RoadNetwork->Segments[segment.SegmentId], m_RoadNetwork->Segments[nextLink.Lanes[curLane].Segments[0]], connectionSegment, carryOverDistance);
+							break;
 						case EDeepDriveConnectionShape::ROAD_SEGMENT:
 							carryOverDistance =	addSegmentToPoints(connectionSegment, false, carryOverDistance);
 							break;
@@ -198,7 +201,7 @@ float ADeepDriveRoute::addSegmentToPoints(const SDeepDriveRoadSegment &segment, 
 {
 	float curDist = carryOverDistance;
 	float segmentLength = 0.0f;
-	if (segment.SplineCurves.Position.Points.Num() > 0)
+	if (segment.hasSpline())
 	{
 		segmentLength = segment.SplineCurves.GetSplineLength();
 		while (curDist < segmentLength)
@@ -207,7 +210,7 @@ float ADeepDriveRoute::addSegmentToPoints(const SDeepDriveRoadSegment &segment, 
 			rp.SegmentId = segment.SegmentId;
 			rp.RelativePosition = curDist / segmentLength;
 			const float key = segment.SplineCurves.ReparamTable.Eval(curDist, 0.0f);
-			rp.Location = segment.Transform.TransformPosition(segment.SplineCurves.Position.Eval(key, FVector::ZeroVector));
+			rp.Location = segment.SplineTransform.TransformPosition(segment.SplineCurves.Position.Eval(key, FVector::ZeroVector));
 
 			m_RoutePoints.Add(rp);
 
@@ -287,6 +290,54 @@ float ADeepDriveRoute::addCubicConnectionSegment(const SDeepDriveRoadSegment &fr
 
 		const float oneMinusT = (1.0f - t);
 		rp.Location = oneMinusT * oneMinusT * oneMinusT * p0 + (3.0f * oneMinusT * oneMinusT * t) * p1 + (3.0f * oneMinusT * t * t) * p2 + t * t * t * p3;
+
+		m_RoutePoints.Add(rp);
+	}
+
+	return 0.0f;
+}
+
+float ADeepDriveRoute::addUTurnConnectionSegment(const SDeepDriveRoadSegment &fromSegment, const SDeepDriveRoadSegment &toSegment, const SDeepDriveRoadSegment &connectionSegment, float carryOverDistance)
+{
+	FVector fromStart;
+	FVector fromEnd;
+	FVector toStart;
+	FVector toEnd;
+
+	extractTangentFromSegment(fromSegment, fromStart, fromEnd, false);
+	extractTangentFromSegment(toSegment, toStart, toEnd, true);
+
+	FVector dir = toStart - fromEnd;
+	dir.Normalize();
+	FVector nrm(-dir.Y, dir.X, 0.0f);
+	nrm.Normalize();
+
+	UE_LOG(LogDeepDriveRoute, Log, TEXT("addUTurnConnectionSegment dir %s nrm %s"), *(dir.ToString()), *(nrm.ToString()) );
+
+
+	FVector middle = 0.5f * (fromEnd + toStart);
+
+	m_BezierCurve->ClearControlPoints();
+	m_BezierCurve->AddControlPoint(fromEnd);
+
+	const float *params = connectionSegment.CustomCurveParams;
+	m_BezierCurve->AddControlPoint(middle + nrm * params[3] - dir * params[4]);
+
+	m_BezierCurve->AddControlPoint(middle + nrm * params[1] - dir * params[2]);
+	m_BezierCurve->AddControlPoint(middle + nrm * params[0]);
+	m_BezierCurve->AddControlPoint(middle + nrm * params[1] + dir * params[2]);
+
+	m_BezierCurve->AddControlPoint(middle + nrm * params[3] + dir * params[4]);
+
+	m_BezierCurve->AddControlPoint(toStart);
+
+	for(float t = 0.0f; t < 1.0f; t+= 0.05f)
+	{
+		SRoutePoint rp;
+		rp.SegmentId = connectionSegment.SegmentId;
+		rp.RelativePosition = t;
+
+		rp.Location = m_BezierCurve->Evaluate(t);
 
 		m_RoutePoints.Add(rp);
 	}
@@ -410,11 +461,11 @@ FVector ADeepDriveRoute::calcControlPoint(const SDeepDriveRoadSegment &segA, con
 
 void ADeepDriveRoute::extractTangentFromSegment(const SDeepDriveRoadSegment &segment, FVector &start, FVector &end, bool atStart)
 {
-	if (segment.SplineCurves.Position.Points.Num() > 0)
+	if (segment.hasSpline())
 	{
 		const int32 index = atStart ? 0 : (segment.SplineCurves.Position.Points.Num() - 1);
 		const FInterpCurvePointVector& point = segment.SplineCurves.Position.Points[index];
-		FVector direction = segment.Transform.TransformVector(atStart ? point.ArriveTangent : point.LeaveTangent);
+		FVector direction = segment.SplineTransform.TransformVector(atStart ? point.ArriveTangent : point.LeaveTangent);
 		direction.Normalize();
 		direction *= 100.0f;
 		if(atStart)

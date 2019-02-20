@@ -12,6 +12,30 @@ class ADeepDriveRoadLinkProxy;
 class UBezierCurveComponent;
 
 USTRUCT(BlueprintType)
+struct FDeepDriveLaneConnectionCustomCurveParams
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float		Parameter0 = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float		Parameter1 = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float		Parameter2 = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float		Parameter3 = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float		Parameter4 = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float		Parameter5 = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float		Parameter6 = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float		Parameter7 = 0.0f;
+
+};
+
+USTRUCT(BlueprintType)
 struct FDeepDriveLaneConnectionProxy
 {
 	GENERATED_USTRUCT_BODY()
@@ -38,7 +62,7 @@ struct FDeepDriveLaneConnectionProxy
 	float	SlowDownDistance = 1000.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	TArray<float>	CustomCurveParams = TArray<float>({0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
+	FDeepDriveLaneConnectionCustomCurveParams	CustomCurveParams;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	ADeepDriveRoadSegmentProxy	*ConnectionSegment = 0;
@@ -111,9 +135,9 @@ protected:
 private:
 
 	bool extractConnection(const FDeepDriveLaneConnectionProxy &connectionProxy, FVector &fromStart, FVector &fromEnd, FVector &toStart, FVector &toEnd);
-	void drawQuadraticConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const TArray<float> &params);
-	void drawCubicConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const TArray<float> &params);
-	void drawUTurnConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const TArray<float> &params);
+	void drawQuadraticConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const FDeepDriveLaneConnectionCustomCurveParams &params);
+	void drawCubicConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const FDeepDriveLaneConnectionCustomCurveParams &params);
+	void drawUTurnConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const FDeepDriveLaneConnectionCustomCurveParams &params);
 
 	FVector calcIntersectionPoint(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd);
 

@@ -12,8 +12,6 @@
 
 #include "Private/Simulation/RoadNetwork/DeepDriveRouteCalculator.h"
 
-DEFINE_LOG_CATEGORY(LogDeepDriveRoadNetwork);
-
 // Sets default values for this component's properties
 UDeepDriveRoadNetworkComponent::UDeepDriveRoadNetworkComponent()
 {
@@ -59,12 +57,23 @@ FVector UDeepDriveRoadNetworkComponent::GetRandomLocation(EDeepDriveLaneType Pre
 		if(laneInd)
 		{
 			SDeepDriveLane &lane = link.Lanes[laneInd];
+			SDeepDriveRoadSegment &segment = m_RoadNetwork.Segments[lane.Segments[FMath::RandRange(0u, lane.Segments.Num() - 1)]];
+
 			if(relPos == 0)
-				location = m_RoadNetwork.Segments[lane.Segments[0]].StartPoint;
+				location = segment.StartPoint;
 			else if(relPos > 0)
-				location = m_RoadNetwork.Segments[lane.Segments[lane.Segments.Num() - 1]].EndPoint;
+				location = segment.EndPoint;
 			else
-				location = 0.5f * (m_RoadNetwork.Segments[lane.Segments[0]].StartPoint + m_RoadNetwork.Segments[lane.Segments[0]].EndPoint);
+			{
+				if(segment.hasSpline())
+				{
+					location = segment.StartPoint;
+				}
+				else
+				{
+					location = FMath::Lerp(segment.StartPoint, segment.EndPoint, FMath::RandRange(0.0f, 1.0f));
+				}
+			}
 		}
 	}
 
@@ -94,7 +103,7 @@ ADeepDriveRoute* UDeepDriveRoadNetworkComponent::CalculateRoute(const FVector St
 
 	if(startLinkId && destLinkId)
 	{
-		UE_LOG(LogDeepDriveRoadNetwork, Log, TEXT("Calc route from %d(%s) to %d(%s)"), startLinkId, *(m_RoadNetwork.Links[startLinkId].StartPoint.ToString()), destLinkId, *(m_RoadNetwork.Links[destLinkId].EndPoint.ToString()) );
+		UE_LOG(LogDeepDriveRoadNetwork, Log, TEXT("Calc route from %d(%s) to %d(%s)  %s/%s"), startLinkId, *(m_RoadNetwork.Links[startLinkId].StartPoint.ToString()), destLinkId, *(m_RoadNetwork.Links[destLinkId].EndPoint.ToString()), *(Start.ToString()), *(Destination.ToString()) );
 
 		DeepDriveRouteCalculator routeCalculator(m_RoadNetwork);
 

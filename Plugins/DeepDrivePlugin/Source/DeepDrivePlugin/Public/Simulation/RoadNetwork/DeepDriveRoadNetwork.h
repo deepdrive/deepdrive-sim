@@ -6,6 +6,8 @@
 
 #include "Runtime/Engine/Classes/Components/SplineComponent.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveRoadNetwork, Log, All);
+
 UENUM(BlueprintType)
 enum class EDeepDriveLaneType : uint8
 {
@@ -38,19 +40,24 @@ struct SDeepDriveRoadSegment
 	EDeepDriveLaneType			LaneType = EDeepDriveLaneType::MAJOR_LANE;
 
 	FSplineCurves				SplineCurves;
-	FTransform					Transform;
+	FTransform					SplineTransform;
 
 	uint32						LinkId = 0;
 
 	float						SpeedLimit = -1.0f;
 	EDeepDriveConnectionShape	ConnectionShape = EDeepDriveConnectionShape::NO_CONNECTION;
 	float						SlowDownDistance = -1.0f;				//	should be detected automatically
-	TArray<float>				CustomCurveParams;
+	float						CustomCurveParams[8];
 
 	SDeepDriveRoadSegment		*LeftLane = 0;
 	SDeepDriveRoadSegment		*RightLane = 0;
 
 	FVector findClosestPoint(const FVector &pos) const;
+
+	bool hasSpline() const
+	{
+		return SplineCurves.Position.Points.Num() > 0;
+	}
 
 };
 

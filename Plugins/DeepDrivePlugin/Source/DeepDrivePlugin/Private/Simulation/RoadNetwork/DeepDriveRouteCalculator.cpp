@@ -37,7 +37,8 @@ SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, co
 
 		if(startLinkId == destLinkId)
 		{
-			routeData.Links.Add(startLinkId);
+			UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Start link equals destination link, no route for now") );
+			// routeData.Links.Add(startLinkId);
 		}
 		else if(startLink.ToJunctionId == destLink.FromJunctionId)
 		{

@@ -49,15 +49,16 @@ bool ADeepDriveAgentCityAIController::Activate(ADeepDriveAgent &agent, bool keep
 	{
 		UDeepDriveRoadNetworkComponent *roadNetwork = m_DeepDriveSimulation->RoadNetwork;
 
-		if(m_StartIndex < m_Configuration.Routes.Num())
+		if(m_StartIndex < 0 || m_StartIndex < m_Configuration.Routes.Num())
 		{
-			m_Route = roadNetwork->CalculateRoute	(	m_Configuration.Routes[m_StartIndex].Start
-													,	m_Configuration.Routes[m_StartIndex].Destination
-													);
+			FVector start = m_StartIndex < 0 ? roadNetwork->GetRandomLocation(EDeepDriveLaneType::MAJOR_LANE, -1) : m_Configuration.Routes[m_StartIndex].Start;
+			FVector dest = m_StartIndex < 0 ? roadNetwork->GetRandomLocation(EDeepDriveLaneType::MAJOR_LANE, -1) : m_Configuration.Routes[m_StartIndex].Destination;
+
+			m_Route = roadNetwork->CalculateRoute(start, dest);
 
 			if (m_Route)
 			{
-				m_Route->convert(m_Configuration.Routes[m_StartIndex].Start);
+				m_Route->convert(start);
 				m_Route->placeAgentAtStart(agent);
 
 				m_SpeedController = new DeepDriveAgentSpeedController(m_Configuration.PIDThrottle, m_Configuration.PIDBrake);
@@ -68,7 +69,9 @@ bool ADeepDriveAgentCityAIController::Activate(ADeepDriveAgent &agent, bool keep
 				m_hasActiveGuidance = true;
 			}
 			else
-				roadNetwork->PlaceAgentOnRoad(&agent, m_Configuration.Routes[m_StartIndex].Start);
+			{
+				roadNetwork->PlaceAgentOnRoad(&agent, start);
+			}
 
 			res = true;
 		}

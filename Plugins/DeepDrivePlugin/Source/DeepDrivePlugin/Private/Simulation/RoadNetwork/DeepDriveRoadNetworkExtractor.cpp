@@ -94,6 +94,7 @@ void DeepDriveRoadNetworkExtractor::extract()
 						case EDeepDriveConnectionShape::STRAIGHT_LINE:
 						case EDeepDriveConnectionShape::QUADRATIC_SPLINE:
 						case EDeepDriveConnectionShape::CUBIC_SPLINE:
+						case EDeepDriveConnectionShape::UTURN_SPLINE:
 							connection.ConnectionSegment = addConnectionSegment(connection.FromSegment, connection.ToSegment, connectionProxy);
 							break;
 						case EDeepDriveConnectionShape::ROAD_SEGMENT:
@@ -156,7 +157,14 @@ uint32 DeepDriveRoadNetworkExtractor::addConnectionSegment(uint32 fromSegment, u
 	segment.SpeedLimit = connectionProxy.SpeedLimit;
 	segment.ConnectionShape = connectionProxy.ConnectionShape;
 	segment.SlowDownDistance = connectionProxy.SlowDownDistance;
-	segment.CustomCurveParams = connectionProxy.CustomCurveParams;
+	segment.CustomCurveParams[0] = connectionProxy.CustomCurveParams.Parameter0;
+	segment.CustomCurveParams[1] = connectionProxy.CustomCurveParams.Parameter1;
+	segment.CustomCurveParams[2] = connectionProxy.CustomCurveParams.Parameter2;
+	segment.CustomCurveParams[3] = connectionProxy.CustomCurveParams.Parameter3;
+	segment.CustomCurveParams[4] = connectionProxy.CustomCurveParams.Parameter4;
+	segment.CustomCurveParams[5] = connectionProxy.CustomCurveParams.Parameter5;
+	segment.CustomCurveParams[6] = connectionProxy.CustomCurveParams.Parameter6;
+	segment.CustomCurveParams[7] = connectionProxy.CustomCurveParams.Parameter7;
 
 	m_RoadNetwork.Segments.Add(connectionId, segment);
 
@@ -279,7 +287,10 @@ uint32 DeepDriveRoadNetworkExtractor::addSegment(ADeepDriveRoadSegmentProxy &seg
 		if(spline && spline->GetNumberOfSplinePoints() > 2)
 		{
 			segment.SplineCurves = spline->SplineCurves;
+			segment.SplineTransform = spline->GetComponentTransform();
 		}
+
+		// segment.Tra nsform = 
 
 		m_SegmentCache.Add(proxyObjName, segmentId);
 		m_RoadNetwork.Segments.Add(segmentId, segment);
