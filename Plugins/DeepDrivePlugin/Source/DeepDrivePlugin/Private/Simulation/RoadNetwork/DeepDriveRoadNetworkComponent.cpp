@@ -95,6 +95,7 @@ void UDeepDriveRoadNetworkComponent::PlaceAgentOnRoadRandomly(ADeepDriveAgent *A
 {
 }
 
+
 ADeepDriveRoute* UDeepDriveRoadNetworkComponent::CalculateRoute(const FVector Start, const FVector Destination)
 {
 	ADeepDriveRoute *route = 0;
@@ -123,6 +124,27 @@ ADeepDriveRoute* UDeepDriveRoadNetworkComponent::CalculateRoute(const FVector St
 	else
 		UE_LOG(LogDeepDriveRoadNetwork, Log, TEXT("Calc route failed %d / %d"), startLinkId, destLinkId );
 
+	return route;
+}
+
+ADeepDriveRoute* UDeepDriveRoadNetworkComponent::CalculateRandomRoute()
+{
+	ADeepDriveRoute *route = 0;
+#if 0
+	TArray<uint32> keys;
+	m_RoadNetwork.Links.GenerateKeyArray(TArray<uint32> keys);
+
+	const int32 numLinks = keys.Num();
+	if (numLinks > 0)
+	{
+		const uint32 startLinkId = m_RoadNetwork.Links[keys[FMath::RandRange(0u, numLinks - 1)]].LinkId;
+		uint32 destinationLinkId = 0;
+		do
+		{
+			destinationLinkId = m_RoadNetwork.Links[keys[FMath::RandRange(0u, numLinks - 1)]].LinkId;
+		} while (destinationLinkId && destinationLinkId != startLinkId);
+	}
+#endif
 	return route;
 }
 

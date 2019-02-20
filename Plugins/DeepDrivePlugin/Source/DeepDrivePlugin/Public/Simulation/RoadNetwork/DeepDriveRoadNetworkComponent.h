@@ -44,6 +44,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Route")
 	ADeepDriveRoute* CalculateRoute(const FVector Start, const FVector Destination);
 
+	UFUNCTION(BlueprintCallable, Category = "Route")
+	ADeepDriveRoute* CalculateRandomRoute();
+
 	ADeepDriveRoute *CalculateRoute(const TArray<uint32> &routeLinks);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)

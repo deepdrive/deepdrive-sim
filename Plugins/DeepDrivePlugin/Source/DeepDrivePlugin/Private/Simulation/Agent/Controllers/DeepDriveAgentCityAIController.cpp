@@ -51,10 +51,17 @@ bool ADeepDriveAgentCityAIController::Activate(ADeepDriveAgent &agent, bool keep
 
 		if(m_StartIndex < 0 || m_StartIndex < m_Configuration.Routes.Num())
 		{
-			FVector start = m_StartIndex < 0 ? roadNetwork->GetRandomLocation(EDeepDriveLaneType::MAJOR_LANE, -1) : m_Configuration.Routes[m_StartIndex].Start;
-			FVector dest = m_StartIndex < 0 ? roadNetwork->GetRandomLocation(EDeepDriveLaneType::MAJOR_LANE, -1) : m_Configuration.Routes[m_StartIndex].Destination;
+			FVector start;
+			if(m_StartIndex < 0)
+			{
 
-			m_Route = roadNetwork->CalculateRoute(start, dest);
+			}
+			else
+			{
+				start = m_Configuration.Routes[m_StartIndex].Start;
+				FVector dest = m_Configuration.Routes[m_StartIndex].Destination;
+				m_Route = roadNetwork->CalculateRoute(start, dest);
+			}
 
 			if (m_Route)
 			{
