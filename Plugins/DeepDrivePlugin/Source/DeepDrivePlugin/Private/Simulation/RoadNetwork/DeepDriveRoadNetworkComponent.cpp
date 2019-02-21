@@ -152,7 +152,7 @@ ADeepDriveRoute* UDeepDriveRoadNetworkComponent::calculateRandomRoute(const FVec
 		do
 		{
 			destinationLinkId = m_RoadNetwork.Links[keys[randomStream->RandomIntegerInRange(0, numLinks - 1)]].LinkId;
-		} while (destinationLinkId == 0 || destinationLinkId == startLinkId);
+		} while (destinationLinkId == 0 || destinationLinkId == startLinkId || m_RoadNetwork.Links[destinationLinkId].FromJunctionId == 0);
 
 
 		UE_LOG(LogDeepDriveRoadNetwork, Log, TEXT("Calc random route from %d to %d"), startLinkId, destinationLinkId );

@@ -29,6 +29,8 @@ public:
 
 	void initialize(ADeepDriveAgent &agent, ADeepDriveRoute &route);
 
+	void setRoute(ADeepDriveRoute &route);
+
 	void update(float dT, float desiredSpeed, float offset);
 
 private:

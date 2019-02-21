@@ -78,7 +78,14 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIProps")
 	FDeepDriveCityAIControllerConfiguration		m_Configuration;
 
-  private:
+private:
+
+	enum State
+	{
+		Idle,
+		ActiveRouteGuidance,
+		Waiting
+	};
 
 	UPROPERTY()
 	ADeepDriveRoute					*m_Route = 0;
@@ -90,5 +97,7 @@ protected:
 
 	float							m_DesiredSpeed = 0.0f;
 
-	bool							m_hasActiveGuidance = false;
+	State							m_State = Idle;
+
+	float							m_WaitTimer = 0.0f;
 };
