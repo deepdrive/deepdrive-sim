@@ -33,7 +33,7 @@ SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, co
 		const SDeepDriveRoadLink &startLink = m_RoadNetwork.Links[startLinkId];
 		const SDeepDriveRoadLink &destLink = m_RoadNetwork.Links[destLinkId];
 
-		UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Route calculation from %d to %d starting at %d"), startLinkId, destLinkId, destLink.FromJunctionId );
+		UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Route calculation from %d to %d routing to %d"), startLinkId, destLinkId, destLink.FromJunctionId );
 
 		if(startLinkId == destLinkId)
 		{
@@ -114,8 +114,8 @@ SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, co
 
 void DeepDriveRouteCalculator::expandNode(const Node &currentNode)
 {
-	UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Expanding junction node %d"), currentNode.JunctionId );
 	const SDeepDriveJunction &junction = m_RoadNetwork.Junctions[currentNode.JunctionId];
+	UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Expanding junction node %d turningRestrictions %d"), currentNode.JunctionId, junction.TurningRestrictions.Num() );
 	for(auto &outLinkId : junction.LinksOut)
 	{
 		if(junction.isTurningAllowed(currentNode.LinkId, outLinkId))

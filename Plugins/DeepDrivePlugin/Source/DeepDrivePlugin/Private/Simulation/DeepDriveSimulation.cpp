@@ -97,9 +97,16 @@ void ADeepDriveSimulation::PreInitializeComponents()
 				m_StateMachine->registerState(m_ResetState);
 			}
 
+			UDeepDriveRandomStream *randomStream = NewObject<UDeepDriveRandomStream>();
+			if (randomStream)
+			{
+				randomStream->initialize(Seed);
+				m_DefaultRandomStream = FDeepDriveRandomStreamData(randomStream, false);
+			}
+
 			for (auto &rsd : RandomStreams)
 			{
-				UDeepDriveRandomStream *randomStream = NewObject<UDeepDriveRandomStream>();
+				randomStream = NewObject<UDeepDriveRandomStream>();
 				if (randomStream)
 				{
 					randomStream->initialize(Seed);
@@ -539,7 +546,7 @@ void ADeepDriveSimulation::RegisterRandomStream(const FName &RandomStreamId, boo
 
 UDeepDriveRandomStream* ADeepDriveSimulation::GetRandomStream(const FName &RandomStreamId)
 {
-	return RandomStreams.Contains(RandomStreamId) ? RandomStreams[RandomStreamId].getRandomStream() : 0;
+	return RandomStreams.Contains(RandomStreamId) ? RandomStreams[RandomStreamId].getRandomStream() : m_DefaultRandomStream.getRandomStream();
 }
 
 void ADeepDriveSimulation::ToggleAgentRenderMode()

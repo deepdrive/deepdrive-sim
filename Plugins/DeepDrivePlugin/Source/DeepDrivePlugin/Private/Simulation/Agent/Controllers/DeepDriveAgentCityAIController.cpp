@@ -54,7 +54,10 @@ bool ADeepDriveAgentCityAIController::Activate(ADeepDriveAgent &agent, bool keep
 			FVector start;
 			if(m_StartIndex < 0)
 			{
+				start = roadNetwork->GetRandomLocation(EDeepDriveLaneType::MAJOR_LANE, -1);
+				UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentCityAIController::Activate Random start pos %s"), *(start.ToString()) );
 
+				m_Route = roadNetwork->calculateRandomRoute(start);
 			}
 			else
 			{

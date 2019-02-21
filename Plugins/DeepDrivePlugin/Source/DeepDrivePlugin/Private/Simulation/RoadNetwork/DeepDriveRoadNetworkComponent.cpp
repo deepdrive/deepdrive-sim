@@ -3,12 +3,14 @@
 #include "DeepDrivePluginPrivatePCH.h"
 #include "DeepDriveRoadNetworkComponent.h"
 
+#include "Public/Simulation/DeepDriveSimulation.h"
 #include "Public/Simulation/RoadNetwork/DeepDriveRoadLinkProxy.h"
 #include "Public/Simulation/RoadNetwork/DeepDriveJunctionProxy.h"
 #include "Public/Simulation/RoadNetwork/DeepDriveRoadSegmentProxy.h"
 #include "Public/Simulation/RoadNetwork/DeepDriveRoadNetworkExtractor.h"
 #include "Public/Simulation/RoadNetwork/DeepDriveRoute.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
+#include "Public/Simulation/Misc/DeepDriveRandomStream.h"
 
 #include "Private/Simulation/RoadNetwork/DeepDriveRouteCalculator.h"
 
@@ -30,8 +32,9 @@ void UDeepDriveRoadNetworkComponent::BeginPlay()
 
 }
 
-void UDeepDriveRoadNetworkComponent::Initialize()
+void UDeepDriveRoadNetworkComponent::Initialize(ADeepDriveSimulation &deepDriveSim)
 {
+	m_DeepDriveSimulation = &deepDriveSim;
 	collectRoadNetwork();
 }
 
@@ -48,16 +51,20 @@ FVector UDeepDriveRoadNetworkComponent::GetRandomLocation(EDeepDriveLaneType Pre
 {
 	FVector location = FVector::ZeroVector;
 
-	const int32 numLinks = m_RoadNetwork.Links.Num();
-	if(numLinks > 0)
+	TArray<uint32> keys;
+	m_RoadNetwork.Links.GenerateKeyArray(keys);
+
+	const int32 numLinks = keys.Num();
+	if(numLinks > 0 && m_DeepDriveSimulation)
 	{
-		SDeepDriveRoadLink &link = m_RoadNetwork.Links[FMath::RandRange(0u, numLinks - 1)];
+		UDeepDriveRandomStream *randomStream = m_DeepDriveSimulation->GetRandomStream(FName("AgentPlacement"));
+		SDeepDriveRoadLink &link = m_RoadNetwork.Links[ keys[randomStream->RandomIntegerInRange(0, numLinks - 1)] ];
 
 		int32 laneInd = link.getRightMostLane(PreferredLaneType);
 		if(laneInd)
 		{
 			SDeepDriveLane &lane = link.Lanes[laneInd];
-			SDeepDriveRoadSegment &segment = m_RoadNetwork.Segments[lane.Segments[FMath::RandRange(0u, lane.Segments.Num() - 1)]];
+			SDeepDriveRoadSegment &segment = m_RoadNetwork.Segments[lane.Segments[randomStream->RandomIntegerInRange(0, lane.Segments.Num() - 1)]];
 
 			if(relPos == 0)
 				location = segment.StartPoint;
@@ -71,7 +78,7 @@ FVector UDeepDriveRoadNetworkComponent::GetRandomLocation(EDeepDriveLaneType Pre
 				}
 				else
 				{
-					location = FMath::Lerp(segment.StartPoint, segment.EndPoint, FMath::RandRange(0.0f, 1.0f));
+					location = FMath::Lerp(segment.StartPoint, segment.EndPoint, randomStream->RandomFloatInRange(0.0f, 1.0f));
 				}
 			}
 		}
@@ -127,24 +134,45 @@ ADeepDriveRoute* UDeepDriveRoadNetworkComponent::CalculateRoute(const FVector St
 	return route;
 }
 
-ADeepDriveRoute* UDeepDriveRoadNetworkComponent::CalculateRandomRoute()
+ADeepDriveRoute* UDeepDriveRoadNetworkComponent::calculateRandomRoute(const FVector &Start)
 {
 	ADeepDriveRoute *route = 0;
-#if 0
+
 	TArray<uint32> keys;
-	m_RoadNetwork.Links.GenerateKeyArray(TArray<uint32> keys);
+	m_RoadNetwork.Links.GenerateKeyArray(keys);
 
 	const int32 numLinks = keys.Num();
-	if (numLinks > 0)
+	if (numLinks > 0 && m_DeepDriveSimulation)
 	{
-		const uint32 startLinkId = m_RoadNetwork.Links[keys[FMath::RandRange(0u, numLinks - 1)]].LinkId;
+		UDeepDriveRandomStream *randomStream = m_DeepDriveSimulation->GetRandomStream(FName("AgentPlacement"));
+
+		const uint32 startLinkId = m_RoadNetwork.findClosestLink(Start);
+
 		uint32 destinationLinkId = 0;
 		do
 		{
-			destinationLinkId = m_RoadNetwork.Links[keys[FMath::RandRange(0u, numLinks - 1)]].LinkId;
-		} while (destinationLinkId && destinationLinkId != startLinkId);
+			destinationLinkId = m_RoadNetwork.Links[keys[randomStream->RandomIntegerInRange(0, numLinks - 1)]].LinkId;
+		} while (destinationLinkId == 0 || destinationLinkId == startLinkId);
+
+
+		UE_LOG(LogDeepDriveRoadNetwork, Log, TEXT("Calc random route from %d to %d"), startLinkId, destinationLinkId );
+
+
+		DeepDriveRouteCalculator routeCalculator(m_RoadNetwork);
+		SDeepDriveRouteData routeData = routeCalculator.calculate(Start, m_RoadNetwork.Links[destinationLinkId].EndPoint);
+
+		if (routeData.Links.Num() > 0)
+		{
+			route = GetWorld()->SpawnActor<ADeepDriveRoute>(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f), FActorSpawnParameters());
+
+			if (route)
+			{
+				route->initialize(m_RoadNetwork, routeData);
+			}
+		}
+
 	}
-#endif
+
 	return route;
 }
 

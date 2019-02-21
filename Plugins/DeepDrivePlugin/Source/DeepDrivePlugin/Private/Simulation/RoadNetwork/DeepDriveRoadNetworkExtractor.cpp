@@ -32,7 +32,7 @@ void DeepDriveRoadNetworkExtractor::extract()
 		{
 			uint32 junctionId = m_nextJunctionId++;
 
-			UE_LOG(LogDeepDriveRoadNetworkExtractor, Log, TEXT("Extracting junction %d %s"), junctionId, *(UKismetSystemLibrary::GetObjectName(junctionProxy)) );
+			UE_LOG(LogDeepDriveRoadNetworkExtractor, Log, TEXT("Extracting junction %d %s turningRestrictions %d"), junctionId, *(UKismetSystemLibrary::GetObjectName(junctionProxy)), junctionProxy->getTurningRestrictions().Num() );
 
 			SDeepDriveJunction junction;
 			junction.JunctionId = junctionId;
@@ -106,22 +106,21 @@ void DeepDriveRoadNetworkExtractor::extract()
 					}
 				}
 				junction.Connections.Add(connection);
+			}
 
-				for(auto &turningRestrictionProxy : junctionProxy->getTurningRestrictions())
+			for(auto &turningRestrictionProxy : junctionProxy->getTurningRestrictions())
+			{
+				FString fromName = UKismetSystemLibrary::GetObjectName(turningRestrictionProxy.FromLink);
+				FString toName = UKismetSystemLibrary::GetObjectName(turningRestrictionProxy.ToLink);
+				if	(	m_LinkCache.Contains(fromName)
+					&&	m_LinkCache.Contains(toName)
+					)
 				{
-					fromName = UKismetSystemLibrary::GetObjectName(turningRestrictionProxy.FromLink);
-					toName = UKismetSystemLibrary::GetObjectName(turningRestrictionProxy.ToLink);
-					if	(	m_LinkCache.Contains(fromName)
-						&&	m_LinkCache.Contains(toName)
-						)
-					{
-						SDeepDriveTurningRestriction turningRestriction;
-						turningRestriction.FromLink = m_LinkCache[fromName];
-						turningRestriction.ToLink = m_LinkCache[toName];
-						junction.TurningRestrictions.Add(turningRestriction);
-					}
+					SDeepDriveTurningRestriction turningRestriction;
+					turningRestriction.FromLink = m_LinkCache[fromName];
+					turningRestriction.ToLink = m_LinkCache[toName];
+					junction.TurningRestrictions.Add(turningRestriction);
 				}
-
 			}
 
 			m_RoadNetwork.Junctions.Add(junctionId, junction);

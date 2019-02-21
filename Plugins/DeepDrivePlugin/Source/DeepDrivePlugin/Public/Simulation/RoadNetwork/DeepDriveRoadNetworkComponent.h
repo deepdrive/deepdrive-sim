@@ -7,6 +7,7 @@
 #include "Public/Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
 #include "DeepDriveRoadNetworkComponent.generated.h"
 
+class ADeepDriveSimulation;
 class ADeepDriveJunctionProxy;
 class ADeepDriveRoadLinkProxy;
 class ADeepDriveAgent;
@@ -30,7 +31,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void Initialize();
+	void Initialize(ADeepDriveSimulation &deepDriveSim);
 
 	UFUNCTION(BlueprintCallable, Category = "Route")
 	FVector GetRandomLocation(EDeepDriveLaneType PreferredLaneType, int32 relPos);
@@ -44,9 +45,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Route")
 	ADeepDriveRoute* CalculateRoute(const FVector Start, const FVector Destination);
 
-	UFUNCTION(BlueprintCallable, Category = "Route")
-	ADeepDriveRoute* CalculateRandomRoute();
-
 	ADeepDriveRoute *CalculateRoute(const TArray<uint32> &routeLinks);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
@@ -54,16 +52,20 @@ public:
 
 	uint32 getRoadLink(ADeepDriveRoadLinkProxy *linkProxy);
 
+	ADeepDriveRoute* calculateRandomRoute(const FVector &Start);
+
 protected:
+
 
 	void collectRoadNetwork();
 
 	float calcHeading(const FVector &from, const FVector &to);
 
-	SDeepDriveRoadNetwork		m_RoadNetwork;
+	ADeepDriveSimulation			*m_DeepDriveSimulation = 0;
+	SDeepDriveRoadNetwork			m_RoadNetwork;
 
 	DeepDriveRoadNetworkExtractor	*m_Extractor;
 
-	TArray<uint32>				m_DebugRoute;
+	TArray<uint32>					m_DebugRoute;
 
 };

@@ -28,7 +28,7 @@ void DeepDriveSimulationInitializeState::update(ADeepDriveSimulation &deepDriveS
 	*/
 
 	deepDriveSim.RegisterRandomStream("AgentPlacement", false);
-	deepDriveSim.RoadNetwork->Initialize();
+	deepDriveSim.RoadNetwork->Initialize(deepDriveSim);
 	deepDriveSim.initializeAgents();
 
 	m_StateMachine.setNextState("Running");
