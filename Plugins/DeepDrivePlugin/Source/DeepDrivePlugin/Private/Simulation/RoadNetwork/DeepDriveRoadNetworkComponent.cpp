@@ -148,29 +148,31 @@ ADeepDriveRoute* UDeepDriveRoadNetworkComponent::calculateRandomRoute(const FVec
 
 		const uint32 startLinkId = m_RoadNetwork.findClosestLink(Start);
 
-		uint32 destinationLinkId = 0;
 		do
 		{
-			destinationLinkId = m_RoadNetwork.Links[keys[randomStream->RandomIntegerInRange(0, numLinks - 1)]].LinkId;
-		} while (destinationLinkId == 0 || destinationLinkId == startLinkId || m_RoadNetwork.Links[destinationLinkId].FromJunctionId == 0);
-
-
-		UE_LOG(LogDeepDriveRoadNetwork, Log, TEXT("Calc random route from %d to %d"), startLinkId, destinationLinkId );
-
-
-		DeepDriveRouteCalculator routeCalculator(m_RoadNetwork);
-		SDeepDriveRouteData routeData = routeCalculator.calculate(Start, m_RoadNetwork.Links[destinationLinkId].EndPoint);
-
-		if (routeData.Links.Num() > 0)
-		{
-			route = GetWorld()->SpawnActor<ADeepDriveRoute>(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f), FActorSpawnParameters());
-
-			if (route)
+			uint32 destinationLinkId = 0;
+			do
 			{
-				route->initialize(m_RoadNetwork, routeData);
-			}
-		}
+				destinationLinkId = m_RoadNetwork.Links[keys[randomStream->RandomIntegerInRange(0, numLinks - 1)]].LinkId;
+			} while (destinationLinkId == 0 || destinationLinkId == startLinkId || m_RoadNetwork.Links[destinationLinkId].FromJunctionId == 0);
 
+
+			UE_LOG(LogDeepDriveRoadNetwork, Log, TEXT("Calc random route from %d to %d"), startLinkId, destinationLinkId);
+
+
+			DeepDriveRouteCalculator routeCalculator(m_RoadNetwork);
+			SDeepDriveRouteData routeData = routeCalculator.calculate(Start, m_RoadNetwork.Links[destinationLinkId].EndPoint);
+
+			if (routeData.Links.Num() > 2)
+			{
+				route = GetWorld()->SpawnActor<ADeepDriveRoute>(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f), FActorSpawnParameters());
+
+				if (route)
+				{
+					route->initialize(m_RoadNetwork, routeData);
+				}
+			}
+		} while (route == 0);
 	}
 
 	return route;
