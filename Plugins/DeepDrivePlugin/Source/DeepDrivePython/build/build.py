@@ -58,11 +58,11 @@ def get_egg_file(module_name):
 
 
 def main(build_type):
-    sim_root = str(Path(DIR).parent.parent.parent.parent.parent)
-    print('Sim root %s' % sim_root)
+    unreal_root = str(Path(DIR).parent.parent.parent.parent.parent)
+    print('Unreal root %s' % unreal_root)
     env = os.environ.copy()
     py = sys.executable
-    get_package_version_path = os.path.join(sim_root, 'Packaging', 'get_package_version.py')
+    get_package_version_path = os.path.join(unreal_root, 'Packaging', 'get_package_version.py')
     env['DEEPDRIVE_VERSION'], _ = run_command('%s %s' % (py, get_package_version_path))
     print('DEEPDRIVE_VERSION is %s' % env['DEEPDRIVE_VERSION'])
     ext_root = os.path.dirname(DIR)
@@ -100,27 +100,43 @@ def main(build_type):
             raise Exception(msg, e)
 
     else:
-        git_dir = os.path.join(os.path.dirname(sim_root), '.git')
+        git_dir = os.path.join(unreal_root, '.git')
         if not os.path.exists(git_dir):
             raise RuntimeError('Error: Git is required to build a distribution release. Use --type '
                                'dev to build locally.')
         env['DEEPDRIVE_BRANCH'] = (env.get('TRAVIS_BRANCH') or env.get('APPVEYOR_REPO_BRANCH') or
-                                   run_command(['git', '-C', sim_root, 'rev-parse', '--abbrev-ref', 'HEAD'])[0])
-        build_pypi(build_type, env, ext_root, py, sim_root)
+                                   run_command(['git', '-C', unreal_root, 'rev-parse', '--abbrev-ref', 'HEAD'])[0])
+        build_pypi(build_type, env, ext_root, py, unreal_root)
 
 
 def build_pypi(build_type, env, ext_root, py, sim_root):
+    if env['DEEPDRIVE_BRANCH'] != 'release':
+        env['DEEPDRIVE_VERSION_SEGMENT'] = '.dev0'
+    else:
+        env['DEEPDRIVE_VERSION_SEGMENT'] = ''
+
     if build_type == 'win_bdist':
         run_command('%s -u setup.py bdist_wheel' % py, env=env, cwd=ext_root)
-        if env['DEEPDRIVE_BRANCH'] == 'release':
-            scripts_dir = os.path.join(env['PYTHON'], 'Scripts')
-            print('DEBUG scripts dir %s' % list(os.listdir(scripts_dir)))
-            for name in os.listdir(os.path.join(ext_root, 'dist')):
-                if env['DEEPDRIVE_VERSION'] in name and name.endswith(".whl"):
-                    twine = os.path.join(scripts_dir, 'twine')
-                    run_command([twine, 'upload', os.path.join(ext_root, 'dist', name), '-u', env['PYPI_USERNAME'],
-                                 '-p', env['PYPI_PASSWORD']], env=env, cwd=ext_root)
+        scripts_dir = os.path.join(env['PYTHON'], 'Scripts')
+        print('DEBUG scripts dir %s' % list(os.listdir(scripts_dir)))
+        for name in os.listdir(os.path.join(ext_root, 'dist')):
+            if env['DEEPDRIVE_VERSION'] in name and name.endswith(".whl"):
+                twine = os.path.join(scripts_dir, 'twine')
+                run_command([twine, 'upload', os.path.join(ext_root, 'dist', name), '-u', env['PYPI_USERNAME'],
+                             '-p', env['PYPI_PASSWORD']], env=env, cwd=ext_root)
     elif build_type == 'linux_bdist':
+        def ensure_no_binaries_of_type(file_extension):
+            ret = glob.glob(DIR + '/**/*' + file_extension, recursive=True)
+            if ret:
+                print('Error, found existing binaries, '
+                      'please delete the following to package a manylinux distrubution: \n\t%s' % '\n\t'.join(ret))
+            return ret
+
+        so_files = ensure_no_binaries_of_type('.so')
+        o_files = ensure_no_binaries_of_type('.o')
+        if so_files or o_files:
+            exit(1)
+
         env['PRE_CMD'] = env.get('PRE_CMD') or ''
         env['DOCKER_IMAGE'] = env.get('DOCKER_IMAGE') or 'quay.io/pypa/manylinux1_x86_64'
 
@@ -130,6 +146,7 @@ def build_pypi(build_type, env, ext_root, py, sim_root):
                      '-e', 'PYPI_PASSWORD',
                      '-e', 'DEEPDRIVE_BRANCH',
                      '-e', 'DEEPDRIVE_VERSION',
+                     '-e', 'DEEPDRIVE_VERSION_SEGMENT',
                      '-v', sim_root + '/Plugins/DeepDrivePlugin/Source:/io',
                      env['DOCKER_IMAGE'],
                      env['PRE_CMD'],
