@@ -78,7 +78,7 @@ bool ADeepDriveAgentLocalAIController::ResetAgent()
 {
 	if(m_Track && m_Agent)
 	{
-		UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Reset Agent") );
+		UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT("Reset Agent at %d"), m_StartPositionSlot);
 		if(m_StartPositionSlot < 0)
 			m_StartDistance = m_Track->getRandomDistanceAlongTrack(*m_DeepDriveSimulation->GetRandomStream(FName("AgentPlacement")));
 
