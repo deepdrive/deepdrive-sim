@@ -216,6 +216,8 @@ private:
 	DeepDriveSimulationCaptureProxy			*m_CaptureProxy = 0;
 	TArray<UCaptureSinkComponentBase*>		m_CaptureSinks;
 
+	FDeepDriveRandomStreamData				m_DefaultRandomStream;
+
 	TArray<ADeepDriveAgent*>				m_Agents;
 	int32									m_curAgentIndex = 0;
 	ADeepDriveAgent							*m_curAgent = 0;

@@ -33,18 +33,19 @@ SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, co
 		const SDeepDriveRoadLink &startLink = m_RoadNetwork.Links[startLinkId];
 		const SDeepDriveRoadLink &destLink = m_RoadNetwork.Links[destLinkId];
 
-		UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Route calculation from %d to %d starting at %d"), startLinkId, destLinkId, destLink.FromJunctionId );
+		UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Route calculation from %d to %d routing to %d"), startLinkId, destLinkId, destLink.FromJunctionId );
 
 		if(startLinkId == destLinkId)
 		{
-			routeData.Links.Add(startLinkId);
+			UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Start link equals destination link, no route for now") );
+			// routeData.Links.Add(startLinkId);
 		}
 		else if(startLink.ToJunctionId == destLink.FromJunctionId)
 		{
 			routeData.Links.Add(startLinkId);
 			routeData.Links.Add(destLinkId);
 		}
-		else
+		else if (startLink.ToJunctionId && destLink.FromJunctionId)
 		{
 			const uint32 destJunctionId = destLink.FromJunctionId;
 			m_OpenList.add( acquireNode(startLink.ToJunctionId, 0, startLinkId, 0.0f) );
@@ -76,6 +77,8 @@ SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, co
 			{
 				TArray<uint32> routeLinks;
 
+				const float totalCost = currentNode->CostF;
+
 				if(currentNode->LinkId != destLinkId)
 					routeLinks.Add(destLinkId);
 				while(currentNode)
@@ -92,7 +95,7 @@ SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, co
 					UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("  %d"), routeLinks[i] );
 				}
 
-				UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Route successfully calculated %d links"), routeData.Links.Num() );
+				UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Route successfully calculated %d links total cost %f"), routeData.Links.Num(), totalCost );
 
 			}
 			else
@@ -111,33 +114,37 @@ SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, co
 
 void DeepDriveRouteCalculator::expandNode(const Node &currentNode)
 {
-	UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Expanding junction node %d"), currentNode.JunctionId );
-	for(auto &outLinkId : m_RoadNetwork.Junctions[currentNode.JunctionId].LinksOut)
+	const SDeepDriveJunction &junction = m_RoadNetwork.Junctions[currentNode.JunctionId];
+	UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Expanding junction node %d turningRestrictions %d"), currentNode.JunctionId, junction.TurningRestrictions.Num() );
+	for(auto &outLinkId : junction.LinksOut)
 	{
-		const SDeepDriveRoadLink &outLink = m_RoadNetwork.Links[outLinkId];
-
-        if	(	outLink.ToJunctionId == 0
-			||	m_ClosedList.Contains(outLink.ToJunctionId)
-			)
-			continue;
-
-		const FVector junctionPos = m_RoadNetwork.Junctions[outLink.ToJunctionId].Center;
-		const float curC = (currentNode.Position - junctionPos).Size();
-        float tentativeG = currentNode.CostG + curC;
-
-		Node *successorNode = m_OpenList.get(outLink.ToJunctionId);
-		UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Successor node %d %p"), outLink.ToJunctionId, successorNode );
-		if(successorNode && tentativeG >= successorNode->CostG)
-            continue;
-
-		if(successorNode == 0)
+		if(junction.isTurningAllowed(currentNode.LinkId, outLinkId))
 		{
-			successorNode = acquireNode(outLink.ToJunctionId, &currentNode, outLinkId, tentativeG);
-			m_OpenList.add(successorNode);
-		}
-		else
-		{
-			successorNode->CostF = tentativeG + (m_Destination - junctionPos).Size();
+			const SDeepDriveRoadLink &outLink = m_RoadNetwork.Links[outLinkId];
+
+			if	(	outLink.ToJunctionId == 0
+				||	m_ClosedList.Contains(outLink.ToJunctionId)
+				)
+				continue;
+
+			const FVector junctionPos = m_RoadNetwork.Junctions[outLink.ToJunctionId].Center;
+			const float curC = (currentNode.Position - junctionPos).Size();
+			float tentativeG = currentNode.CostG + curC;
+
+			Node *successorNode = m_OpenList.get(outLink.ToJunctionId);
+			UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Successor node %d %p"), outLink.ToJunctionId, successorNode );
+			if(successorNode && tentativeG >= successorNode->CostG)
+				continue;
+
+			if(successorNode == 0)
+			{
+				successorNode = acquireNode(outLink.ToJunctionId, &currentNode, outLinkId, tentativeG);
+				m_OpenList.add(successorNode);
+			}
+			else
+			{
+				successorNode->CostF = tentativeG + (m_Destination - junctionPos).Size();
+			}
 		}
 	}
 }

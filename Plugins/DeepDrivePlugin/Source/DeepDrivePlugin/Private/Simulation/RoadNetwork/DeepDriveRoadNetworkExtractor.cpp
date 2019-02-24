@@ -32,7 +32,7 @@ void DeepDriveRoadNetworkExtractor::extract()
 		{
 			uint32 junctionId = m_nextJunctionId++;
 
-			UE_LOG(LogDeepDriveRoadNetworkExtractor, Log, TEXT("Extracting junction %d %s"), junctionId, *(UKismetSystemLibrary::GetObjectName(junctionProxy)) );
+			UE_LOG(LogDeepDriveRoadNetworkExtractor, Log, TEXT("Extracting junction %d %s turningRestrictions %d"), junctionId, *(UKismetSystemLibrary::GetObjectName(junctionProxy)), junctionProxy->getTurningRestrictions().Num() );
 
 			SDeepDriveJunction junction;
 			junction.JunctionId = junctionId;
@@ -88,34 +88,88 @@ void DeepDriveRoadNetworkExtractor::extract()
 				{
 					connection.FromSegment = fromSegment;
 					connection.ToSegment = toSegment;
-					if	(	connectionProxy.GenerateAutoConnection
-						||	connection.ConnectionSegment == false
-						)
+
+					switch(connectionProxy.ConnectionShape)
 					{
-						const float speedLimit = connectionProxy.GenerateAutoConnection ? connectionProxy.SpeedLimit : m_RoadNetwork.Segments[fromSegment].SpeedLimit;
-						const float slowDownDist = connectionProxy.GenerateAutoConnection ? connectionProxy.SlowDownDistance : -1.0f;
-						if(connectionProxy.GenerateAutoConnection && connectionProxy.GenerateCurve)
-						{
-							connection.ConnectionSegment = addStraightConnectionSegment(connection.FromSegment, connection.ToSegment, speedLimit, slowDownDist, true);
-						}
-						else
-						{
-							connection.ConnectionSegment = addStraightConnectionSegment(connection.FromSegment, connection.ToSegment, speedLimit, slowDownDist, false);
-						}
-					}
-					else
-					{
-						connection.ConnectionSegment = addSegment(*connectionProxy.ConnectionSegment, 0, EDeepDriveLaneType::CONNECTION);
+						case EDeepDriveConnectionShape::STRAIGHT_LINE:
+						case EDeepDriveConnectionShape::QUADRATIC_SPLINE:
+						case EDeepDriveConnectionShape::CUBIC_SPLINE:
+						case EDeepDriveConnectionShape::UTURN_SPLINE:
+							connection.ConnectionSegment = addConnectionSegment(connection.FromSegment, connection.ToSegment, connectionProxy);
+							break;
+						case EDeepDriveConnectionShape::ROAD_SEGMENT:
+							if(connectionProxy.ConnectionSegment)
+								connection.ConnectionSegment = addSegment(*connectionProxy.ConnectionSegment, 0, EDeepDriveLaneType::CONNECTION);
+							else
+								connection.ConnectionSegment = addStraightConnectionSegment(connection.FromSegment, connection.ToSegment, connectionProxy.SpeedLimit, connectionProxy.SlowDownDistance, false);
+							break;
 					}
 				}
-
 				junction.Connections.Add(connection);
+			}
+
+			for(auto &turningRestrictionProxy : junctionProxy->getTurningRestrictions())
+			{
+				FString fromName = UKismetSystemLibrary::GetObjectName(turningRestrictionProxy.FromLink);
+				FString toName = UKismetSystemLibrary::GetObjectName(turningRestrictionProxy.ToLink);
+				if	(	m_LinkCache.Contains(fromName)
+					&&	m_LinkCache.Contains(toName)
+					)
+				{
+					SDeepDriveTurningRestriction turningRestriction;
+					turningRestriction.FromLink = m_LinkCache[fromName];
+					turningRestriction.ToLink = m_LinkCache[toName];
+					junction.TurningRestrictions.Add(turningRestriction);
+				}
 			}
 
 			m_RoadNetwork.Junctions.Add(junctionId, junction);
 		}
 	}
+
+	for(auto &linkProxy : m_LinkProxies)
+	{
+		FString oppositeName = linkProxy->getOppositeDirection() ? UKismetSystemLibrary::GetObjectName(linkProxy->getOppositeDirection()) : "";
+		if(oppositeName != "")
+		{
+			m_RoadNetwork.Links[m_LinkCache[UKismetSystemLibrary::GetObjectName(linkProxy)]].OppositeDirectionLink = m_LinkCache[oppositeName];
+		}
+	}
+
+
+
+
 }
+
+uint32 DeepDriveRoadNetworkExtractor::addConnectionSegment(uint32 fromSegment, uint32 toSegment, const FDeepDriveLaneConnectionProxy &connectionProxy)
+{
+	uint32 connectionId = m_nextSegmentId++;
+
+	SDeepDriveRoadSegment segment;
+	segment.SegmentId = connectionId;
+	segment.LinkId = 0;
+	segment.StartPoint = m_RoadNetwork.Segments[fromSegment].EndPoint;
+	segment.EndPoint = m_RoadNetwork.Segments[toSegment].StartPoint;
+	segment.Heading = calcHeading(segment.StartPoint, segment.EndPoint);
+	segment.LaneType = EDeepDriveLaneType::CONNECTION;
+
+	segment.SpeedLimit = connectionProxy.SpeedLimit;
+	segment.ConnectionShape = connectionProxy.ConnectionShape;
+	segment.SlowDownDistance = connectionProxy.SlowDownDistance;
+	segment.CustomCurveParams[0] = connectionProxy.CustomCurveParams.Parameter0;
+	segment.CustomCurveParams[1] = connectionProxy.CustomCurveParams.Parameter1;
+	segment.CustomCurveParams[2] = connectionProxy.CustomCurveParams.Parameter2;
+	segment.CustomCurveParams[3] = connectionProxy.CustomCurveParams.Parameter3;
+	segment.CustomCurveParams[4] = connectionProxy.CustomCurveParams.Parameter4;
+	segment.CustomCurveParams[5] = connectionProxy.CustomCurveParams.Parameter5;
+	segment.CustomCurveParams[6] = connectionProxy.CustomCurveParams.Parameter6;
+	segment.CustomCurveParams[7] = connectionProxy.CustomCurveParams.Parameter7;
+
+	m_RoadNetwork.Segments.Add(connectionId, segment);
+
+	return connectionId;
+}
+
 
 uint32 DeepDriveRoadNetworkExtractor::addStraightConnectionSegment(uint32 fromSegment, uint32 toSegment, float speedLimit, float slowDownDistance, bool generateCurve)
 {
@@ -130,9 +184,7 @@ uint32 DeepDriveRoadNetworkExtractor::addStraightConnectionSegment(uint32 fromSe
 	segment.LaneType = EDeepDriveLaneType::CONNECTION;
 
 	segment.SpeedLimit = speedLimit;
-
-	segment.IsConnection = true;
-	segment.GenerateCurve = generateCurve;
+	segment.ConnectionShape = generateCurve ? EDeepDriveConnectionShape::QUADRATIC_SPLINE : EDeepDriveConnectionShape::STRAIGHT_LINE;
 	segment.SlowDownDistance = slowDownDistance;
 
 	m_RoadNetwork.Segments.Add(connectionId, segment);
@@ -193,6 +245,8 @@ uint32 DeepDriveRoadNetworkExtractor::addLink(ADeepDriveRoadLinkProxy &linkProxy
 		m_LinkCache.Add(proxyObjName, linkId);
 		m_RoadNetwork.Links.Add(linkId, link);
 
+		m_LinkProxies.Add(&linkProxy);
+
 		UE_LOG(LogDeepDriveRoadNetworkExtractor, Log, TEXT("Added link %d %s"), linkId, *(proxyObjName) );
 
 	}
@@ -220,35 +274,22 @@ uint32 DeepDriveRoadNetworkExtractor::addSegment(ADeepDriveRoadSegmentProxy &seg
 		segment.Heading = calcHeading(segment.StartPoint, segment.EndPoint);
 		segment.LaneType = laneType;
 
+		segment.ConnectionShape = segment.LaneType == EDeepDriveLaneType::CONNECTION ? EDeepDriveConnectionShape::ROAD_SEGMENT : EDeepDriveConnectionShape::NO_CONNECTION;
+
 		const float speedLimit = segmentProxy.getSpeedLimit();
 		if (speedLimit <= 0.0f)
 			segment.SpeedLimit = link ? link->SpeedLimit : DeepDriveRoadNetwork::SpeedLimitConnection;
 		else
 			segment.SpeedLimit = speedLimit;
 
-		segment.IsConnection = segmentProxy.isConnection();
-		segment.SlowDownDistance = segmentProxy.getSlowDownDistance();
-
 		const USplineComponent *spline = segmentProxy.getSpline();
 		if(spline && spline->GetNumberOfSplinePoints() > 2)
 		{
-			for (signed i = 0; i < spline->GetNumberOfSplinePoints(); ++i)
-			{
-				FSplinePoint splinePoint;
-
-				splinePoint.Type = spline->GetSplinePointType(i);
-				splinePoint.Position = spline->GetLocationAtSplinePoint(i, ESplineCoordinateSpace::World);
-				splinePoint.Rotation = spline->GetRotationAtSplinePoint(i, ESplineCoordinateSpace::World);
-				splinePoint.Scale = spline->GetScaleAtSplinePoint(i);
-				splinePoint.ArriveTangent = spline->GetArriveTangentAtSplinePoint(i, ESplineCoordinateSpace::World);
-				splinePoint.LeaveTangent = spline->GetLeaveTangentAtSplinePoint(i, ESplineCoordinateSpace::World);
-
-				segment.SplinePoints.Add(splinePoint);
-				segment.Transform = spline->GetComponentTransform();
-			}
-
 			segment.SplineCurves = spline->SplineCurves;
+			segment.SplineTransform = spline->GetComponentTransform();
 		}
+
+		// segment.Tra nsform = 
 
 		m_SegmentCache.Add(proxyObjName, segmentId);
 		m_RoadNetwork.Segments.Add(segmentId, segment);
@@ -279,8 +320,7 @@ uint32 DeepDriveRoadNetworkExtractor::addSegment(ADeepDriveRoadLinkProxy &linkPr
 		segment.LaneType = EDeepDriveLaneType::MAJOR_LANE;
 
 		segment.SpeedLimit = link ? link->SpeedLimit : DeepDriveRoadNetwork::SpeedLimitConnection;
-
-		segment.IsConnection = false;
+		segment.ConnectionShape = EDeepDriveConnectionShape::NO_CONNECTION;
 		segment.SlowDownDistance = -1.0f;
 
 		m_SegmentCache.Add(proxyObjName, segmentId);

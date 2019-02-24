@@ -23,21 +23,56 @@ void ADeepDriveAgentCityAIController::Tick( float DeltaSeconds )
 	{
 		m_Route->update(*m_Agent);
 
-		if (m_hasActiveGuidance)
+		switch(m_State)
 		{
-			if (m_Route->getRemainingDistance() - m_Agent->getFrontBumperDistance() < 800.0f)
-				m_hasActiveGuidance = false;
-			float desiredSpeed = m_DesiredSpeed;
+			case ActiveRouteGuidance:
+				{
+					if (m_Route->getRemainingDistance() - m_Agent->getFrontBumperDistance() < 800.0f)
+					{
+						m_State = m_StartIndex < 0 ? Waiting : Idle;
+						m_WaitTimer = FMath::RandRange(3.0f, 4.0f);
 
-			desiredSpeed = m_SpeedController->limitSpeedByTrack(desiredSpeed, 1.0f);
-			m_SpeedController->update(DeltaSeconds, desiredSpeed, -1.0f, 0.0f);
-			m_SteeringController->update(DeltaSeconds, desiredSpeed, 0.0f);
-		}
-		else
-		{
-			m_Agent->SetThrottle(0.0f);
-			m_Agent->SetBrake(1.0f);
-			m_Agent->SetSteering(0.0f);
+					}
+					float desiredSpeed = m_DesiredSpeed;
+
+					desiredSpeed = m_SpeedController->limitSpeedByTrack(desiredSpeed, 1.0f);
+					m_SpeedController->update(DeltaSeconds, desiredSpeed, -1.0f, 0.0f);
+					m_SteeringController->update(DeltaSeconds, desiredSpeed, 0.0f);
+				}
+				break;
+
+			case Waiting:
+				m_WaitTimer -= DeltaSeconds;
+				if(m_WaitTimer <= 0.0f)
+				{
+					FVector start = m_Agent->GetActorLocation();
+					UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentCityAIController::Activate Random start pos %s"), *(start.ToString()) );
+
+					ADeepDriveRoute *route = m_DeepDriveSimulation->RoadNetwork->calculateRandomRoute(start);
+					if (route)
+					{
+						route->convert(start);
+
+						m_SteeringController->setRoute(*route);
+						m_SpeedController->setRoute(*route);
+						route->update(*m_Agent);
+
+						m_Route->Destroy();
+						m_Route = route;
+
+						m_State = ActiveRouteGuidance;
+					}
+					else
+					{
+						m_State = Idle;
+					}
+				}			//	fall through
+
+			case Idle:
+				m_Agent->SetThrottle(0.0f);
+				m_Agent->SetBrake(1.0f);
+				m_Agent->SetSteering(0.0f);
+				break;
 		}
 	}
 }
@@ -49,15 +84,26 @@ bool ADeepDriveAgentCityAIController::Activate(ADeepDriveAgent &agent, bool keep
 	{
 		UDeepDriveRoadNetworkComponent *roadNetwork = m_DeepDriveSimulation->RoadNetwork;
 
-		if(m_StartIndex < m_Configuration.Routes.Num())
+		if(m_StartIndex < 0 || m_StartIndex < m_Configuration.Routes.Num())
 		{
-			m_Route = roadNetwork->CalculateRoute	(	m_Configuration.Routes[m_StartIndex].Start
-													,	m_Configuration.Routes[m_StartIndex].Destination
-													);
+			FVector start;
+			if(m_StartIndex < 0)
+			{
+				start = roadNetwork->GetRandomLocation(EDeepDriveLaneType::MAJOR_LANE, -1);
+				UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentCityAIController::Activate Random start pos %s"), *(start.ToString()) );
+
+				m_Route = roadNetwork->calculateRandomRoute(start);
+			}
+			else
+			{
+				start = m_Configuration.Routes[m_StartIndex].Start;
+				FVector dest = m_Configuration.Routes[m_StartIndex].Destination;
+				m_Route = roadNetwork->CalculateRoute(start, dest);
+			}
 
 			if (m_Route)
 			{
-				m_Route->convert(m_Configuration.Routes[m_StartIndex].Start);
+				m_Route->convert(start);
 				m_Route->placeAgentAtStart(agent);
 
 				m_SpeedController = new DeepDriveAgentSpeedController(m_Configuration.PIDThrottle, m_Configuration.PIDBrake);
@@ -65,10 +111,12 @@ bool ADeepDriveAgentCityAIController::Activate(ADeepDriveAgent &agent, bool keep
 
 				m_SteeringController = new DeepDriveAgentSteeringController(m_Configuration.PIDSteering);
 				m_SteeringController->initialize(agent, *m_Route);
-				m_hasActiveGuidance = true;
+				m_State = ActiveRouteGuidance;
 			}
 			else
-				roadNetwork->PlaceAgentOnRoad(&agent, m_Configuration.Routes[m_StartIndex].Start);
+			{
+				roadNetwork->PlaceAgentOnRoad(&agent, start);
+			}
 
 			res = true;
 		}

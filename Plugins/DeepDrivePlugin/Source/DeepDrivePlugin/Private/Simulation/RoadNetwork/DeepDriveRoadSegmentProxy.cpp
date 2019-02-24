@@ -4,7 +4,6 @@
 #include "DeepDrivePlugin.h"
 #include "DeepDriveRoadSegmentProxy.h"
 
-
 // Sets default values
 ADeepDriveRoadSegmentProxy::ADeepDriveRoadSegmentProxy()
 {

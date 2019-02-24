@@ -31,6 +31,11 @@ void DeepDriveAgentSteeringController::initialize(ADeepDriveAgent &agent, ADeepD
 	m_Route = &route;
 }
 
+void DeepDriveAgentSteeringController::setRoute(ADeepDriveRoute &route)
+{
+	m_Route = &route;
+}
+
 void DeepDriveAgentSteeringController::reset()
 {
 	m_SteeringPIDCtrl.reset();

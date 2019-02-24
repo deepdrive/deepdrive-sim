@@ -18,7 +18,9 @@ echo "DEEPDRIVE_VERSION is ${DEEPDRIVE_VERSION}"
 # Compile wheels
 for PYBIN in  "${py_versions[@]}"; do
     "${PYBIN}/pip" install -r /io/DeepDrivePython/dev-requirements.txt
-    "${PYBIN}/pip" wheel /io/DeepDrivePython -w wheelhouse/  # Calls setup.py
+
+    # Call setup.py
+    "${PYBIN}/pip" wheel /io/DeepDrivePython -w wheelhouse/
 done
 
 # Bundle external shared libraries into the wheels
@@ -32,10 +34,6 @@ for PYBIN in  "${py_versions[@]}"; do
 done
 
 # Upload to PyPi
-if [ "${DEEPDRIVE_BRANCH}" == "release" ]; then
-    for whl in /io/wheelhouse/deepdrive*manylinux1*.whl; do
-        ${PYBIN}/twine upload -u ${PYPI_USERNAME} -p ${PYPI_PASSWORD} "$whl"
-    done
-else
-    echo Not on release branch, so not pushing to PyPi
-fi
+for whl in /io/wheelhouse/deepdrive*manylinux1*.whl; do
+    ${PYBIN}/twine upload -u ${PYPI_USERNAME} -p ${PYPI_PASSWORD} "$whl"
+done

@@ -7,8 +7,7 @@
 #include "Public/Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
 #include "DeepDriveRoadNetworkComponent.generated.h"
 
-DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveRoadNetwork, Log, All);
-
+class ADeepDriveSimulation;
 class ADeepDriveJunctionProxy;
 class ADeepDriveRoadLinkProxy;
 class ADeepDriveAgent;
@@ -32,7 +31,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void Initialize();
+	void Initialize(ADeepDriveSimulation &deepDriveSim);
 
 	UFUNCTION(BlueprintCallable, Category = "Route")
 	FVector GetRandomLocation(EDeepDriveLaneType PreferredLaneType, int32 relPos);
@@ -53,16 +52,20 @@ public:
 
 	uint32 getRoadLink(ADeepDriveRoadLinkProxy *linkProxy);
 
+	ADeepDriveRoute* calculateRandomRoute(const FVector &Start);
+
 protected:
+
 
 	void collectRoadNetwork();
 
 	float calcHeading(const FVector &from, const FVector &to);
 
-	SDeepDriveRoadNetwork		m_RoadNetwork;
+	ADeepDriveSimulation			*m_DeepDriveSimulation = 0;
+	SDeepDriveRoadNetwork			m_RoadNetwork;
 
 	DeepDriveRoadNetworkExtractor	*m_Extractor;
 
-	TArray<uint32>				m_DebugRoute;
+	TArray<uint32>					m_DebugRoute;
 
 };

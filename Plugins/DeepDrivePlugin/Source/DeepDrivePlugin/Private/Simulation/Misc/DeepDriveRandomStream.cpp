@@ -18,3 +18,13 @@ int32 UDeepDriveRandomStream::RandomIntegerInRange(int32 Min, int32 Max)
 {
 	return m_RandomStream.RandRange(Min, Max);
 }
+
+float UDeepDriveRandomStream::RandomFloat()
+{
+	return m_RandomStream.FRand();
+}
+
+float UDeepDriveRandomStream::RandomFloatInRange(float Min, float Max)
+{
+	return m_RandomStream.FRandRange(Min, Max);
+}

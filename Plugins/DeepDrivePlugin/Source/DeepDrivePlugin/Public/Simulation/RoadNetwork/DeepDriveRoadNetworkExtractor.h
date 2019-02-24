@@ -9,6 +9,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveRoadNetworkExtractor, Log, All);
 
 class ADeepDriveRoadLinkProxy;
 class ADeepDriveRoadSegmentProxy;
+struct FDeepDriveLaneConnectionProxy;
 
 class DeepDriveRoadNetworkExtractor
 {
@@ -29,6 +30,8 @@ private:
 	// add segment based on link proxy
 	uint32 addSegment(ADeepDriveRoadLinkProxy &linkProxy, const SDeepDriveRoadLink *link);
 
+	uint32 addConnectionSegment(uint32 fromSegment, uint32 toSegment, const FDeepDriveLaneConnectionProxy &connectionProxy);
+
 	uint32 addStraightConnectionSegment(uint32 fromSegment, uint32 toSegment, float speedLimit, float slowDownDistance, bool generateCurve);
 
 	uint32 addLink(ADeepDriveRoadLinkProxy &linkProxy);
@@ -39,15 +42,16 @@ private:
 
 	FString buildSegmentName(const FString &linkName);
 
-	UWorld							*m_World = 0;
-	SDeepDriveRoadNetwork 			&m_RoadNetwork;
+	UWorld								*m_World = 0;
+	SDeepDriveRoadNetwork 				&m_RoadNetwork;
 
-	TMap<FString, uint32>			m_SegmentCache;
-	TMap<FString, uint32>			m_LinkCache;
+	TMap<FString, uint32>				m_SegmentCache;
+	TMap<FString, uint32>				m_LinkCache;
+	TArray<ADeepDriveRoadLinkProxy*>	m_LinkProxies;
 
-	uint32							m_nextSegmentId = 1;
-	uint32							m_nextLinkId = 1;
-	uint32							m_nextJunctionId = 1;
+	uint32								m_nextSegmentId = 1;
+	uint32								m_nextLinkId = 1;
+	uint32								m_nextJunctionId = 1;
 };
 
 inline FString DeepDriveRoadNetworkExtractor::buildSegmentName(const FString &linkName)

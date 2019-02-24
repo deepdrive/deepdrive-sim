@@ -9,6 +9,31 @@
 
 class ADeepDriveRoadSegmentProxy;
 class ADeepDriveRoadLinkProxy;
+class UBezierCurveComponent;
+
+USTRUCT(BlueprintType)
+struct FDeepDriveLaneConnectionCustomCurveParams
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float		Parameter0 = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float		Parameter1 = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float		Parameter2 = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float		Parameter3 = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float		Parameter4 = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float		Parameter5 = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float		Parameter6 = 0.0f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float		Parameter7 = 0.0f;
+
+};
 
 USTRUCT(BlueprintType)
 struct FDeepDriveLaneConnectionProxy
@@ -28,22 +53,34 @@ struct FDeepDriveLaneConnectionProxy
 	ADeepDriveRoadLinkProxy *ToLink = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	bool	GenerateAutoConnection;
+	EDeepDriveConnectionShape	ConnectionShape = EDeepDriveConnectionShape::STRAIGHT_LINE;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default, meta = (EditCondition = "GenerateAutoConnection"))
-	bool	GenerateCurve = false;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default, meta = (EditCondition = "GenerateAutoConnection"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	float	SpeedLimit = 25.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default, meta = (EditCondition = "GenerateAutoConnection"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	float	SlowDownDistance = 1000.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default, meta = (EditCondition = "!GenerateAutoConnection"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	FDeepDriveLaneConnectionCustomCurveParams	CustomCurveParams;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	ADeepDriveRoadSegmentProxy	*ConnectionSegment = 0;
 
 };
 
+USTRUCT(BlueprintType)
+struct FDeepDriveTurningRestriction
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	ADeepDriveRoadLinkProxy *FromLink = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	ADeepDriveRoadLinkProxy *ToLink = 0;
+
+};
 
 UCLASS()
 class DEEPDRIVEPLUGIN_API ADeepDriveJunctionProxy : public AActor
@@ -70,6 +107,8 @@ public:
 
 	const TArray<FDeepDriveLaneConnectionProxy>& getLaneConnections();
 
+	const TArray<FDeepDriveTurningRestriction>& getTurningRestrictions();
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = Default)
@@ -84,11 +123,30 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Configuration)
 	TArray<FDeepDriveLaneConnectionProxy>	LaneConnections;
 
+	UPROPERTY(EditAnywhere, Category = Configuration)
+	TArray<FDeepDriveTurningRestriction>	TurningRestrictions;
+
 	UPROPERTY(EditAnywhere, Category = Debug)
-	FColor						Color = FColor(0, 255, 0, 128);
+	FColor	JunctionColor = FColor(0, 255, 0, 64);
+
+	UPROPERTY(EditAnywhere, Category = Debug)
+	FColor	ConnectionColor = FColor(255, 0, 255, 255);
+
+private:
+
+	bool extractConnection(const FDeepDriveLaneConnectionProxy &connectionProxy, FVector &fromStart, FVector &fromEnd, FVector &toStart, FVector &toEnd);
+	void drawQuadraticConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const FDeepDriveLaneConnectionCustomCurveParams &params);
+	void drawCubicConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const FDeepDriveLaneConnectionCustomCurveParams &params);
+	void drawUTurnConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const FDeepDriveLaneConnectionCustomCurveParams &params);
+
+	FVector calcIntersectionPoint(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd);
+
+	UPROPERTY()
+	UBezierCurveComponent		*m_BezierCurve = 0;
 
 	bool						m_IsGameRunning = false;
 
+	const uint8					m_DrawPrioConnection = 120;
 };
 
 inline const TArray<ADeepDriveRoadLinkProxy*>& ADeepDriveJunctionProxy::getLinksIn()
@@ -104,4 +162,9 @@ inline const TArray<ADeepDriveRoadLinkProxy*>& ADeepDriveJunctionProxy::getLinks
 inline const TArray<FDeepDriveLaneConnectionProxy>& ADeepDriveJunctionProxy::getLaneConnections()
 {
 	return LaneConnections;
+}
+
+inline const TArray<FDeepDriveTurningRestriction>& ADeepDriveJunctionProxy::getTurningRestrictions()
+{
+	return TurningRestrictions;
 }
