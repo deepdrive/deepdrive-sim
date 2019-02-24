@@ -37,8 +37,8 @@ def pip_install(package, dirname):
     else:
         from pip._internal import main as pip_main
 
-    pip_main(['install', '--target', dirname, package])
-    # pip_main(['install', package]) # TODO: Detect target issues and do this instead
+    # pip_main(['install', '--target', dirname, package])
+    pip_main(['install', package]) # TODO: Detect target issues and do this instead
 
 
 def get_this_filename():
