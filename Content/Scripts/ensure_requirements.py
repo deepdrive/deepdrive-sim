@@ -9,7 +9,8 @@ import traceback
 REQ_DIR_NAME = 'UEPyPackages'
 REQUIREMENTS = [
     dict(module='zmq', pip='pyzmq'),
-    dict(module='pyarrow', pip='pyarrow')
+    dict(module='pyarrow', pip='pyarrow'),
+    dict(module='requests', pip='requests'),
 ]
 
 
@@ -37,6 +38,7 @@ def pip_install(package, dirname):
         from pip._internal import main as pip_main
 
     pip_main(['install', '--target', dirname, package])
+    # pip_main(['install', package]) # TODO: Detect target issues and do this instead
 
 
 def get_this_filename():
@@ -50,4 +52,14 @@ def get_this_filename():
 
 
 if __name__ == '__main__':
-    ensure_requirements()
+    # import os
+    # print(os.system('/media/a/data-ext4/UnrealEngine/Engine/Plugins/Marketplace/UnrealEnginePython/EmbeddedPython/Linux/bin/python3 -m pip install sarge'))
+    # TODO: Try to create a tempfile within Unreal using the Pip TempFile class
+
+    import tempfile
+    import shutil
+
+    dirpath = tempfile.mkdtemp()
+    print('tmp file ' + str(dirpath))
+    pass
+    # ensure_requirements()
