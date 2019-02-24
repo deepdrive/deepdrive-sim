@@ -159,9 +159,22 @@ ADeepDriveRoute* UDeepDriveRoadNetworkComponent::calculateRandomRoute(const FVec
 
 			UE_LOG(LogDeepDriveRoadNetwork, Log, TEXT("Calc random route from %d to %d"), startLinkId, destinationLinkId);
 
+			FVector destination;
+
+			SDeepDriveRoadLink &link = m_RoadNetwork.Links[destinationLinkId];
+			int32 laneInd = link.getRightMostLane(EDeepDriveLaneType::MAJOR_LANE);
+			if(laneInd >= 0)
+			{
+				SDeepDriveLane &lane = link.Lanes[laneInd];
+				SDeepDriveRoadSegment &segment = m_RoadNetwork.Segments[lane.Segments[randomStream->RandomIntegerInRange(0, lane.Segments.Num() - 1)]];
+
+				destination = segment.getLocationOnSegment(randomStream->RandomFloatInRange(0.25f, 0.75f));
+			}
+			else
+				destination = m_RoadNetwork.Links[destinationLinkId].EndPoint;
 
 			DeepDriveRouteCalculator routeCalculator(m_RoadNetwork);
-			SDeepDriveRouteData routeData = routeCalculator.calculate(Start, m_RoadNetwork.Links[destinationLinkId].EndPoint);
+			SDeepDriveRouteData routeData = routeCalculator.calculate(Start, destination);
 
 			if (routeData.Links.Num() > 2)
 			{

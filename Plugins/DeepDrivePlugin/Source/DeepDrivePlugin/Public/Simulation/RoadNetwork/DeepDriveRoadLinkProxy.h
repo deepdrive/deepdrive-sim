@@ -48,7 +48,9 @@ public:
 
 	float getSpeedLimit();
 
-	ADeepDriveRoadLinkProxy* getOppositeDirection();
+	ADeepDriveRoadLinkProxy* getOppositeDirectionLink();
+
+	EDeepDriveUTurnMode getUTurnMode();
 
 protected:
 
@@ -62,7 +64,10 @@ protected:
 	UArrowComponent				*EndPoint = 0;
 
 	UPROPERTY(EditAnywhere, Category = Configuration)
-	ADeepDriveRoadLinkProxy *OppositeDirection = 0;
+	ADeepDriveRoadLinkProxy 	*OppositeDirectionLink = 0;
+
+	UPROPERTY(EditAnywhere, Category = Configuration)
+	EDeepDriveUTurnMode			UTurnModeOnLink;
 
 	UPROPERTY(EditAnywhere, Category = Configuration)
 	TArray<FDeepDriveLaneProxy>	Lanes;
@@ -96,7 +101,12 @@ inline float ADeepDriveRoadLinkProxy::getSpeedLimit()
 	return SpeedLimit;
 }
 
-inline ADeepDriveRoadLinkProxy* ADeepDriveRoadLinkProxy::getOppositeDirection()
+inline ADeepDriveRoadLinkProxy* ADeepDriveRoadLinkProxy::getOppositeDirectionLink()
 {
-	return OppositeDirection;
+	return OppositeDirectionLink;
+}
+
+inline  EDeepDriveUTurnMode ADeepDriveRoadLinkProxy::getUTurnMode()
+{
+	return UTurnModeOnLink;
 }

@@ -123,21 +123,36 @@ void DeepDriveRoadNetworkExtractor::extract()
 				}
 			}
 
+			/*
+			 *		Create auto turning restrictions based on UTurn-Mode/Opposite Direction Link
+			 */
+			for (auto &linkProxy : junctionProxy->getLinksIn())
+			{
+				auto oppositeLink = linkProxy->getOppositeDirectionLink();
+				if	(	linkProxy->getUTurnMode() == EDeepDriveUTurnMode::NOT_POSSIBLE
+					&&	oppositeLink != 0
+					&&	m_LinkCache.Contains(UKismetSystemLibrary::GetObjectName(oppositeLink))
+					)
+				{
+					SDeepDriveTurningRestriction turningRestriction;
+					turningRestriction.FromLink = m_RoadNetwork.Links[ m_LinkCache[UKismetSystemLibrary::GetObjectName(linkProxy)] ].LinkId;
+					turningRestriction.ToLink = m_RoadNetwork.Links[ m_LinkCache[UKismetSystemLibrary::GetObjectName(oppositeLink)] ].LinkId;
+					junction.TurningRestrictions.Add(turningRestriction);
+				}
+			}
+
 			m_RoadNetwork.Junctions.Add(junctionId, junction);
 		}
 	}
 
 	for(auto &linkProxy : m_LinkProxies)
 	{
-		FString oppositeName = linkProxy->getOppositeDirection() ? UKismetSystemLibrary::GetObjectName(linkProxy->getOppositeDirection()) : "";
+		FString oppositeName = linkProxy->getOppositeDirectionLink() ? UKismetSystemLibrary::GetObjectName(linkProxy->getOppositeDirectionLink()) : "";
 		if(oppositeName != "")
 		{
 			m_RoadNetwork.Links[m_LinkCache[UKismetSystemLibrary::GetObjectName(linkProxy)]].OppositeDirectionLink = m_LinkCache[oppositeName];
 		}
 	}
-
-
-
 
 }
 

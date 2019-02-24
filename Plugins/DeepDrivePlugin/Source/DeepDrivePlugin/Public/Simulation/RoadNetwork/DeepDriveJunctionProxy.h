@@ -139,7 +139,7 @@ private:
 	void drawCubicConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const FDeepDriveLaneConnectionCustomCurveParams &params);
 	void drawUTurnConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const FDeepDriveLaneConnectionCustomCurveParams &params);
 
-	FVector calcIntersectionPoint(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd);
+	void drawAutoTurnRestriction(uint8 prio);
 
 	UPROPERTY()
 	UBezierCurveComponent		*m_BezierCurve = 0;

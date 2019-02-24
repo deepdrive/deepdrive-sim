@@ -58,6 +58,7 @@ public:
 private:
 
 	void expandNode(const Node &currentNode);
+	bool expandNode(const Node &currentNode, uint32 destinationLinkId);
 
 	Node* acquireNode(uint32 junctionId, const Node *predecessor, uint32 linkId, float costG);
 

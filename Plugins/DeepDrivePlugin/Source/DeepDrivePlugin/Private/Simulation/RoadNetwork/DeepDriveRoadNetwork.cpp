@@ -111,3 +111,23 @@ FVector SDeepDriveRoadSegment::findClosestPoint(const FVector &pos) const
 	}
 	return closestPos;
 }
+
+FVector SDeepDriveRoadSegment::getLocationOnSegment(float relativePos) const
+{
+	relativePos = FMath::Clamp(relativePos, 0.0f, 1.0f);
+	FVector location;
+	if(hasSpline())
+	{
+		const float splineLength = SplineCurves.GetSplineLength();
+		const float key = SplineCurves.ReparamTable.Eval(relativePos * splineLength, 0.0f);
+
+		location = SplineCurves.Position.Eval(key, FVector::ZeroVector);
+		location = SplineTransform.TransformPosition(location);
+	}
+	else
+	{
+		location = FMath::Lerp(StartPoint, EndPoint, relativePos);
+	}
+
+	return location;
+}

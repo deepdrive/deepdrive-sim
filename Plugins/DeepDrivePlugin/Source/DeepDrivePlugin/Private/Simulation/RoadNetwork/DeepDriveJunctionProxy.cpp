@@ -92,6 +92,8 @@ void ADeepDriveJunctionProxy::Tick(float DeltaTime)
 				}
 			}
 		}
+
+		drawAutoTurnRestriction(120);
 	}
 
 #endif
@@ -247,28 +249,11 @@ void ADeepDriveJunctionProxy::drawUTurnConnectionSegment(const FVector &fromStar
 	DrawDebugLine(GetWorld(), a, toStart, ConnectionColor, false, 0.0f, m_DrawPrioConnection, 10.0f);
 }
 
-
-FVector ADeepDriveJunctionProxy::calcIntersectionPoint(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd)
+void ADeepDriveJunctionProxy::drawAutoTurnRestriction(uint8 prio)
 {
-	FVector2D r = FVector2D(fromEnd - fromStart);
-	FVector2D s = FVector2D(toStart - toEnd);
-
-	float dot = FMath::Abs(FVector2D::DotProduct(r, s) / (r.Size() * s.Size()));
-
-	//r.Normalize();
-	//s.Normalize();
-
-	float cRS = FVector2D::CrossProduct(r, s);
-
-	if (FMath::Abs(cRS) > 0.001f && dot < 0.975f)
+	for(auto &linkProxy : LinksIn)
 	{
-		FVector2D qp(toEnd - fromStart);
-		//qp.Normalize();
-		float t = FVector2D::CrossProduct(qp, s) / cRS;
-		FVector2D intersection(FVector2D(fromStart) + r * t);
-		const float z = 0.5f * (toEnd.Z + fromStart.Z);
-
-		return FVector(intersection, z);
+		if(linkProxy->getUTurnMode() == EDeepDriveUTurnMode::NOT_POSSIBLE && linkProxy->getOppositeDirectionLink() != 0)
+			DrawDebugDirectionalArrow(GetWorld(), linkProxy->getEndPoint(), linkProxy->getOppositeDirectionLink()->getStartPoint(), 25.0f, FColor::Red, false, 0.0f, prio, 12.0f);
 	}
-	return 0.5f * (fromEnd + toStart); 
 }

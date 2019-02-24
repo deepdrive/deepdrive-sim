@@ -28,6 +28,15 @@ enum class EDeepDriveConnectionShape : uint8
 	ROAD_SEGMENT		= 5 UMETA(DisplayName = "Road Segment")
 };
 
+UENUM(BlueprintType)
+enum class EDeepDriveUTurnMode : uint8
+{
+	NOT_POSSIBLE 		= 0	UMETA(DisplayName = "Not Possible"),
+	END_OF_LINK_ONLY	= 1	UMETA(DisplayName = "End of Link Only"),
+	EVERYWHERE_ON_LINK	= 2	UMETA(DisplayName = "Everywhere on Link"),
+	SEGMENTS	    	= 3	UMETA(DisplayName = "Segments")
+};
+
 
 struct SDeepDriveRoadSegment
 {
@@ -58,6 +67,8 @@ struct SDeepDriveRoadSegment
 	{
 		return SplineCurves.Position.Points.Num() > 0;
 	}
+
+	FVector getLocationOnSegment(float relativePos) const;
 
 };
 
