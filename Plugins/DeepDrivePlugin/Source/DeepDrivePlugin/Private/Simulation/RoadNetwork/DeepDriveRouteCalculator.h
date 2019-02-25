@@ -8,18 +8,17 @@ DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveRouteCalc, Log, All);
 
 class DeepDriveRouteCalculator
 {
-	struct Node
+	struct Link
 	{
-		Node(uint32 junctionId, const Node *predecessor = 0, uint32 linkId = 0);
+		Link(uint32 linkId, const Link *predecessor = 0);
 
-		bool operator < (const Node &rhs) const
+		bool operator < (const Link &rhs) const
 		{
 			return CostF < rhs.CostF;
 		}
 
-		uint32			JunctionId = 0;
-		const Node		*Predecessor = 0;
 		uint32			LinkId = 0;
+		const Link		*Predecessor = 0;
 
 		FVector			Position;
 
@@ -31,20 +30,20 @@ class DeepDriveRouteCalculator
 	{
 	public:
 
-		void add(Node *node);
+		void add(Link *link);
 
 		bool isEmpty() const;
 
-		Node* pop();
+		Link* pop();
 
-		Node* get(uint32 id);
+		Link* get(uint32 id);
 
 	private:
 
-		FBinaryHeap<Node*, uint32>		m_PrioQueue;
+		FBinaryHeap<Link*, uint32>		m_PrioQueue;
 
-		TArray<Node*>					m_Nodes;
-		TMap<uint32, Node*>				m_NodeMap;
+		TArray<Link*>					m_Links;
+		TMap<uint32, Link*>				m_LinkMap;
 	};
 
 public:
@@ -57,18 +56,18 @@ public:
 
 private:
 
-	void expandNode(const Node &currentNode);
-	bool expandNode(const Node &currentNode, uint32 destinationLinkId);
+	bool expandLink(const Link &currentLink);
 
-	Node* acquireNode(uint32 junctionId, const Node *predecessor, uint32 linkId, float costG);
+	Link* acquireLink(uint32 linkId, const Link *predecessor, float costG);
 
 	const SDeepDriveRoadNetwork         &m_RoadNetwork;
 
 	FVector                             m_Destination;
+	uint32								m_DestinationLinkId = 0;
 
 	OpenList                            m_OpenList;
 	TSet<uint32>                        m_ClosedList;
 
-	TArray<Node*>						m_AllocatedNodes;
+	TArray<Link*>						m_AllocatedLinks;
 
 };
