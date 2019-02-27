@@ -30,7 +30,7 @@ void DeepDriveAgentPassingState::update(DeepDriveAgentLocalAIStateMachineContext
 	{
 		const float passedDistance = ctx.local_ai_ctrl.getPassedDistance(m_AgentToPass, ctx.configuration.PassingDirectionThreshold);
 
-		UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT(">>>> Passed distance %f"), passedDistance );
+//		UE_LOG(LogDeepDriveAgentLocalAIController, Log, TEXT(">>>> Passed distance %f"), passedDistance );
 	
 		if(passedDistance > ctx.configuration.PassingDistance)
 			m_StateMachine.setNextState("PullIn");
