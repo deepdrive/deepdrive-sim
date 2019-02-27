@@ -210,6 +210,16 @@ VeryVerbose
     VeryVerbose level logs are printed to log files but not the in-game console. This is usually used for very detailed logging that would otherwise spam output.
 
 
+#### Package a new binary version
+
+Linux:
+```
+./Packaging/package-linux.sh
+```
+
+Windows - Package via the Unreal Editor
+
+
 #### Vulkan
 
 With Unreal 4.21, Vulkan is automatically supported. I've tried it with NVIDIA 384 drivers and things crash, but newer drivers may work.
