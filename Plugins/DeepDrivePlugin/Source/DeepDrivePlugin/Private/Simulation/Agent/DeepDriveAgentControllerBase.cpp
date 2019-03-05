@@ -151,11 +151,10 @@ float ADeepDriveAgentControllerBase::getDistanceAlongRoute()
 	if(m_Track)
 	{
 		auto spline = m_Track->GetSpline();
-		getClosestDistanceOnSpline(m_Track->GetSpline(), m_Agent->GetActorLocation());
-		float delta = curDistanceOnSpline - m_StartDistance;
-		if (delta < 0.0)
+		curDistanceOnSpline = getClosestDistanceOnSpline(m_Track->GetSpline(), m_Agent->GetActorLocation()) - m_StartDistance;
+		if (curDistanceOnSpline < 0.0f)
 		{
-			curDistanceOnSpline += (spline->GetSplineLength() - m_StartDistance);
+			curDistanceOnSpline += spline->GetSplineLength();
 		}
 	}
     return curDistanceOnSpline;
