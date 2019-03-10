@@ -74,6 +74,8 @@ public:
 	void setIsPassing(bool isPassing);
 	bool isPassing() const;
 
+	void restoreStartPositionSlot(int32 startPositionSlot);
+
 protected:
 
 	void activateController(ADeepDriveAgent &agent);
@@ -116,4 +118,9 @@ inline void ADeepDriveAgentControllerBase::setIsPassing(bool isPassing)
 inline bool ADeepDriveAgentControllerBase::isPassing() const
 {
 	return m_isPassing;
+}
+
+inline void ADeepDriveAgentControllerBase::restoreStartPositionSlot(int32 startPositionSlot)
+{
+	m_StartPositionSlot = startPositionSlot;
 }

@@ -174,6 +174,7 @@ void ADeepDriveSimulation::Tick( float DeltaTime )
 
 void ADeepDriveSimulation::ResetSimulation(bool ActivateAdditionalAgents)
 {
+	UE_LOG(LogDeepDriveSimulation, Log, TEXT("DeepDriveSimulation Request to Reset Simulation") );
 	m_ResetState->setActivateAdditionalAgents(ActivateAdditionalAgents);
 	if(m_StateMachine)
 		m_StateMachine->setNextState("Reset");
@@ -327,7 +328,8 @@ void ADeepDriveSimulation::SelectMode(EDeepDriveAgentControlMode Mode)
 {
 	if(Mode != m_curAgentMode)
 	{
-		//UE_LOG(LogDeepDriveSimulation, Log, TEXT("SelectMode activating new mode: %d"), Mode);
+		UEnum* pEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EDeepDriveAgentControlMode") , true);
+		UE_LOG(LogDeepDriveSimulation, Log, TEXT("SelectMode activating new mode: %s"), *(pEnum ? pEnum->GetNameByIndex(static_cast<uint8>(Mode)).ToString() : FString("UNKOWN")) );
 
 		ADeepDriveAgentControllerBase *controller = spawnController(Mode, 0, 0);
 		ADeepDriveAgentControllerBase *prevController = Cast<ADeepDriveAgentControllerBase> (m_curAgent->GetController());
@@ -341,6 +343,9 @@ void ADeepDriveSimulation::SelectMode(EDeepDriveAgentControlMode Mode)
 				prevController->Deactivate();
 				prevController->Destroy();
 			}
+
+			if(Mode == InitialControllerMode)
+				controller->restoreStartPositionSlot(StartPositionSlot);
 
 			m_curAgentMode = Mode;
 			m_curAgentController = controller;
@@ -443,6 +448,8 @@ void ADeepDriveSimulation::removeAdditionalAgents()
 
 ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(EDeepDriveAgentControlMode mode, int32 configSlot, int32 startPosSlot)
 {
+	UE_LOG(LogDeepDriveSimulation, Log, TEXT("Try to spawn agent config slot %d startPosSlot %d"), configSlot, startPosSlot );
+
 	FTransform transform = GetActorTransform();
 	ADeepDriveAgent *agent  = Cast<ADeepDriveAgent>(GetWorld()->SpawnActor(Agent, &transform, FActorSpawnParameters()));
 
@@ -511,9 +518,14 @@ ADeepDriveAgentControllerBase* ADeepDriveSimulation::spawnController(EDeepDriveA
 {
 	ADeepDriveAgentControllerBase *controller = 0;
 
-	controller = ControllerCreators.Contains(mode) ? ControllerCreators[mode]->CreateAgentController(configSlot, startPosSlot, this) : 0;
-
-	UE_LOG(LogDeepDriveSimulation, Log, TEXT("spawnController has it %c -> %p"), ControllerCreators.Contains(mode) ? 'T' :'F', controller );
+	if(ControllerCreators.Contains(mode))
+	{
+		controller = ControllerCreators[mode]->CreateAgentController(configSlot, startPosSlot, this);
+	}
+	else
+	{
+		UE_LOG(LogDeepDriveSimulation, Error, TEXT("spawnController No controller creator found") );
+	}
 
 	return controller;
 }
