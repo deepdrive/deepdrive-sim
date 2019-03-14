@@ -73,10 +73,10 @@ void DeepDriveSimulationMessageHandler::configure(const deepdrive::server::Messa
 
 void DeepDriveSimulationMessageHandler::reset(const deepdrive::server::MessageHeader& message)
 {
-	UE_LOG(LogDeepDriveSimulationMessageHandler, Log, TEXT("DeepDriveSimulation reset") );
-
 	const deepdrive::server::ResetSimulationRequest &req = static_cast<const deepdrive::server::ResetSimulationRequest&> (message);
 	const SimulationConfiguration &configuration = req.configuration;
+
+	UE_LOG(LogDeepDriveSimulationMessageHandler, Log, TEXT("DeepDriveSimulation reset with seed %d time dilation %f agent start location %f"), configuration.seed, configuration.time_dilation, configuration.agent_start_location );
 
 	for (auto &rsd : m_Simulation.RandomStreams)
 		if(rsd.Value.ReSeedOnReset)

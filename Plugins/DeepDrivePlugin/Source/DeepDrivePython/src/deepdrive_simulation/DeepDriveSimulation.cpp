@@ -82,7 +82,7 @@ int32 DeepDriveSimulation::resetSimulation(float timeDilation, float startLocati
 	int32 res = m_Socket.send(&req, sizeof(req));
 	if(res >= 0)
 	{
-		std::cout << "ResetSimulationRequest sent\n";
+		std::cout << "ResetSimulationRequest time dilation " << cfg.time_dilation << " start location " << cfg.agent_start_location << " sent\n";
 
 		deepdrive::server::ResetSimulationResponse response;
 		if(m_Socket.receive(&response, sizeof(response), 1000))
