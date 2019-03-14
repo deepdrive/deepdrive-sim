@@ -26,7 +26,7 @@ ADeepDriveSplineTrack::ADeepDriveSplineTrack()
 	PrimaryActorTick.bStartWithTickEnabled = true;
 	PrimaryActorTick.TickGroup = TG_PrePhysics;
 
-	importControlPoints(getCtrlPointsName(GetName()) );
+	importControlPoints(getCtrlPointsName(GetName()));
 	UE_LOG(LogDeepDriveSplineTrack, Log, TEXT("ADeepDriveSplineTrack::ADeepDriveSplineTrack %d"), SplineTrack->GetNumberOfSplinePoints() );
 }
 

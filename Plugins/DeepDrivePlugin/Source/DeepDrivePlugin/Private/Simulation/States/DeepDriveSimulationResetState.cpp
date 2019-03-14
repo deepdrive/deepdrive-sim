@@ -40,6 +40,8 @@ void DeepDriveSimulationResetState::update(ADeepDriveSimulation &deepDriveSim, f
 			track->resetRandomSlots();
 	}
 
+	deepDriveSim.removeOneOffAgents();
+
 	if(m_ActivateAdditionalAgents)
 	{
 		if(deepDriveSim.hasAdditionalAgents() == false)

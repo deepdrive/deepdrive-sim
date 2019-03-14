@@ -36,7 +36,8 @@ enum class EDeepDriveAgentsListFilter : uint8
 {
 	ALL					= 0	UMETA(DisplayName = "All"),
 	SAME_LANE			= 1	UMETA(DisplayName = "SameLane"),
-	OPPOSING_LANE		= 3	UMETA(DisplayName = "OpposingLane")
+	OPPOSING_LANE		= 3	UMETA(DisplayName = "OpposingLane"),
+	ONE_OFF				= 4	UMETA(DisplayName = "OneOff")
 };
 
 UENUM(BlueprintType)

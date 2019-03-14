@@ -91,6 +91,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Rendering")
 	void SetRenderMode(bool Simple);
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Agents")
+	void OnAgentCreated();
+
 	UFUNCTION(BlueprintCallable, Category = "Agents")
 	void OnCheckpointReached();
 

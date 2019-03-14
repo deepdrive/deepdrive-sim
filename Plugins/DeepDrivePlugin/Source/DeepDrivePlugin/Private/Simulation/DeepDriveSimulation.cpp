@@ -8,6 +8,7 @@
 #include "Private/Simulation/States/DeepDriveSimulationInitializeState.h"
 #include "Private/Simulation/States/DeepDriveSimulationRunningState.h"
 #include "Private/Simulation/States/DeepDriveSimulationResetState.h"
+#include "Public/Simulation/Agent/Controllers/DeepDriveAgentOneOffController.h"
 
 #include "Private/Server/DeepDriveServer.h"
 #include "Public/Simulation/DeepDriveSimulationServerProxy.h"
@@ -588,6 +589,63 @@ void ADeepDriveSimulation::ToggleCollisionVisibility()
 	}
 }
 
+int32 ADeepDriveSimulation::AddOneOffAgent(TSubclassOf<ADeepDriveAgent> AgentClass, const FTransform &Transform, bool BindToRoad)
+{
+	int32 id = 0;
+	if(OneOffAgentsTrack)
+	{
+		FActorSpawnParameters spawnParams;
+		spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		ADeepDriveAgent *agent = Cast<ADeepDriveAgent>(GetWorld()->SpawnActor(AgentClass, &Transform, spawnParams));
+
+		if (agent)
+		{
+			id = m_nextOneOffAgentId++;
+			m_OneOffAgents.Add(id, agent);
+
+			ADeepDriveAgentOneOffController *controller = Cast<ADeepDriveAgentOneOffController>(GetWorld()->SpawnActor(ADeepDriveAgentOneOffController::StaticClass(), &Transform, FActorSpawnParameters()));
+			if(controller)
+			{
+				controller->configure(this, Transform, BindToRoad);
+				if(controller->Activate(*agent, false))
+				{
+					OnAgentSpawned(agent);
+				}
+			}
+		}
+	}
+	return id;
+}
+
+void ADeepDriveSimulation::SetOneOffAgentControlValue(int32 AgentId, float Steering, float Throttle, float Brake, bool Handbrake)
+{
+	if(m_OneOffAgents.Contains(AgentId))
+	{
+		m_OneOffAgents[AgentId]->SetControlValues(Steering, Throttle, Brake, Handbrake);
+	}
+}
+
+void ADeepDriveSimulation::removeOneOffAgents()
+{
+	for(auto &item : m_OneOffAgents)
+	{
+		ADeepDriveAgent *agent = item.Value;
+
+		if(agent)
+		{
+			ADeepDriveAgentControllerBase *agentController = Cast<ADeepDriveAgentControllerBase>(agent->GetController());
+
+			if(agentController)
+				agentController->OnRemoveAgent();
+
+			agent->Destroy();
+		}
+	}
+
+	m_OneOffAgents.Empty();
+	m_nextOneOffAgentId = 1;
+}
+
 void ADeepDriveSimulation::OnDebugTrigger()
 {
 	if (m_curAgent)
@@ -611,6 +669,13 @@ TArray<ADeepDriveAgent*> ADeepDriveSimulation::GetAgentsList(EDeepDriveAgentsLis
 			break;
 		
 		case EDeepDriveAgentsListFilter::OPPOSING_LANE:
+			break;
+
+		case EDeepDriveAgentsListFilter::ONE_OFF:
+			{
+				for(auto &item : m_OneOffAgents)
+					agents.Add(item.Value);
+			}
 			break;
 	}
 

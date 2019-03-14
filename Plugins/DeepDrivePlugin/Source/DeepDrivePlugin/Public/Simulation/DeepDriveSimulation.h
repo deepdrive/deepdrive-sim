@@ -99,6 +99,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
 	TMap<EDeepDriveAgentControlMode, ADeepDriveAgentControllerCreator*>	ControllerCreators;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
+	ADeepDriveSplineTrack	*OneOffAgentsTrack = 0;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FreeCamera)
 	ADeepDriveSimulationFreeCamera	*FreeCamera = 0;
 
@@ -172,6 +175,12 @@ public:
 	void ToggleCollisionVisibility();
 
 	UFUNCTION(BlueprintCallable, Category = "Agents")
+	int32 AddOneOffAgent(TSubclassOf<ADeepDriveAgent> AgentClass, const FTransform &Transform, bool BindToRoad);
+
+	UFUNCTION(BlueprintCallable, Category = "Agents")
+	void SetOneOffAgentControlValue(int32 AgentId, float Steering, float Throttle, float Brake, bool Handbrake);
+
+	UFUNCTION(BlueprintCallable, Category = "Agents")
 	void OnDebugTrigger();
 
 	UFUNCTION(BlueprintCallable, Category = "Agents")
@@ -192,6 +201,8 @@ public:
 
 	bool hasEgoAgent() const;
 	void onEgoAgentChanged(bool added);
+
+	void removeOneOffAgents();
 
 	static FDateTime getSimulationStartTime();
 
@@ -223,6 +234,8 @@ private:
 	ADeepDriveAgent							*m_curAgent = 0;
 	EDeepDriveAgentControlMode				m_curAgentMode = EDeepDriveAgentControlMode::NONE;
 
+	TMap<int32, ADeepDriveAgent*>			m_OneOffAgents;
+	int32									m_nextOneOffAgentId = 1;
 
 	ADeepDriveAgentControllerBase			*m_curAgentController = 0;
 
