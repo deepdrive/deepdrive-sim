@@ -345,8 +345,7 @@ void ADeepDriveSimulation::SelectMode(EDeepDriveAgentControlMode Mode)
 				prevController->Destroy();
 			}
 
-			if(Mode == InitialControllerMode)
-				controller->restoreStartPositionSlot(StartPositionSlot);
+			controller->restoreStartPositionSlot(StartPositionSlot);
 
 			m_curAgentMode = Mode;
 			m_curAgentController = controller;
