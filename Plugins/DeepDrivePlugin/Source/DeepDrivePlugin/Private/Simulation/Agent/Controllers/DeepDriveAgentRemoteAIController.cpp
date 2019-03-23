@@ -60,6 +60,7 @@ bool ADeepDriveAgentRemoteAIController::ResetAgent()
 			m_StartDistance = m_Track->getRandomDistanceAlongTrack(*m_DeepDriveSimulation->GetRandomStream(FName("AgentPlacement")));
 
 		resetAgentPosOnSpline(*m_Agent, m_Track->GetSpline(), m_StartDistance);
+		m_Agent->reset();
 		m_hasCollisionOccured = false;
 		res = true;
 	}
