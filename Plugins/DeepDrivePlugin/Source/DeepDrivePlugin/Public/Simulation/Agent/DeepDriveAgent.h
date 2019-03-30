@@ -18,7 +18,7 @@ class ADeepDriveSimulation;
 /**
  * 
  */
-UCLASS()
+UCLASS(Abstract)
 class DEEPDRIVEPLUGIN_API ADeepDriveAgent : public AWheeledVehicle
 {
 	GENERATED_BODY()

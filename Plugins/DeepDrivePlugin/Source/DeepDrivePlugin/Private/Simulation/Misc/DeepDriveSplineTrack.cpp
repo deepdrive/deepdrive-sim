@@ -12,7 +12,7 @@ DEFINE_LOG_CATEGORY(LogDeepDriveSplineTrack);
 
 static FString getCtrlPointsName(const FString &track)
 {
-	FString basePath( FPaths::GameContentDir() + "DeepDrive/Maps/Sublevels/");
+	FString basePath( FPaths::ProjectContentDir() + "DeepDrive/Maps/Sublevels/");
 	return basePath + "DeepDrive_Canyon_" + track + FString(".ctrl");
 }
 
