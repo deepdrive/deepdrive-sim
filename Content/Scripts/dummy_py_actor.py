@@ -16,7 +16,6 @@ from lambda_server import LambdaServer
 IS_LINUX = sys.platform == 'linux' or sys.platform == 'linux2'
 IS_WINDOWS = sys.platform == 'win32'
 
-"""Liason class between Python and Unreal that allows hooking into the world tick"""
 
 print('Loading DummyPyActor')
 
@@ -45,7 +44,10 @@ except ImportError:
 
 
 class DummyPyActor:
-
+    """
+    Liaison class between Python and Unreal that allows hooking into the
+    world tick
+    """
     def __init__(self):
         self.worlds = None
         self.world = None

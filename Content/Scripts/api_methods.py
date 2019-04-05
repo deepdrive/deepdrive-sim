@@ -43,7 +43,8 @@ class LambdaApi(object):
         self.world = world or self.get_world()
         sim_objs  = self.get_objects_of_type('DeepDriveSim_C', self.world)
         if len(sim_objs) > 1:
-            raise ValueError('Sim is a singleton, should be only one, but got %r' % len(sim_objs))
+            raise ValueError('Sim is a singleton, should be only one,'
+                             ' but got %r' % len(sim_objs))
         elif not sim_objs:
             print('Could not find DeepDriveSim object')
         self.sim = sim_objs[0]
@@ -53,7 +54,8 @@ class LambdaApi(object):
         self.world = world or self.get_world()
         pattern = name + r'(_.*\d+)?$'
         r = re.compile(pattern)
-        actors = [a for a in world.all_actors() if a.get_display_name() == name or r.match(a.get_display_name())]
+        actors = [a for a in world.all_actors() if a.get_display_name() == name
+                  or r.match(a.get_display_name())]
         ret = None
         if len(actors) > 0:
             ret = actors[0]
@@ -103,11 +105,13 @@ class LambdaApi(object):
             print('Detected Unreal Editor')
             worlds.append(ue.get_editor_world())
 
-        worlds = [w for w in worlds if 'DeepDriveSim_Demo.DeepDriveSim_Demo' in w.get_full_name()]
+        worlds = [w for w in worlds if 'DeepDriveSim_Demo.DeepDriveSim_Demo' in
+                  w.get_full_name()]
 
         for w in worlds:
             ai_controllers = [a for a in w.all_actors()
-                              if 'LocalAIController_'.lower() in a.get_full_name().lower()]
+                              if 'LocalAIController_'.lower()
+                              in a.get_full_name().lower()]
             if ai_controllers:
                 print('Found current world! ' + str(w))
                 self.world = w

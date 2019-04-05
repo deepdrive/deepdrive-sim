@@ -45,7 +45,7 @@ class LambdaClient(object):
 
 def main():
     client = LambdaClient()
-    answer = client._send('x**2', {'x': 2})
+    # answer = client._send('x**2', {'x': 2})
 
 
 if __name__ == '__main__':

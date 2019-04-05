@@ -40,10 +40,14 @@ def pip_install(package, dirname):
     try:
         pip_main(['install', '-vvv', package])
     except Exception as e:
-        # Swallow exceptions here to ignore pip-req-tracker tmp deletion errors.
-        # Attempting to import said module will hopefully keep this from being hard to track root cause for.
-        # TODO: Be more specific about exceptions we swallow.
-        print('Error installing %s - error was: %s' % (package, str(e)))
+        try:
+            # If at first you don't succeed!!!
+            pip_main(['install', '-vvv', package])
+        except Exception as e:
+            # Swallow exceptions here to ignore pip-req-tracker tmp deletion errors.
+            # Attempting to import said module will hopefully keep this from being hard to track root cause for.
+            # TODO: Be more specific about exceptions we swallow.
+            print('Error installing %s - error was: %s' % (package, str(e)))
 
 
 def get_this_filename():

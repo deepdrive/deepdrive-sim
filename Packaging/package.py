@@ -37,7 +37,8 @@ def install_plugins(root):
 
     # Download and extract the prebuilt binaries for the Substance plugin
     print('Downloading and extracting the prebuilt Substance plugin...')
-    UnrealUtils.install_plugin(join(root, 'Packaging', 'Substance-4.21.0.31-Desktop.zip'), 'Substance', prefix='Marketplace')
+    UnrealUtils.install_plugin(join(root, 'Packaging', 'Substance-4.21.0.31-Desktop.zip'), 'Substance',
+                               prefix='Marketplace')
 
     # Download and extract the prebuilt binaries for  the UnrealEnginePython plugin
     print('Downloading and extracting the prebuilt UnrealEnginePython plugin...')

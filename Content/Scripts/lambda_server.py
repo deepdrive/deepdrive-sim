@@ -40,7 +40,8 @@ class LambdaServer(object):
         # noinspection PyUnresolvedReferences
         socket = self.context.socket(zmq.PAIR)
 
-        # Creating a new socket on timeout is not working when other ZMQ connections are present in the process.
+        # Creating a new socket on timeout is not working when other ZMQ
+        # connections are present in the process.
         # socket.RCVTIMEO = API_TIMEOUT_MS
         socket.SNDTIMEO = API_TIMEOUT_MS
 
@@ -74,7 +75,8 @@ class LambdaServer(object):
             fn = getattr(self.api, method_name)
             resp = fn(*args, **kwargs)
         except Exception:
-            await self.socket.send(serialize({'success': False, 'result': traceback.format_exc()}))
+            await self.socket.send(serialize({'success': False, 'result':
+                traceback.format_exc()}))
         else:
             await self.socket.send(serialize({'success': True, 'result': resp}))
 
@@ -106,7 +108,8 @@ def serialize(obj):
 
 
 def start_server_test():
-    # Just for testing - dummy_actor starts server in-game to ensure world is loaded prior
+    # Just for testing - dummy_actor starts server in-game to ensure world
+    # is loaded prior
     print('Testing event loop server')
     loop = asyncio.get_event_loop()
     loop.set_debug(enabled=True)
