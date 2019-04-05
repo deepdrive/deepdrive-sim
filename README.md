@@ -59,6 +59,15 @@ Create `~/.deepdrive/python_bin` on Unix or `%HOMEPATH%\.deepdrive\python_bin` o
 
 ### Linux Development
 
+We support the following local development setups
+
+1) **Traditional** - Run Unreal per the standard Epic instructions (Use this if you want to use an existing Unreal 4.21 installation)
+2) **ue4-docker installed build** - Builds in docker, runs natively (Use this if you do not yet have Unreal installed)
+3) **ue4-docker VirtualGL / nvidia-docker2** - Runs everything inside a single Docker container, bind-mounting your source directory, and using VirtualGL to interface with the Unreal Editor GUI (Use this if you want all dependencies in one place, esp. Tensorflow and CUDA, which are used by the [deepdrive](https://github.com/deepdrive/deepdrive) project)
+
+
+#### Traditional
+
 ##### Clone Unreal
 
 ```
