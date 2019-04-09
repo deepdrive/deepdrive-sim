@@ -160,9 +160,23 @@ def build_dev(env, ext_root, py):
         err_token='error:')
 
 
+def get_centos_py_versions():
+    """
+    Executed within the centos manylinux container to dynamically add
+    new python versions as they become available in the container
+    :return (str): String that is a space separated list version bins, i.e.
+      /opt/python/cp35-cp35m/bin /opt/python/cp36-cp36m/bin
+    """
+    dirs = glob.glob('/opt/python/cp3*-cp3*m/bin')
+    if not dir:
+        raise RuntimeError("No python versions found")
+    return ' '.join(['"%s"' % d for d in dirs])
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=None)
-    parser.add_argument('--type', nargs='?', default='dev', help='Type of build', choices=['dev', 'win_bdist',
-                                                                                           'linux_bdist'])
+    parser.add_argument('--type', nargs='?', default='dev',
+                        help='Type of build', choices=['dev', 'win_bdist',
+                                                       'linux_bdist'])
     args = parser.parse_args()
     main(args.type)
