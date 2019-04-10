@@ -94,6 +94,7 @@ def get_centos_py_versions():
     :return (str): String that is a space separated list version bins, i.e.
       /opt/python/cp35-cp35m/bin /opt/python/cp36-cp36m/bin
     """
+    import glob
     dirs = glob.glob('/opt/python/cp3*-cp3*m/bin')
     if not dir:
         raise RuntimeError("No python versions found")
