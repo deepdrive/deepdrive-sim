@@ -170,7 +170,7 @@ def get_centos_py_versions():
     dirs = glob.glob('/opt/python/cp3*-cp3*m/bin')
     if not dir:
         raise RuntimeError("No python versions found")
-    return ' '.join(['"%s"' % d for d in dirs])
+    return ' '.join(['%s' % d for d in dirs])
 
 
 if __name__ == '__main__':
