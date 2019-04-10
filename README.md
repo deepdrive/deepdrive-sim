@@ -1,4 +1,4 @@
-> :checkered_flag: :checkered_flag: **_Deepdrive 3.0 with support for Mobile Net 2, reinforcement learning via PPO2, Docker and more is almost ready! Check out the pre-release in the [v3 branch](https://github.com/deepdrive/deepdrive-sim/tree/v3)._**
+> :checkered_flag: :checkered_flag: :checkered_flag: **_Deepdrive 3.0 with support for Mobile Net 2, reinforcement learning via PPO2, Docker and more is almost ready! Check out the pre-release in the [v3 branch](https://github.com/deepdrive/deepdrive-sim/tree/v3)._**
 
 # Deepdrive sim [![Build Status](https://travis-ci.org/deepdrive/deepdrive-sim.svg?branch=master)](https://travis-ci.org/deepdrive/deepdrive-sim) [![Build status](https://ci.appveyor.com/api/projects/status/84wj7jsxnymi8uxy/branch/master?svg=true)](https://ci.appveyor.com/project/crizCraig/deepdrive-sim/branch/master)
 
