@@ -5,9 +5,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 export DEEPDRIVE_SRC_DIR="$( dirname "$( dirname ${DIR})" )"
 echo DEEPDRIVE_SRC_DIR=${DEEPDRIVE_SRC_DIR}
 
-# Compile with Python 3.5+
-# TODO: Update dynamically for > 3.6
-py_versions=( "/opt/python/cp35-cp35m/bin" "/opt/python/cp36-cp36m/bin" )
+# Get python versions on docker image, i.e. /opt/python/cp35-cp35m/bin /opt/python/cp36-cp36m/bin ...
+py_versions_str=`python -c "import build; print(build.get_centos_py_versions())"`
+py_versions=( ${py_versions_str} )
 
 # Delete previous builds (for testing locally)
 rm -rf wheelhouse
