@@ -60,7 +60,7 @@ We support the following local development setups
 
 Make sure the ue4-ci-helpers package is up to date
 
-`pip install -U ue4-ci-helpers`
+`pip install --upgrade ue4-ci-helpers`
 
 **Build the ue4-full image** per https://adamrehn.com/docs/ue4-docker/use-cases/linux-installed-builds
 
@@ -71,6 +71,20 @@ ue4-docker export installed deepdriveio/ue4-deepdrive-deps:latest ~/UnrealInstal
 Set the default version of Unreal with the (ue4cli)[https://pypi.org/project/ue4cli/]
  
 `ue4 setroot ~/UnrealInstalled`
+
+Clean your deepdrive-sim project directory to clear any references to an older
+engine
+
+```
+./clean_all.sh
+```
+
+Build and run - takes ~5 minutes
+
+```
+ue4 build
+ue4 run
+```
 
 #### Traditional
 

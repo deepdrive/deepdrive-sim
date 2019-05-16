@@ -107,3 +107,9 @@ wheelhouse
 
 # embedded Python dependencies (pyzmq and pyarrow)
 python_libs
+
+UEPyPackages/
+
+deepdrive-sim-linux*.zip
+
+dist/
