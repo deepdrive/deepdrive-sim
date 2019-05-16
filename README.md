@@ -10,16 +10,6 @@ Checkout our [main repo](https://github.com/deepdrive/deepdrive)
 
 ## Development
 
-- Clone this repo
-- Clone our [UnrealEnginePython fork](https://github.com/deepdrive/UnrealEnginePython) into the root of this project (not a submodule as we are going to make this a binary only)
-
-```
-cd Plugins
-git clone https://github.com/deepdrive/UnrealEnginePython
-```
-
-- Tip: To avoid rebuilding UnrealEnginePython, move `Plugins/UnrealEnginePython` to your Engine plugins after you've built it in side `deepdrive-sim/Plugins`.
-
 - [Associate your GitHub username with your Unreal account](https://www.unrealengine.com/en-US/ue4-on-github) to get access to Unreal sources on GitHub. 
 
 ### Set your python bin
@@ -61,14 +51,38 @@ Create `~/.deepdrive/python_bin` on Unix or `%HOMEPATH%\.deepdrive\python_bin` o
 
 We support the following local development setups
 
-1) **Traditional** - Run Unreal per the standard Epic instructions (Use this if you want to use an existing Unreal 4.21 installation)
-2) **ue4-docker installed build** - Builds in docker, runs natively (Use this if you do not yet have Unreal installed)
-3) **ue4-docker VirtualGL / nvidia-docker2** - Runs everything inside a single Docker container, bind-mounting your source directory, and using VirtualGL to interface with the Unreal Editor GUI (Use this if you want all dependencies in one place, esp. Tensorflow and CUDA, which are used by the [deepdrive](https://github.com/deepdrive/deepdrive) project)
+1) **Export from prebuilt docker image**, i.e. ue4-docker installed build - Builds in docker, runs natively (Use this if you do not yet have Unreal installed)
+2) **ue4-docker VirtualGL / nvidia-docker2** - Runs everything inside a single Docker container, bind-mounting your source directory, and using VirtualGL to interface with the Unreal Editor GUI (Use this if you want all dependencies in one place, esp. Tensorflow and CUDA, which are used by the [deepdrive](https://github.com/deepdrive/deepdrive) project)
+3) **[Traditional](traditional)** - Run Unreal per the standard Epic instructions (Use this if you want to use an existing Unreal 4.21 installation)
 
+#### Export from prebuilt docker image
+
+
+Make sure the ue4-ci-helpers package is up to date
+
+`pip install -U ue4-ci-helpers`
+
+**Build the ue4-full image** per https://adamrehn.com/docs/ue4-docker/use-cases/linux-installed-builds
+
+**Build the ue4-deepdrive-deps image**
+
+ue4-docker export installed deepdriveio/ue4-deepdrive-deps:latest ~/UnrealInstalled
+
+Set the default version of Unreal with the (ue4cli)[https://pypi.org/project/ue4cli/]
+ 
+`ue4 setroot ~/UnrealInstalled`
 
 #### Traditional
 
-##### Clone Unreal
+- Clone this repo
+- Clone our [UnrealEnginePython fork](https://github.com/deepdrive/UnrealEnginePython) into the root of this project (not a submodule as we are going to make this a binary only)
+
+```
+cd Plugins
+git clone https://github.com/deepdrive/UnrealEnginePython
+```
+
+- Tip: To avoid rebuilding UnrealEnginePython, move `Plugins/UnrealEnginePython` to your Engine plugins after you've built it in side `deepdrive-sim/Plugins`.
 
 ```
 git clone git@github.com:EpicGames/UnrealEngine --branch 4.21
