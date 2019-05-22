@@ -487,7 +487,9 @@ void ADeepDriveSimulation::spawnAdditionalAgents()
 	for (auto &data : AdditionalAgents)
 	{
 		FTransform transform;
-		ADeepDriveAgent *agent = Cast<ADeepDriveAgent>(GetWorld()->SpawnActor(data.Agent, &transform, FActorSpawnParameters()));
+		FActorSpawnParameters spawnParams;
+		spawnParams. SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		ADeepDriveAgent *agent = Cast<ADeepDriveAgent>(GetWorld()->SpawnActor(data.Agent, &transform, spawnParams));
 
 		if (agent)
 		{
