@@ -1,4 +1,7 @@
 #!/usr/bin/env python3
+import os
+import stat
+
 from ue4helpers import FilesystemUtils, ProjectPackager, UnrealUtils
 from os.path import abspath, dirname, join
 import shutil
@@ -8,6 +11,7 @@ def main():
     # Compute the absolute path to the root of the repository
     root = dirname(dirname(abspath(__file__)))
 
+    # This is already done via using the ue4-deepdrive-deps base image
     # install_plugins(root)
 
     # Create our project packager
@@ -22,6 +26,9 @@ def main():
     # Package the project
     packager.package(args=['Development'])
 
+    # Install dependencies like zmq and arrow of UEPy
+    install_uepy_requirements(join(root, 'dist'))
+
     # Compress the packaged distribution
     archive = packager.archive()
 
@@ -30,6 +37,17 @@ def main():
 
     # TODO: upload the archive to Amazon S3
     print('Created compressed archive "{}".'.format(archive))
+
+
+def install_uepy_requirements(dist):
+    curr_dir = os.path.dirname(os.path.abspath(__file__))
+    uepy = ensure_uepy_executable(dist)
+    command = '{uepy} -m pip install -r {curr_dir}/uepy-requirements.txt'. \
+        format(uepy=uepy, curr_dir=curr_dir)
+    print('Installing UEPY dependencies: %s ' % command)
+    result = os.system(command)
+    if result != 0:
+        raise Exception('Could not install UEPY python requirements')
 
 
 def install_plugins(root):
@@ -51,6 +69,25 @@ def reformat_name(archive_name):
     platform = platform.lower()
     ret = '-'.join([name, platform, version_and_ext])
     return ret
+
+
+def get_uepy_path(sim_path):
+    ret = os.path.join(
+        sim_path,
+        'LinuxNoEditor/Engine/Plugins/UnrealEnginePython/EmbeddedPython/Linux/bin/python3')
+    return ret
+
+
+def ensure_uepy_executable(sim_path):
+    """
+    Ensure the UEPY python binary is executable
+    :param path: Path to UEPy python binary
+    :return:
+    """
+    uepy = get_uepy_path(sim_path)
+    st = os.stat(uepy)
+    os.chmod(uepy, st.st_mode | stat.S_IEXEC)
+    return uepy
 
 
 if __name__ == '__main__':
