@@ -695,3 +695,13 @@ void ADeepDriveSimulation::onEgoAgentChanged(bool added)
 	else
 		m_numEgoAgents = FMath::Max(0, m_numEgoAgents - 1);
 }
+
+bool ADeepDriveSimulation::isLocationOccupied(const FVector &location, float radius)
+{
+	for(auto &a : m_Agents)
+	{
+		if((location - a->GetActorLocation()).Size() <= radius)
+			return true;
+	}
+	return false;
+}

@@ -204,6 +204,8 @@ public:
 
 	void removeOneOffAgents();
 
+	bool isLocationOccupied(const FVector &location, float radius);
+
 	static FDateTime getSimulationStartTime();
 
 private:
