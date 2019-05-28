@@ -491,7 +491,7 @@ void DeepDriveServer::resetSimulation(const deepdrive::server::MessageHeader &me
 
 void DeepDriveServer::onCaptureFinished(int32 seqNr)
 {
-	UE_LOG(LogDeepDriveServer, Log, TEXT("DeepDriveServer::onCaptureFinished %d"), seqNr);
+	UE_LOG(LogDeepDriveServer, Verbose, TEXT("DeepDriveServer::onCaptureFinished %d"), seqNr);
 
 	if (m_SteppingClient)
 		m_SteppingClient->enqueueResponse(new deepdrive::server::AdvanceSynchronousSteppingResponse(seqNr));
