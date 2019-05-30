@@ -1,4 +1,4 @@
-#### Traditional <a name="local-linux-traditional"></a>
+# Traditional Unreal Setup
 
 - Clone this repo
 - Clone our [UnrealEnginePython fork](https://github.com/deepdrive/UnrealEnginePython) into the root of this project (not a submodule as we are going to make this a binary only)

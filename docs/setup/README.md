@@ -22,7 +22,7 @@ Create `~/.deepdrive/python_bin` on Unix or `%HOMEPATH%\.deepdrive\python_bin` o
 
 ## OS specific setup
 
-To finish your development setup, follow one of the following guides per your OS.
+To finish your development setup, follow one of these guides
 
-- [Linux](docs/development/linux/overview.md)
-- [Windows](docs/development/windows/overview.md)
+- [Linux](/docs/setup/linux/README.md)
+- [Windows](/docs/setup/windows/README.md)
