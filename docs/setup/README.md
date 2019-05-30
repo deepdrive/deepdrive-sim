@@ -1,6 +1,6 @@
 # Setup
 
-- [Associate your GitHub username with your Unreal account](https://www.unrealengine.com/en-US/ue4-on-github) to get access to Unreal sources on GitHub. 
+First off, [associate your GitHub username with your Unreal account](https://www.unrealengine.com/en-US/ue4-on-github) to get access to Unreal sources on GitHub. 
 
 ## Set your python bin
 
