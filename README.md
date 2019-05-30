@@ -9,6 +9,4 @@ Unreal based simulator and Python interface to Deepdrive
 Checkout our [main repo](https://github.com/deepdrive/deepdrive)
 
 
-* [Development setup](/docs/development/linux/overview.md)
-* Tutorials
-* License
+[Docs](https://simdocs.deepdrive.io/)
