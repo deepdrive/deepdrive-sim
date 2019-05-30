@@ -1,6 +1,6 @@
 = Architecture
 
-DeepDrive 2.0 consists of three main components. 
+deepdrive-sim consists of three main components.
 
 1. https://github.com/deepdrive/deepdrive[DeepDrive] The 'game' or simulation, including all the assets, materials, blueprints, lighting, etc... a la a traditional Unreal game project
 2. https://github.com/deepdrive/deepdrive-plugin[DeepDrivePlugin] The liaison between Unreal and your Python, delivering sensor data from the game and receiving control and configuration commands through a combined C++ Python extension / Unreal Plugin.
