@@ -41,16 +41,16 @@ struct FDeepDriveLaneConnectionProxy
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	ADeepDriveRoadSegmentProxy	*FromSegment = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	ADeepDriveRoadSegmentProxy	*ToSegment = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	ADeepDriveRoadLinkProxy *FromLink = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	ADeepDriveRoadSegmentProxy	*FromSegment = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	ADeepDriveRoadLinkProxy *ToLink = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	ADeepDriveRoadSegmentProxy	*ToSegment = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	EDeepDriveConnectionShape	ConnectionShape = EDeepDriveConnectionShape::STRAIGHT_LINE;

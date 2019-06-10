@@ -18,6 +18,7 @@ class DeepDriveSimulationServerProxy;
 class DeepDriveSimulationStateMachine;
 class DeepDriveSimulationServer;
 class DeepDriveSimulationMessageHandler;
+class DeepDriveSimulationConfigureState;
 class DeepDriveSimulationResetState;
 
 class DeepDriveSimulationRunningState;
@@ -44,6 +45,7 @@ UCLASS()
 class DEEPDRIVEPLUGIN_API ADeepDriveSimulation	:	public AActor
 {
 	friend class DeepDriveSimulationRunningState;
+	friend class DeepDriveSimulationConfigureState;
 	friend class DeepDriveSimulationResetState;
 	friend class DeepDriveSimulationMessageHandler;
 
@@ -116,6 +118,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = RoadNetwork)
 	UDeepDriveRoadNetworkComponent	*RoadNetwork = 0;
+
+	UPROPERTY(BlueprintReadOnly, Category = Scenario)
+	bool	ScenarioMode = false;
+
+	UFUNCTION(BlueprintCallable, Category = "Simulation")
+	void ConfigureSimulation(FDeepDriveScenarioConfiguration Configuration);
 
 	UFUNCTION(BlueprintCallable, Category = "Simulation")
 	void ResetSimulation(bool ActivateAdditionalAgents);
@@ -195,7 +203,7 @@ public:
 	TArray<UCaptureSinkComponentBase*>& getCaptureSinks();
 
 	void initializeAgents();
-	void removeAdditionalAgents();
+	void removeAgents(bool removeEgo);
 	void spawnAdditionalAgents();
 	bool hasAdditionalAgents();
 
@@ -212,6 +220,8 @@ private:
 
 	bool isActive() const;
 
+	ADeepDriveAgent* spawnAgent(const FDeepDriveAgentScenarioConfiguration &scenarioCfg);
+
 	ADeepDriveAgent* spawnAgent(EDeepDriveAgentControlMode mode, int32 configSlot, int32 startPosSlot);
 
 	ADeepDriveAgentControllerBase* spawnController(EDeepDriveAgentControlMode mode, int32 configSlot, int32 startPosSlot);
@@ -222,6 +232,7 @@ private:
 	void applyGraphicsSettings(const SimulationGraphicsSettings &gfxSettings);
 
 	DeepDriveSimulationStateMachine			*m_StateMachine = 0;
+	DeepDriveSimulationConfigureState		*m_ConfigureState = 0;
 	DeepDriveSimulationResetState			*m_ResetState = 0;
 	DeepDriveSimulationServer				*m_SimulationServer = 0;
 	DeepDriveSimulationMessageHandler		*m_MessageHandler = 0;

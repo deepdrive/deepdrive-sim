@@ -63,6 +63,8 @@ struct SDeepDriveRoadSegment
 
 	FVector findClosestPoint(const FVector &pos) const;
 
+	float getHeading(const FVector &pos) const;
+
 	bool hasSpline() const
 	{
 		return SplineCurves.Position.Points.Num() > 0;

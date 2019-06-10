@@ -16,10 +16,9 @@ class DEEPDRIVEPLUGIN_API ADeepDriveAgentControllerCreator	:	public AActor
 public:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Controller")
-	ADeepDriveAgentControllerBase* CreateController(const FDeepDriveControllerData &ControllerData);
-
-	UFUNCTION(BlueprintImplementableEvent, Category = "Controller")
 	ADeepDriveAgentControllerBase* CreateAgentController(int32 ConfigurationSlot, int32 StartPositionSlot, ADeepDriveSimulation* DeepDriveSim );
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Controller")
+	ADeepDriveAgentControllerBase* CreateAgentControllerForScenario(const FDeepDriveAgentScenarioConfiguration &ScenarioConfiguration, ADeepDriveSimulation* DeepDriveSim );
 
 };

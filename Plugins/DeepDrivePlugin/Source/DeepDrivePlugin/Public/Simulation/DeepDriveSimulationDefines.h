@@ -17,7 +17,8 @@ enum class EDeepDriveAgentControlMode : uint8
 	NONE			= 0	UMETA(DisplayName = "None"),
 	MANUAL			= 1	UMETA(DisplayName = "Manual"),
 	REMOTE_AI		= 2	UMETA(DisplayName = "RemoteAI"),
-	LOCAL_AI		= 3	UMETA(DisplayName = "LocalAI")
+	LOCAL_AI		= 3	UMETA(DisplayName = "LocalAI"),
+	CITY_AI			= 4	UMETA(DisplayName = "CityAI")
 };
 
 
@@ -143,5 +144,37 @@ struct FDeepDriveViewMode
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	EDeepDriveInternalCaptureEncoding	ViewModeEncoding = EDeepDriveInternalCaptureEncoding::SEPARATE;
+};
+
+
+USTRUCT(BlueprintType)
+struct FDeepDriveAgentScenarioConfiguration
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	TSubclassOf<ADeepDriveAgent>	Agent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	FVector		StartPosition;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	FVector		EndPosition;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float		MaxSpeed;
+
+};
+
+USTRUCT(BlueprintType)
+struct FDeepDriveScenarioConfiguration
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	FDeepDriveAgentScenarioConfiguration	EgoAgent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	TArray<FDeepDriveAgentScenarioConfiguration>	Agents;
 };
 
