@@ -91,7 +91,6 @@ bool ADeepDriveAgentCityAIController::Activate(ADeepDriveAgent &agent, bool keep
 		case Mode::Standard:
 			if(m_StartIndex < 0 || m_StartIndex < m_Configuration.Routes.Num())
 			{
-				FVector start;
 				if(m_StartIndex < 0)
 				{
 					do
