@@ -4,8 +4,9 @@
 #include "Public/Simulation/DeepDriveSimulation.h"
 #include "Public/Simulation/RoadNetwork/DeepDriveRoadNetworkComponent.h"
 
-DeepDriveSimulationInitializeState::DeepDriveSimulationInitializeState(DeepDriveSimulationStateMachine &stateMachine)
+DeepDriveSimulationInitializeState::DeepDriveSimulationInitializeState(DeepDriveSimulationStateMachine &stateMachine, bool scenarioMode)
 	: DeepDriveSimulationStateBase(stateMachine, "Initialize")
+	,	m_ScenarioMode(scenarioMode)
 {
 }
 
@@ -29,9 +30,12 @@ void DeepDriveSimulationInitializeState::update(ADeepDriveSimulation &deepDriveS
 
 	deepDriveSim.RegisterRandomStream("AgentPlacement", false);
 	deepDriveSim.RoadNetwork->Initialize(deepDriveSim);
-	deepDriveSim.initializeAgents();
 
-	m_StateMachine.setNextState("Running");
+	if (m_ScenarioMode == false)
+	{
+		deepDriveSim.initializeAgents();
+		m_StateMachine.setNextState("Running");
+	}
 }
 
 void DeepDriveSimulationInitializeState::exit(ADeepDriveSimulation &deepDriveSim)

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Simulation/Agent/DeepDriveAgentControllerBase.h"
+#include "Public/Simulation/DeepDriveSimulationDefines.h"
 #include "DeepDriveAgentCityAIController.generated.h"
 
 class DeepDriveAgentSpeedController;
@@ -73,12 +74,21 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Configuration")
 	void Configure(const FDeepDriveCityAIControllerConfiguration &Configuration, int32 StartPositionSlot, ADeepDriveSimulation* DeepDriveSimulation);
 
+	UFUNCTION(BlueprintCallable, Category = "Configuration")
+	void ConfigureScenario(const FDeepDriveCityAIControllerConfiguration &Configuration, const FDeepDriveAgentScenarioConfiguration &ScenarioConfiguration, ADeepDriveSimulation* DeepDriveSimulation);
+
 protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIProps")
 	FDeepDriveCityAIControllerConfiguration		m_Configuration;
 
 private:
+
+	struct ScenarionConfiguration
+	{
+		FVector			StartPosition;
+		FVector			EndPosition;
+	};
 
 	enum State
 	{
@@ -87,8 +97,17 @@ private:
 		Waiting
 	};
 
+	enum Mode
+	{
+		Standard,
+		Scenario
+	};
+
 	UPROPERTY()
 	ADeepDriveRoute					*m_Route = 0;
+
+	Mode							m_Mode = Mode::Standard;
+	ScenarionConfiguration			m_ScenarionConfiguration;
 
 	DeepDriveAgentSpeedController		*m_SpeedController = 0;
 	DeepDriveAgentSteeringController	*m_SteeringController = 0;

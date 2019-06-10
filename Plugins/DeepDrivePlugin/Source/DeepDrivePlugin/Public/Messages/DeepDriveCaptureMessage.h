@@ -105,6 +105,10 @@ struct DeepDriveCaptureMessage	:	public DeepDriveMessageHeader
 
 	uint32						is_resetting;
 
+	uint32						scenario_finished;
+
+	uint32						padding_1;
+
 	uint32						num_cameras;
 
 	DeepDriveCaptureCamera		cameras[1];

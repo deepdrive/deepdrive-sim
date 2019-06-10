@@ -87,14 +87,27 @@ FVector UDeepDriveRoadNetworkComponent::GetRandomLocation(EDeepDriveLaneType Pre
 	return location;
 }
 
-void UDeepDriveRoadNetworkComponent::PlaceAgentOnRoad(ADeepDriveAgent *Agent, FVector Location)
+void UDeepDriveRoadNetworkComponent::PlaceAgentOnRoad(ADeepDriveAgent *Agent, FVector Location, bool OnClosestSegment)
 {
-	const uint32 linkId = m_RoadNetwork.findClosestLink(Location);
-	if(linkId)
+	if(OnClosestSegment)
 	{
-		const SDeepDriveRoadLink *link = &m_RoadNetwork.Links[linkId];
-		FTransform transform(FRotator(0.0f, link->Heading, 0.0f), link->StartPoint, FVector(1.0f, 1.0f, 1.0f));
-		Agent->SetActorTransform(transform, false, 0, ETeleportType::TeleportPhysics);
+		const uint32 segmentId = m_RoadNetwork.findClosestSegment(Location, EDeepDriveLaneType::MAJOR_LANE);
+		if(segmentId)
+		{
+			const SDeepDriveRoadSegment *segment = &m_RoadNetwork.Segments[segmentId];
+			FTransform transform(FRotator(0.0f, segment->getHeading(Location), 0.0f), segment->StartPoint, FVector(1.0f, 1.0f, 1.0f));
+			Agent->SetActorTransform(transform, false, 0, ETeleportType::TeleportPhysics);
+		}
+	}
+	else
+	{
+		const uint32 linkId = m_RoadNetwork.findClosestLink(Location);
+		if(linkId)
+		{
+			const SDeepDriveRoadLink *link = &m_RoadNetwork.Links[linkId];
+			FTransform transform(FRotator(0.0f, link->Heading, 0.0f), link->StartPoint, FVector(1.0f, 1.0f, 1.0f));
+			Agent->SetActorTransform(transform, false, 0, ETeleportType::TeleportPhysics);
+		}
 	}
 }
 

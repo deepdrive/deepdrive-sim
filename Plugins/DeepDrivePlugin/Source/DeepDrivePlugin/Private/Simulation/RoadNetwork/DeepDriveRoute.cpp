@@ -355,7 +355,7 @@ void ADeepDriveRoute::placeAgentAtStart(ADeepDriveAgent &agent)
 	int32 index = findClosestRoutePoint(m_RouteData.Start);
 	if(index >= 0)
 	{
-		const float heading = m_RoadNetwork->Segments[m_RoutePoints[index].SegmentId].Heading;
+		const float heading = m_RoadNetwork->Segments[m_RoutePoints[index].SegmentId].getHeading(m_RoutePoints[index].Location);
 		FTransform transform(FRotator(0.0f, heading, 0.0f), m_RoutePoints[index].Location, FVector(1.0f, 1.0f, 1.0f));
 		agent.SetActorTransform(transform, false, 0, ETeleportType::TeleportPhysics);
 	}
