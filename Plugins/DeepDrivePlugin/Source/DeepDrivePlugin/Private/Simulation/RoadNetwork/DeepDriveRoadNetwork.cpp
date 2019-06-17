@@ -74,6 +74,7 @@ uint32 SDeepDriveRoadNetwork::findClosestSegment(const FVector &pos, EDeepDriveL
 {
 	uint32 key = 0;
 	float dist = TNumericLimits<float>::Max();
+	FVector closestPos;
 
 	for (auto curIt = Segments.CreateConstIterator(); curIt; ++curIt)
 	{
@@ -81,7 +82,7 @@ uint32 SDeepDriveRoadNetwork::findClosestSegment(const FVector &pos, EDeepDriveL
 		if(segment.LaneType == laneType)
 		{
 			const SDeepDriveRoadSegment &curSegment = curIt.Value();
-			FVector closestPos = curSegment.findClosestPoint(pos);
+			closestPos = curSegment.findClosestPoint(pos);
 			const float curDist = (closestPos - pos).Size();
 			if(curDist < dist)
 			{

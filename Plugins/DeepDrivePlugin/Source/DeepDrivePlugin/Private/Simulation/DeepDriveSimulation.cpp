@@ -70,7 +70,7 @@ void ADeepDriveSimulation::PreInitializeComponents()
 	}
 
 	{
-		ScenarioMode = false;
+		ScenarioMode = true;
 		TArray<FString> tokens;
 		TArray<FString> switches;
 		FCommandLine::Parse(FCommandLine::Get(), tokens, switches);
@@ -476,7 +476,7 @@ void ADeepDriveSimulation::removeAgents(bool removeEgo)
 	m_Agents.SetNum(removeEgo ? 0 : 1);
 }
 
-ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(const FDeepDriveAgentScenarioConfiguration &scenarioCfg)
+ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(const FDeepDriveAgentScenarioConfiguration &scenarioCfg, bool remotelyControlled)
 {
 	FTransform transform(scenarioCfg.StartPosition);
 
@@ -493,12 +493,12 @@ ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(const FDeepDriveAgentScenarioC
 
 		// create city ai controller
 	
-		ADeepDriveAgentCityAIController *controller = 0;
+		ADeepDriveAgentControllerBase *controller = 0;
 
-		EDeepDriveAgentControlMode mode = EDeepDriveAgentControlMode::CITY_AI;
+		EDeepDriveAgentControlMode mode = remotelyControlled ? EDeepDriveAgentControlMode::REMOTE_AI : EDeepDriveAgentControlMode::CITY_AI;
 		if(ControllerCreators.Contains(mode))
 		{
-			controller = Cast<ADeepDriveAgentCityAIController>(ControllerCreators[mode]->CreateAgentControllerForScenario(scenarioCfg, this));
+			controller = ControllerCreators[mode]->CreateAgentControllerForScenario(scenarioCfg, this);
 			if (controller)
 			{
 				if (controller->Activate(*agent, false))

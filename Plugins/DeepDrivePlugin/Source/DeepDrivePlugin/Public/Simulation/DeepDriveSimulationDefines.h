@@ -167,14 +167,24 @@ struct FDeepDriveAgentScenarioConfiguration
 };
 
 USTRUCT(BlueprintType)
+struct FDeepDriveEgoAgentScenarioConfiguration	:	public FDeepDriveAgentScenarioConfiguration
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EgoAgent)
+	bool	IsRemotelyControlled = false;
+
+};
+
+USTRUCT(BlueprintType)
 struct FDeepDriveScenarioConfiguration
 {
 	GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	FDeepDriveAgentScenarioConfiguration	EgoAgent;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = EgoAgent)
+	FDeepDriveEgoAgentScenarioConfiguration	EgoAgent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
 	TArray<FDeepDriveAgentScenarioConfiguration>	Agents;
 };
 

@@ -29,7 +29,7 @@ void ADeepDriveAgentCityAIController::Tick( float DeltaSeconds )
 				{
 					if (m_Route->getRemainingDistance() - m_Agent->getFrontBumperDistance() < 800.0f)
 					{
-						m_State = m_StartIndex < 0 && m_Mode == Mode::Standard ? Waiting : Idle;
+						m_State = m_StartIndex < 0 && m_OperationMode == OperationMode::Standard ? Waiting : Idle;
 						m_WaitTimer = FMath::RandRange(3.0f, 4.0f);
 
 					}
@@ -86,9 +86,9 @@ bool ADeepDriveAgentCityAIController::Activate(ADeepDriveAgent &agent, bool keep
 	ADeepDriveRoute *route = 0;
 	FVector start = FVector(0.0f, 0.0f, 0.0f);
 
-	switch(m_Mode)
+	switch(m_OperationMode)
 	{
-		case Mode::Standard:
+		case OperationMode::Standard:
 			if(m_StartIndex < 0 || m_StartIndex < m_Configuration.Routes.Num())
 			{
 				if(m_StartIndex < 0)
@@ -115,7 +115,7 @@ bool ADeepDriveAgentCityAIController::Activate(ADeepDriveAgent &agent, bool keep
 			}
 			break;
 
-		case Mode::Scenario:
+		case OperationMode::Scenario:
 			start = m_ScenarionConfiguration.StartPosition;
 			roadNetwork->PlaceAgentOnRoad(&agent, start, true);
 			route = roadNetwork->CalculateRoute(start, m_ScenarionConfiguration.EndPosition);
@@ -165,7 +165,7 @@ void ADeepDriveAgentCityAIController::Configure(const FDeepDriveCityAIController
 	m_DeepDriveSimulation = DeepDriveSimulation;
 	m_StartIndex = StartPositionSlot;
 
-	m_Mode = Mode::Standard;
+	m_OperationMode = OperationMode::Standard;
 
 	m_DesiredSpeed = FMath::RandRange(Configuration.SpeedRange.X, Configuration.SpeedRange.Y);
 }
@@ -176,7 +176,7 @@ void ADeepDriveAgentCityAIController::ConfigureScenario(const FDeepDriveCityAICo
 	m_DeepDriveSimulation = DeepDriveSimulation;
 	m_StartIndex = -1;
 
-	m_Mode = Mode::Scenario;
+	m_OperationMode = OperationMode::Scenario;
 	m_ScenarionConfiguration.StartPosition = ScenarioConfiguration.StartPosition;
 	m_ScenarionConfiguration.EndPosition = ScenarioConfiguration.EndPosition;
 
