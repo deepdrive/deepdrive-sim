@@ -5,6 +5,7 @@
 #include "GameFramework/Controller.h"
 
 #include "Public/DeepDriveData.h"
+#include "Public/Simulation/DeepDriveSimulationDefines.h"
 
 #include "DeepDriveAgentControllerBase.generated.h"
 
@@ -14,6 +15,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveAgentControllerBase, Log, All);
 class ADeepDriveSimulation;
 class ADeepDriveAgent;
 class USplineComponent;
+class ADeepDriveRoute;
 class ADeepDriveSplineTrack;
 
 struct SimulationConfiguration;
@@ -78,6 +80,18 @@ public:
 
 protected:
 
+	enum OperationMode
+	{
+		Standard,
+		Scenario
+	};
+
+	struct ScenarionConfiguration
+	{
+		FVector			StartPosition;
+		FVector			EndPosition;
+	};
+
 	void activateController(ADeepDriveAgent &agent);
 
 	bool initAgentOnTrack(ADeepDriveAgent &agent);
@@ -87,6 +101,12 @@ protected:
 
 	ADeepDriveSimulation				*m_DeepDriveSimulation = 0;
 	ADeepDriveAgent						*m_Agent = 0;
+
+	OperationMode						m_OperationMode = OperationMode::Standard;
+	ScenarionConfiguration				m_ScenarionConfiguration;
+
+	UPROPERTY()
+	ADeepDriveRoute						*m_Route = 0;
 
 	ADeepDriveSplineTrack				*m_Track = 0;
 	int32								m_StartPositionSlot = -1;

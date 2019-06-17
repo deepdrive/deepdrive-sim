@@ -4,12 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Simulation/Agent/DeepDriveAgentControllerBase.h"
-#include "Public/Simulation/DeepDriveSimulationDefines.h"
 #include "DeepDriveAgentCityAIController.generated.h"
 
 class DeepDriveAgentSpeedController;
 class DeepDriveAgentSteeringController;
-class ADeepDriveRoute;
 class ADeepDriveRoadLinkProxy;
 
 USTRUCT(BlueprintType) struct FDeepDriveStaticRoute
@@ -84,12 +82,6 @@ protected:
 
 private:
 
-	struct ScenarionConfiguration
-	{
-		FVector			StartPosition;
-		FVector			EndPosition;
-	};
-
 	enum State
 	{
 		Idle,
@@ -97,26 +89,14 @@ private:
 		Waiting
 	};
 
-	enum Mode
-	{
-		Standard,
-		Scenario
-	};
-
-	UPROPERTY()
-	ADeepDriveRoute					*m_Route = 0;
-
-	Mode							m_Mode = Mode::Standard;
-	ScenarionConfiguration			m_ScenarionConfiguration;
-
 	DeepDriveAgentSpeedController		*m_SpeedController = 0;
 	DeepDriveAgentSteeringController	*m_SteeringController = 0;
 
-	int32							m_StartIndex;
+	int32								m_StartIndex;
 
-	float							m_DesiredSpeed = 0.0f;
+	float								m_DesiredSpeed = 0.0f;
 
-	State							m_State = Idle;
+	State								m_State = Idle;
 
-	float							m_WaitTimer = 0.0f;
+	float								m_WaitTimer = 0.0f;
 };

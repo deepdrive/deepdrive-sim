@@ -40,14 +40,14 @@ void DeepDriveSimulationConfigureState::update(ADeepDriveSimulation &deepDriveSi
 
 	UE_LOG(LogDeepDriveSimulation, Log, TEXT("Spawning ego agent"));
 
-	deepDriveSim.m_curAgent = deepDriveSim.spawnAgent(m_Configuration.EgoAgent);
+	deepDriveSim.m_curAgent = deepDriveSim.spawnAgent(m_Configuration.EgoAgent, m_Configuration.EgoAgent.IsRemotelyControlled);
 	deepDriveSim.m_curAgentController = Cast<ADeepDriveAgentControllerBase>(deepDriveSim.m_curAgent->GetController());
 	deepDriveSim.SelectCamera(EDeepDriveAgentCameraType::CHASE_CAMERA);
 
 	UE_LOG(LogDeepDriveSimulation, Log, TEXT("Spawning additional agents %d"), m_Configuration.Agents.Num());
 	for (auto &agentCfg : m_Configuration.Agents)
 	{
-		ADeepDriveAgent *agent = deepDriveSim.spawnAgent(agentCfg);
+		ADeepDriveAgent *agent = deepDriveSim.spawnAgent(agentCfg, false);
 	}
 
 	m_StateMachine.setNextState("Running");

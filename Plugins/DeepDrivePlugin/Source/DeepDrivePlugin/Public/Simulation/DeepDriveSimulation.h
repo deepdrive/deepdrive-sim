@@ -220,7 +220,7 @@ private:
 
 	bool isActive() const;
 
-	ADeepDriveAgent* spawnAgent(const FDeepDriveAgentScenarioConfiguration &scenarioCfg);
+	ADeepDriveAgent* spawnAgent(const FDeepDriveAgentScenarioConfiguration &scenarioCfg, bool remotelyControlled);
 
 	ADeepDriveAgent* spawnAgent(EDeepDriveAgentControlMode mode, int32 configSlot, int32 startPosSlot);
 
