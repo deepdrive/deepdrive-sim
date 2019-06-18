@@ -59,6 +59,8 @@ public:
 
 	void placeAgentAtStart(ADeepDriveAgent &agent);
 
+	void setShowRoute(bool showRoute);
+
 private:
 
 	void convertToPoints(const FVector &location);
@@ -87,6 +89,13 @@ private:
 	int32							m_curRoutePointIndex = -1;
 	float							m_RouteLength = 0.0f;
 
+	bool							m_ShowRoute = false;
+
 	UPROPERTY()
 	UBezierCurveComponent			*m_BezierCurve = 0;
 };
+
+inline void ADeepDriveRoute::setShowRoute(bool showRoute)
+{
+	m_ShowRoute = showRoute;
+}

@@ -137,6 +137,7 @@ ADeepDriveRoute* UDeepDriveRoadNetworkComponent::CalculateRoute(const FVector St
 
 			if (route)
 			{
+				route->setShowRoute(ShowRoutes);
 				route->initialize(m_RoadNetwork, routeData);
 			}
 		}
@@ -229,14 +230,7 @@ void UDeepDriveRoadNetworkComponent::collectRoadNetwork()
 
 	m_Extractor->extract();
 
-	for(auto &rl : Route)
-	{
-		uint32 linkId = m_Extractor->getRoadLink(rl);
-		if(linkId)
-			m_DebugRoute.Add(linkId);
-	}
-
-	UE_LOG(LogDeepDriveRoadNetwork, Log, TEXT("Collected road network %d juntions %d links %d segments dgbRoute %d"), m_RoadNetwork.Junctions.Num(), m_RoadNetwork.Links.Num(), m_RoadNetwork.Segments.Num(), m_DebugRoute.Num() );
+	UE_LOG(LogDeepDriveRoadNetwork, Log, TEXT("Collected road network %d juntions %d links %d segments"), m_RoadNetwork.Junctions.Num(), m_RoadNetwork.Links.Num(), m_RoadNetwork.Segments.Num() );
 }
 
 uint32 UDeepDriveRoadNetworkComponent::getRoadLink(ADeepDriveRoadLinkProxy *linkProxy)
