@@ -48,7 +48,7 @@ public:
 	ADeepDriveRoute *CalculateRoute(const TArray<uint32> &routeLinks);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
-	TArray<ADeepDriveRoadLinkProxy*>	Route;
+	bool	ShowRoutes = false;
 
 	uint32 getRoadLink(ADeepDriveRoadLinkProxy *linkProxy);
 
@@ -65,7 +65,5 @@ protected:
 	SDeepDriveRoadNetwork			m_RoadNetwork;
 
 	DeepDriveRoadNetworkExtractor	*m_Extractor;
-
-	TArray<uint32>					m_DebugRoute;
 
 };

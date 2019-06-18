@@ -20,7 +20,7 @@ ADeepDriveRoute::ADeepDriveRoute()
 
 void ADeepDriveRoute::Tick(float DeltaTime)
 {
-	if(m_RoutePoints.Num() > 0)
+	if(m_ShowRoute && m_RoutePoints.Num() > 0)
 	{
 		FColor col = FColor::Green;
 		const uint8 prio = 40;
