@@ -16,7 +16,7 @@ import pyarrow
 KPH_2_MPH = 1. / 0.6213711922
 
 
-class LambdaApi(object):
+class Api(object):
     def __init__(self):
         self._world = None
         self._sim = None

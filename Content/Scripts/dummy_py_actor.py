@@ -4,14 +4,14 @@ import asyncio
 import sys
 import importlib
 
-import lambda_server
+import api_server
 import api_methods
 
 # Reload modules so we don't have to restart Unreal Editor after changing them
-importlib.reload(lambda_server)
+importlib.reload(api_server)
 importlib.reload(api_methods)
 
-from lambda_server import LambdaServer
+from api_server import ApiServer
 
 IS_LINUX = sys.platform == 'linux' or sys.platform == 'linux2'
 IS_WINDOWS = sys.platform == 'win32'
@@ -54,7 +54,7 @@ class DummyPyActor:
         self.ai_controllers = None
         self.started_server = False
         self.event_loop = None
-        self.lambda_server = None
+        self.api_server = None
 
     def begin_play(self):
         print('Begin Play on DummyPyActor class')
@@ -69,8 +69,8 @@ class DummyPyActor:
             asyncio.set_event_loop(self.event_loop)
             self.event_loop.set_debug(enabled=True)
             print('Creating server task')
-            self.lambda_server = LambdaServer()
-            asyncio.ensure_future(self.lambda_server.run())
+            self.api_server = ApiServer()
+            asyncio.ensure_future(self.api_server.run())
             self.started_server = True
         elif self.event_loop is not None:
             self.event_loop.stop()
@@ -78,8 +78,8 @@ class DummyPyActor:
 
     def end_play(self, end_code):
         self.event_loop.stop()
-        self.lambda_server.close()
-        print('Closing lambda server event loop')
+        self.api_server.close()
+        print('Closing api server event loop')
         self.event_loop.close()
 
     def _find_world(self):

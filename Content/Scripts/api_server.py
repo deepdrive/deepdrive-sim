@@ -19,7 +19,7 @@ API_PORT = 5657
 API_TIMEOUT_MS = 5000
 
 
-class LambdaServer(object):
+class ApiServer(object):
     def __init__(self):
         self.socket = None
         self.context = None
@@ -50,7 +50,7 @@ class LambdaServer(object):
         return socket
 
     async def run(self):
-        self.api = api_methods.LambdaApi()
+        self.api = api_methods.Api()
         await self.create_socket()
         print('Unreal Lambda server started at %s v0.7' % self.conn_string)
         while True:
@@ -113,7 +113,7 @@ def start_server_test():
     print('Testing event loop server')
     loop = asyncio.get_event_loop()
     loop.set_debug(enabled=True)
-    loop.run_until_complete(LambdaServer().run())
+    loop.run_until_complete(ApiServer().run())
 
 
 if __name__ == '__main__':
