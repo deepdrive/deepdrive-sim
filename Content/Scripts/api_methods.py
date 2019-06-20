@@ -93,6 +93,17 @@ class LambdaApi(object):
         """For sanity testing server outside of Unreal"""
         return 42
 
+    def get_agent_positions(self):
+        ret = []
+        agents = self.sim.GetAgentsList()
+
+        # print([dir(a) for a in agents])
+        for agent in agents:
+            if not agent.IsEgoAgent():
+                position = agent.get_actor_location()
+                ret.append([position.x, position.y, position.z])
+        return ret
+
     def get_world(self):
         if self.world is not None:
             return self.world
@@ -127,6 +138,7 @@ def ueprint(*args, **kwargs):
 
 
 if __name__ == '__main__':
-    pass
+    api = Api()
+    print(api.get_agent_positions())
     # disable_traffic_next_reset()
     # set_ego_mph(30, 30)
