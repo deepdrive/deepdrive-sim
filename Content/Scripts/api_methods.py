@@ -133,7 +133,7 @@ class LambdaApi(object):
 
         for w in worlds:
             ai_controllers = [a for a in w.all_actors()
-                              if 'LocalAIController_'.lower()
+                              if 'AIController_'.lower()
                               in a.get_full_name().lower()]
             if ai_controllers:
                 print('Found current world! ' + str(w))
