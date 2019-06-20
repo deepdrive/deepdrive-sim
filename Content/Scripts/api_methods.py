@@ -149,8 +149,8 @@ class Api(object):
             print('Detected Unreal Editor')
             worlds.append(ue.get_editor_world())
 
-        worlds = [w for w in worlds if 'DeepDriveSim_Demo.DeepDriveSim_Demo' in
-                  w.get_full_name()]
+        # worlds = [w for w in worlds if 'DeepDriveSim_Demo.DeepDriveSim_Demo' in
+        #           w.get_full_name()]
 
         # print([w.get_full_name() for w in worlds])
 
