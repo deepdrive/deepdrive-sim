@@ -18,9 +18,21 @@ KPH_2_MPH = 1. / 0.6213711922
 
 class LambdaApi(object):
     def __init__(self):
-        self.sim = None
-        self.world = None
+        self._world = None
+        self._sim = None
         self.ue_objects_by_type = None
+
+    @property
+    def sim(self):
+        if self._sim is None:
+            self._sim = self.get_sim()
+        return self._sim
+    
+    @property
+    def world(self):
+        if self._world is None:
+            self._world = self.get_world()
+        return self._world
 
     def get_objects_of_type(self, object_type, world):
         if self.ue_objects_by_type is None:
@@ -40,18 +52,18 @@ class LambdaApi(object):
 
     def get_sim(self, world=None):
         # TODO: Add sim and world to a singleton
-        self.world = world or self.get_world()
-        sim_objs  = self.get_objects_of_type('DeepDriveSim_C', self.world)
+        world = world or self.world
+        sim_objs = self.get_objects_of_type('DeepDriveSim_C', world)
         if len(sim_objs) > 1:
             raise ValueError('Sim is a singleton, should be only one,'
                              ' but got %r' % len(sim_objs))
         elif not sim_objs:
             print('Could not find DeepDriveSim object')
-        self.sim = sim_objs[0]
-        return self.sim
+        ret = sim_objs[0]
+        return ret
 
     def get_actor_by_name(self, name, world=None):
-        self.world = world or self.get_world()
+        world = world or self.get_world()
         pattern = name + r'(_.*\d+)?$'
         r = re.compile(pattern)
         actors = [a for a in world.all_actors() if a.get_display_name() == name
@@ -105,8 +117,6 @@ class LambdaApi(object):
         return ret
 
     def get_world(self):
-        if self.world is not None:
-            return self.world
         worlds = ue.all_worlds()
         # print('All worlds length ' + str(len(worlds)))
 
@@ -119,13 +129,14 @@ class LambdaApi(object):
         worlds = [w for w in worlds if 'DeepDriveSim_Demo.DeepDriveSim_Demo' in
                   w.get_full_name()]
 
+        # print([w.get_full_name() for w in worlds])
+
         for w in worlds:
             ai_controllers = [a for a in w.all_actors()
                               if 'LocalAIController_'.lower()
                               in a.get_full_name().lower()]
             if ai_controllers:
                 print('Found current world! ' + str(w))
-                self.world = w
                 return w
         else:
             print('Current world not detected')
