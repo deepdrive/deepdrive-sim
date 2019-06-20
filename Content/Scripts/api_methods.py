@@ -14,6 +14,25 @@ import pyarrow
 
 
 KPH_2_MPH = 1. / 0.6213711922
+SUPPORTED_TYPES = [int, float, str, bool]
+SUPPORTED_UOBJECT_PREFIXES = ["<unreal_engine.UObject 'DeepDriveAgent_"]
+
+
+def get_standard_actor_props(actor):
+    # noinspection PyDictCreation
+    out = {}
+    out['position'] = best_effort_serialize(actor.get_actor_location())
+    # out['right_vector'] = actor.get_right_vector()
+    # out['physics_linear_velocity'] = actor.get_physics_linear_velocity()
+    # out['physics_angular_velocity'] = actor.get_physics_angular_velocity()
+    out['actor_bounds'] = best_effort_serialize(actor.get_actor_bounds())
+    out['actor_right'] = best_effort_serialize(actor.get_actor_right())
+    out['actor_rotation'] = best_effort_serialize(actor.get_actor_rotation())
+    out['actor_scale'] = best_effort_serialize(actor.get_actor_scale())
+    out['actor_transform'] = best_effort_serialize(actor.get_actor_transform())
+    out['actor_up'] = best_effort_serialize(actor.get_actor_up())
+    out['actor_velocity'] = best_effort_serialize(actor.get_actor_velocity())
+    return out
 
 
 class Api(object):
@@ -105,15 +124,19 @@ class Api(object):
         """For sanity testing server outside of Unreal"""
         return 42
 
-    def get_agent_positions(self):
+    def get_agents(self):
         ret = []
         agents = self.sim.GetAgentsList()
-
-        # print([dir(a) for a in agents])
-        for agent in agents:
-            if not agent.IsEgoAgent():
-                position = agent.get_actor_location()
-                ret.append([position.x, position.y, position.z])
+        # print('\n'.join(dir(agents[0])))
+        # print(str(agents[0]))
+        for a in agents:
+            ra = {}
+            levels = 3
+            ura = best_effort_serialize(a, levels)
+            ra['reflection_%r_level' % levels] = ura
+            ra['is_ego'] = a.IsEgoAgent()
+            ra['actor_info'] = get_standard_actor_props(a)
+            ret.append(ra)
         return ret
 
     def get_world(self):
@@ -143,13 +166,71 @@ class Api(object):
             return None
 
 
+def get_rotator(v):
+    ret = dict(roll=v.roll, pitch=v.pitch, yaw=v.yaw)
+    return ret
+
+
+def get_transform(v):
+    ret = dict(
+        translation=best_effort_serialize(v.translation),
+        rotation=best_effort_serialize(v.rotation),
+        scale=best_effort_serialize(v.scale))
+    return ret
+
+
+def best_effort_serialize(v, levels=2):
+    if any(isinstance(v, stype) for stype in SUPPORTED_TYPES):
+        new = v
+    elif str(type(v)) == "<class 'unreal_engine.FVector'>":
+        new = get_3d_vector(v)
+    elif str(type(v)) == "<class 'unreal_engine.FRotator'>":
+        new = get_rotator(v)
+    elif str(type(v)) == "<class 'unreal_engine.FTransform'>":
+        new = get_transform(v)
+    elif levels == 0:
+        new = str(v)
+    elif type(v) is list or type(v) is set or type(v) is tuple:
+        print('serializing list')
+        new = [best_effort_serialize(x, levels-1) for x in v]
+    elif type(v) is dict:
+        print('serializing dict')
+        new = {k2: best_effort_serialize(v2, levels-1) for k2, v2 in v.items()}
+    else:
+        print('serializing unknown')
+        if not any(str(v).startswith(st) for st in SUPPORTED_UOBJECT_PREFIXES):
+            new = str(v)
+        else:
+            try:
+                new = best_effort_serialize(v.as_dict(), levels-1)
+            except Exception as e0:
+                try:
+                    print('Can\'t serialize ' + str(v) +
+                          ' converting to string, error: ' + str(e0))
+                    new = str(v)
+                except Exception as e1:
+                    new = 'Can\'t serialize, error: ' + str(e1)
+
+    return new
+
+
 def ueprint(*args, **kwargs):
     args += tuple(chain.from_iterable(kwargs.items()))
     print(' '.join(str(x) for x in args))
 
 
+def get_3d_vector(p):
+    return [p.x, p.y, p.z]
+
+
 if __name__ == '__main__':
     api = Api()
-    print(api.get_agent_positions())
+    agents = api.get_agents()
+    import json
+    print(json.dumps(agents, indent=2, sort_keys=True))
+    # import pprint
+    # pp = pprint.PrettyPrinter(indent=4)
+    # pp.pprint(agents)
+
     # disable_traffic_next_reset()
     # set_ego_mph(30, 30)
