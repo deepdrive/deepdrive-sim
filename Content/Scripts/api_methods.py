@@ -139,6 +139,17 @@ class Api(object):
             ret.append(ra)
         return ret
 
+    def get_agent_positions(self):
+        ret = []
+        agents = self.sim.GetAgentsList()
+
+        # print([dir(a) for a in agents])
+        for agent in agents:
+            if not agent.IsEgoAgent():
+                position = agent.get_actor_location()
+                ret.append([position.x, position.y, position.z])
+        return ret
+
     def get_world(self):
         worlds = ue.all_worlds()
         # print('All worlds length ' + str(len(worlds)))
@@ -223,7 +234,7 @@ def get_3d_vector(p):
     return [p.x, p.y, p.z]
 
 
-if __name__ == '__main__':
+def main():
     api = Api()
     agents = api.get_agents()
     import json
@@ -234,3 +245,7 @@ if __name__ == '__main__':
 
     # disable_traffic_next_reset()
     # set_ego_mph(30, 30)
+
+
+if __name__ == '__main__':
+    main()
