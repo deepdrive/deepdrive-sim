@@ -145,7 +145,7 @@ class Api(object):
             ret.append(ra)
         return ret
 
-    def get_agent_positions(self):
+    def get_vehicle_positions(self):
         ret = []
         agents = self.sim.GetAgentsList()
 
