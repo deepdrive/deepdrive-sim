@@ -53,6 +53,12 @@ class Api(object):
             self._world = self.get_world()
         return self._world
 
+    def get_observation(self):
+        # Be careful with what you add here as this is much slower than
+        # our shared memory channel for sending observations.
+        ret = dict(vehicle_positions=self.get_vehicle_positions())
+        return ret
+
     def get_objects_of_type(self, object_type, world):
         if self.ue_objects_by_type is None:
             self.populate_objects_by_type(world)
