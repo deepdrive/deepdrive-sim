@@ -12,8 +12,8 @@ except ImportError:
 
 import pyarrow
 
-
-KPH_2_MPH = 1. / 0.6213711922
+KPH_2_MPH = 0.6213711922
+MPH_2_KPH = 1. / KPH_2_MPH
 SUPPORTED_TYPES = [int, float, str, bool]
 SUPPORTED_UOBJECT_PREFIXES = ["<unreal_engine.UObject 'DeepDriveAgent_"]
 
@@ -115,7 +115,7 @@ class Api(object):
         return ego.SetSpeedRange(min_kph, max_kph)
 
     def set_ego_mph(self, min_mph, max_mph):
-        return self.set_ego_kph(min_mph * KPH_2_MPH, max_mph * KPH_2_MPH)
+        return self.set_ego_kph(min_mph * MPH_2_KPH, max_mph * MPH_2_KPH)
 
     def get_ego_agent(self):
         sim = self.get_sim()
