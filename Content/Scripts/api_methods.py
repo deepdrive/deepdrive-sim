@@ -202,13 +202,13 @@ def best_effort_serialize(v, levels=2):
     elif levels == 0:
         new = str(v)
     elif type(v) is list or type(v) is set or type(v) is tuple:
-        print('serializing list')
+        # print('serializing list')
         new = [best_effort_serialize(x, levels-1) for x in v]
     elif type(v) is dict:
-        print('serializing dict')
+        # print('serializing dict')
         new = {k2: best_effort_serialize(v2, levels-1) for k2, v2 in v.items()}
     else:
-        print('serializing unknown')
+        # print('serializing unknown')
         if not any(str(v).startswith(st) for st in SUPPORTED_UOBJECT_PREFIXES):
             new = str(v)
         else:

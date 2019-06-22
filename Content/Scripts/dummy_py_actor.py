@@ -64,7 +64,7 @@ class DummyPyActor:
         if self.world is None:
             self._find_world()
         elif not self.started_server:
-            print('Creating new event loop. You should only see this once!')
+            print('Creating new master event loop. One loop to rule them all.')
             self.event_loop = asyncio.new_event_loop()
             asyncio.set_event_loop(self.event_loop)
             self.event_loop.set_debug(enabled=True)

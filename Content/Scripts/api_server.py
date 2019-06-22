@@ -22,6 +22,7 @@ API_TIMEOUT_MS = 5000
 class ApiServer(object):
     def __init__(self):
         self.socket = None
+        self.poller = None
         self.context = None
         self.env = None
         self.conn_string = "tcp://*:%s" % API_PORT
@@ -43,16 +44,26 @@ class ApiServer(object):
         # Creating a new socket on timeout is not working when other ZMQ
         # connections are present in the process.
         # socket.RCVTIMEO = API_TIMEOUT_MS
-        socket.SNDTIMEO = API_TIMEOUT_MS
+        # socket.SNDTIMEO = API_TIMEOUT_MS
 
         socket.bind(self.conn_string)
+
+        print('Registering API server poller')
+
+        poller = zmq.Poller()
+        poller.register(socket, zmq.POLLIN | zmq.POLLOUT)
+
         self.socket = socket
+        self.poller = poller
+
         return socket
 
     async def run(self):
+        print('Getting API methods')
         self.api = api_methods.Api()
+        print('Creating API server socket')
         await self.create_socket()
-        print('Unreal Lambda server started at %s v0.7' % self.conn_string)
+        print('Unreal API server started at %s v0.8' % self.conn_string)
         while True:
             try:
                 await self.check_for_messages()
@@ -69,16 +80,37 @@ class ApiServer(object):
             print('Waiting for client')
             await self.create_socket()
 
+    async def wait_for_msg(self):
+        while True:
+            socks = dict(self.poller.poll())
+            if self.socket in socks and \
+                    socks[self.socket] == zmq.POLLOUT|zmq.POLLIN:
+                msg = await self.socket.recv()
+                return msg
+            else:
+                time.sleep(1e-6)
+
     async def eval(self, msg):
         try:
-            method_name, args, kwargs = pyarrow.deserialize(msg)
+            method_name, args, kwargs = pyarrow.deserialize(msg)  # ~100 us
             fn = getattr(self.api, method_name)
+            start_call = time.time()
             resp = fn(*args, **kwargs)
+            print('%s took %rs' % (method_name, time.time() - start_call))
+        except AttributeError:
+            message = traceback.format_exc() + '\n' + \
+                      'HINT: Try resarting the simulator if you\'ve ' \
+                      'just added a new method'
+            await self.socket.send(
+                serialize({'success': False, 'result': message}))
         except Exception:
-            await self.socket.send(serialize({'success': False, 'result':
-                traceback.format_exc()}))
+            await self.socket.send(
+                serialize({'success': False, 'result': traceback.format_exc()}))
         else:
-            await self.socket.send(serialize({'success': True, 'result': resp}))
+            start_send = time.time()
+            await self.socket.send(
+                serialize({'success': True, 'result': resp}))  # ~ 0.5ms
+            print('send took %rs' % (time.time() - start_send))
 
     def __del__(self):
         self.close()
@@ -86,6 +118,7 @@ class ApiServer(object):
     def close(self):
         print('Closing lambda server')
         try:
+            self.poller.unregister(self.socket)
             self.socket.close()
         except Exception as e:
             print('Error closing lambda server zmq socket' + str(e))
