@@ -52,7 +52,7 @@ class ApiServer(object):
     async def run(self):
         self.api = api_methods.Api()
         await self.create_socket()
-        print('Unreal Lambda server started at %s v0.7' % self.conn_string)
+        print('Unreal API server started at %s v0.7' % self.conn_string)
         while True:
             try:
                 await self.check_for_messages()
@@ -84,16 +84,16 @@ class ApiServer(object):
         self.close()
 
     def close(self):
-        print('Closing lambda server')
+        print('Closing api server')
         try:
             self.socket.close()
         except Exception as e:
-            print('Error closing lambda server zmq socket' + str(e))
+            print('Error closing api server zmq socket' + str(e))
         finally:
             try:
                 self.context.destroy()
             except Exception as e:
-                print('Error destroying zmq context in lambda server')
+                print('Error destroying zmq context in api server')
 
 
 def serialize(obj):
