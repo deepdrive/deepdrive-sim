@@ -24,9 +24,8 @@ install:
 - docker pull $DOCKER_IMAGE
 script:
 - python -u Plugins/DeepDrivePlugin/Source/DeepDrivePython/build/build.py --type linux_bdist
-- cppcheck --enable=all . |& tee -a cppcheck_all.txt
-- cppcheck . 2> cppcheck_err.txt
-- cat cppcheck_err.txt
+- Test/cppcheck.sh
+
 
 git:
   depth: 1
