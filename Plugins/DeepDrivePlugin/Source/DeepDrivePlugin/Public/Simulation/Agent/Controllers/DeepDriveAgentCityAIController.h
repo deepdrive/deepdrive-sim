@@ -82,6 +82,9 @@ protected:
 
 private:
 
+	float checkForObstacle(float maxDistance);
+	float calculateSafetyDistance();
+
 	enum State
 	{
 		Idle,

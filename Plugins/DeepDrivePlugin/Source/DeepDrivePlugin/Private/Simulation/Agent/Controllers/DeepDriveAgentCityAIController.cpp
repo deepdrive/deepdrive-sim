@@ -36,7 +36,13 @@ void ADeepDriveAgentCityAIController::Tick( float DeltaSeconds )
 					float desiredSpeed = m_DesiredSpeed;
 
 					desiredSpeed = m_SpeedController->limitSpeedByTrack(desiredSpeed, 1.0f);
-					m_SpeedController->update(DeltaSeconds, desiredSpeed, -1.0f, 0.0f);
+					const float safetyDistance = calculateSafetyDistance();
+					float dist2Obstacle = checkForObstacle(safetyDistance);
+					UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("SafetyDistance %f Dist2Obstalce %f"), safetyDistance, dist2Obstacle);
+					if(dist2Obstacle < 0.0f)
+						m_SpeedController->update(DeltaSeconds, desiredSpeed, -1.0f, 0.0f);
+					else
+						m_SpeedController->update(DeltaSeconds, desiredSpeed, safetyDistance, dist2Obstacle);
 					m_SteeringController->update(DeltaSeconds, desiredSpeed, 0.0f);
 				}
 				break;
@@ -182,3 +188,35 @@ void ADeepDriveAgentCityAIController::ConfigureScenario(const FDeepDriveCityAICo
 
 	m_DesiredSpeed = ScenarioConfiguration.MaxSpeed;
 }
+
+float ADeepDriveAgentCityAIController::checkForObstacle(float maxDistance)
+{
+	float distance = -1.0f;
+
+	FHitResult hitResult;
+
+	FVector forward = m_Agent-> GetActorForwardVector();
+	FVector start = m_Agent->GetActorLocation() + forward * m_Agent->getFrontBumperDistance() + FVector(0.0f, 0.0f, 100.0f);
+	FVector end = start + forward * maxDistance;
+
+	DrawDebugLine(GetWorld(), start, end, FColor::Green, false, 0.0f, 100, 4.0f);
+
+	FCollisionQueryParams params;
+	params.AddIgnoredActor(m_Agent);
+	if(GetWorld()->LineTraceSingleByChannel(hitResult, start, end, ECollisionChannel::ECC_Visibility, params, FCollisionResponseParams() ))
+	{
+		distance = hitResult.Distance;
+	}
+
+	return distance;
+}
+
+float ADeepDriveAgentCityAIController::calculateSafetyDistance()
+{
+	const float brakingDeceleration = 400.0f;
+	const float curSpeed = m_Agent->getSpeed();
+	const float safetyDistance = curSpeed * curSpeed / (2.0f * brakingDeceleration);
+
+	return FMath::Max(100.0f, safetyDistance);
+}
+

@@ -188,3 +188,17 @@ struct FDeepDriveScenarioConfiguration
 	TArray<FDeepDriveAgentScenarioConfiguration>	Agents;
 };
 
+
+USTRUCT(BlueprintType)
+struct FDeepDrivePath
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Default)
+	TArray<FVector>		Points;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Default)
+	TArray<float>		SpeedLimits;
+
+};
+

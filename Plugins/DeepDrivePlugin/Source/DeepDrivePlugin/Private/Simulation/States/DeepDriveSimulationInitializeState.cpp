@@ -17,20 +17,12 @@ DeepDriveSimulationInitializeState::~DeepDriveSimulationInitializeState()
 
 void DeepDriveSimulationInitializeState::enter(ADeepDriveSimulation &deepDriveSim)
 {
-
+	deepDriveSim.RegisterRandomStream("AgentPlacement", false);
+	deepDriveSim.RoadNetwork->Initialize(deepDriveSim);
 }
 
 void DeepDriveSimulationInitializeState::update(ADeepDriveSimulation &deepDriveSim, float dT)
 {
-	/*
-		- register random streams
-		- call blueprint initialize
-		- spawn agents
-	*/
-
-	deepDriveSim.RegisterRandomStream("AgentPlacement", false);
-	deepDriveSim.RoadNetwork->Initialize(deepDriveSim);
-
 	if (m_ScenarioMode == false)
 	{
 		deepDriveSim.initializeAgents();

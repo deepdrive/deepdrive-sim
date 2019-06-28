@@ -70,7 +70,7 @@ void ADeepDriveSimulation::PreInitializeComponents()
 	}
 
 	{
-		ScenarioMode = false;
+		ScenarioMode = true;
 		TArray<FString> tokens;
 		TArray<FString> switches;
 		FCommandLine::Parse(FCommandLine::Get(), tokens, switches);
@@ -194,10 +194,13 @@ void ADeepDriveSimulation::Tick( float DeltaTime )
 
 void ADeepDriveSimulation::ConfigureSimulation(FDeepDriveScenarioConfiguration Configuration)
 {
-	UE_LOG(LogDeepDriveSimulation, Log, TEXT("DeepDriveSimulation Request to Configure Simulation") );
-	m_ConfigureState->setConfiguration(Configuration);
-	if(m_StateMachine)
-		m_StateMachine->setNextState("Configure");
+	if(m_ConfigureState)
+	{
+		UE_LOG(LogDeepDriveSimulation, Log, TEXT("DeepDriveSimulation Request to Configure Simulation") );
+		m_ConfigureState->setConfiguration(Configuration);
+		if(m_StateMachine)
+			m_StateMachine->setNextState("Configure");
+	}
 }
 
 void ADeepDriveSimulation::ResetSimulation(bool ActivateAdditionalAgents)
@@ -491,22 +494,16 @@ ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(const FDeepDriveAgentScenarioC
 		agent->initialize(*this);
 		agent->setResetTransform(transform);
 
-		// create city ai controller
-	
-		ADeepDriveAgentControllerBase *controller = 0;
-
 		EDeepDriveAgentControlMode mode = remotelyControlled ? EDeepDriveAgentControlMode::REMOTE_AI : EDeepDriveAgentControlMode::CITY_AI;
 		if(ControllerCreators.Contains(mode))
 		{
-			controller = ControllerCreators[mode]->CreateAgentControllerForScenario(scenarioCfg, this);
+			ADeepDriveAgentControllerBase *controller = ControllerCreators[mode]->CreateAgentControllerForScenario(scenarioCfg, this);
 			if (controller)
 			{
 				if (controller->Activate(*agent, false))
 				{
 					m_curAgentMode = mode;
 					OnAgentSpawned(agent);
-
-					// coontroller->Configure(EgoAgent);
 				}
 			}
 		}
@@ -748,6 +745,11 @@ TArray<ADeepDriveAgent*> ADeepDriveSimulation::GetAgentsList(EDeepDriveAgentsLis
 	}
 
 	return agents;
+}
+
+FDeepDrivePath ADeepDriveSimulation::GetEgoPath()
+{
+	return m_Agents.Num() > 0 ? m_Agents[0]->getAgentController()->getPath() : FDeepDrivePath();
 }
 
 bool ADeepDriveSimulation::hasEgoAgent() const
