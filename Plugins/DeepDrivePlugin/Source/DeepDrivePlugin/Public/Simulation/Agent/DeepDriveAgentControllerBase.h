@@ -78,6 +78,8 @@ public:
 
 	void restoreStartPositionSlot(int32 startPositionSlot);
 
+	FDeepDrivePath getPath();
+
 protected:
 
 	enum OperationMode

@@ -194,6 +194,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Agents")
 	TArray<ADeepDriveAgent*> GetAgentsList(EDeepDriveAgentsListFilter Filter);
 
+	UFUNCTION(BlueprintCallable, Category = "Path")
+	FDeepDrivePath GetEgoPath();
+
 	void enqueueMessage(deepdrive::server::MessageHeader *message);
 
 	bool resetAgent();

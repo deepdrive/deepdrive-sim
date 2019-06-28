@@ -361,6 +361,19 @@ void ADeepDriveRoute::placeAgentAtStart(ADeepDriveAgent &agent)
 	}
 }
 
+FDeepDrivePath ADeepDriveRoute::getPath()
+{
+	FDeepDrivePath path;
+
+	for(auto &routePoint : m_RoutePoints)
+	{
+		path.Points.Add(routePoint.Location);
+		path.SpeedLimits.Add(routePoint.SpeedLimit);
+	}
+
+	return path;
+}
+
 float ADeepDriveRoute::getRemainingDistance()
 {
 	return		m_curRoutePointIndex >= 0 && m_curRoutePointIndex < m_RoutePoints.Num()
@@ -485,3 +498,4 @@ void ADeepDriveRoute::extractTangentFromSegment(const SDeepDriveRoadSegment &seg
 		end = segment.EndPoint;
 	}
 }
+
