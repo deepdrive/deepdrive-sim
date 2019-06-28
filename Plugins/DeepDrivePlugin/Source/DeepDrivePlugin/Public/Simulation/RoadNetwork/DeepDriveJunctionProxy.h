@@ -36,6 +36,55 @@ struct FDeepDriveLaneConnectionCustomCurveParams
 };
 
 USTRUCT(BlueprintType)
+struct FDeepDriveJunctionConnectionProxy
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	ADeepDriveRoadSegmentProxy	*Segment = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	ADeepDriveRoadLinkProxy *ToLink = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	ADeepDriveRoadSegmentProxy	*ToSegment = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	EDeepDriveConnectionShape	ConnectionShape = EDeepDriveConnectionShape::STRAIGHT_LINE;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float	SpeedLimit = 25.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float	SlowDownDistance = 1000.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	FDeepDriveLaneConnectionCustomCurveParams	CustomCurveParams;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	ADeepDriveRoadSegmentProxy	*ConnectionSegment = 0;
+
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	// ATrafficLight	*TrafficLight = 0;
+};
+
+USTRUCT(BlueprintType)
+struct FDeepDriveJunctionEntryProxy
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	ADeepDriveRoadLinkProxy *Link = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	EDeepDriveRightOfWay						RightOfWay;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	TArray<FDeepDriveJunctionConnectionProxy>	Connections;	
+
+};
+
+USTRUCT(BlueprintType)
 struct FDeepDriveLaneConnectionProxy
 {
 	GENERATED_USTRUCT_BODY()
@@ -119,6 +168,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Configuration)
 	TArray<ADeepDriveRoadLinkProxy*>	LinksOut;
+
+	UPROPERTY(EditAnywhere, Category = Configuration)
+	TArray<FDeepDriveJunctionEntryProxy>	Entries;
 
 	UPROPERTY(EditAnywhere, Category = Configuration)
 	TArray<FDeepDriveLaneConnectionProxy>	LaneConnections;
