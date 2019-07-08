@@ -7,9 +7,11 @@
 
 ## Development Tips
 
-### Commit your VERSION file
+### VERSION file
 
-This is used for checking compatibility between sim and agents and will update automatically after building in Unreal. Please check it in.
+This is used for checking compatibility between sim and agents and will update automatically after building in Unreal. Please check it in. Also if you make a backwards incompatible change, i.e. to the shared memory interface, bump the minor version in the [MAJOR_MINOR_VERSION](Content/Data/MAJOR_MINOR_VERSION) file. 
+
+
 
 ### Clean builds
 
