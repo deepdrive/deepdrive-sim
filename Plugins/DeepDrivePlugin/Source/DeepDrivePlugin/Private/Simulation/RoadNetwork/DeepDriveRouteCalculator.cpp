@@ -62,7 +62,7 @@ SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, co
 
 			} while(m_OpenList.isEmpty() == false);
 
-			if(success)
+			if(success || currentLink)
 			{
 				TArray<uint32> routeLinks;
 
@@ -128,7 +128,7 @@ bool DeepDriveRouteCalculator::expandLink(const Link &currentLink)
 			float tentativeG = currentLink.CostG + curC;
 
 			Link *successorLink = m_OpenList.get(outLinkId);
-			UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Successor Link %d %p"), outLinkId, successorLink);
+			UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Successor Link %d %p with cost %f"), outLinkId, successorLink, tentativeG);
 			if (successorLink && tentativeG >= successorLink->CostG)
 				continue;
 

@@ -8,7 +8,6 @@
 
 class DeepDriveAgentSpeedController;
 class DeepDriveAgentSteeringController;
-class ADeepDriveRoute;
 class ADeepDriveRoadLinkProxy;
 
 USTRUCT(BlueprintType) struct FDeepDriveStaticRoute
@@ -73,12 +72,18 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Configuration")
 	void Configure(const FDeepDriveCityAIControllerConfiguration &Configuration, int32 StartPositionSlot, ADeepDriveSimulation* DeepDriveSimulation);
 
+	UFUNCTION(BlueprintCallable, Category = "Configuration")
+	void ConfigureScenario(const FDeepDriveCityAIControllerConfiguration &Configuration, const FDeepDriveAgentScenarioConfiguration &ScenarioConfiguration, ADeepDriveSimulation* DeepDriveSimulation);
+
 protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIProps")
 	FDeepDriveCityAIControllerConfiguration		m_Configuration;
 
 private:
+
+	float checkForObstacle(float maxDistance);
+	float calculateSafetyDistance();
 
 	enum State
 	{
@@ -87,17 +92,14 @@ private:
 		Waiting
 	};
 
-	UPROPERTY()
-	ADeepDriveRoute					*m_Route = 0;
-
 	DeepDriveAgentSpeedController		*m_SpeedController = 0;
 	DeepDriveAgentSteeringController	*m_SteeringController = 0;
 
-	int32							m_StartIndex;
+	int32								m_StartIndex;
 
-	float							m_DesiredSpeed = 0.0f;
+	float								m_DesiredSpeed = 0.0f;
 
-	State							m_State = Idle;
+	State								m_State = Idle;
 
-	float							m_WaitTimer = 0.0f;
+	float								m_WaitTimer = 0.0f;
 };

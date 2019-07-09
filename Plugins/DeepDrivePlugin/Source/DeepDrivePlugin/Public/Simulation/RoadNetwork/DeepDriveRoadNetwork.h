@@ -37,6 +37,15 @@ enum class EDeepDriveUTurnMode : uint8
 	SEGMENTS	    	= 3	UMETA(DisplayName = "Segments")
 };
 
+UENUM(BlueprintType)
+enum class EDeepDriveRightOfWay : uint8
+{
+	UNSPECIFIED 		= 0	UMETA(DisplayName = "Unspecified"),
+	MAIN_ROAD			= 1	UMETA(DisplayName = "Main Road"),
+	GIVE_WAY			= 2	UMETA(DisplayName = "Give Way"),
+	GIVE_WAY_STRICT	    = 3	UMETA(DisplayName = "Give Way Strict")
+};
+
 
 struct SDeepDriveRoadSegment
 {
@@ -62,6 +71,8 @@ struct SDeepDriveRoadSegment
 	SDeepDriveRoadSegment		*RightLane = 0;
 
 	FVector findClosestPoint(const FVector &pos) const;
+
+	float getHeading(const FVector &pos) const;
 
 	bool hasSpline() const
 	{
@@ -114,15 +125,36 @@ struct SDeepDriveTurningRestriction
 	uint32		ToLink = 0;
 };
 
+struct SDeepDriveJunctionConnection
+{
+	uint32		SegmentId = 0;
+	uint32		ToSegmentId = 0;
+	uint32		ConnectionSegment = 0;
+
+	uint32		TrafficLightId = 0;
+};
+
+struct SDeepDriveJunctionEntry
+{
+	uint32									LinkId;
+
+	EDeepDriveRightOfWay					RightOfWay;
+
+	TArray<SDeepDriveJunctionConnection>	Connections;	
+
+};
+
 struct SDeepDriveJunction
 {
 	uint32									JunctionId = 0;
 	FVector									Center = FVector::ZeroVector;
 
-	TArray<uint32> 							LinksIn;
+	TArray<uint32> 							LinksIn;		//	replaced by Entries
 	TArray<uint32>				 			LinksOut;
 
-	TArray<SDeepDriveLaneConnection>		Connections;
+	TArray<SDeepDriveJunctionEntry>			Entries;
+
+	TArray<SDeepDriveLaneConnection>		Connections;	//	replaced by entries
 
 	TArray<SDeepDriveTurningRestriction>	TurningRestrictions;
 

@@ -87,14 +87,28 @@ FVector UDeepDriveRoadNetworkComponent::GetRandomLocation(EDeepDriveLaneType Pre
 	return location;
 }
 
-void UDeepDriveRoadNetworkComponent::PlaceAgentOnRoad(ADeepDriveAgent *Agent, FVector Location)
+void UDeepDriveRoadNetworkComponent::PlaceAgentOnRoad(ADeepDriveAgent *Agent, const FVector &Location, bool OnClosestSegment)
 {
-	const uint32 linkId = m_RoadNetwork.findClosestLink(Location);
-	if(linkId)
+	if(OnClosestSegment)
 	{
-		const SDeepDriveRoadLink *link = &m_RoadNetwork.Links[linkId];
-		FTransform transform(FRotator(0.0f, link->Heading, 0.0f), link->StartPoint, FVector(1.0f, 1.0f, 1.0f));
-		Agent->SetActorTransform(transform, false, 0, ETeleportType::TeleportPhysics);
+		const uint32 segmentId = m_RoadNetwork.findClosestSegment(Location, EDeepDriveLaneType::MAJOR_LANE);
+		if(segmentId)
+		{
+			const SDeepDriveRoadSegment *segment = &m_RoadNetwork.Segments[segmentId];
+			FVector posOnSegment = segment->findClosestPoint(Location);
+			FTransform transform(FRotator(0.0f, segment->getHeading(posOnSegment), 0.0f), posOnSegment, FVector(1.0f, 1.0f, 1.0f));
+			Agent->SetActorTransform(transform, false, 0, ETeleportType::TeleportPhysics);
+		}
+	}
+	else
+	{
+		const uint32 linkId = m_RoadNetwork.findClosestLink(Location);
+		if(linkId)
+		{
+			const SDeepDriveRoadLink *link = &m_RoadNetwork.Links[linkId];
+			FTransform transform(FRotator(0.0f, link->Heading, 0.0f), link->StartPoint, FVector(1.0f, 1.0f, 1.0f));
+			Agent->SetActorTransform(transform, false, 0, ETeleportType::TeleportPhysics);
+		}
 	}
 }
 
@@ -123,6 +137,7 @@ ADeepDriveRoute* UDeepDriveRoadNetworkComponent::CalculateRoute(const FVector St
 
 			if (route)
 			{
+				route->setShowRoute(ShowRoutes);
 				route->initialize(m_RoadNetwork, routeData);
 			}
 		}
@@ -215,14 +230,7 @@ void UDeepDriveRoadNetworkComponent::collectRoadNetwork()
 
 	m_Extractor->extract();
 
-	for(auto &rl : Route)
-	{
-		uint32 linkId = m_Extractor->getRoadLink(rl);
-		if(linkId)
-			m_DebugRoute.Add(linkId);
-	}
-
-	UE_LOG(LogDeepDriveRoadNetwork, Log, TEXT("Collected road network %d juntions %d links %d segments dgbRoute %d"), m_RoadNetwork.Junctions.Num(), m_RoadNetwork.Links.Num(), m_RoadNetwork.Segments.Num(), m_DebugRoute.Num() );
+	UE_LOG(LogDeepDriveRoadNetwork, Log, TEXT("Collected road network %d juntions %d links %d segments"), m_RoadNetwork.Junctions.Num(), m_RoadNetwork.Links.Num(), m_RoadNetwork.Segments.Num() );
 }
 
 uint32 UDeepDriveRoadNetworkComponent::getRoadLink(ADeepDriveRoadLinkProxy *linkProxy)

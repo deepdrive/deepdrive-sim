@@ -253,7 +253,7 @@ void ADeepDriveJunctionProxy::drawAutoTurnRestriction(uint8 prio)
 {
 	for(auto &linkProxy : LinksIn)
 	{
-		if(linkProxy->getUTurnMode() == EDeepDriveUTurnMode::NOT_POSSIBLE && linkProxy->getOppositeDirectionLink() != 0)
+		if(linkProxy && linkProxy->getUTurnMode() == EDeepDriveUTurnMode::NOT_POSSIBLE && linkProxy->getOppositeDirectionLink() != 0)
 			DrawDebugDirectionalArrow(GetWorld(), linkProxy->getEndPoint(), linkProxy->getOppositeDirectionLink()->getStartPoint(), 25.0f, FColor::Red, false, 0.0f, prio, 12.0f);
 	}
 }

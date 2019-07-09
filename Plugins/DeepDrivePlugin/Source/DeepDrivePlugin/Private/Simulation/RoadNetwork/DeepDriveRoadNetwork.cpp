@@ -74,6 +74,7 @@ uint32 SDeepDriveRoadNetwork::findClosestSegment(const FVector &pos, EDeepDriveL
 {
 	uint32 key = 0;
 	float dist = TNumericLimits<float>::Max();
+	FVector closestPos;
 
 	for (auto curIt = Segments.CreateConstIterator(); curIt; ++curIt)
 	{
@@ -81,7 +82,7 @@ uint32 SDeepDriveRoadNetwork::findClosestSegment(const FVector &pos, EDeepDriveL
 		if(segment.LaneType == laneType)
 		{
 			const SDeepDriveRoadSegment &curSegment = curIt.Value();
-			FVector closestPos = curSegment.findClosestPoint(pos);
+			closestPos = curSegment.findClosestPoint(pos);
 			const float curDist = (closestPos - pos).Size();
 			if(curDist < dist)
 			{
@@ -110,6 +111,26 @@ FVector SDeepDriveRoadSegment::findClosestPoint(const FVector &pos) const
 		closestPos = FMath::ClosestPointOnLine(StartPoint, EndPoint, pos);
 	}
 	return closestPos;
+}
+
+float SDeepDriveRoadSegment::getHeading(const FVector &pos) const
+{
+	float heading = Heading;
+	if (hasSpline())
+	{
+		const FVector localPos = SplineTransform.InverseTransformPosition(pos);
+		float dummy;
+		const float key = SplineCurves.Position.InaccurateFindNearest(localPos, dummy);
+		FVector p0 = SplineCurves.Position.Eval(key, FVector::ZeroVector);
+		p0 = SplineTransform.TransformPosition(p0);
+		FVector p1 = SplineCurves.Position.Eval(key * 1.01f, FVector::ZeroVector);
+		p1 = SplineTransform.TransformPosition(p1);
+
+		FVector2D dir = FVector2D(p1 - p0);
+		dir.Normalize();
+		heading = FMath::RadiansToDegrees(FMath::Atan2(dir.Y, dir.X));
+	}
+	return heading;
 }
 
 FVector SDeepDriveRoadSegment::getLocationOnSegment(float relativePos) const

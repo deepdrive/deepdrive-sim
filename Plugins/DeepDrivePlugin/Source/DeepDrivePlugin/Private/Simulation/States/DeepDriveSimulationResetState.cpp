@@ -58,7 +58,7 @@ void DeepDriveSimulationResetState::update(ADeepDriveSimulation &deepDriveSim, f
 		if(deepDriveSim.hasAdditionalAgents())
 		{
 			UE_LOG(LogDeepDriveSimulation, Log, TEXT("Removing additional agents") );
-			deepDriveSim.removeAdditionalAgents();
+			deepDriveSim.removeAgents(false);
 		}
 	}
 

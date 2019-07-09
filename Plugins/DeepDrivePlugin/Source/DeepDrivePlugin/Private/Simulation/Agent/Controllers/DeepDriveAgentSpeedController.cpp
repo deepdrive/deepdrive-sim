@@ -109,14 +109,15 @@ void DeepDriveAgentSpeedController::update(float dT, float desiredSpeed, float d
 				float relDistance = curDistance / desiredDistance;
 				const float distDampFac = FMath::SmoothStep(0.25f, 2.0f, relDistance);
 				curThrottle *= distDampFac;
+				curBrake = 1.0f - FMath::SmoothStep(0.25f, 1.0f, relDistance);
 				// if (m_Agent->GetName() == "DeepDriveAgent_AliceGT_C_0")
 				//	UE_LOG(LogDeepDriveAgentSpeedController, Log, TEXT("DeepDriveAgentSpeedController::update Agent %s relDist %f distDampFac %f curThr %f"), *(m_Agent->GetName()), relDistance, distDampFac, curThrottle);
 			}
-
+			else
 			curBrake = 0.0f;
 
 
-			// UE_LOG(LogDeepDriveAgentSpeedController, Log, TEXT("DeepDriveAgentSpeedController::update desiredSpeed %4.2f curSpeed %4.2f eSpeed %f curThrottle %f | %f curBrake %f dThrottle %f"), desiredSpeed, curSpeedKmh, eSpeed, curThrottle, throttleDampFac, curBrake, yThrottle);
+			UE_LOG(LogDeepDriveAgentSpeedController, Log, TEXT("DeepDriveAgentSpeedController::update desiredSpeed %4.2f curSpeed %4.2f eSpeed %f curThrottle %f | %f curBrake %f dThrottle %f"), desiredSpeed, curSpeedKmh, eSpeed, curThrottle, throttleDampFac, curBrake, yThrottle);
 		}
 
 		m_Agent->SetThrottle(curThrottle);
