@@ -54,8 +54,6 @@ class Api(object):
         return self._world
 
     def get_observation(self):
-        # Be careful with what you add here as this is much slower than
-        # our shared memory channel for sending observations.
         ret = dict(vehicle_positions=self.get_vehicle_positions())
         return ret
 
