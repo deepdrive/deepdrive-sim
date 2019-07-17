@@ -78,6 +78,8 @@ public class DeepDrivePlugin : ModuleRules
 			Definitions.Add("DEEPDRIVE_PLATFORM_WINDOWS=1");
 		else if ((Target.Platform == UnrealTargetPlatform.Linux))
 			Definitions.Add("DEEPDRIVE_PLATFORM_LINUX=1");
+		else if ((Target.Platform == UnrealTargetPlatform.Mac))
+		    Definitions.Add("DEEPDRIVE_PLATFORM_MAC=1");
 
         Definitions.Add("DEEPDRIVE_WITH_UE4_LOGGING");
 

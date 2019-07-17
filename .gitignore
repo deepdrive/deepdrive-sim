@@ -96,16 +96,21 @@ DerivedDataCache/*
 
 # JetBrains files
 .idea/
+cmake-build-debug
 
 # Python extension build artifacts
 *.egg
 *.pyd
 PKG-INFO
+*.egg-info
+__pycache__
 
 # manylinux build artifacts
 wheelhouse
 
 # embedded Python dependencies (pyzmq and pyarrow)
+UnrealEnginePython
+
 python_libs
 
 UEPyPackages/

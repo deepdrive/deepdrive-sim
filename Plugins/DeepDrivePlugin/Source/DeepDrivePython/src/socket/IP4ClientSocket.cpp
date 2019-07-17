@@ -12,8 +12,10 @@
 
 #ifdef DEEPDRIVE_PLATFORM_LINUX
 #include "socket/IP4ClientSocketImpl_Linux.hpp"
-#elif DEEPDRIVE_PLATFORM_WINDOWS
+#elif defined DEEPDRIVE_PLATFORM_WINDOWS
 #include "socket/IP4ClientSocketImpl_Windows.hpp"
+#elif defined DEEPDRIVE_PLATFORM_MAC
+#include "socket/IP4ClientSocketImpl_Mac.hpp"
 #endif
 
 IP4ClientSocket::IP4ClientSocket()
@@ -24,9 +26,13 @@ IP4ClientSocket::IP4ClientSocket()
 
 	m_ClientSocketImpl = new IP4ClientSocketImpl_Linux();
 
-#elif DEEPDRIVE_PLATFORM_WINDOWS
+#elif defined DEEPDRIVE_PLATFORM_WINDOWS
 
 	m_ClientSocketImpl = new IP4ClientSocketImpl_Windows();
+
+#elif defined DEEPDRIVE_PLATFORM_MAC
+
+    m_ClientSocketImpl = new IP4ClientSocketImpl_Mac();
 
 #endif
 

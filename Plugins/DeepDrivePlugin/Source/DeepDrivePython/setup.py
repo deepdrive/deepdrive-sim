@@ -56,7 +56,12 @@ if platform == "linux" or platform == "linux2":
 elif platform == "darwin":
     # MacOs
     macros.append(('DEEPDRIVE_PLATFORM_MAC', None))
-    raise Exception('Mac not supported - shared memory implementation still needed')
+    sources_capture.append(SRC_DIR + '/DeepDrivePlugin/Private/SharedMemory/SharedMemoryImpl_Mac.cpp')
+    sources_client.append('src/socket/IP4ClientSocketImpl_Mac.cpp')
+    sources_simulation.append('src/socket/IP4ClientSocketImpl_Mac.cpp')
+    compiler_args.append('-std=c++11')
+    compiler_args.append('-pthread')
+    # raise Exception('Mac not supported - shared memory implementation still needed')
 elif platform == "win32":
     macros.append(('DEEPDRIVE_PLATFORM_WINDOWS', None))
     sources_capture.append(SRC_DIR + '/DeepDrivePlugin/Private/SharedMemory/SharedMemoryImpl_Windows.cpp')
@@ -68,18 +73,21 @@ deepdrive_capture_module = Extension('deepdrive_capture'
                                      , sources=sources_capture
                                      , extra_compile_args=compiler_args
                                      , define_macros=macros
+                                     , include_dirs=includes
                                      )
 
 deepdrive_client_module = Extension('deepdrive_client'
                                     , sources=sources_client
                                     , extra_compile_args=compiler_args
                                     , define_macros=macros
+                                    , include_dirs=includes
                                     )
 
 deepdrive_simulation_module = Extension('deepdrive_simulation'
                                         , sources=sources_simulation
                                         , extra_compile_args=compiler_args
                                         , define_macros=macros
+                                        , include_dirs=includes
                                         )
 
 setup(name=config.PACKAGE_NAME

@@ -8,7 +8,7 @@ public class DeepDrive : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "DeepDrivePlugin", "PhysXVehicles" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "PhysXVehicles" });
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 

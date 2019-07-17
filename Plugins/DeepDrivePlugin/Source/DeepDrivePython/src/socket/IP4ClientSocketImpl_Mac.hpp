@@ -1,0 +1,30 @@
+#pragma once
+
+#include "socket/IIP4ClientSocketImpl.hpp"
+
+class IP4ClientSocketImpl_Mac : public IIP4ClientSocketImpl {
+
+public:
+
+    IP4ClientSocketImpl_Mac();
+
+    ~IP4ClientSocketImpl_Mac();
+
+    virtual bool connect(const IP4Address &ip4Address);
+
+    virtual int32 send(const void *data, uint32 bytesToSend);
+
+    virtual int32 receive(void *buffer, uint32 size);
+
+    virtual int32 receive(void *buffer, uint32 size, uint32 timeOutMS);
+
+    virtual void close();
+
+    virtual bool isConnected() const;
+
+private:
+
+    int32 m_SocketHandle = 0;
+
+    bool m_isConnected = false;
+};
