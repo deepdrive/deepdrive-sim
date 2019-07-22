@@ -1,0 +1,9 @@
+steps:
+  
+  # A dummy step, just for testing at the moment
+- name: 'ubuntu:18.04'
+  args: ['bash', 'echo', 'Hello World!']
+
+
+# Store build logs in the CI logs GCS bucket
+logsBucket: "deepdrive-ci-logs"
