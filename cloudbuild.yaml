@@ -2,7 +2,7 @@ steps:
   
   # Build and package the sim using our packaging script
 - name: 'gcr.io/$PROJECT_ID/ue4-full:4.21.2-cudagl10.0'
-  args: ['python3', './packaging/package.py']
+  args: ['python3', './Packaging/package.py']
 
 
 # Store build logs in the CI logs GCS bucket
