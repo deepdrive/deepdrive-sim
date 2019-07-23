@@ -4,6 +4,8 @@ steps:
 - name: 'gcr.io/$PROJECT_ID/ue4-full:4.21.2-cudagl10.0'
   args: ['python3', './Packaging/package.py']
 
+# Set an overall timeout of 45 minutes for the build
+timeout: "2700s"
 
 # Store build logs in the CI logs GCS bucket
 logsBucket: "deepdrive-ci-logs"
