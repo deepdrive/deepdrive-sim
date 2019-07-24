@@ -3,6 +3,8 @@ steps:
   # Build and package the sim using our packaging script
 - name: 'gcr.io/$PROJECT_ID/ue4-full:4.21.2-cudagl10.0'
   args: ['python3', './Packaging/package.py']
+  env:
+    - 'HOME=/home/ue4'
 
 # Set an overall timeout of 45 minutes for the build
 timeout: "2700s"
