@@ -14,7 +14,7 @@ pip install --upgrade ue4-ci-helpers
 
 https://adamrehn.com/docs/ue4-docker/use-cases/linux-installed-builds
 
-## Build the ue4-deepdrive-deps image
+## Build the deepdriveio/ue4-deepdrive-deps image
 
 https://github.com/deepdrive/ue4-deepdrive-deps
 
