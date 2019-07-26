@@ -8,6 +8,7 @@ Make sure the ue4-ci-helpers package is up to date
 
 ```
 pip install --upgrade ue4-ci-helpers
+pip install ue4-docker
 ```
 
 ## Build the ue4-full image
