@@ -6,4 +6,4 @@ We support the following local development setups
 
 2. **[Run everything inside docker](/docs/setup/linux/run-in-docker.md)** (promising, but not heavily used) -  Uses X11 forwarding view Unreal running in docker
 
-3. **[Traditional](/docs/setup/linux/traditional-install.md)** (not recommended) - Run Unreal per the standard Epic instructions (Use this if you want to use an existing Unreal 4.21 installation)
+3. **[Traditional](/docs/setup/linux/traditional-install.md)** - Run Unreal per the standard Epic instructions (Use this if you want to use an existing Unreal 4.21 installation)
