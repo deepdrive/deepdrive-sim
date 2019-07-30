@@ -31,7 +31,7 @@ More details on building Unreal [here](https://wiki.unrealengine.com/Building_On
 
 ##### Get the substance plugin
 
-Download the Substance plugin from [here](https://forum.allegorithmic.com/index.php/topic,26732.0.html) to
+Download the Substance plugin from [here](https://forum.allegorithmic.com/index.php/topic,26732.0.html) and unzip the `Plugins/Runtime/Substance` folder within it to
 `<your-unreal-dir>/Plugins/Runtime` for Unreal 4.21. For other releases, see [here](https://forum.allegorithmic.com/index.php/board,23.0.html) or you can just use the sources downloaded by Windows / Mac marketplace.
 
 ##### Run the editor
