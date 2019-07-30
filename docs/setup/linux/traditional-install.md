@@ -38,3 +38,5 @@ Download the Substance plugin from [here](https://forum.allegorithmic.com/index.
 ```
 ./Engine/Binaries/Linux/UE4Editor
 ```
+
+Finally open the deepdrive-sim uproject file within the editor.
