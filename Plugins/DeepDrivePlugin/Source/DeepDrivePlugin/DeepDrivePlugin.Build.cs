@@ -103,6 +103,7 @@ public class DeepDrivePlugin : ModuleRules
             Console.WriteLine("Building extension ...");
 
             var pythonBin = System.IO.File.ReadAllText(pythonBinConfig);
+            pythonBin = pythonBin.Replace(System.Environment.NewLine, "");
             Console.WriteLine("pythonBin " + pythonBin);
 
             var buildExtensionArguments = "\"" + Path.Combine(
