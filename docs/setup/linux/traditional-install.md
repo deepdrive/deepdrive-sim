@@ -8,7 +8,7 @@ cd Plugins
 git clone https://github.com/deepdrive/UnrealEnginePython
 ```
 
-- Tip: To avoid rebuilding UnrealEnginePython, move `Plugins/UnrealEnginePython` to your Engine plugins after you've built it inside `deepdrive-sim/Plugins`.
+- Tip: To avoid rebuilding UnrealEnginePython, move `Plugins/UnrealEnginePython` to your Engine plugins folder, i.e. `<your-unreal-dir>/Engine/Plugins/UnrealEnginePython/` after you've built the deepdrive-sim project with the plugin in `deepdrive-sim/Plugins`.
 
 ```
 git clone git@github.com:EpicGames/UnrealEngine --branch 4.21
