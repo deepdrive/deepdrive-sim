@@ -1,7 +1,7 @@
 # This is meant to run in CI and independent of the host filesystem
 
 # docker build --network=host -t deepdriveio/deepdrive-sim-build .
-# docker run --net=host -e DEEPDRIVE_BRANCH=v3_stable -e DEEPDRIVE_COMMIT=3556f1e018b59c0aa2c47d607496559db89da794 -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY} -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} deepdriveio/deepdrive-sim-build
+# docker run --net=host -e DEEPDRIVE_BRANCH=v3_stable -e DEEPDRIVE_COMMIT=f3d146271cff4596ac4897d63c4d32eae02f6894 -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY} -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} deepdriveio/deepdrive-sim-build
 
 FROM deepdriveio/ue4-deepdrive-deps:latest
 RUN pip3 install ue4-ci-helpers awscli
