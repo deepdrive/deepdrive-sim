@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 import os
 import stat
+import sys
 
+import boto
+import boto.s3
+from boto.s3.key import Key
 from ue4helpers import FilesystemUtils, ProjectPackager, UnrealUtils
 from os.path import abspath, dirname, join
 import shutil
@@ -35,8 +39,9 @@ def main():
     # Rename archive to format used on S3
     archive = shutil.move(archive, reformat_name(archive))
 
-    # TODO: upload the archive to Amazon S3
     print('Created compressed archive "{}".'.format(archive))
+
+    upload_s3(archive, archive.split('/')[-1])
 
 
 def install_uepy_requirements(dist):
@@ -88,6 +93,25 @@ def ensure_uepy_executable(sim_path):
     st = os.stat(uepy)
     os.chmod(uepy, st.st_mode | stat.S_IEXEC)
     return uepy
+
+
+def upload_s3(filepath, filename):
+    bucket_name = 'deepdrive'
+    conn = boto.connect_s3()
+    bucket = conn.get_bucket(bucket_name)
+
+    print('Uploading %s to Amazon S3 bucket %s' % (filepath, bucket_name))
+
+    def percent_cb(complete, total):
+        sys.stdout.write('%r of %r\n' % (complete, total))
+        sys.stdout.flush()
+
+    k = Key(bucket)
+    k.key = 'sim/' + filename
+    k.set_contents_from_filename(filepath, cb=percent_cb, num_cb=10)
+
+    print(f'Finished upload to '
+          f'https://s3-us-west-1.amazonaws.com/deepdrive/sim/{filename}')
 
 
 if __name__ == '__main__':
