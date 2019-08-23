@@ -64,7 +64,7 @@ def install_plugins(root):
 
 
 def reformat_name(archive_name):
-    name, platform, version_and_ext = archive_name.split('-')
+    name, platform, version_and_ext = archive_name.split('/')[-1].split('-')
     name = name.lower() + '-sim'
     platform = platform.lower()
     ret = '-'.join([name, platform, version_and_ext])
