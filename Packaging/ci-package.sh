@@ -5,4 +5,4 @@ cd deepdrive-sim
 git checkout -qf ${DEEPDRIVE_COMMIT}
 python3 -u Packaging/package.py
 
-RUN Packaging/upload-linux.sh
+Packaging/upload-linux.sh
