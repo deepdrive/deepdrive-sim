@@ -5,4 +5,6 @@
 
 FROM deepdriveio/ue4-deepdrive-deps:latest
 RUN pip3 install ue4-ci-helpers awscli
-CMD curl https://raw.githubusercontent.com/deepdrive/deepdrive-sim/${DEEPDRIVE_COMMIT}/Packaging/ci-package.sh | sudo bash
+WORKDIR /home/ue4
+
+CMD curl -s -N https://raw.githubusercontent.com/deepdrive/deepdrive-sim/${DEEPDRIVE_COMMIT}/Packaging/ci-package.sh | bash
