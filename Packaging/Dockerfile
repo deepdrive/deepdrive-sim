@@ -5,7 +5,7 @@
 # docker push deepdriveio/private:deepdrive-sim-package
 
 FROM deepdriveio/ue4-deepdrive-deps:latest
-RUN pip3 install ue4-ci-helpers awscli
+RUN pip3 install ue4-ci-helpers awscli boto
 WORKDIR /home/ue4
 
 CMD curl -s -N https://raw.githubusercontent.com/deepdrive/deepdrive-sim/${DEEPDRIVE_COMMIT}/Packaging/ci-package.sh | bash
