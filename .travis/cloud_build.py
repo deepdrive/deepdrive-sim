@@ -34,7 +34,8 @@ def handle_job_results(job_id):
                     f'{job.to_json(indent=2, default=str)}')
         exit_code = 0
     if job.results.logs:
-        log.info(f'Full job logs: {job.results.logs.to_yaml()}')
+        log.info(f'Full job logs: '
+                 f'{job.results.logs.to_json(indent=2, default=str)}')
     sys.exit(exit_code)
 
 
@@ -46,7 +47,7 @@ def wait_for_job_to_finish(job_id) -> Box:
             return job_status
         else:
             log.info(f'Waiting for sim build {job_id} to complete...')
-        time.sleep(1)
+        time.sleep(4)
 
 
 @log.catch
@@ -73,7 +74,7 @@ def dbox(obj):
 
 def test_handle_job_results():
     handle_job_results(
-        '2019-08-30_04-47-30PM_e5df918089c5e4afd986ff5a09c293b90bf96869')
+        '2019-08-30_06-20-06PM_5bc353a24467e3e54c73bf6c4d82129b99363f7d')
 
 
 if __name__ == '__main__':
