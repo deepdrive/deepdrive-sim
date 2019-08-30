@@ -25,7 +25,7 @@ install:
 - docker pull $DOCKER_IMAGE
 script:
 - Test/cppcheck.sh
-- python -u Packaging/cloud_build.py
+- python -u .travis/cloud_build.py
 - python -u Plugins/DeepDrivePlugin/Source/DeepDrivePython/build/build.py --type linux_bdist
 
 
