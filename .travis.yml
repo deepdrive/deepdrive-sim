@@ -12,11 +12,16 @@ matrix:
   - sudo: required
     services:
     - docker
-    env: DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
+    env:
+      - DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
+      - ENABLE_SIM_BUILD=true
   - sudo: required
     services:
     - docker
-    env: DOCKER_IMAGE=quay.io/pypa/manylinux1_i686 PRE_CMD=linux32
+    env:
+      - DOCKER_IMAGE=quay.io/pypa/manylinux1_i686
+      - PRE_CMD=linux32
+      - ENABLE_SIM_BUILD=false
 before_install:
   - sudo apt-get update
   - sudo apt-get install -y cppcheck

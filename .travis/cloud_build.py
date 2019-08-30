@@ -9,7 +9,12 @@ from loguru import logger as log
 from retry import retry
 
 
+@log.catch(reraise=True)
 def main():
+    if os.environ.get('ENABLE_SIM_BUILD') != 'true':
+        log.warning('Not building sim without ENABLE_SIM_BUILD=true')
+        return
+
     build_id = os.environ.get('TRAVIS_BUILD_ID') or \
                generate_rand_alphanumeric(6)
     commit = os.environ['TRAVIS_COMMIT']
