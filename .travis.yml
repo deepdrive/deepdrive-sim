@@ -24,7 +24,6 @@ install:
 - docker pull $DOCKER_IMAGE
 script:
 - python -u Plugins/DeepDrivePlugin/Source/DeepDrivePython/build/build.py --type linux_bdist
-- Test/cppcheck.sh
 
 
 git:
