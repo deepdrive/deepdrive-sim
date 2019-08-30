@@ -45,14 +45,17 @@ def handle_job_results(job_id):
 
 
 def wait_for_job_to_finish(job_id) -> Box:
+    last_log_time = None
+    log.info(f'Waiting for sim build {job_id} to complete...')
     while True:
         status_resp = get_job_status(job_id)
         job_status = dbox(status_resp.json())
         if job_status.status == 'finished':
             return job_status
-        else:
-            log.info(f'Waiting for sim build {job_id} to complete...')
-        time.sleep(4)
+        elif not last_log_time or time.time() - last_log_time > 5:
+            print('.', end='', flush=True)
+            last_log_time = time.time()
+        time.sleep(1)
 
 
 @log.catch
@@ -77,6 +80,11 @@ def dbox(obj):
     return Box(obj, default_box=True)
 
 
+def test_wait_for_job_to_finish():
+    wait_for_job_to_finish(
+        '2019-08-30_10-24-31PM_fc1a2e6dc4744697b1b68728063c6990f5633afe')
+
+
 def test_handle_job_results():
     handle_job_results(
         '2019-08-30_06-20-06PM_5bc353a24467e3e54c73bf6c4d82129b99363f7d')
@@ -85,5 +93,7 @@ def test_handle_job_results():
 if __name__ == '__main__':
     if 'test_handle_job_results' in sys.argv:
         test_handle_job_results()
+    elif 'test_wait_for_job_to_finish' in sys.argv:
+        test_wait_for_job_to_finish()
     else:
         main()
