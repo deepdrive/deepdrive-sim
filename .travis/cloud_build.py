@@ -52,7 +52,7 @@ def wait_for_job_to_finish(job_id) -> Box:
 @log.catch
 @retry(tries=5, jitter=(0, 1), logger=log)
 def get_job_status(job_id):
-    status_resp = requests.post('https://sim.deepdrive.io/job/statusa',
+    status_resp = requests.post('https://sim.deepdrive.io/job/status',
                                 json={'job_id': job_id})
     if not status_resp.ok:
         raise RuntimeError('Error getting job status')
