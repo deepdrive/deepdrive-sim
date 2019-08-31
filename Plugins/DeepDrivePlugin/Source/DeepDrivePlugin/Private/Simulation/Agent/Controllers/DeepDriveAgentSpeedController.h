@@ -28,13 +28,15 @@ public:
 
 	void initialize(ADeepDriveAgent &agent, ADeepDriveRoute &route, float safetyDistanceFactor);
 
+	void initialize(ADeepDriveAgent &agent);
+
 	void setRoute(ADeepDriveRoute &route);
 
 	float limitSpeedByTrack(float desiredSpeed, float speedBoost);
 
 	//float limitSpeedByNextAgent(float desiredSpeed);
 
-	// void update(float dT, float desiredSpeed);
+	void update(float dT, float desiredSpeed, float brake);
 
 	void update(float dT, float desiredSpeed, float desiredDistance, float curDistance);
 

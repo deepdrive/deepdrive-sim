@@ -17,32 +17,76 @@ int32 SDeepDriveRoadLink::getRightMostLane(EDeepDriveLaneType type) const
 	return curLaneInd;
 }
 
-uint32 SDeepDriveJunction::findConnectionSegment(uint32 fromSegment, uint32 toSegment) const
+bool SDeepDriveJunction::findJunctionConnection(uint32 fromLinkId, uint32 fromSegment, uint32 toSegment, SDeepDriveJunctionConnection &junctionConnection) const
 {
-	uint32 connectionSegment = 0;
-
-	for (auto &connection : Connections)
+	for (auto &entry : Entries)
 	{
-		if(connection.FromSegment == fromSegment && connection.ToSegment == toSegment)
+		if	(	fromLinkId == 0
+			||	entry.LinkId == fromLinkId
+			)
 		{
-			connectionSegment = connection.ConnectionSegment;
-			break;
+			for(auto &connection : entry.Connections)
+			{
+				if(connection.SegmentId == fromSegment && connection.ToSegmentId == toSegment)
+				{
+					junctionConnection = connection;
+					return true;
+				}
+			}
 		}
 	}
 
-	return connectionSegment;
+	return false;
 }
 
-bool SDeepDriveJunction::isTurningAllowed(uint32 fromLink, uint32 toLink) const
+bool SDeepDriveJunction::findJunctionEntry(uint32 fromLinkId, const SDeepDriveJunctionEntry* &junctionEntry) const
 {
-	for(auto &turningRestriction : TurningRestrictions)
+	for (auto &entry : Entries)
 	{
-		if(turningRestriction.FromLink == fromLink && turningRestriction.ToLink == toLink)
-			return false;
+		if(entry.LinkId == fromLinkId)
+		{
+			junctionEntry = &entry;
+			return true;
+		}
 	}
 
-	return true;
+	return false;
 }
+
+bool SDeepDriveJunction::isTurningAllowed(uint32 fromLinkId, uint32 toLinkId) const
+{
+	for (auto &entry : Entries)
+	{
+		if(entry.LinkId == fromLinkId)
+		{
+			for(auto &turnDefinition : entry.TurnDefinitions)
+			{
+				if (turnDefinition.ToLinkId == toLinkId)
+					return turnDefinition.ManeuverType != EDeepDriveManeuverType::TURN_BAN;
+			}
+		}
+	}
+
+	return false;
+}
+
+EDeepDriveManeuverType SDeepDriveJunction::getManeuverType(uint32 fromLinkId, uint32 toLinkId) const
+{
+	for (auto &entry : Entries)
+	{
+		if(entry.LinkId == fromLinkId)
+		{
+			for(auto &turnDefinition : entry.TurnDefinitions)
+			{
+				if (turnDefinition.ToLinkId == toLinkId)
+					return turnDefinition.ManeuverType;
+			}
+		}
+	}
+
+	return EDeepDriveManeuverType::TURN_BAN;
+}
+
 
 uint32 SDeepDriveRoadNetwork::findClosestLink(const FVector &pos) const
 {
@@ -95,6 +139,23 @@ uint32 SDeepDriveRoadNetwork::findClosestSegment(const FVector &pos, EDeepDriveL
 	return key;
 }
 
+FVector SDeepDriveRoadNetwork::getLocationOnLink(uint32 linkId, EDeepDriveLaneType laneType, float t) const
+{
+	FVector location = FVector::ZeroVector;
+	if(linkId)
+	{
+		const SDeepDriveRoadLink &link = Links[linkId];
+		int32 laneInd = link.getRightMostLane(laneType);
+		if(laneInd >= 0 && link.Lanes[laneInd].Segments.Num() > 0)
+		{
+			location = Segments[link.Lanes[laneInd].Segments[0]].getLocationOnSegment(t);
+		}
+	}
+
+	return location;
+}
+
+
 FVector SDeepDriveRoadSegment::findClosestPoint(const FVector &pos) const
 {
 	FVector closestPos;
@@ -133,6 +194,14 @@ float SDeepDriveRoadSegment::getHeading(const FVector &pos) const
 	return heading;
 }
 
+float SDeepDriveRoadSegment::getSpeedLimit() const
+{
+	return		(ConnectionShape == EDeepDriveConnectionShape::NO_CONNECTION || ConnectionShape == EDeepDriveConnectionShape::STRAIGHT_LINE)
+			?	DeepDriveRoadNetwork::SpeedLimitInTown
+			:	DeepDriveRoadNetwork::SpeedLimitConnection
+			;
+}
+
 FVector SDeepDriveRoadSegment::getLocationOnSegment(float relativePos) const
 {
 	relativePos = FMath::Clamp(relativePos, 0.0f, 1.0f);
@@ -152,3 +221,4 @@ FVector SDeepDriveRoadSegment::getLocationOnSegment(float relativePos) const
 
 	return location;
 }
+

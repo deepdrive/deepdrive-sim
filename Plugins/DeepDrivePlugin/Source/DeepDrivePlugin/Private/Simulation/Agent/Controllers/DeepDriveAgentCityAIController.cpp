@@ -52,11 +52,22 @@ void ADeepDriveAgentCityAIController::Tick( float DeltaSeconds )
 				if(m_WaitTimer <= 0.0f)
 				{
 					FVector start = m_Agent->GetActorLocation();
+					FVector destination;
 					UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentCityAIController::Activate Random start pos %s"), *(start.ToString()) );
 
-					ADeepDriveRoute *route = m_DeepDriveSimulation->RoadNetwork->calculateRandomRoute(start);
-					if (route)
+					TArray<uint32> routeLinks = m_DeepDriveSimulation->RoadNetwork->calculateRandomRoute(start, destination);
+					if (routeLinks.Num() > 0)
 					{
+						ADeepDriveRoute *route = GetWorld()->SpawnActor<ADeepDriveRoute>(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f), FActorSpawnParameters());
+
+						SDeepDriveRouteData routeData;
+						routeData.Start = start;
+						routeData.Destination = destination;
+						routeData.Links = routeLinks;
+
+						UDeepDriveRoadNetworkComponent *roadNetwork = m_DeepDriveSimulation->RoadNetwork;
+						route->initialize(roadNetwork->getRoadNetwork(), routeData);
+
 						route->convert(start);
 
 						m_SteeringController->setRoute(*route);
@@ -89,8 +100,9 @@ bool ADeepDriveAgentCityAIController::Activate(ADeepDriveAgent &agent, bool keep
 
 	UDeepDriveRoadNetworkComponent *roadNetwork = m_DeepDriveSimulation->RoadNetwork;
 
-	ADeepDriveRoute *route = 0;
+	TArray<uint32> routeLinks;
 	FVector start = FVector(0.0f, 0.0f, 0.0f);
+	FVector destination = m_ScenarionConfiguration.EndPosition;
 
 	switch(m_OperationMode)
 	{
@@ -106,13 +118,13 @@ bool ADeepDriveAgentCityAIController::Activate(ADeepDriveAgent &agent, bool keep
 					
 					UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentCityAIController::Activate Random start pos %s"), *(start.ToString()) );
 
-					route = roadNetwork->calculateRandomRoute(start);
+					routeLinks = roadNetwork->calculateRandomRoute(start, destination);
 				}
 				else
 				{
 					start = m_Configuration.Routes[m_StartIndex].Start;
-					FVector dest = m_Configuration.Routes[m_StartIndex].Destination;
-					route = roadNetwork->CalculateRoute(start, dest);
+					destination = m_Configuration.Routes[m_StartIndex].Destination;
+					routeLinks = roadNetwork->CalculateRoute(start, destination);
 				}
 			}
 			else if(m_StartIndex < m_Configuration.StartPositions.Num())
@@ -124,12 +136,20 @@ bool ADeepDriveAgentCityAIController::Activate(ADeepDriveAgent &agent, bool keep
 		case OperationMode::Scenario:
 			start = m_ScenarionConfiguration.StartPosition;
 			roadNetwork->PlaceAgentOnRoad(&agent, start, true);
-			route = roadNetwork->CalculateRoute(start, m_ScenarionConfiguration.EndPosition);
+			routeLinks = roadNetwork->CalculateRoute(start, m_ScenarionConfiguration.EndPosition);
 			break;
 	}
 
-	if (route)
+	if (routeLinks.Num() > 0)
 	{
+		ADeepDriveRoute *route = GetWorld()->SpawnActor<ADeepDriveRoute>(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f), FActorSpawnParameters());
+
+		SDeepDriveRouteData routeData;
+		routeData.Start = start;
+		routeData.Destination = destination;
+		routeData.Links = routeLinks;
+		route->initialize(roadNetwork->getRoadNetwork(), routeData);
+
 		route->convert(start);
 		route->placeAgentAtStart(agent);
 

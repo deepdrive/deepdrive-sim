@@ -41,6 +41,8 @@ void DeepDriveSimulationConfigureState::update(ADeepDriveSimulation &deepDriveSi
 	UE_LOG(LogDeepDriveSimulation, Log, TEXT("Spawning ego agent"));
 
 	deepDriveSim.m_curAgent = deepDriveSim.spawnAgent(m_Configuration.EgoAgent, m_Configuration.EgoAgent.IsRemotelyControlled);
+	deepDriveSim.OnCurrentAgentChanged(deepDriveSim.m_curAgent);
+
 	deepDriveSim.m_curAgentController = Cast<ADeepDriveAgentControllerBase>(deepDriveSim.m_curAgent->GetController());
 	deepDriveSim.SelectCamera(EDeepDriveAgentCameraType::CHASE_CAMERA);
 

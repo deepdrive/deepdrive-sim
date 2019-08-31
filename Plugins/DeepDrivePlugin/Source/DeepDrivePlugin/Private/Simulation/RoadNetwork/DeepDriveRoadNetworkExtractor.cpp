@@ -25,32 +25,43 @@ void DeepDriveRoadNetworkExtractor::extract()
 {
 	TArray<AActor *> junctions;
 	UGameplayStatics::GetAllActorsOfClass(m_World, ADeepDriveJunctionProxy::StaticClass(), junctions);
+	junctions.Sort([](const AActor &a0, const AActor &a1) { 
+         return AActor::GetDebugName(&a0) > AActor::GetDebugName(&a1);
+	});
+
 	for (auto &actor : junctions)
 	{
 		ADeepDriveJunctionProxy *junctionProxy = Cast<ADeepDriveJunctionProxy>(actor);
 		if (junctionProxy)
 		{
+			if(junctionProxy->getEntries().Num() == 0)
+				continue;
+
 			uint32 junctionId = m_nextJunctionId++;
 
-			UE_LOG(LogDeepDriveRoadNetworkExtractor, Log, TEXT("Extracting junction %d %s turningRestrictions %d"), junctionId, *(UKismetSystemLibrary::GetObjectName(junctionProxy)), junctionProxy->getTurningRestrictions().Num() );
+			UE_LOG(LogDeepDriveRoadNetworkExtractor, Log, TEXT("Extracting junction %d %s"), junctionId, *(UKismetSystemLibrary::GetObjectName(junctionProxy)) );
 
 			SDeepDriveJunction junction;
 			junction.JunctionId = junctionId;
 
+			junction.JunctionType = junctionProxy->getJunctionType();
+
 			junction.Center = FVector::ZeroVector;
 			int32 count = 0;
-			for (auto &linkProxy : junctionProxy->getLinksIn())
+
+			// 1st pass: add all entry links
+			for (auto &entryProxy : junctionProxy->getEntries())
 			{
-				const uint32 linkId = addLink(*linkProxy);
+				const uint32 linkId = addLink(*entryProxy.Link);
 				if (linkId)
 				{
-					junction.LinksIn.Add(linkId);
 					m_RoadNetwork.Links[linkId].ToJunctionId = junctionId;
 					junction.Center += m_RoadNetwork.Links[linkId].StartPoint;
 					count++;
 				}
 			}
 
+			// 2nd pass: add all exit links
 			for (auto &linkProxy : junctionProxy->getLinksOut())
 			{
 				const uint32 linkId = addLink(*linkProxy);
@@ -64,83 +75,109 @@ void DeepDriveRoadNetworkExtractor::extract()
 			}
 			junction.Center /= static_cast<float> (count);
 
-			for (auto &connectionProxy : junctionProxy->getLaneConnections())
+			// 3rd pass: add all entries and connections
+			for (auto &entryProxy : junctionProxy->getEntries())
 			{
-				SDeepDriveLaneConnection connection;
-
-				FString fromName = UKismetSystemLibrary::GetObjectName(connectionProxy.FromSegment);
-				uint32 fromSegment = m_SegmentCache.Contains(fromName) ? m_SegmentCache[fromName] : 0;
-				if(fromSegment == 0)
+				const uint32 linkId = addLink(*entryProxy.Link);
+				if (linkId)
 				{
-					fromName = buildSegmentName(UKismetSystemLibrary::GetObjectName(connectionProxy.FromLink));
-					fromSegment = m_SegmentCache.Contains(fromName) ? m_SegmentCache[fromName] : 0;
-				}
+					SDeepDriveJunctionEntry entry;
 
-				FString toName = UKismetSystemLibrary::GetObjectName(connectionProxy.ToSegment);
-				uint32 toSegment = m_SegmentCache.Contains(toName) ? m_SegmentCache[toName] : 0;
-				if(toSegment == 0)
-				{
-					toName = buildSegmentName(UKismetSystemLibrary::GetObjectName(connectionProxy.ToLink));
-					toSegment = m_SegmentCache.Contains(toName) ? m_SegmentCache[toName] : 0;
-				}
+					entry.LinkId = linkId;
+					entry.JunctionSubType = entryProxy.JunctionSubType;
+					entry.RightOfWay = entryProxy.RightOfWay;
+					entry.ManeuverEntryPoint = entryProxy.ManeuverEntryPoint;
+					entry.LineOfSight = entryProxy.LineOfSight;
 
-				if(fromSegment && toSegment)
-				{
-					connection.FromSegment = fromSegment;
-					connection.ToSegment = toSegment;
-
-					switch(connectionProxy.ConnectionShape)
+					for(auto &junctionConnectionProxy : entryProxy.Connections)
 					{
-						case EDeepDriveConnectionShape::STRAIGHT_LINE:
-						case EDeepDriveConnectionShape::QUADRATIC_SPLINE:
-						case EDeepDriveConnectionShape::CUBIC_SPLINE:
-						case EDeepDriveConnectionShape::UTURN_SPLINE:
-							connection.ConnectionSegment = addConnectionSegment(connection.FromSegment, connection.ToSegment, connectionProxy);
-							break;
-						case EDeepDriveConnectionShape::ROAD_SEGMENT:
-							if(connectionProxy.ConnectionSegment)
-								connection.ConnectionSegment = addSegment(*connectionProxy.ConnectionSegment, 0, EDeepDriveLaneType::CONNECTION);
-							else
-								connection.ConnectionSegment = addStraightConnectionSegment(connection.FromSegment, connection.ToSegment, connectionProxy.SpeedLimit, connectionProxy.SlowDownDistance, false);
-							break;
+						SDeepDriveJunctionConnection junctionConnection;
+
+						FString fromName = UKismetSystemLibrary::GetObjectName(junctionConnectionProxy.Segment);
+						uint32 fromSegment = m_SegmentCache.Contains(fromName) ? m_SegmentCache[fromName] : 0;
+						if(fromSegment == 0)
+						{
+							fromName = buildSegmentName(UKismetSystemLibrary::GetObjectName(entryProxy.Link));
+							fromSegment = m_SegmentCache.Contains(fromName) ? m_SegmentCache[fromName] : 0;
+						}
+
+						FString toName = UKismetSystemLibrary::GetObjectName(junctionConnectionProxy.ToSegment);
+						uint32 toSegment = m_SegmentCache.Contains(toName) ? m_SegmentCache[toName] : 0;
+						if(toSegment == 0)
+						{
+							toName = buildSegmentName(UKismetSystemLibrary::GetObjectName(junctionConnectionProxy.ToLink));
+							toSegment = m_SegmentCache.Contains(toName) ? m_SegmentCache[toName] : 0;
+						}
+
+						if(fromSegment && toSegment)
+						{
+							junctionConnection.SegmentId = fromSegment;
+							junctionConnection.ToSegmentId = toSegment;
+
+							switch(junctionConnectionProxy.ConnectionShape)
+							{
+								case EDeepDriveConnectionShape::STRAIGHT_LINE:
+								case EDeepDriveConnectionShape::QUADRATIC_SPLINE:
+								case EDeepDriveConnectionShape::CUBIC_SPLINE:
+								case EDeepDriveConnectionShape::UTURN_SPLINE:
+									junctionConnection.ConnectionSegmentId = addConnectionSegment(fromSegment, toSegment, junctionConnectionProxy);
+									break;
+								case EDeepDriveConnectionShape::ROAD_SEGMENT:
+									if(junctionConnectionProxy.ConnectionSegment)
+										junctionConnection.ConnectionSegmentId = addSegment(*junctionConnectionProxy.ConnectionSegment, 0, EDeepDriveLaneType::CONNECTION);
+									else
+										junctionConnection.ConnectionSegmentId = addStraightConnectionSegment(fromSegment, toSegment, junctionConnectionProxy.SpeedLimit, false);
+									break;
+							}
+						}
+						entry.Connections.Add(junctionConnection);
 					}
+					junction.Entries.Add(entry);
 				}
-				junction.Connections.Add(connection);
 			}
 
-			for(auto &turningRestrictionProxy : junctionProxy->getTurningRestrictions())
+			uint32 ind = 0;
+			for (auto &entryProxy : junctionProxy->getEntries())
 			{
-				FString fromName = UKismetSystemLibrary::GetObjectName(turningRestrictionProxy.FromLink);
-				FString toName = UKismetSystemLibrary::GetObjectName(turningRestrictionProxy.ToLink);
-				if	(	m_LinkCache.Contains(fromName)
-					&&	m_LinkCache.Contains(toName)
-					)
+				const uint32 linkId = addLink(*entryProxy.Link);
+				if (linkId)
 				{
-					SDeepDriveTurningRestriction turningRestriction;
-					turningRestriction.FromLink = m_LinkCache[fromName];
-					turningRestriction.ToLink = m_LinkCache[toName];
-					junction.TurningRestrictions.Add(turningRestriction);
+					SDeepDriveJunctionEntry &entry = junction.Entries[ind++];
+					for(auto &turnDefinitionProxy : entryProxy.TurnDefinitions)
+					{
+						FString toName = UKismetSystemLibrary::GetObjectName(turnDefinitionProxy.ToLink);
+						if(m_LinkCache.Contains(toName))
+						{
+							SDeepDriveTurnDefinition turnDefinition;
+							turnDefinition.ToLinkId = m_LinkCache[toName];
+							turnDefinition.ManeuverType = turnDefinitionProxy.ManeuverType;
+							turnDefinition.WaitingLocation = turnDefinitionProxy.WaitingLocation;
+							entry.TurnDefinitions.Add(turnDefinition);
+						}
+					}
 				}
 			}
 
 			/*
 			 *		Create auto turning restrictions based on UTurn-Mode/Opposite Direction Link
 			 */
-			for (auto &linkProxy : junctionProxy->getLinksIn())
+
+			//ToDo:	extract auto turning restrictions based on entries
+			for (auto &entryProxy : junctionProxy->getEntries())
 			{
+				auto linkProxy = entryProxy.Link;
 				auto oppositeLink = linkProxy->getOppositeDirectionLink();
-				if	(	linkProxy->getUTurnMode() == EDeepDriveUTurnMode::NOT_POSSIBLE
+				if (linkProxy->getUTurnMode() == EDeepDriveUTurnMode::NOT_POSSIBLE
 					&&	oppositeLink != 0
-					&&	m_LinkCache.Contains(UKismetSystemLibrary::GetObjectName(oppositeLink))
+					&& m_LinkCache.Contains(UKismetSystemLibrary::GetObjectName(oppositeLink))
 					)
 				{
-					SDeepDriveTurningRestriction turningRestriction;
-					turningRestriction.FromLink = m_RoadNetwork.Links[ m_LinkCache[UKismetSystemLibrary::GetObjectName(linkProxy)] ].LinkId;
-					turningRestriction.ToLink = m_RoadNetwork.Links[ m_LinkCache[UKismetSystemLibrary::GetObjectName(oppositeLink)] ].LinkId;
-					junction.TurningRestrictions.Add(turningRestriction);
+					//SDeepDriveTurningRestriction turningRestriction;
+					//turningRestriction.FromLink = m_RoadNetwork.Links[m_LinkCache[UKismetSystemLibrary::GetObjectName(linkProxy)]].LinkId;
+					//turningRestriction.ToLink = m_RoadNetwork.Links[m_LinkCache[UKismetSystemLibrary::GetObjectName(oppositeLink)]].LinkId;
+					//junction.TurningRestrictions.Add(turningRestriction);
 				}
 			}
-
 			m_RoadNetwork.Junctions.Add(junctionId, junction);
 		}
 	}
@@ -148,7 +185,7 @@ void DeepDriveRoadNetworkExtractor::extract()
 	for(auto &linkProxy : m_LinkProxies)
 	{
 		FString oppositeName = linkProxy->getOppositeDirectionLink() ? UKismetSystemLibrary::GetObjectName(linkProxy->getOppositeDirectionLink()) : "";
-		if(oppositeName != "")
+		if(oppositeName != "" && m_LinkCache.Contains(oppositeName))
 		{
 			m_RoadNetwork.Links[m_LinkCache[UKismetSystemLibrary::GetObjectName(linkProxy)]].OppositeDirectionLink = m_LinkCache[oppositeName];
 		}
@@ -156,7 +193,7 @@ void DeepDriveRoadNetworkExtractor::extract()
 
 }
 
-uint32 DeepDriveRoadNetworkExtractor::addConnectionSegment(uint32 fromSegment, uint32 toSegment, const FDeepDriveLaneConnectionProxy &connectionProxy)
+uint32 DeepDriveRoadNetworkExtractor::addConnectionSegment(uint32 fromSegment, uint32 toSegment, const FDeepDriveJunctionConnectionProxy &junctionConnectionProxy)
 {
 	uint32 connectionId = m_nextSegmentId++;
 
@@ -168,17 +205,16 @@ uint32 DeepDriveRoadNetworkExtractor::addConnectionSegment(uint32 fromSegment, u
 	segment.Heading = calcHeading(segment.StartPoint, segment.EndPoint);
 	segment.LaneType = EDeepDriveLaneType::CONNECTION;
 
-	segment.SpeedLimit = connectionProxy.SpeedLimit;
-	segment.ConnectionShape = connectionProxy.ConnectionShape;
-	segment.SlowDownDistance = connectionProxy.SlowDownDistance;
-	segment.CustomCurveParams[0] = connectionProxy.CustomCurveParams.Parameter0;
-	segment.CustomCurveParams[1] = connectionProxy.CustomCurveParams.Parameter1;
-	segment.CustomCurveParams[2] = connectionProxy.CustomCurveParams.Parameter2;
-	segment.CustomCurveParams[3] = connectionProxy.CustomCurveParams.Parameter3;
-	segment.CustomCurveParams[4] = connectionProxy.CustomCurveParams.Parameter4;
-	segment.CustomCurveParams[5] = connectionProxy.CustomCurveParams.Parameter5;
-	segment.CustomCurveParams[6] = connectionProxy.CustomCurveParams.Parameter6;
-	segment.CustomCurveParams[7] = connectionProxy.CustomCurveParams.Parameter7;
+	segment.SpeedLimit = junctionConnectionProxy.SpeedLimit;
+	segment.ConnectionShape = junctionConnectionProxy.ConnectionShape;
+	segment.CustomCurveParams[0] = junctionConnectionProxy.CustomCurveParams.Parameter0;
+	segment.CustomCurveParams[1] = junctionConnectionProxy.CustomCurveParams.Parameter1;
+	segment.CustomCurveParams[2] = junctionConnectionProxy.CustomCurveParams.Parameter2;
+	segment.CustomCurveParams[3] = junctionConnectionProxy.CustomCurveParams.Parameter3;
+	segment.CustomCurveParams[4] = junctionConnectionProxy.CustomCurveParams.Parameter4;
+	segment.CustomCurveParams[5] = junctionConnectionProxy.CustomCurveParams.Parameter5;
+	segment.CustomCurveParams[6] = junctionConnectionProxy.CustomCurveParams.Parameter6;
+	segment.CustomCurveParams[7] = junctionConnectionProxy.CustomCurveParams.Parameter7;
 
 	m_RoadNetwork.Segments.Add(connectionId, segment);
 
@@ -186,7 +222,7 @@ uint32 DeepDriveRoadNetworkExtractor::addConnectionSegment(uint32 fromSegment, u
 }
 
 
-uint32 DeepDriveRoadNetworkExtractor::addStraightConnectionSegment(uint32 fromSegment, uint32 toSegment, float speedLimit, float slowDownDistance, bool generateCurve)
+uint32 DeepDriveRoadNetworkExtractor::addStraightConnectionSegment(uint32 fromSegment, uint32 toSegment, float speedLimit, bool generateCurve)
 {
 	uint32 connectionId = m_nextSegmentId++;
 
@@ -200,7 +236,7 @@ uint32 DeepDriveRoadNetworkExtractor::addStraightConnectionSegment(uint32 fromSe
 
 	segment.SpeedLimit = speedLimit;
 	segment.ConnectionShape = generateCurve ? EDeepDriveConnectionShape::QUADRATIC_SPLINE : EDeepDriveConnectionShape::STRAIGHT_LINE;
-	segment.SlowDownDistance = slowDownDistance;
+	// segment.SlowDownDistance = slowDownDistance;
 
 	m_RoadNetwork.Segments.Add(connectionId, segment);
 
@@ -225,6 +261,10 @@ uint32 DeepDriveRoadNetworkExtractor::addLink(ADeepDriveRoadLinkProxy &linkProxy
 		link.LinkId = linkId;
 		link.StartPoint = linkProxy.getStartPoint();
 		link.EndPoint = linkProxy.getEndPoint();
+		link.StartDirection = linkProxy.getStartDirection();
+		link.EndDirection = linkProxy.getEndDirection();
+		link.StopLineLocation = linkProxy.getStopLineLocation();
+		link.RoadPriority = linkProxy.getRoadPriority();
 		link.Heading = calcHeading(link.StartPoint, link.EndPoint);
 		link.SpeedLimit = linkProxy.getSpeedLimit();
 		link.FromJunctionId = 0;

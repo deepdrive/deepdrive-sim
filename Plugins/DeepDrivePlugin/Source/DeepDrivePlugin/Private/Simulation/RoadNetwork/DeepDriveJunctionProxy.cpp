@@ -42,10 +42,15 @@ void ADeepDriveJunctionProxy::Tick(float DeltaTime)
 	{
 		uint8 prio = 100;
 
+
 		TArray<FVector> points;
-		for(auto &l : LinksIn)
-			if(l)
-				points.Add(l->getEndPoint());
+		for (auto &e : Entries)
+		{
+			if (Entries.Num() == 0)
+				continue;
+			if (e.Link)
+				points.Add(e.Link->getEndPoint());
+		}
 
 		for(auto &l : LinksOut)
 			if(l)
@@ -58,37 +63,42 @@ void ADeepDriveJunctionProxy::Tick(float DeltaTime)
 		}
 
 		prio = 120;
-		for(auto &lc : LaneConnections)
+
+		for(auto &e : Entries)
 		{
-			FVector fromStart;
-			FVector fromEnd;
-			FVector toStart;
-			FVector toEnd;
-			if (extractConnection(lc, fromStart, fromEnd, toStart, toEnd))
+			for(auto &jc : e.Connections)
 			{
-				switch (lc.ConnectionShape)
+				FVector fromStart;
+				FVector fromEnd;
+				FVector toStart;
+				FVector toEnd;
+
+				if (extractConnection(e.Link, jc, fromStart, fromEnd, toStart, toEnd))
 				{
-					case EDeepDriveConnectionShape::STRAIGHT_LINE:
-						DrawDebugLine(GetWorld(), fromEnd, toStart, ConnectionColor, false, 0.0f, m_DrawPrioConnection, 10.0f);
-						break;
+					switch (jc.ConnectionShape)
+					{
+						case EDeepDriveConnectionShape::STRAIGHT_LINE:
+							DrawDebugLine(GetWorld(), fromEnd, toStart, ConnectionColor, false, 0.0f, m_DrawPrioConnection, 10.0f);
+							break;
 
-					case EDeepDriveConnectionShape::QUADRATIC_SPLINE:
-						drawQuadraticConnectionSegment(fromStart, fromEnd, toStart, toEnd, lc.CustomCurveParams);
-						// carryOverDistance = addQuadraticConnectionSegment(m_RoadNetwork->Segments[segment.SegmentId], m_RoadNetwork->Segments[nextLink.Lanes[curLane].Segments[0]], connectionSegmentId, carryOverDistance);
-						break;
+						case EDeepDriveConnectionShape::QUADRATIC_SPLINE:
+							drawQuadraticConnectionSegment(fromStart, fromEnd, toStart, toEnd, jc.CustomCurveParams);
+							// carryOverDistance = addQuadraticConnectionSegment(m_RoadNetwork->Segments[segment.SegmentId], m_RoadNetwork->Segments[nextLink.Lanes[curLane].Segments[0]], connectionSegmentId, carryOverDistance);
+							break;
 
-					case EDeepDriveConnectionShape::CUBIC_SPLINE:
-						drawCubicConnectionSegment(fromStart, fromEnd, toStart, toEnd, lc.CustomCurveParams);
-						break;
+						case EDeepDriveConnectionShape::CUBIC_SPLINE:
+							drawCubicConnectionSegment(fromStart, fromEnd, toStart, toEnd, jc.CustomCurveParams);
+							break;
 
-					case EDeepDriveConnectionShape::UTURN_SPLINE:
-						drawUTurnConnectionSegment(fromStart, fromEnd, toStart, toEnd, lc.CustomCurveParams);
-						break;
+						case EDeepDriveConnectionShape::UTURN_SPLINE:
+							drawUTurnConnectionSegment(fromStart, fromEnd, toStart, toEnd, jc.CustomCurveParams);
+							break;
 
-					case EDeepDriveConnectionShape::ROAD_SEGMENT:
-						// carryOverDistance = addSegmentToPoints(connectionSegment, false, carryOverDistance);
-						break;
+						case EDeepDriveConnectionShape::ROAD_SEGMENT:
+							// carryOverDistance = addSegmentToPoints(connectionSegment, false, carryOverDistance);
+							break;
 
+					}
 				}
 			}
 		}
@@ -99,19 +109,19 @@ void ADeepDriveJunctionProxy::Tick(float DeltaTime)
 #endif
 }
 
-bool ADeepDriveJunctionProxy::extractConnection(const FDeepDriveLaneConnectionProxy &connectionProxy, FVector &fromStart, FVector &fromEnd, FVector &toStart, FVector &toEnd)
+bool ADeepDriveJunctionProxy::extractConnection(ADeepDriveRoadLinkProxy *link, const FDeepDriveJunctionConnectionProxy &junctionConnectionProxy, FVector &fromStart, FVector &fromEnd, FVector &toStart, FVector &toEnd)
 {
 	const float delta = 500.0f;
 
 	int32 found = 0;
 
-	if(connectionProxy.FromSegment)
+	if(junctionConnectionProxy.Segment)
 	{
-		if	(	connectionProxy.FromSegment->getSpline()
-			&&	connectionProxy.FromSegment->getSpline()->GetNumberOfSplinePoints() > 2
+		if	(	junctionConnectionProxy.Segment->getSpline()
+			&&	junctionConnectionProxy.Segment->getSpline()->GetNumberOfSplinePoints() > 2
 			)
 		{
-			const USplineComponent *spline = connectionProxy.FromSegment->getSpline();
+			const USplineComponent *spline = junctionConnectionProxy.Segment->getSpline();
 			const float length = spline->GetSplineLength();
 
 			fromStart = spline->GetLocationAtDistanceAlongSpline(FMath::Max(0.0f, length - delta), ESplineCoordinateSpace::World);
@@ -119,25 +129,25 @@ bool ADeepDriveJunctionProxy::extractConnection(const FDeepDriveLaneConnectionPr
 		}
 		else
 		{
-			fromStart = connectionProxy.FromSegment->getStartPoint();
-			fromEnd = connectionProxy.FromSegment->getEndPoint();
+			fromStart = junctionConnectionProxy.Segment->getStartPoint();
+			fromEnd = junctionConnectionProxy.Segment->getEndPoint();
 		}
 		found |= 1;
 	}
-	else if(connectionProxy.FromLink)
+	else if(link)
 	{
-		fromStart = connectionProxy.FromLink->getStartPoint();
-		fromEnd = connectionProxy.FromLink->getEndPoint();
+		fromStart = link->getStartPoint();
+		fromEnd = link->getEndPoint();
 		found |= 1;
 	}
 
-	if(connectionProxy.ToSegment)
+	if(junctionConnectionProxy.ToSegment)
 	{
-		if	(	connectionProxy.ToSegment->getSpline()
-			&&	connectionProxy.ToSegment->getSpline()->GetNumberOfSplinePoints() > 2
+		if	(	junctionConnectionProxy.ToSegment->getSpline()
+			&&	junctionConnectionProxy.ToSegment->getSpline()->GetNumberOfSplinePoints() > 2
 			)
 		{
-			const USplineComponent *spline = connectionProxy.ToSegment->getSpline();
+			const USplineComponent *spline = junctionConnectionProxy.ToSegment->getSpline();
 			const float length = spline->GetSplineLength();
 
 			toStart = spline->GetLocationAtDistanceAlongSpline(0.0f, ESplineCoordinateSpace::World);
@@ -145,20 +155,21 @@ bool ADeepDriveJunctionProxy::extractConnection(const FDeepDriveLaneConnectionPr
 		}
 		else
 		{
-			toStart = connectionProxy.ToSegment->getStartPoint();
-			toEnd = connectionProxy.ToSegment->getEndPoint();
+			toStart = junctionConnectionProxy.ToSegment->getStartPoint();
+			toEnd = junctionConnectionProxy.ToSegment->getEndPoint();
 		}
 		found |= 2;
 	}
-	else if(connectionProxy.ToLink)
+	else if(junctionConnectionProxy.ToLink)
 	{
-		toStart = connectionProxy.ToLink->getStartPoint();
-		toEnd = connectionProxy.ToLink->getEndPoint();
+		toStart = junctionConnectionProxy.ToLink->getStartPoint();
+		toEnd = junctionConnectionProxy.ToLink->getEndPoint();
 		found |= 2;
 	}
 
 	return found == 3;
 }
+
 
 void ADeepDriveJunctionProxy::drawQuadraticConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const FDeepDriveLaneConnectionCustomCurveParams &params)
 {
@@ -251,9 +262,9 @@ void ADeepDriveJunctionProxy::drawUTurnConnectionSegment(const FVector &fromStar
 
 void ADeepDriveJunctionProxy::drawAutoTurnRestriction(uint8 prio)
 {
-	for(auto &linkProxy : LinksIn)
-	{
-		if(linkProxy && linkProxy->getUTurnMode() == EDeepDriveUTurnMode::NOT_POSSIBLE && linkProxy->getOppositeDirectionLink() != 0)
-			DrawDebugDirectionalArrow(GetWorld(), linkProxy->getEndPoint(), linkProxy->getOppositeDirectionLink()->getStartPoint(), 25.0f, FColor::Red, false, 0.0f, prio, 12.0f);
-	}
+	//for(auto &linkProxy : LinksIn)
+	//{
+	//	if(linkProxy && linkProxy->getUTurnMode() == EDeepDriveUTurnMode::NOT_POSSIBLE && linkProxy->getOppositeDirectionLink() != 0)
+	//		DrawDebugDirectionalArrow(GetWorld(), linkProxy->getEndPoint(), linkProxy->getOppositeDirectionLink()->getStartPoint(), 25.0f, FColor::Red, false, 0.0f, prio, 12.0f);
+	//}
 }

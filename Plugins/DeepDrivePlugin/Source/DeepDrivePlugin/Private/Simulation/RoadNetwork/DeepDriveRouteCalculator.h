@@ -51,6 +51,8 @@ public:
 	DeepDriveRouteCalculator(const SDeepDriveRoadNetwork &roadNetwork);
 	~DeepDriveRouteCalculator();
 
+	bool calculate(const FVector &start, const FVector &destination, TArray<uint32> &links);
+
 	SDeepDriveRouteData calculate(const FVector &start, const FVector &destination);
 
 

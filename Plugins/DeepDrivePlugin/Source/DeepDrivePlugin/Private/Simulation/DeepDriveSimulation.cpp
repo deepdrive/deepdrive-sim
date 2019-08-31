@@ -23,6 +23,7 @@
 #include "Public/Simulation/Misc/DeepDriveSimulationFreeCamera.h"
 #include "Public/Simulation/Misc/DeepDriveRandomStream.h"
 #include "Public/Simulation/RoadNetwork/DeepDriveRoadNetworkComponent.h"
+#include "Private/Simulation/Traffic/Maneuver/DeepDriveManeuverCalculator.h"
 
 #include "Public/CaptureSink/CaptureSinkComponentBase.h"
 
@@ -70,7 +71,7 @@ void ADeepDriveSimulation::PreInitializeComponents()
 	}
 
 	{
-		ScenarioMode = true;
+		ScenarioMode = false;
 		TArray<FString> tokens;
 		TArray<FString> switches;
 		FCommandLine::Parse(FCommandLine::Get(), tokens, switches);
@@ -709,6 +710,31 @@ void ADeepDriveSimulation::removeOneOffAgents()
 
 	m_OneOffAgents.Empty();
 	m_nextOneOffAgentId = 1;
+}
+
+DeepDriveManeuverCalculator* ADeepDriveSimulation::getManeuverCalculator()
+{
+	if(m_ManeuverCalculator == 0)
+	{
+		m_ManeuverCalculator = new DeepDriveManeuverCalculator(RoadNetwork->getRoadNetwork(), *this);
+	}
+
+	return m_ManeuverCalculator;
+}
+
+TArray<ADeepDriveAgent*> ADeepDriveSimulation::getAgents(const FBox2D &area, ADeepDriveAgent *excludeAgent)
+{
+	TArray<ADeepDriveAgent*> agents;
+
+	for(auto &agent : m_Agents)
+	{
+		if	(	(excludeAgent == 0 || agent != excludeAgent)
+			&&	area.IsInside(FVector2D(agent->GetActorLocation()))
+			)
+			agents.Add(agent);
+	}
+
+	return agents;
 }
 
 void ADeepDriveSimulation::OnDebugTrigger()

@@ -188,6 +188,17 @@ struct FDeepDriveScenarioConfiguration
 	TArray<FDeepDriveAgentScenarioConfiguration>	Agents;
 };
 
+USTRUCT(BlueprintType) struct FDeepDriveStaticRoute
+{
+	GENERATED_USTRUCT_BODY()
+
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
+		FVector		Start;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
+		FVector		Destination;
+};
+
 
 USTRUCT(BlueprintType)
 struct FDeepDrivePath

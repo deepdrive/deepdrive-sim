@@ -10,17 +10,6 @@ class DeepDriveAgentSpeedController;
 class DeepDriveAgentSteeringController;
 class ADeepDriveRoadLinkProxy;
 
-USTRUCT(BlueprintType) struct FDeepDriveStaticRoute
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
-	FVector		Start;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
-	FVector		Destination;
-};
-
 USTRUCT(BlueprintType) struct FDeepDriveCityAIControllerConfiguration
 {
 	GENERATED_USTRUCT_BODY()

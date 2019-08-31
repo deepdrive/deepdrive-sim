@@ -55,8 +55,8 @@ struct FDeepDriveJunctionConnectionProxy
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	float	SpeedLimit = 25.0f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	float	SlowDownDistance = 1000.0f;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	// float	SlowDownDistance = 1000.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	FDeepDriveLaneConnectionCustomCurveParams	CustomCurveParams;
@@ -64,9 +64,26 @@ struct FDeepDriveJunctionConnectionProxy
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	ADeepDriveRoadSegmentProxy	*ConnectionSegment = 0;
 
+};
+
+USTRUCT(BlueprintType)
+struct FDeepDriveTurnDefinitionProxy
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	ADeepDriveRoadLinkProxy *ToLink = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	EDeepDriveManeuverType ManeuverType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	FVector WaitingLocation;
+
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	// ATrafficLight	*TrafficLight = 0;
 };
+
 
 USTRUCT(BlueprintType)
 struct FDeepDriveJunctionEntryProxy
@@ -77,57 +94,22 @@ struct FDeepDriveJunctionEntryProxy
 	ADeepDriveRoadLinkProxy *Link = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	EDeepDriveRightOfWay						RightOfWay;
+	EDeepDriveJunctionSubType	JunctionSubType = EDeepDriveJunctionSubType::AUTO_DETECT;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	EDeepDriveRightOfWay						RightOfWay = EDeepDriveRightOfWay::YIELD;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	FVector										ManeuverEntryPoint;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	FVector										LineOfSight;
+
+	UPROPERTY(EditAnywhere, Category = Default)
+	TArray<FDeepDriveTurnDefinitionProxy> TurnDefinitions;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	TArray<FDeepDriveJunctionConnectionProxy>	Connections;	
-
-};
-
-USTRUCT(BlueprintType)
-struct FDeepDriveLaneConnectionProxy
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	ADeepDriveRoadLinkProxy *FromLink = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	ADeepDriveRoadSegmentProxy	*FromSegment = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	ADeepDriveRoadLinkProxy *ToLink = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	ADeepDriveRoadSegmentProxy	*ToSegment = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	EDeepDriveConnectionShape	ConnectionShape = EDeepDriveConnectionShape::STRAIGHT_LINE;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	float	SpeedLimit = 25.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	float	SlowDownDistance = 1000.0f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	FDeepDriveLaneConnectionCustomCurveParams	CustomCurveParams;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	ADeepDriveRoadSegmentProxy	*ConnectionSegment = 0;
-
-};
-
-USTRUCT(BlueprintType)
-struct FDeepDriveTurningRestriction
-{
-	GENERATED_USTRUCT_BODY()
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	ADeepDriveRoadLinkProxy *FromLink = 0;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	ADeepDriveRoadLinkProxy *ToLink = 0;
 
 };
 
@@ -150,33 +132,25 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	const TArray<ADeepDriveRoadLinkProxy*>& getLinksIn();
-
 	const TArray<ADeepDriveRoadLinkProxy*>& getLinksOut();
 
-	const TArray<FDeepDriveLaneConnectionProxy>& getLaneConnections();
+	const TArray<FDeepDriveJunctionEntryProxy>& getEntries();
 
-	const TArray<FDeepDriveTurningRestriction>& getTurningRestrictions();
+	EDeepDriveJunctionType getJunctionType();
 
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = Default)
 	USceneComponent				*Root = 0;
 
-	UPROPERTY(EditAnywhere, Category = Configuration)
-	TArray<ADeepDriveRoadLinkProxy*>	LinksIn;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Configuration)
+	EDeepDriveJunctionType	JunctionType = EDeepDriveJunctionType::FOUR_WAY_JUNCTION;
 
 	UPROPERTY(EditAnywhere, Category = Configuration)
 	TArray<ADeepDriveRoadLinkProxy*>	LinksOut;
 
 	UPROPERTY(EditAnywhere, Category = Configuration)
 	TArray<FDeepDriveJunctionEntryProxy>	Entries;
-
-	UPROPERTY(EditAnywhere, Category = Configuration)
-	TArray<FDeepDriveLaneConnectionProxy>	LaneConnections;
-
-	UPROPERTY(EditAnywhere, Category = Configuration)
-	TArray<FDeepDriveTurningRestriction>	TurningRestrictions;
 
 	UPROPERTY(EditAnywhere, Category = Debug)
 	FColor	JunctionColor = FColor(0, 255, 0, 64);
@@ -186,7 +160,7 @@ protected:
 
 private:
 
-	bool extractConnection(const FDeepDriveLaneConnectionProxy &connectionProxy, FVector &fromStart, FVector &fromEnd, FVector &toStart, FVector &toEnd);
+	bool extractConnection(ADeepDriveRoadLinkProxy *link, const FDeepDriveJunctionConnectionProxy &junctionConnectionProxy, FVector &fromStart, FVector &fromEnd, FVector &toStart, FVector &toEnd);
 	void drawQuadraticConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const FDeepDriveLaneConnectionCustomCurveParams &params);
 	void drawCubicConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const FDeepDriveLaneConnectionCustomCurveParams &params);
 	void drawUTurnConnectionSegment(const FVector &fromStart, const FVector &fromEnd, const FVector &toStart, const FVector &toEnd, const FDeepDriveLaneConnectionCustomCurveParams &params);
@@ -201,22 +175,17 @@ private:
 	const uint8					m_DrawPrioConnection = 120;
 };
 
-inline const TArray<ADeepDriveRoadLinkProxy*>& ADeepDriveJunctionProxy::getLinksIn()
-{
-	return LinksIn;
-}
-
 inline const TArray<ADeepDriveRoadLinkProxy*>& ADeepDriveJunctionProxy::getLinksOut()
 {
 	return LinksOut;
 }
 
-inline const TArray<FDeepDriveLaneConnectionProxy>& ADeepDriveJunctionProxy::getLaneConnections()
+inline const TArray<FDeepDriveJunctionEntryProxy>& ADeepDriveJunctionProxy::getEntries()
 {
-	return LaneConnections;
+	return Entries;
 }
 
-inline const TArray<FDeepDriveTurningRestriction>& ADeepDriveJunctionProxy::getTurningRestrictions()
+inline EDeepDriveJunctionType ADeepDriveJunctionProxy::getJunctionType()
 {
-	return TurningRestrictions;
+	return JunctionType;
 }

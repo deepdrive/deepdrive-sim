@@ -20,15 +20,20 @@ DeepDriveRouteCalculator::~DeepDriveRouteCalculator()
 SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, const FVector &destination)
 {
 	SDeepDriveRouteData routeData;
+	routeData.Start = start;
+	routeData.Destination = destination;
+	calculate(start, destination, routeData.Links);
+	return routeData;
+}
 
+bool DeepDriveRouteCalculator::calculate(const FVector &start, const FVector &destination, TArray<uint32> &linksOut)
+{
+	bool success = false;
 	const uint32 startLinkId = m_RoadNetwork.findClosestLink(start);
 	m_DestinationLinkId = m_RoadNetwork.findClosestLink(destination);
 
 	if(startLinkId && m_DestinationLinkId)
 	{
-
-		routeData.Start = start;
-		routeData.Destination = destination;
 		m_Destination = destination;
 
 		const SDeepDriveRoadLink &startLink = m_RoadNetwork.Links[startLinkId];
@@ -44,7 +49,7 @@ SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, co
 		else // if (startLink.ToJunctionId && destLink.FromJunctionId)
 		{
 			m_OpenList.add( acquireLink(startLinkId, 0, 0.0f) );
-			bool success = false;
+			success = false;
 			const Link *currentLink = 0;
 
 			do
@@ -62,29 +67,30 @@ SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, co
 
 			} while(m_OpenList.isEmpty() == false);
 
-			if(success || currentLink)
+			if(success)// || currentLink) ??
 			{
-				TArray<uint32> routeLinks;
-
 				const float totalCost = currentLink->CostF;
 
+				TArray<uint32> tmpLinks;
 				if(currentLink->LinkId != m_DestinationLinkId)
-					routeLinks.Add(m_DestinationLinkId);
+					tmpLinks.Add(m_DestinationLinkId);
 				while(currentLink)
 				{
-					routeLinks.Add(currentLink->LinkId);
+					tmpLinks.Add(currentLink->LinkId);
 					currentLink = currentLink->Predecessor;
 				}
-				if(routeLinks[routeLinks.Num() - 1] != startLinkId)
-					routeLinks.Add(startLinkId);
+				if(tmpLinks[tmpLinks.Num() - 1] != startLinkId)
+					tmpLinks.Add(startLinkId);
 
-				for(int32 i = routeLinks.Num() - 1; i>= 0; --i)
+				for(int32 i = tmpLinks.Num() - 1; i>= 0; --i)
 				{
-					routeData.Links.Add(routeLinks[i]);
-					UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("  %d"), routeLinks[i] );
+					linksOut.Add(tmpLinks[i]);
 				}
 
-				UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Route successfully calculated %d links total cost %f"), routeData.Links.Num(), totalCost );
+				success = true;
+				UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Route successfully calculated %d links total cost %f"), linksOut.Num(), totalCost );
+				for(auto &linkId : linksOut)
+					UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("  %d"), linkId );
 
 			}
 			else
@@ -98,7 +104,7 @@ SDeepDriveRouteData DeepDriveRouteCalculator::calculate(const FVector &start, co
 		UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Route calculation failed No start or destination link %d %d"), startLinkId, m_DestinationLinkId );
 	}
 
-	return routeData;
+	return success;
 }
 
 
@@ -106,14 +112,16 @@ bool DeepDriveRouteCalculator::expandLink(const Link &currentLink)
 {
 	bool found = false;
 	const SDeepDriveJunction &junction = m_RoadNetwork.Junctions[ m_RoadNetwork.Links[ currentLink.LinkId ].ToJunctionId ];
-	UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Expanding link %d with junction Link %d turningRestrictions %d"), currentLink.LinkId, junction.JunctionId, junction.TurningRestrictions.Num());
+	UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Expanding link %d with junction Link %d"), currentLink.LinkId, junction.JunctionId);
 	for (auto &outLinkId : junction.LinksOut)
 	{
+		// UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Checking link %d"), outLinkId );
 		if (junction.isTurningAllowed(currentLink.LinkId, outLinkId))
 		{
-
+			// UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Turning is allowed") );
 			if (outLinkId == m_DestinationLinkId)
 			{
+				// UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Destination link found") );
 				found = true;
 				break;
 			}
@@ -122,6 +130,9 @@ bool DeepDriveRouteCalculator::expandLink(const Link &currentLink)
 				continue;
 
 			const SDeepDriveRoadLink &outLink = m_RoadNetwork.Links[outLinkId];
+
+			if (outLink.ToJunctionId == 0)
+				continue;
 
 			const FVector junctionPos = m_RoadNetwork.Junctions[outLink.ToJunctionId].Center;
 			const float curC = (currentLink.Position - junctionPos).Size();

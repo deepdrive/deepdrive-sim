@@ -58,9 +58,18 @@ bool ADeepDriveAgentRemoteAIController::Activate(ADeepDriveAgent &agent, bool ke
 			{
 				UDeepDriveRoadNetworkComponent *roadNetwork = m_DeepDriveSimulation->RoadNetwork;
 				FVector start = m_ScenarionConfiguration.StartPosition;
-				m_Route = roadNetwork->CalculateRoute(start, m_ScenarionConfiguration.EndPosition);
-				if (m_Route)
+				FVector destination = m_ScenarionConfiguration.EndPosition;
+				TArray<uint32> routeLinks = roadNetwork->CalculateRoute(start, destination);
+
+				if (routeLinks.Num() > 0)
 				{
+					m_Route = GetWorld()->SpawnActor<ADeepDriveRoute>(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f), FActorSpawnParameters());
+
+					SDeepDriveRouteData routeData;
+					routeData.Start = start;
+					routeData.Destination = destination;
+					routeData.Links = routeLinks;
+					m_Route->initialize(roadNetwork->getRoadNetwork(), routeData);
 					m_Route->convert(start);
 					m_Route->placeAgentAtStart(agent);
 				}

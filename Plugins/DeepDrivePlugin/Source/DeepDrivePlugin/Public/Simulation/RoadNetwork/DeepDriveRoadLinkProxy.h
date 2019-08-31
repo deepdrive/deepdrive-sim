@@ -43,6 +43,9 @@ public:
 
 	FVector getStartPoint();
 	FVector getEndPoint();
+	FVector getStartDirection();
+	FVector getEndDirection();
+
 	
 	const TArray<FDeepDriveLaneProxy>& getLanes();
 
@@ -51,6 +54,10 @@ public:
 	ADeepDriveRoadLinkProxy* getOppositeDirectionLink();
 
 	EDeepDriveUTurnMode getUTurnMode();
+
+	EDeepDriveRoadPriority getRoadPriority();
+
+	FVector getStopLineLocation() const;
 
 protected:
 
@@ -65,6 +72,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Configuration)
 	ADeepDriveRoadLinkProxy 	*OppositeDirectionLink = 0;
+
+	UPROPERTY(EditAnywhere, Category = Configuration)
+	EDeepDriveRoadPriority		RoadPriority = EDeepDriveRoadPriority::MAIN_ROAD;
 
 	UPROPERTY(EditAnywhere, Category = Configuration)
 	EDeepDriveUTurnMode			UTurnModeOnLink;
@@ -91,6 +101,16 @@ inline FVector ADeepDriveRoadLinkProxy::getEndPoint()
 	return EndPoint->GetComponentLocation();
 }
 
+inline FVector ADeepDriveRoadLinkProxy::getStartDirection()
+{
+	return StartPoint->GetComponentQuat().GetAxisX();
+}
+
+inline FVector ADeepDriveRoadLinkProxy::getEndDirection()
+{
+	return EndPoint->GetComponentQuat().GetAxisX();
+}
+
 inline const TArray<FDeepDriveLaneProxy>& ADeepDriveRoadLinkProxy::getLanes()
 {
 	return Lanes;
@@ -106,7 +126,17 @@ inline ADeepDriveRoadLinkProxy* ADeepDriveRoadLinkProxy::getOppositeDirectionLin
 	return OppositeDirectionLink;
 }
 
-inline  EDeepDriveUTurnMode ADeepDriveRoadLinkProxy::getUTurnMode()
+inline EDeepDriveUTurnMode ADeepDriveRoadLinkProxy::getUTurnMode()
 {
 	return UTurnModeOnLink;
+}
+
+inline EDeepDriveRoadPriority ADeepDriveRoadLinkProxy::getRoadPriority()
+{
+	return RoadPriority;
+}
+
+inline FVector ADeepDriveRoadLinkProxy::getStopLineLocation() const
+{
+	return EndPoint->GetComponentLocation();
 }

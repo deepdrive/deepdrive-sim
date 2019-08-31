@@ -9,7 +9,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveRoadNetworkExtractor, Log, All);
 
 class ADeepDriveRoadLinkProxy;
 class ADeepDriveRoadSegmentProxy;
-struct FDeepDriveLaneConnectionProxy;
+struct FDeepDriveJunctionConnectionProxy;
 
 class DeepDriveRoadNetworkExtractor
 {
@@ -30,9 +30,9 @@ private:
 	// add segment based on link proxy
 	uint32 addSegment(ADeepDriveRoadLinkProxy &linkProxy, const SDeepDriveRoadLink *link);
 
-	uint32 addConnectionSegment(uint32 fromSegment, uint32 toSegment, const FDeepDriveLaneConnectionProxy &connectionProxy);
+	uint32 addConnectionSegment(uint32 fromSegment, uint32 toSegment, const FDeepDriveJunctionConnectionProxy &junctionConnectionProxy);
 
-	uint32 addStraightConnectionSegment(uint32 fromSegment, uint32 toSegment, float speedLimit, float slowDownDistance, bool generateCurve);
+	uint32 addStraightConnectionSegment(uint32 fromSegment, uint32 toSegment, float speedLimit, bool generateCurve);
 
 	uint32 addLink(ADeepDriveRoadLinkProxy &linkProxy);
 

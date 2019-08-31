@@ -20,6 +20,7 @@ class DeepDriveSimulationServer;
 class DeepDriveSimulationMessageHandler;
 class DeepDriveSimulationConfigureState;
 class DeepDriveSimulationResetState;
+class DeepDriveManeuverCalculator;
 
 class DeepDriveSimulationRunningState;
 class DeepDriveSimulationReseState;
@@ -205,6 +206,10 @@ public:
 	ADeepDriveAgentControllerBase* getCurrentAgentController() const;
 	TArray<UCaptureSinkComponentBase*>& getCaptureSinks();
 
+	DeepDriveManeuverCalculator* getManeuverCalculator();
+
+	TArray<ADeepDriveAgent*> getAgents(const FBox2D &area, ADeepDriveAgent *excludeAgent);
+
 	void initializeAgents();
 	void removeAgents(bool removeEgo);
 	void spawnAdditionalAgents();
@@ -244,6 +249,8 @@ private:
 	TArray<UCaptureSinkComponentBase*>		m_CaptureSinks;
 
 	FDeepDriveRandomStreamData				m_DefaultRandomStream;
+
+	DeepDriveManeuverCalculator				*m_ManeuverCalculator = 0;
 
 	TArray<ADeepDriveAgent*>				m_Agents;
 	int32									m_curAgentIndex = 0;

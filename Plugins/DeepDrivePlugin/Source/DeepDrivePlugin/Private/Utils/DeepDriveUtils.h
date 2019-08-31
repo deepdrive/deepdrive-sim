@@ -11,4 +11,6 @@ inline void copyString(const FName &src, char *dst, uint32 dstSize)
 	copyString(TCHAR_TO_ANSI(*(src.ToString())), dst, dstSize);
 }
 
+void expandBox2D(FBox2D &box, const FVector2D &p);
+
 } }

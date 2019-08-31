@@ -1,0 +1,53 @@
+#
+#	4 way junction sub types
+#
+#     |       |       ||	   |        |        ||       ||
+#   --+--   ==+==   --++--   --++==   ==++--   ==++--   --++==
+#     |       |       ||       ||       ||       |        |
+#
+#
+#     1       2        3       4        5        6        7
+#
+
+#
+#	cross road traffic turn mask
+#
+#					bit	mask value
+#	TurnRight		1	2
+#	GoOnStraight	2	4
+#	TurnLeft		3	8
+#
+
+# Table for cross road to the right (0)
+# Junction sub type | Turn Right | GoOnStraight | TurnLeft
+
+          1                0             14          12
+          2                0             14          12
+          3                0             0           0
+          4                0             14          12
+          5                0             0           0
+          6                0             14          12
+          7                0             14          12
+
+# Table for cross road straight on (1)
+# Junction sub type | Turn Right | GoOnStraight | TurnLeft
+
+          1                0             0           0
+          2                0             0           6
+          3                0             0           6
+          4                0             0           0
+          5                0             0           0
+          6                0             8           6
+          7                8             8           6
+
+# Table for cross road to the left (2)
+# Junction sub type | Turn Right | GoOnStraight | TurnLeft
+
+          1                0             0           0
+          2                4             12          12
+          3                0             0           0
+          4                0             0           0
+          5                0             0           0
+          6                4             12          12
+          7                0             0           0
+

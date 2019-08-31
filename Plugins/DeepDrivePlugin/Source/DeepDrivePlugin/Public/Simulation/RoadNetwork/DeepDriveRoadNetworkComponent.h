@@ -42,8 +42,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Route")
 	void PlaceAgentOnRoadRandomly(ADeepDriveAgent *Agent);
 
-	UFUNCTION(BlueprintCallable, Category = "Route")
-	ADeepDriveRoute* CalculateRoute(const FVector Start, const FVector Destination);
+	TArray<uint32> CalculateRoute(const FVector Start, const FVector Destination);
 
 	ADeepDriveRoute *CalculateRoute(const TArray<uint32> &routeLinks);
 
@@ -52,7 +51,11 @@ public:
 
 	uint32 getRoadLink(ADeepDriveRoadLinkProxy *linkProxy);
 
-	ADeepDriveRoute* calculateRandomRoute(const FVector &Start);
+	TArray<uint32> calculateRandomRoute(const FVector &Start, FVector &Destination);
+
+	const SDeepDriveRoadNetwork& getRoadNetwork();
+
+	uint32 getRandomRoadLink(bool validFromJunction, bool validToJunction);
 
 protected:
 
@@ -67,3 +70,9 @@ protected:
 	DeepDriveRoadNetworkExtractor	*m_Extractor;
 
 };
+
+
+inline const SDeepDriveRoadNetwork& UDeepDriveRoadNetworkComponent::getRoadNetwork()
+{
+	return m_RoadNetwork;
+}

@@ -36,5 +36,9 @@ float PIDController::advance(float dT, float curE)
 
 	m_prevE = curE;
 
+	m_curE = curE;
+	m_curDE = dE / dT;
+	m_curSumE = dT * m_SumE / static_cast<float>(HistoryLength);
+
 	return y;
 }

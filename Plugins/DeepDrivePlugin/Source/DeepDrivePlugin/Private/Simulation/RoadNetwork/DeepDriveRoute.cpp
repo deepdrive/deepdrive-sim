@@ -87,6 +87,7 @@ void ADeepDriveRoute::trim(const FVector &start, const FVector &end)
 
 void ADeepDriveRoute::convertToPoints(const FVector &location)
 {
+#if 0
 	m_RouteLength = 0.0f;
 	m_RoutePoints.Empty();
 	if	(	m_RoadNetwork
@@ -142,6 +143,7 @@ void ADeepDriveRoute::convertToPoints(const FVector &location)
 			}
 		}
 	}
+#endif
 }
 
 void ADeepDriveRoute::annotateRoute()
