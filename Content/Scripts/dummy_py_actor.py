@@ -77,7 +77,8 @@ class DummyPyActor:
             self.event_loop.run_forever()
 
     def end_play(self, end_code):
-        self.event_loop.stop()
+        if self.event_loop is not None:
+            self.event_loop.stop()
         self.api_server.close()
         print('Closing api server event loop')
         self.event_loop.close()
