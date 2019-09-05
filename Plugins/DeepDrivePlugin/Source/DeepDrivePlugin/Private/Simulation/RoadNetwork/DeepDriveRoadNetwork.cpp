@@ -194,14 +194,6 @@ float SDeepDriveRoadSegment::getHeading(const FVector &pos) const
 	return heading;
 }
 
-float SDeepDriveRoadSegment::getSpeedLimit() const
-{
-	return		(ConnectionShape == EDeepDriveConnectionShape::NO_CONNECTION || ConnectionShape == EDeepDriveConnectionShape::STRAIGHT_LINE)
-			?	DeepDriveRoadNetwork::SpeedLimitInTown
-			:	DeepDriveRoadNetwork::SpeedLimitConnection
-			;
-}
-
 FVector SDeepDriveRoadSegment::getLocationOnSegment(float relativePos) const
 {
 	relativePos = FMath::Clamp(relativePos, 0.0f, 1.0f);

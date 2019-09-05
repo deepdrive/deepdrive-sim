@@ -21,10 +21,10 @@ void DeepDrivePathSpeedAnnotation::annotate(TDeepDrivePathPoints &pathPoints)
 		{
 			curSegmentId = pathPoint.SegmentId;
 			const SDeepDriveRoadSegment &segment = m_RoadNetwork.Segments[curSegmentId];
-			const float speedLimitDelta = segment.getSpeedLimit() - speedLimit;
+			const float speedLimitDelta = segment.SpeedLimit - speedLimit;
 
 			if	(	i > 0
-				&&	segment.ConnectionShape != EDeepDriveConnectionShape::NO_CONNECTION
+				// &&	segment.ConnectionShape != EDeepDriveConnectionShape::NO_CONNECTION
 				&&	FMath::Abs(speedLimitDelta) > 1.0f
 				)
 			{
@@ -51,7 +51,7 @@ void DeepDrivePathSpeedAnnotation::annotate(TDeepDrivePathPoints &pathPoints)
 				}
 			}
 
-			speedLimit = segment.getSpeedLimit();
+			speedLimit = segment.SpeedLimit;
 		}
 
 		pathPoint.SpeedLimit = speedLimit;

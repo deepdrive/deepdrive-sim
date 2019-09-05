@@ -127,8 +127,6 @@ struct SDeepDriveRoadSegment
 
 	float getHeading(const FVector &pos) const;
 
-	float getSpeedLimit() const;
-
 	bool hasSpline() const
 	{
 		return SplineCurves.Position.Points.Num() > 0;
