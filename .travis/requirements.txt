@@ -2,3 +2,5 @@ requests
 loguru
 python-box
 retry
+PyGithub>=1.43.6
+git+git://github.com/deepdrive/problem-constants#egg=problem-constants
