@@ -66,7 +66,15 @@ void DeepDriveManeuverCalculator::calculate(SDeepDriveRoute &route, ADeepDriveAg
 
 					blackboard.setVectorValue("StopLineLocation", fromLink.StopLineLocation);
 					blackboard.setVectorValue("LineOfSightLocation", junctionEntry->LineOfSight);
-					//blackboard.setVectorValue("WaitingLocation", junctionEntry->WaitingLocation);
+
+					for(auto &turnDef : junctionEntry->TurnDefinitions)
+					{
+						if (turnDef.ToLinkId == toLinkId)
+						{
+							blackboard.setVectorValue("WaitingLocation", turnDef.WaitingLocation);
+							break;
+						}
+					}
 
 					for(auto crt : maneuver.CrossTrafficRoads)
 						UE_LOG(LogDeepDriveManeuverCalculator, Log, TEXT("CrossTraffic from %d to %d"), crt.FromLinkId, crt.ToLinkId);

@@ -98,7 +98,6 @@ void DeepDriveFourWayJunctionCalculator::extractCrossRoadTraffic(uint32 curEntry
 
 void DeepDriveFourWayJunctionCalculator::loadConfiguration(const FString &configFile)
 {
-	const FString treeId("four_way_junction_yield");
 	m_BehaviorTreeIds.Add(calcBehaviorTreeKey(1, 3), "four_way_aws");		// all-way stop
 	m_BehaviorTreeIds.Add(calcBehaviorTreeKey(1, 4), "four_way_rbl");		// right before left
 	m_BehaviorTreeIds.Add(calcBehaviorTreeKey(2, 1), "four_way_yield");		// yield

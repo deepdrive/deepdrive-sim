@@ -14,66 +14,48 @@ DeepDriveTBTWaitForOncomingTrafficTask::DeepDriveTBTWaitForOncomingTrafficTask()
 
 void DeepDriveTBTWaitForOncomingTrafficTask::bind(DeepDriveTrafficBlackboard &blackboard, DeepDrivePartialPath &path)
 {
-	FVector stopLineLocation = blackboard.getVectorValue("StopLineLocation", FVector::ZeroVector);
+	FVector waitingLocation = blackboard.getVectorValue("WaitingLocation", FVector::ZeroVector);
 
-	m_StopLineLocationIndex = path.findClosestPathPoint(stopLineLocation, 0);
-	if(m_StopLineLocationIndex >= 0)
+	const float frontBumperDist = blackboard.getAgent()->getFrontBumperDistance();
+	m_WaitingLocationIndex = path.rewind(path.findClosestPathPoint(waitingLocation, 0), frontBumperDist);
+	if (m_WaitingLocationIndex >= 0)
 	{
-		const float frontBumperDist = blackboard.getAgent()->getFrontBumperDistance();
-		m_StopRangeBeginIndex = path.rewind(m_StopLineLocationIndex, StopRangeBeginDistance + frontBumperDist);
-		m_SlowDownBeginIndex = path.rewind(m_StopLineLocationIndex, SlowDownBeginDistance + frontBumperDist, &m_SlowDownBeginDistance);
-		m_CheckClearanceIndex = path.rewind(m_StopLineLocationIndex, SlowDownBeginDistance + frontBumperDist);
-		m_IndexDelta = m_StopRangeBeginIndex - m_SlowDownBeginIndex;
+		m_SlowDownBeginIndex = path.rewind(m_WaitingLocationIndex, SlowDownBeginDistance);
+		m_CheckClearanceIndex = path.rewind(m_WaitingLocationIndex, CheckClearanceDistance);
+		m_IndexDelta = m_WaitingLocationIndex - m_SlowDownBeginIndex;
 	}
 
-	UE_LOG(LogDeepDriveTBTWaitForOncomingTrafficTask, Log, TEXT("DeepDriveTBTWaitForOncomingTrafficTask::bind %d %d %d"), m_StopLineLocationIndex, m_StopRangeBeginIndex, m_SlowDownBeginIndex);
+	UE_LOG(LogDeepDriveTBTWaitForOncomingTrafficTask, Log, TEXT("DeepDriveTBTWaitForOncomingTrafficTask::bind %d %d"), m_WaitingLocationIndex, m_SlowDownBeginIndex);
 }
 
 bool DeepDriveTBTWaitForOncomingTrafficTask::execute(DeepDriveTrafficBlackboard &blackboard, float deltaSeconds, float &speed, int32 pathPointIndex)
 {
-	bool res = true;
-	SDeepDriveManeuver *maneuver = blackboard.getManeuver();
-	if(maneuver->ManeuverType == EDeepDriveManeuverType::TURN_LEFT)
-	{
-
-	}
-
-	return res;
-	
-#if 0
-	if (m_hasReachedStopLine == false)
+	if (m_isJunctionClear == false)
 	{
 		ADeepDriveAgent *agent = blackboard.getAgent();
 		if (agent)
 		{
-			if (m_SlowDownBeginIndex >= 0 && m_StopRangeBeginIndex >= 0)
+			if	(	m_SlowDownBeginIndex
+				&&	pathPointIndex >= m_SlowDownBeginIndex
+				)
 			{
-				
-				if(pathPointIndex >= m_CheckClearanceIndex)
+				const int32 curIndexDelta = pathPointIndex - m_SlowDownBeginIndex;
+				const float curT = 1.0f - static_cast<float>(curIndexDelta) / static_cast<float>(m_IndexDelta);
+				const float speedFac = FMath::SmoothStep(0.0f, 0.25f, curT);
+
+				m_isJunctionClear = pathPointIndex > m_CheckClearanceIndex ? DeepDriveBehaviorTreeHelpers::isJunctionClear(blackboard) : false;
+
+				if (m_isJunctionClear == false)
 				{
-					m_isJunctionClear = DeepDriveBehaviorTreeHelpers::isJunctionClear(blackboard);
+					// speed = pathPointIndex < m_WaitingLocationIndex ? FMath::Max(speed * speedFac, SlowDownMinSpeed) : 0.0f;
+					speed = pathPointIndex < m_WaitingLocationIndex ? speed * speedFac : 0.0f;
 				}
 
-				if (pathPointIndex >= m_StopRangeBeginIndex)
-				{
-					if(m_isJunctionClear)
-						m_hasReachedStopLine = true;
-					else
-						speed = 0.0f;
-				}
-				else if (pathPointIndex >= m_SlowDownBeginIndex)
-				{
-					const int32 curIndexDelta = pathPointIndex - m_SlowDownBeginIndex;
-					const float curT = static_cast<float> (curIndexDelta) / static_cast<float> (m_IndexDelta);
-					const float speedFac = 1.0f - FMath::SmoothStep(0.0f, 0.9f, curT);
-					
-					// UE_LOG(LogDeepDriveTBTWaitForOncomingTrafficTask, Log, TEXT("DeepDriveTBTWaitForOncomingTrafficTask %d slowing down t %f spdFac %f"), pathPointIndex, curT, speedFac);
-					speed = FMath::Max(speed * speedFac, SlowDownMinSpeed);
-				}
+				UE_LOG(LogDeepDriveTBTWaitForOncomingTrafficTask, Log, TEXT("DeepDriveTBTWaitForOncomingTrafficTask spd %f junction clear %c spdFac %f curT %f"), speed, m_isJunctionClear ? 'T' : 'F', speedFac, curT);
+
 			}
 		}
 	}
 
-	return !m_hasReachedStopLine;
-#endif
+	return !m_isJunctionClear;
 }
