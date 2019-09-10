@@ -110,8 +110,9 @@ def run_botleague_ci(branch):
         # if branch not in ['master']:
             pull.draft = True
 
-        create_pull_request(pull, repo_full_name='botleague/botleague',
-                            token=github_token)
+        pull_resp = create_pull_request(
+            pull, repo_full_name='botleague/botleague',
+            token=github_token)
     # TODO: Poll botleague problem run statuses with pull # to collect results?
     # TODO: For each problem, check that results are within range
 
