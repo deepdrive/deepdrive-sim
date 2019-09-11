@@ -1,0 +1,76 @@
+
+#include "DeepDrivePlugin.h"
+#include "DeepDriveTrafficLight.h"
+
+// Sets default values
+ADeepDriveTrafficLight::ADeepDriveTrafficLight()
+{
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
+
+}
+
+// Called when the game starts or when spawned
+void ADeepDriveTrafficLight::BeginPlay()
+{
+	Super::BeginPlay();
+	
+}
+
+// Called every frame
+void ADeepDriveTrafficLight::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	if(m_remainingPhaseTime > 0.0f)
+	{
+		m_remainingPhaseTime -= DeltaTime;
+		if(m_remainingPhaseTime <= 0.0f)
+		{
+			CurrentPhase = m_nextPhase;
+			OnPhaseChanged();
+			m_remainingPhaseTime = -1.0f;
+		}
+	}
+}
+
+void ADeepDriveTrafficLight::SwitchToGreen()
+{
+	m_remainingPhaseTime = RedToGreenDuration;
+	CurrentPhase = EDeepDriveTrafficLightPhase::RED_TO_GREEN;
+	m_nextPhase = EDeepDriveTrafficLightPhase::GREEN;
+	OnPhaseChanged();
+}
+
+void ADeepDriveTrafficLight::SwitchToRed()
+{
+	m_remainingPhaseTime = GreenToRedDuration;
+	CurrentPhase = EDeepDriveTrafficLightPhase::GREEN_TO_RED;
+	m_nextPhase = EDeepDriveTrafficLightPhase::RED;
+	OnPhaseChanged();
+}
+
+void ADeepDriveTrafficLight::SetToGreen(float ElapsedTime)
+{
+	m_remainingPhaseTime = ElapsedTime >= 0.0f ? RedToGreenDuration - ElapsedTime : -1.0f;
+	if(ElapsedTime >= 0.0f)
+	{
+		CurrentPhase = EDeepDriveTrafficLightPhase::RED_TO_GREEN;
+		m_nextPhase = EDeepDriveTrafficLightPhase::GREEN;
+	}
+	else
+		CurrentPhase = EDeepDriveTrafficLightPhase::GREEN;
+	OnPhaseChanged();
+}
+
+void ADeepDriveTrafficLight::SetToRed(float ElapsedTime)
+{
+	m_remainingPhaseTime = ElapsedTime >= 0.0f ? RedToGreenDuration - ElapsedTime : -1.0f;
+	if(ElapsedTime >= 0.0f)
+	{
+		CurrentPhase = EDeepDriveTrafficLightPhase::GREEN_TO_RED;
+		m_nextPhase = EDeepDriveTrafficLightPhase::RED;
+	}
+	else
+		CurrentPhase = EDeepDriveTrafficLightPhase::RED;
+	OnPhaseChanged();
+}
