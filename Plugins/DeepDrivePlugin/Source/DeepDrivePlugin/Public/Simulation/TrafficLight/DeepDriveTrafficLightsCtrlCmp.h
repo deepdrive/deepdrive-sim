@@ -6,6 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "DeepDriveTrafficLightsCtrlCmp.generated.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveTrafficLightsCtrlCmp, Log, All);
+
 class ADeepDriveTrafficLight;
 
 USTRUCT(BlueprintType)
@@ -22,6 +24,10 @@ struct FDeepDriveTrafficLightCircuit
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	TArray<ADeepDriveTrafficLight*>		TrafficLights;
 
+	void resetState()
+	{
+		State = -1;
+	}
 
 	void setState(bool newState)
 	{
@@ -47,6 +53,7 @@ struct FDeepDriveTrafficLightCycle
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	float									Duration;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	TArray<FDeepDriveTrafficLightCircuit>	Circuits;
 };
 

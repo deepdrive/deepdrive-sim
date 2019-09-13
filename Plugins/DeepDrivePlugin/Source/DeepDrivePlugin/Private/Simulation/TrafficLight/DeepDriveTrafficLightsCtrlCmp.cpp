@@ -4,6 +4,8 @@
 
 #include "Simulation/TrafficLight/DeepDriveTrafficLight.h"
 
+DEFINE_LOG_CATEGORY(LogDeepDriveTrafficLightsCtrlCmp);
+
 // Sets default values for this component's properties
 UDeepDriveTrafficLightsCtrlCmp::UDeepDriveTrafficLightsCtrlCmp()
 {
@@ -24,49 +26,56 @@ void UDeepDriveTrafficLightsCtrlCmp::BeginPlay()
 	for(auto &cycle : Cycles)
 		totalDuration += cycle.Duration;
 
-	m_curCycleTime = FMath::Fmod(PhaseLag, totalDuration);
+	float curCycleTime = FMath::Fmod(PhaseLag, totalDuration);
+	m_curCycleTime = curCycleTime;
 	m_curCycleIndex = 0;
 	uint32 curIndex = 0;
+
+	UE_LOG(LogDeepDriveTrafficLightsCtrlCmp, Log, TEXT("BeginPlay: total %f for %d cycles %f"), totalDuration, Cycles.Num(), curCycleTime);
+
 	for(auto &cycle : Cycles)
 	{
-		if	(	m_curCycleTime >= 0.0f
-			&&	m_curCycleTime < cycle.Duration
+		if	(	curCycleTime >= 0.0f
+			&&	curCycleTime < cycle.Duration
 			)
 		{
 			for(auto &circuit : cycle.Circuits)
 			{
-				if(m_curCycleTime < circuit.Delay)
+				if(curCycleTime < circuit.Delay)
 				{
-					circuit.setState(-1);
+					circuit.resetState();
 					for(auto &trafficLight : circuit.TrafficLights)
 						trafficLight->SetToRed(-1.0f);
 				}
-				else if(m_curCycleTime < (circuit.Delay + circuit.Duration) )
+				else if(curCycleTime < (circuit.Delay + circuit.Duration) )
 				{
 					circuit.setState(0);
 					for(auto &trafficLight : circuit.TrafficLights)
-						trafficLight->SetToGreen(m_curCycleTime - circuit.Delay);
+						trafficLight->SetToGreen(curCycleTime - circuit.Delay);
 				}
 				else
 				{
 					circuit.setState(1);
 					for(auto &trafficLight : circuit.TrafficLights)
-						trafficLight->SetToRed(m_curCycleTime - circuit.Delay - circuit.Duration);
+						trafficLight->SetToRed(curCycleTime - circuit.Delay - circuit.Duration);
 				}
 			}
 			m_curCycleIndex = curIndex;
 		}
-
-		for(auto &circuit : cycle.Circuits)
+		else
 		{
-			circuit.setState(-1);
-			for(auto &trafficLight : circuit.TrafficLights)
+			for (auto &circuit : cycle.Circuits)
 			{
-				trafficLight->SetToRed(-1.0f);
+				circuit.resetState();
+				for (auto &trafficLight : circuit.TrafficLights)
+				{
+					trafficLight->SetToRed(-1.0f);
+				}
 			}
 		}
 
-		m_curCycleTime -= cycle.Duration;
+		curIndex++;
+		curCycleTime -= cycle.Duration;
 	}
 }
 
@@ -74,15 +83,30 @@ void UDeepDriveTrafficLightsCtrlCmp::BeginPlay()
 // Called every frame
 void UDeepDriveTrafficLightsCtrlCmp::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
+#if WITH_EDITOR
+	if(TickType == ELevelTick::LEVELTICK_ViewportsOnly)
+		return;
+#endif
+
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	if(m_curCycleIndex < Cycles.Num())
 	{
+		// UE_LOG(LogDeepDriveTrafficLightsCtrlCmp, Log, TEXT("%f  %d"), m_curCycleTime, m_curCycleIndex);
 		m_curCycleTime += DeltaTime;
 		if(m_curCycleTime > Cycles[m_curCycleIndex].Duration)
 		{
+			UE_LOG(LogDeepDriveTrafficLightsCtrlCmp, Log, TEXT(">> New Cycle %f"), m_curCycleTime);
+
+			for (auto &circuit : Cycles[m_curCycleIndex].Circuits)
+			{
+				circuit.resetState();
+			}
+
 			m_curCycleTime = m_curCycleTime - Cycles[m_curCycleIndex].Duration;
 			m_curCycleIndex = (m_curCycleIndex + 1) % Cycles.Num();
+
+			// UE_LOG(LogDeepDriveTrafficLightsCtrlCmp, Log, TEXT("State %d"), Cycles[m_curCycleIndex].Circuits[0].getState());
 		}
 
 		FDeepDriveTrafficLightCycle &cycle = Cycles[m_curCycleIndex];
@@ -98,6 +122,7 @@ void UDeepDriveTrafficLightsCtrlCmp::TickComponent(float DeltaTime, ELevelTick T
 					circuit.setState(0);
 					for(auto &trafficLight : circuit.TrafficLights)
 						trafficLight->SwitchToGreen();
+					UE_LOG(LogDeepDriveTrafficLightsCtrlCmp, Log, TEXT(">> [%f] Switch to green"),  m_curCycleTime);
 				}
 			}
 			else if(curState == 0)
@@ -107,6 +132,7 @@ void UDeepDriveTrafficLightsCtrlCmp::TickComponent(float DeltaTime, ELevelTick T
 					circuit.setState(1);
 					for (auto &trafficLight : circuit.TrafficLights)
 						trafficLight->SwitchToRed();
+					UE_LOG(LogDeepDriveTrafficLightsCtrlCmp, Log, TEXT(">> [%f] Switch to red"), m_curCycleTime);
 				}
 			}
 		}
