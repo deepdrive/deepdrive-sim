@@ -13,18 +13,18 @@ DeepDriveTBTStopAtLocationTask::DeepDriveTBTStopAtLocationTask()
 
 void DeepDriveTBTStopAtLocationTask::bind(DeepDriveTrafficBlackboard &blackboard, DeepDrivePartialPath &path)
 {
-	FVector stopLineLocation = blackboard.getVectorValue("StopLineLocation", FVector::ZeroVector);
+	FVector stopLocation = blackboard.getVectorValue("StopLineLocation", FVector::ZeroVector);
 
-	m_StopLineLocationIndex = path.findClosestPathPoint(stopLineLocation, 0);
-	if(m_StopLineLocationIndex >= 0)
+	const float frontBumperDist = blackboard.getAgent()->getFrontBumperDistance();
+	m_StopLocationIndex = path.rewind(path.findClosestPathPoint(stopLocation, 0), frontBumperDist);
+	if (m_StopLocationIndex >= 0)
 	{
-		const float frontBumperDist = blackboard.getAgent()->getFrontBumperDistance();
-		m_StopRangeBeginIndex = path.rewind(m_StopLineLocationIndex, StopRangeBeginDistance + frontBumperDist);
-		m_SlowDownBeginIndex = path.rewind(m_StopLineLocationIndex, SlowDownBeginDistance + frontBumperDist, &m_SlowDownBeginDistance);
-		m_IndexDelta = m_StopRangeBeginIndex - m_SlowDownBeginIndex;
+		m_StopBeginIndex = path.rewind(m_StopLocationIndex, StopBeginDistance);
+		m_SlowDownBeginIndex = path.rewind(m_StopLocationIndex, SlowDownBeginDistance);
+		m_IndexDelta = m_StopLocationIndex - m_SlowDownBeginIndex;
 	}
 
-	UE_LOG(LogDeepDriveTBTStopAtLocationTask, Log, TEXT("DeepDriveTBTStopAtLocationTask::bind %d %d %d"), m_StopLineLocationIndex, m_StopRangeBeginIndex, m_SlowDownBeginIndex);
+	UE_LOG(LogDeepDriveTBTStopAtLocationTask, Log, TEXT("DeepDriveTBTStopAtLocationTask::bind %d %d | %s"), m_StopLocationIndex, m_SlowDownBeginIndex, *(stopLocation.ToString()));
 }
 
 bool DeepDriveTBTStopAtLocationTask::execute(DeepDriveTrafficBlackboard &blackboard, float deltaSeconds, float &speed, int32 pathPointIndex)
@@ -34,28 +34,16 @@ bool DeepDriveTBTStopAtLocationTask::execute(DeepDriveTrafficBlackboard &blackbo
 		ADeepDriveAgent *agent = blackboard.getAgent();
 		if (agent)
 		{
-			if (m_SlowDownBeginIndex >= 0 && m_StopRangeBeginIndex >= 0)
+			if (m_SlowDownBeginIndex && pathPointIndex >= m_SlowDownBeginIndex)
 			{
-				if (pathPointIndex >= m_StopRangeBeginIndex)
-				{
-					speed = 0.0f;
-					const float curSpeed = agent->getSpeedKmh();
-					// UE_LOG(LogDeepDriveTBTStopAtLocationTask, Log, TEXT("DeepDriveTBTStopAtLocationTask %d stopping %f"), pathPointIndex, curSpeed);
-					if (curSpeed <= 20.0f)
-					{
-						m_hasStopped = true;
-						UE_LOG(LogDeepDriveTBTStopAtLocationTask, Log, TEXT("DeepDriveTBTStopAtLocationTask has Stopped at pathIndex %d"), pathPointIndex);
-					}
-				}
-				else if (pathPointIndex >= m_SlowDownBeginIndex)
-				{
-					const int32 curIndexDelta = pathPointIndex - m_SlowDownBeginIndex;
-					const float curT = static_cast<float> (curIndexDelta) / static_cast<float> (m_IndexDelta);
-					const float speedFac = 1.0f - FMath::SmoothStep(0.0f, 0.9f, curT);
-					
-					// UE_LOG(LogDeepDriveTBTStopAtLocationTask, Log, TEXT("DeepDriveTBTStopAtLocationTask %d slowing down t %f spdFac %f"), pathPointIndex, curT, speedFac);
-					speed = FMath::Max(speed * speedFac, 5.0f);
-				}
+				const int32 curIndexDelta = pathPointIndex - m_SlowDownBeginIndex;
+				const float curT = 1.0f - static_cast<float>(curIndexDelta) / static_cast<float>(m_IndexDelta);
+				const float speedFac = FMath::SmoothStep(0.0f, 0.5f, curT);
+
+				speed = pathPointIndex < m_StopLocationIndex ? speed * speedFac : 0.0f;
+				m_hasStopped = pathPointIndex > m_StopBeginIndex && agent->getSpeedKmh() < 1.0f;
+
+				//UE_LOG(LogDeepDriveTBTStopAtLocationTask, Log, TEXT("DeepDriveTBTStopAtLocationTask spd %f spdFac %f curT %f agntSpd %f -> %c"), speed, speedFac, curT, agent->getSpeedKmh(), m_hasStopped ? 'T' : 'F');
 			}
 		}
 	}

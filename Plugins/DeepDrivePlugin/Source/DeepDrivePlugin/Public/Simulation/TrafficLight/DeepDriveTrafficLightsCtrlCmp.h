@@ -78,7 +78,7 @@ public:
 	TArray<FDeepDriveTrafficLightCycle>				Cycles;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	float	PhaseLag = 0.0f;
+	float	TimeOffset = 0.0f;
 
 private:
 

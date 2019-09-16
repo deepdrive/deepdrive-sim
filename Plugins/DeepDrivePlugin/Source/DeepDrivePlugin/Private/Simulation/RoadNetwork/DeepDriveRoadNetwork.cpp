@@ -17,6 +17,16 @@ int32 SDeepDriveRoadLink::getRightMostLane(EDeepDriveLaneType type) const
 	return curLaneInd;
 }
 
+ADeepDriveTrafficLight* SDeepDriveJunctionEntry::getTrafficLight(uint32 toLinkId) const
+{
+	for(auto &turnDefinition : TurnDefinitions)
+	{
+		if(turnDefinition.ToLinkId == toLinkId)
+			return turnDefinition.TrafficLight;
+	}
+	return 0;
+}
+
 bool SDeepDriveJunction::findJunctionConnection(uint32 fromLinkId, uint32 fromSegment, uint32 toSegment, SDeepDriveJunctionConnection &junctionConnection) const
 {
 	for (auto &entry : Entries)

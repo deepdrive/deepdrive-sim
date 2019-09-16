@@ -10,6 +10,7 @@
 class ADeepDriveRoadSegmentProxy;
 class ADeepDriveRoadLinkProxy;
 class UBezierCurveComponent;
+class ADeepDriveTrafficLight;
 
 USTRUCT(BlueprintType)
 struct FDeepDriveLaneConnectionCustomCurveParams
@@ -80,8 +81,8 @@ struct FDeepDriveTurnDefinitionProxy
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	FVector WaitingLocation;
 
-	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	// ATrafficLight	*TrafficLight = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	ADeepDriveTrafficLight *TrafficLight = 0;
 };
 
 
@@ -104,6 +105,9 @@ struct FDeepDriveJunctionEntryProxy
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	FVector										LineOfSight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	ADeepDriveTrafficLight 						*TrafficLight = 0;
 
 	UPROPERTY(EditAnywhere, Category = Default)
 	TArray<FDeepDriveTurnDefinitionProxy> TurnDefinitions;

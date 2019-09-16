@@ -1,5 +1,5 @@
 
-#include "Simulation/Traffic/BehaviorTree/Creators/DeepDriveJunctionTurnYieldBTCreator.h"
+#include "Simulation/Traffic/BehaviorTree/Creators/DeepDriveJunctionTrafficLightUnprotectedLeftBTCreator.h"
 
 #include "Private/Simulation/Traffic/Path/DeepDrivePathDefines.h"
 
@@ -10,16 +10,16 @@
 
 #include "Simulation/Traffic/BehaviorTree/DeepDriveBehaviorTreeFactory.h"
 
-bool DeepDriveJunctionTurnYieldBTCreator::s_isRegistered = DeepDriveJunctionTurnYieldBTCreator::registerCreator();
+bool DeepDriveJunctionTrafficLightUnprotectedLeftBTCreator::s_isRegistered = DeepDriveJunctionTrafficLightUnprotectedLeftBTCreator::registerCreator();
 
-bool DeepDriveJunctionTurnYieldBTCreator::registerCreator()
+bool DeepDriveJunctionTrafficLightUnprotectedLeftBTCreator::registerCreator()
 {
 	DeepDriveBehaviorTreeFactory &factory = DeepDriveBehaviorTreeFactory::GetInstance();
-	factory.registerCreator("four_way_yield", &DeepDriveJunctionTurnYieldBTCreator::createBehaviorTree);
+	factory.registerCreator("four_way_tl_upl", std::bind(&DeepDriveJunctionTrafficLightUnprotectedLeftBTCreator::createBehaviorTree));
 	return true;
 }
 
-DeepDriveTrafficBehaviorTree* DeepDriveJunctionTurnYieldBTCreator::createBehaviorTree()
+DeepDriveTrafficBehaviorTree* DeepDriveJunctionTrafficLightUnprotectedLeftBTCreator::createBehaviorTree()
 {
 	DeepDriveTrafficBehaviorTree *behaviorTree = new DeepDriveTrafficBehaviorTree();
 	if (behaviorTree)

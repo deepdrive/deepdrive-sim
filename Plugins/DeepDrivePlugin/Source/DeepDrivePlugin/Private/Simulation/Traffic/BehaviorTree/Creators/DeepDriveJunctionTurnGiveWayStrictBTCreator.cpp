@@ -18,7 +18,7 @@ bool DeepDriveJunctionTurnGiveWayStrictBTCreator::s_isRegistered = DeepDriveJunc
 bool DeepDriveJunctionTurnGiveWayStrictBTCreator::registerCreator()
 {
 	DeepDriveBehaviorTreeFactory &factory = DeepDriveBehaviorTreeFactory::GetInstance();
-	factory.registerCreator("four_way_stop", std::bind(&DeepDriveJunctionTurnGiveWayStrictBTCreator::createBehaviorTree));
+	factory.registerCreator("four_way_stop", &DeepDriveJunctionTurnGiveWayStrictBTCreator::createBehaviorTree);
 	return true;
 }
 

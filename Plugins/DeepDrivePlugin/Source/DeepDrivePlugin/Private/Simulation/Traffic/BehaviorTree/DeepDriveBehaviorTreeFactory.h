@@ -32,7 +32,7 @@ public:
 
 private:
 
-	typedef TMap<FString, CreatorFuncPtr> Creators;
+	typedef std::map<FString, CreatorFuncPtr> Creators;
 
 	Creators								m_Creators;
 

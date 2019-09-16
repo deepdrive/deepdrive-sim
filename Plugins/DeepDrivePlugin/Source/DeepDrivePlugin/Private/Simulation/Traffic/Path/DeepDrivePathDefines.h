@@ -72,7 +72,7 @@ struct SDeepDriveManeuver
 
 	FBox2D									ManeuverArea;
 
-	ATrafficLight							*TrafficLight = 0;
+	ADeepDriveTrafficLight 					*TrafficLight = 0;
 
 	DeepDriveTrafficBehaviorTree			*BehaviorTree = 0;
 

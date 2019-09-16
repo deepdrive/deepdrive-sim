@@ -152,6 +152,8 @@ void DeepDriveRoadNetworkExtractor::extract()
 							turnDefinition.ToLinkId = m_LinkCache[toName];
 							turnDefinition.ManeuverType = turnDefinitionProxy.ManeuverType;
 							turnDefinition.WaitingLocation = turnDefinitionProxy.WaitingLocation;
+							turnDefinition.TrafficLight = turnDefinitionProxy.TrafficLight ? turnDefinitionProxy.TrafficLight : entryProxy.TrafficLight;
+
 							entry.TurnDefinitions.Add(turnDefinition);
 						}
 					}

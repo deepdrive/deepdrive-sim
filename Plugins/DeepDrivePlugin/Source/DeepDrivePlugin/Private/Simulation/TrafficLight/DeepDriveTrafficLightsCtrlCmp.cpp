@@ -26,7 +26,7 @@ void UDeepDriveTrafficLightsCtrlCmp::BeginPlay()
 	for(auto &cycle : Cycles)
 		totalDuration += cycle.Duration;
 
-	float curCycleTime = FMath::Fmod(PhaseLag, totalDuration);
+	float curCycleTime = FMath::Fmod(TimeOffset, totalDuration);
 	m_curCycleTime = curCycleTime;
 	m_curCycleIndex = 0;
 	uint32 curIndex = 0;

@@ -15,18 +15,17 @@ DeepDriveBehaviorTreeFactory::DeepDriveBehaviorTreeFactory()
 
 void DeepDriveBehaviorTreeFactory::registerCreator(const FString &key, CreatorFuncPtr creator)
 {
-	if(m_Creators.Contains(key))
-		m_Creators[key] = creator;
-	else
-		m_Creators.Add(key, creator);
+	m_Creators[key] = creator;
 }
 
 DeepDriveTrafficBehaviorTree* DeepDriveBehaviorTreeFactory::createBehaviorTree(const FString &key)
 {
 	DeepDriveTrafficBehaviorTree *behaviorTree = 0;
-	if(m_Creators.Contains(key))
+
+	Creators::iterator cIt = m_Creators.find(key);
+	if(cIt != m_Creators.end())
 	{
-		behaviorTree = m_Creators[key]();
+		behaviorTree = cIt->second();
 	}
 
 	return behaviorTree;
@@ -36,7 +35,7 @@ DeepDriveBehaviorTreeFactory& DeepDriveBehaviorTreeFactory::GetInstance()
 {
 	if (theInstance == 0)
 	{
-		theInstance = new DeepDriveBehaviorTreeFactory;
+		theInstance = new DeepDriveBehaviorTreeFactory();
 	}
 
 	return *theInstance;

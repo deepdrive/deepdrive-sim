@@ -53,7 +53,9 @@ void DeepDriveManeuverCalculator::calculate(SDeepDriveRoute &route, ADeepDriveAg
 			maneuver.EntryPoint = junctionEntry->ManeuverEntryPoint;
 			maneuver.ExitPoint = m_RoadNetwork.Links[maneuver.ToLinkId].StartPoint;
 
-			const uint32 junctionType = static_cast<uint32> (maneuver.JunctionType);
+			maneuver.TrafficLight = junctionEntry->getTrafficLight(toLink.LinkId);
+
+			const uint32 junctionType = static_cast<uint32>(maneuver.JunctionType);
 			if(m_JunctionCalculators.Contains(junctionType))
 			{
 				m_JunctionCalculators[junctionType]->calculate(maneuver);

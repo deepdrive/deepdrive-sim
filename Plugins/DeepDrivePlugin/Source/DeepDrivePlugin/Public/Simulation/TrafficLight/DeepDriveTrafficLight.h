@@ -10,10 +10,12 @@
 UENUM(BlueprintType)
 enum class EDeepDriveTrafficLightPhase : uint8
 {
-	RED 				= 0	UMETA(DisplayName = "Red"),
-	RED_TO_GREEN 		= 1	UMETA(DisplayName = "Red to Green"),
-	GREEN 				= 2	UMETA(DisplayName = "Green"),
-	GREEN_TO_RED    	= 3	UMETA(DisplayName = "Green to Red")
+	OFF 				= 0	UMETA(DisplayName = "Off"),
+	INACTIVE			= 1	UMETA(DisplayName = "Inactive"),
+	RED 				= 2	UMETA(DisplayName = "Red"),
+	RED_TO_GREEN 		= 3	UMETA(DisplayName = "Red to Green"),
+	GREEN 				= 4	UMETA(DisplayName = "Green"),
+	GREEN_TO_RED    	= 5	UMETA(DisplayName = "Green to Red")
 };
 
 
@@ -59,9 +61,16 @@ public:
 
 	void TurnOff();
 
+	bool IsActive() const;
+
 private:
 
 	float								m_remainingPhaseTime = -1.0f;
 	EDeepDriveTrafficLightPhase			m_nextPhase = EDeepDriveTrafficLightPhase::RED;
 
 };
+
+inline bool ADeepDriveTrafficLight::IsActive() const
+{
+	return CurrentPhase != EDeepDriveTrafficLightPhase::OFF && CurrentPhase != EDeepDriveTrafficLightPhase::INACTIVE;
+}

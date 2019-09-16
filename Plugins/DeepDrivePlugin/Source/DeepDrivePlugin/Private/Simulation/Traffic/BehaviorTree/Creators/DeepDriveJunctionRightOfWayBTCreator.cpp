@@ -15,7 +15,7 @@ bool DeepDriveJunctionRightOfWayBTCreator::s_isRegistered = DeepDriveJunctionRig
 bool DeepDriveJunctionRightOfWayBTCreator::registerCreator()
 {
 	DeepDriveBehaviorTreeFactory &factory = DeepDriveBehaviorTreeFactory::GetInstance();
-	factory.registerCreator("four_way_row", std::bind(&DeepDriveJunctionRightOfWayBTCreator::createBehaviorTree));
+	factory.registerCreator("four_way_row", &DeepDriveJunctionRightOfWayBTCreator::createBehaviorTree);
 	return true;
 }
 

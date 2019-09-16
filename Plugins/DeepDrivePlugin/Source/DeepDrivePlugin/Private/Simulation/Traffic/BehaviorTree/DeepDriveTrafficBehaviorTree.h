@@ -30,7 +30,7 @@ private :
 	DeepDriveTrafficBlackboard					*m_Blackboard = 0;
 
 	DeepDrivePartialPath						*m_Path = 0;
-	SDeepDriveManeuver						*m_Maneuver = 0;
+	SDeepDriveManeuver							*m_Maneuver = 0;
 
 	DeepDriveTrafficBehaviorTreeNode			*m_RootNode = 0;
 	TArray<DeepDriveTrafficBehaviorTreeNode*>	m_Nodes;
