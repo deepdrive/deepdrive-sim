@@ -1,12 +1,14 @@
 import json
 import os
 import sys
+from typing import List
+
 import time
 from datetime import datetime
 from os.path import dirname, realpath, join
 
 import requests
-from box import Box
+from box import Box, BoxList
 from github import Github
 from loguru import logger as log
 from retry import retry
@@ -25,6 +27,11 @@ PACKAGE_DIR = join(dirname(DIR), 'Packaging')
 sys.path.insert(0, PACKAGE_DIR)
 
 from get_package_version import get_package_version
+
+
+DEFAULT_BOTLEAGUE_LIAISON_HOST = 'https://liaison.botleague.io'
+BOTLEAGUE_LIAISON_HOST = os.environ.get('BOTLEAGUE_LIAISON_HOST') or \
+                         DEFAULT_BOTLEAGUE_LIAISON_HOST
 
 
 @log.catch(reraise=True)
@@ -61,24 +68,20 @@ def run_botleague_ci(branch):
     log.info('Sending pull requests to botleague for supported problems')
     github_token = os.environ['BOTLEAGUE_GITHUB_TOKEN']
     github_client = Github(github_token)
-    repo = github_client.get_repo('deepdrive/deepdrive-sim')
     # Get our fork owner
     botleague_fork_owner = 'deepdrive'
     # github_client.get_user('someusername')  # or that for a user fork
     # NOTE: Fork on github was manually created
-    botleague_repo = github_client.get_repo('botleague/botleague')
     botleague_fork = github_client.get_repo(
         f'{botleague_fork_owner}/botleague')
+    problem_cis = BoxList()
     for problem in problem_constants.constants.SUPPORTED_PROBLEMS:
-
-        # TODO: This is returning stale data (also get_branches)
-        #   May need to clone the repo!
         hash_to_branch_from = get_head('botleague/botleague', github_token)
 
         sim_version = get_package_version()
         botleague_branch_name = f'deepdrive_{get_package_version()}_' \
-            f'{generate_rand_alphanumeric(3)}'
-        botleague_fork.create_git_ref(
+            f'id-{generate_rand_alphanumeric(3)}'
+        fork_ref = botleague_fork.create_git_ref(
             ref=f'refs/heads/{botleague_branch_name}',
             sha=hash_to_branch_from)
         problem_json_path = f'problems/deepdrive/{problem}/problem.json'
@@ -97,7 +100,7 @@ def run_botleague_ci(branch):
         content = problem_def.to_json(indent=2) \
             .replace('\n  "$comment-', '\n\n  "$comment-')
 
-        botleague_fork.update_file(problem_json_path, message,
+        update_resp = botleague_fork.update_file(problem_json_path, message,
                                    content=content,
                                    sha=problem_sha,
                                    branch=botleague_branch_name)
@@ -106,6 +109,9 @@ def run_botleague_ci(branch):
             body=f'',
             head=f'{botleague_fork_owner}:{botleague_branch_name}',
             base='master',)
+        if BOTLEAGUE_LIAISON_HOST != DEFAULT_BOTLEAGUE_LIAISON_HOST:
+            pull.body = Box(
+                botleague_liaison_host=BOTLEAGUE_LIAISON_HOST).to_json()
         if branch not in ['master', 'v3_stable']:
         # if branch not in ['master']:
             pull.draft = True
@@ -113,8 +119,42 @@ def run_botleague_ci(branch):
         pull_resp = create_pull_request(
             pull, repo_full_name='botleague/botleague',
             token=github_token)
-    # TODO: Poll botleague problem run statuses with pull # to collect results?
-    # TODO: For each problem, check that results are within range
+
+        head_sha = Box(update_resp).commit.sha
+        problem_cis.append(Box(pr_number=pull_resp.json()['number'],
+                               commit=head_sha))
+    problem_cis = wait_for_problem_cis(problem_cis)
+    log.info(f'Finished problem ci runs: '
+             f'{problem_cis.to_json(indent=2, default=str)}')
+    if all(p.status == 'passed' for p in problem_cis):
+        log.success(f'Problem ci\'s passed!')
+    else:
+        raise RuntimeError(f'Problem ci\'s failed! See above for details.')
+
+
+def wait_for_problem_cis(problem_cis: BoxList) -> BoxList:
+    log.info(f'Waiting for problem cis {problem_cis.to_json()} to complete...')
+    def problem_cis_complete():
+        for pci in problem_cis:
+            status_resp = get_problem_ci_status(pci.pr_number, pci.commit)
+            status_resp = dbox(status_resp.json())
+            pci.status = status_resp.status
+            if status_resp.status == 'pending':
+                return None
+        return problem_cis
+    return wait_for_fn(problem_cis_complete)
+
+
+def wait_for_fn(fn: callable):
+    last_log_time = None
+    while True:
+        ret = fn()
+        if ret is not None:
+            return ret
+        elif not last_log_time or time.time() - last_log_time > 5:
+            print('.', end='', flush=True)
+            last_log_time = time.time()
+        time.sleep(1)
 
 
 def wait_for_build_result(job_id) -> bool:
@@ -145,6 +185,16 @@ def wait_for_job_to_finish(job_id) -> Box:
             print('.', end='', flush=True)
             last_log_time = time.time()
         time.sleep(1)
+
+
+@log.catch
+@retry(tries=5, jitter=(0, 1), logger=log)
+def get_problem_ci_status(pr_number: int, commit: str):
+    status_resp = requests.post(f'{BOTLEAGUE_LIAISON_HOST}/problem_ci_status',
+                                json=dict(commit=commit, pr_number=pr_number))
+    if not status_resp.ok:
+        raise RuntimeError('Error getting job status')
+    return status_resp
 
 
 @log.catch
@@ -215,7 +265,8 @@ def create_pull_request(pull: Box, repo_full_name: str, token: str) -> \
         f'https://api.github.com/repos/{repo_full_name}/pulls',
         json=pull.to_dict(),
         headers=headers)
-    log.info(f'Pull request response {resp.json(indent=2)}')
+    log.info(f'Created pull request #{resp.json()["number"]} on '
+             f'{repo_full_name}')
     return resp
 
 
