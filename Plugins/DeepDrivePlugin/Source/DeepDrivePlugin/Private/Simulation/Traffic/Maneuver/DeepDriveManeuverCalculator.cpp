@@ -53,7 +53,9 @@ void DeepDriveManeuverCalculator::calculate(SDeepDriveRoute &route, ADeepDriveAg
 			maneuver.EntryPoint = junctionEntry->ManeuverEntryPoint;
 			maneuver.ExitPoint = m_RoadNetwork.Links[maneuver.ToLinkId].StartPoint;
 
-			const uint32 junctionType = static_cast<uint32> (maneuver.JunctionType);
+			maneuver.TrafficLight = junctionEntry->getTrafficLight(toLink.LinkId);
+
+			const uint32 junctionType = static_cast<uint32>(maneuver.JunctionType);
 			if(m_JunctionCalculators.Contains(junctionType))
 			{
 				m_JunctionCalculators[junctionType]->calculate(maneuver);
@@ -66,7 +68,15 @@ void DeepDriveManeuverCalculator::calculate(SDeepDriveRoute &route, ADeepDriveAg
 
 					blackboard.setVectorValue("StopLineLocation", fromLink.StopLineLocation);
 					blackboard.setVectorValue("LineOfSightLocation", junctionEntry->LineOfSight);
-					//blackboard.setVectorValue("WaitingLocation", junctionEntry->WaitingLocation);
+
+					for(auto &turnDef : junctionEntry->TurnDefinitions)
+					{
+						if (turnDef.ToLinkId == toLinkId)
+						{
+							blackboard.setVectorValue("WaitingLocation", turnDef.WaitingLocation);
+							break;
+						}
+					}
 
 					for(auto crt : maneuver.CrossTrafficRoads)
 						UE_LOG(LogDeepDriveManeuverCalculator, Log, TEXT("CrossTraffic from %d to %d"), crt.FromLinkId, crt.ToLinkId);

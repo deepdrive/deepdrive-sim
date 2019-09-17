@@ -17,18 +17,15 @@ public:
 
 private:
 
-	int32			m_StopLineLocationIndex = -1;
+	int32			m_StopLocationIndex = -1;
+	int32			m_StopBeginIndex = -1;
 
 	int32			m_SlowDownBeginIndex = -1;
-	int32			m_StopRangeBeginIndex = -1;
 
 	int32			m_IndexDelta = 0;
 
-	float			m_SlowDownBeginDistance = 0.0f;
-
 	bool			m_hasStopped = false;
 
-
-	const float		StopRangeBeginDistance = 300.0f;
+	const float		StopBeginDistance = 400.0f;
 	const float		SlowDownBeginDistance = 2000.0f;
 };

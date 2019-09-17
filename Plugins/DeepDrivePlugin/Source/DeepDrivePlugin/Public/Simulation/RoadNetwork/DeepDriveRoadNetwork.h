@@ -8,7 +8,7 @@
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveRoadNetwork, Log, All);
 
-class ATrafficLight;
+class ADeepDriveTrafficLight;
 
 UENUM(BlueprintType)
 enum class EDeepDriveLaneType : uint8
@@ -127,8 +127,6 @@ struct SDeepDriveRoadSegment
 
 	float getHeading(const FVector &pos) const;
 
-	float getSpeedLimit() const;
-
 	bool hasSpline() const
 	{
 		return SplineCurves.Position.Points.Num() > 0;
@@ -188,7 +186,7 @@ struct SDeepDriveTurnDefinition
 	EDeepDriveManeuverType		ManeuverType;
 	FVector						WaitingLocation;
 
-	uint32						TrafficLightId = 0;
+	ADeepDriveTrafficLight 		*TrafficLight = 0;
 };
 
 struct SDeepDriveJunctionConnection
@@ -211,6 +209,8 @@ struct SDeepDriveJunctionEntry
 	FVector									LineOfSight;
 
 	TArray<SDeepDriveJunctionConnection>	Connections;	
+
+	ADeepDriveTrafficLight* getTrafficLight(uint32 toLinkId) const;
 
 };
 

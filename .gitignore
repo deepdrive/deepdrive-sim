@@ -61,6 +61,7 @@ Binaries/*
 .vscode/*
 .vs/*
 *.code-workspace
+.history/*
 
 # Builds
 Build/*

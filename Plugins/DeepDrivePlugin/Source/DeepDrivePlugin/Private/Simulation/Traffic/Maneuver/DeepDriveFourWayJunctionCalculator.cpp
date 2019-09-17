@@ -5,6 +5,8 @@
 #include "Public/Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
 #include "Simulation/Traffic/BehaviorTree/DeepDriveBehaviorTreeFactory.h"
 
+#include "Simulation/TrafficLight/DeepDriveTrafficLight.h"
+
 DEFINE_LOG_CATEGORY(LogDeepDriveFourWayJunctionCalculator);
 
 DeepDriveFourWayJunctionCalculator::DeepDriveFourWayJunctionCalculator(const SDeepDriveRoadNetwork &roadNetwork)
@@ -44,16 +46,29 @@ void DeepDriveFourWayJunctionCalculator::calculate(SDeepDriveManeuver &maneuver)
 
 bool DeepDriveFourWayJunctionCalculator::createBehaviorTree(SDeepDriveManeuver &maneuver)
 {
-	const uint32 junctionSubType = static_cast<uint32_t> (maneuver.JunctionSubType);
-	const uint32 key = calcBehaviorTreeKey(maneuver);
-	const FString treeId = m_BehaviorTreeIds.Contains(key) ? m_BehaviorTreeIds[key] : "";
+	if(maneuver.TrafficLight && maneuver.TrafficLight->IsActive())
+	{
+		UE_LOG(LogDeepDriveFourWayJunctionCalculator, Log, TEXT("Caluclate 4-way junction with active traffic light ") );
 
-	UE_LOG(LogDeepDriveFourWayJunctionCalculator, Log, TEXT("Caluclate 4-way junction with sub type %d and maneuver type %d key 0x%x treeId %s"), junctionSubType, static_cast<uint32> (maneuver.ManeuverType), key, *(treeId) );
+		DeepDriveBehaviorTreeFactory &factory = DeepDriveBehaviorTreeFactory::GetInstance();
 
-	maneuver.BehaviorTree =		treeId.IsEmpty() == false
-							?	DeepDriveBehaviorTreeFactory::GetInstance().createBehaviorTree(m_BehaviorTreeIds[key])
-							:	0
-							;
+		// maneuver.BehaviorTree = 	maneuver.ManeuverType == EDeepDriveManeuverType::TURN_LEFT
+		// 						?	factory.createBehaviorTree("four_way_tl_upl")
+		// 						:	factory.createBehaviorTree("four_way_tl_rs");
+	}
+	else
+	{
+		const uint32 junctionSubType = static_cast<uint32_t> (maneuver.JunctionSubType);
+		const uint32 key = calcBehaviorTreeKey(maneuver);
+		const FString treeId = m_BehaviorTreeIds.Contains(key) ? m_BehaviorTreeIds[key] : "";
+
+		UE_LOG(LogDeepDriveFourWayJunctionCalculator, Log, TEXT("Caluclate 4-way junction with sub type %d and maneuver type %d key 0x%x treeId %s"), junctionSubType, static_cast<uint32> (maneuver.ManeuverType), key, *(treeId) );
+
+		maneuver.BehaviorTree =		treeId.IsEmpty() == false
+								?	DeepDriveBehaviorTreeFactory::GetInstance().createBehaviorTree(m_BehaviorTreeIds[key])
+								:	0
+								;
+	}
 
 	return maneuver.BehaviorTree != 0;
 }
@@ -98,7 +113,6 @@ void DeepDriveFourWayJunctionCalculator::extractCrossRoadTraffic(uint32 curEntry
 
 void DeepDriveFourWayJunctionCalculator::loadConfiguration(const FString &configFile)
 {
-	const FString treeId("four_way_junction_yield");
 	m_BehaviorTreeIds.Add(calcBehaviorTreeKey(1, 3), "four_way_aws");		// all-way stop
 	m_BehaviorTreeIds.Add(calcBehaviorTreeKey(1, 4), "four_way_rbl");		// right before left
 	m_BehaviorTreeIds.Add(calcBehaviorTreeKey(2, 1), "four_way_yield");		// yield
@@ -147,8 +161,6 @@ uint32 DeepDriveFourWayJunctionCalculator::calcBehaviorTreeKey(uint32 junctionSu
 
 	key = (junctionSubType & 0xFF) | ((rightOfWay & 0x7) << 8);
 
-	UE_LOG(LogDeepDriveFourWayJunctionCalculator, Log, TEXT("Key for %d %d -> %d"), junctionSubType, rightOfWay, key );
-
-
+	// UE_LOG(LogDeepDriveFourWayJunctionCalculator, Log, TEXT("Key for %d %d -> %d"), junctionSubType, rightOfWay, key );
 	return key;
 }

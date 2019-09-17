@@ -25,10 +25,12 @@ public:
 private:
 
 	// add segment based on segment proxy
-	uint32 addSegment(ADeepDriveRoadSegmentProxy &segmentProxy, const SDeepDriveRoadLink *link, EDeepDriveLaneType laneType);
+	uint32 addSegment(ADeepDriveRoadSegmentProxy &segmentProxy, const SDeepDriveRoadLink &link, EDeepDriveLaneType laneType);
 
 	// add segment based on link proxy
-	uint32 addSegment(ADeepDriveRoadLinkProxy &linkProxy, const SDeepDriveRoadLink *link);
+	uint32 addSegment(ADeepDriveRoadLinkProxy &linkProxy, const SDeepDriveRoadLink &link);
+
+	uint32 addConnectionSegment(ADeepDriveRoadSegmentProxy &segmentProxy);
 
 	uint32 addConnectionSegment(uint32 fromSegment, uint32 toSegment, const FDeepDriveJunctionConnectionProxy &junctionConnectionProxy);
 
@@ -41,6 +43,9 @@ private:
 	float calcHeading(const FVector &from, const FVector &to);
 
 	FString buildSegmentName(const FString &linkName);
+
+	float getSpeedLimit(float speedLimit);
+	float getConnectionSpeedLimit(float speedLimit);
 
 	UWorld								*m_World = 0;
 	SDeepDriveRoadNetwork 				&m_RoadNetwork;
@@ -57,4 +62,14 @@ private:
 inline FString DeepDriveRoadNetworkExtractor::buildSegmentName(const FString &linkName)
 {
 	return linkName + "_RS";
+}
+
+inline float DeepDriveRoadNetworkExtractor::getSpeedLimit(float speedLimit)
+{
+	return speedLimit > 0.0f ? speedLimit : DeepDriveRoadNetwork::SpeedLimitInTown;
+}
+
+inline float DeepDriveRoadNetworkExtractor::getConnectionSpeedLimit(float speedLimit)
+{
+	return speedLimit > 0.0f ? speedLimit : DeepDriveRoadNetwork::SpeedLimitConnection;
 }

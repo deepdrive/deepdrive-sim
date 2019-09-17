@@ -17,22 +17,17 @@ public:
 
 private:
 
-	int32			m_StopLineLocationIndex = -1;
+	int32			m_WaitingLocationIndex = -1;
 
 	int32			m_SlowDownBeginIndex = -1;
-	int32			m_StopRangeBeginIndex = -1;
 	int32			m_CheckClearanceIndex = -1;
 
 	int32			m_IndexDelta = 0;
 
-	float			m_SlowDownBeginDistance = 0.0f;
-
-	bool			m_hasReachedStopLine = false;
 	bool			m_isJunctionClear = false;
 
 
-	const float		StopRangeBeginDistance = 300.0f;
 	const float		SlowDownBeginDistance = 2000.0f;
-	const float		CheckClearanceDistance = 600.0f;
+	const float		CheckClearanceDistance = 1000.0f;
 	const float		SlowDownMinSpeed = 10.0f;
 };
