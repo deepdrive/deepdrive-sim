@@ -1,2 +1,3 @@
 # Duplicated in Dockerfile for building in cloud!
 ue4-ci-helpers
+boto
