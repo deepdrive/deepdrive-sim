@@ -1,0 +1,17 @@
+steps:
+  
+  # Build and package the sim using our packaging script
+- name: 'gcr.io/$PROJECT_ID/ue4-full:4.21.2-cudagl10.0'
+  args: ['python3', './Packaging/package.py']
+  env:
+    - 'HOME=/home/ue4'
+
+# Set an overall timeout of 45 minutes for the build
+timeout: "2700s"
+
+# Use a machine with 8 CPU cores so we get maximum network throughput
+options:
+  machineType: N1_HIGHCPU_8
+
+# Store build logs in the CI logs GCS bucket
+logsBucket: "deepdrive-ci-logs"

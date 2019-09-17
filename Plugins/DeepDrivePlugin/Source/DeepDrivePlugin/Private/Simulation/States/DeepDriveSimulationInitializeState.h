@@ -7,7 +7,7 @@ class DeepDriveSimulationInitializeState : public DeepDriveSimulationStateBase
 {
 public:
 
-	DeepDriveSimulationInitializeState(DeepDriveSimulationStateMachine &stateMachine);
+	DeepDriveSimulationInitializeState(DeepDriveSimulationStateMachine &stateMachine, bool scenarioMode);
 
 	virtual ~DeepDriveSimulationInitializeState();
 
@@ -17,4 +17,8 @@ public:
 
 	virtual void exit(ADeepDriveSimulation &deepDriveSim);
 
+private:
+
+	bool			m_ScenarioMode;
+	
 };

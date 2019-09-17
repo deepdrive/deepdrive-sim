@@ -7,8 +7,10 @@
 #include "Private/Simulation/DeepDriveSimulationStateMachine.h"
 #include "Private/Simulation/States/DeepDriveSimulationInitializeState.h"
 #include "Private/Simulation/States/DeepDriveSimulationRunningState.h"
+#include "Private/Simulation/States/DeepDriveSimulationConfigureState.h"
 #include "Private/Simulation/States/DeepDriveSimulationResetState.h"
 #include "Public/Simulation/Agent/Controllers/DeepDriveAgentOneOffController.h"
+#include "Public/Simulation/Agent/Controllers/DeepDriveAgentCityAIController.h"
 
 #include "Private/Server/DeepDriveServer.h"
 #include "Public/Simulation/DeepDriveSimulationServerProxy.h"
@@ -21,6 +23,7 @@
 #include "Public/Simulation/Misc/DeepDriveSimulationFreeCamera.h"
 #include "Public/Simulation/Misc/DeepDriveRandomStream.h"
 #include "Public/Simulation/RoadNetwork/DeepDriveRoadNetworkComponent.h"
+#include "Private/Simulation/Traffic/Maneuver/DeepDriveManeuverCalculator.h"
 
 #include "Public/CaptureSink/CaptureSinkComponentBase.h"
 
@@ -67,6 +70,22 @@ void ADeepDriveSimulation::PreInitializeComponents()
 		}
 	}
 
+	{
+		ScenarioMode = false;
+		TArray<FString> tokens;
+		TArray<FString> switches;
+		FCommandLine::Parse(FCommandLine::Get(), tokens, switches);
+		for(auto &s : switches)
+		{
+			if(s == "scenario_mode")
+			{
+				ScenarioMode = true;
+				break;
+			}
+		}
+	}
+	UE_LOG(LogDeepDriveSimulation, Log, TEXT(">> Scenario Mode %c"), ScenarioMode ? 'T' :'F');
+
 	if (!alreadyRegistered)
 	{
 		int32 ipParts[4];
@@ -92,8 +111,10 @@ void ADeepDriveSimulation::PreInitializeComponents()
 
 			if (m_StateMachine)
 			{
-				m_StateMachine->registerState(new DeepDriveSimulationInitializeState(*m_StateMachine));
+				m_StateMachine->registerState(new DeepDriveSimulationInitializeState(*m_StateMachine, ScenarioMode));
 				m_StateMachine->registerState(new DeepDriveSimulationRunningState(*m_StateMachine));
+				m_ConfigureState = new DeepDriveSimulationConfigureState(*m_StateMachine, GetWorld());
+				m_StateMachine->registerState(m_ConfigureState);
 				m_ResetState = new DeepDriveSimulationResetState(*m_StateMachine, GetWorld());
 				m_StateMachine->registerState(m_ResetState);
 			}
@@ -129,7 +150,6 @@ void ADeepDriveSimulation::PreInitializeComponents()
 void ADeepDriveSimulation::BeginPlay()
 {
 	Super::BeginPlay();
-
 
 	if (m_StateMachine)
 	{
@@ -171,6 +191,17 @@ void ADeepDriveSimulation::Tick( float DeltaTime )
 
 	if (m_StateMachine)
 		m_StateMachine->update(*this, DeltaTime);
+}
+
+void ADeepDriveSimulation::ConfigureSimulation(FDeepDriveScenarioConfiguration Configuration)
+{
+	if(m_ConfigureState)
+	{
+		UE_LOG(LogDeepDriveSimulation, Log, TEXT("DeepDriveSimulation Request to Configure Simulation") );
+		m_ConfigureState->setConfiguration(Configuration);
+		if(m_StateMachine)
+			m_StateMachine->setNextState("Configure");
+	}
 }
 
 void ADeepDriveSimulation::ResetSimulation(bool ActivateAdditionalAgents)
@@ -413,6 +444,8 @@ void ADeepDriveSimulation::initializeAgents()
 	m_curAgent = spawnAgent(InitialControllerMode, InitialConfigurationSlot, StartPositionSlot);
 	if (m_curAgent)
 	{
+		spawnAdditionalAgents();
+
 		OnCurrentAgentChanged(m_curAgent);
 
 		m_curAgentController = Cast<ADeepDriveAgentControllerBase>(m_curAgent->GetController());
@@ -432,9 +465,9 @@ void ADeepDriveSimulation::initializeAgents()
 	}
 }
 
-void ADeepDriveSimulation::removeAdditionalAgents()
+void ADeepDriveSimulation::removeAgents(bool removeEgo)
 {
-	for(signed i = 1; i < m_Agents.Num(); ++i)
+	for(signed i = removeEgo ? 0 : 1; i < m_Agents.Num(); ++i)
 	{
 		ADeepDriveAgentControllerBase *agentController = Cast<ADeepDriveAgentControllerBase>(m_Agents[i]->GetController());
 
@@ -443,7 +476,41 @@ void ADeepDriveSimulation::removeAdditionalAgents()
 
 		m_Agents[i]->Destroy();
 	}
-	m_Agents.SetNum(1);
+	
+	m_Agents.SetNum(removeEgo ? 0 : 1);
+}
+
+ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(const FDeepDriveAgentScenarioConfiguration &scenarioCfg, bool remotelyControlled)
+{
+	FTransform transform(scenarioCfg.StartPosition);
+
+	FActorSpawnParameters spawnParams;
+	spawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	ADeepDriveAgent *agent  = Cast<ADeepDriveAgent>(GetWorld()->SpawnActor(scenarioCfg.Agent, &transform, spawnParams));
+
+	if(agent)
+	{
+		m_Agents.Add(agent);
+		agent->initialize(*this);
+		agent->setResetTransform(transform);
+
+		EDeepDriveAgentControlMode mode = remotelyControlled ? EDeepDriveAgentControlMode::REMOTE_AI : EDeepDriveAgentControlMode::CITY_AI;
+		if(ControllerCreators.Contains(mode))
+		{
+			ADeepDriveAgentControllerBase *controller = ControllerCreators[mode]->CreateAgentControllerForScenario(scenarioCfg, this);
+			if (controller)
+			{
+				if (controller->Activate(*agent, false))
+				{
+					m_curAgentMode = mode;
+					OnAgentSpawned(agent);
+				}
+			}
+		}
+	}
+
+	return agent;
 }
 
 ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(EDeepDriveAgentControlMode mode, int32 configSlot, int32 startPosSlot)
@@ -467,8 +534,6 @@ ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(EDeepDriveAgentControlMode mod
 				m_curAgentMode = mode;
 				OnAgentSpawned(agent);
 				UE_LOG(LogDeepDriveSimulation, Log, TEXT("Spawning agent controlled by %s"), *(controller->getControllerName()) );
-
-				spawnAdditionalAgents();
 			}
 			else
 				UE_LOG(LogDeepDriveSimulation, Log, TEXT("Couldn't activate controller %s"), *(controller->getControllerName()) );
@@ -647,6 +712,31 @@ void ADeepDriveSimulation::removeOneOffAgents()
 	m_nextOneOffAgentId = 1;
 }
 
+DeepDriveManeuverCalculator* ADeepDriveSimulation::getManeuverCalculator()
+{
+	if(m_ManeuverCalculator == 0)
+	{
+		m_ManeuverCalculator = new DeepDriveManeuverCalculator(RoadNetwork->getRoadNetwork(), *this);
+	}
+
+	return m_ManeuverCalculator;
+}
+
+TArray<ADeepDriveAgent*> ADeepDriveSimulation::getAgents(const FBox2D &area, ADeepDriveAgent *excludeAgent)
+{
+	TArray<ADeepDriveAgent*> agents;
+
+	for(auto &agent : m_Agents)
+	{
+		if	(	(excludeAgent == 0 || agent != excludeAgent)
+			&&	area.IsInside(FVector2D(agent->GetActorLocation()))
+			)
+			agents.Add(agent);
+	}
+
+	return agents;
+}
+
 void ADeepDriveSimulation::OnDebugTrigger()
 {
 	if (m_curAgent)
@@ -683,6 +773,11 @@ TArray<ADeepDriveAgent*> ADeepDriveSimulation::GetAgentsList(EDeepDriveAgentsLis
 	return agents;
 }
 
+FDeepDrivePath ADeepDriveSimulation::GetEgoPath()
+{
+	return m_Agents.Num() > 0 ? m_Agents[0]->getAgentController()->getPath() : FDeepDrivePath();
+}
+
 bool ADeepDriveSimulation::hasEgoAgent() const
 {
 	return m_numEgoAgents > 0;
@@ -694,4 +789,14 @@ void ADeepDriveSimulation::onEgoAgentChanged(bool added)
 		m_numEgoAgents++;
 	else
 		m_numEgoAgents = FMath::Max(0, m_numEgoAgents - 1);
+}
+
+bool ADeepDriveSimulation::isLocationOccupied(const FVector &location, float radius)
+{
+	for(auto &a : m_Agents)
+	{
+		if((location - a->GetActorLocation()).Size() <= radius)
+			return true;
+	}
+	return false;
 }

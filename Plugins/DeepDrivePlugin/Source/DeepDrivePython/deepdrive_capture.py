@@ -40,6 +40,7 @@ if client != None and 'client_id' in client:
             while True:
                 snapshot = deepdrive_capture.step()
                 if snapshot:
+                    print(snapshot.scenario_finished, snapshot.camera_count)
                     if snapshot.camera_count > 0:
                         print(snapshot.cameras[0].image_data[0], snapshot.cameras[0].image_data[1], snapshot.cameras[0].image_data[2] )
 

@@ -127,6 +127,7 @@ public:
 
 	float getFrontBumperDistance() const;
 	float getBackBumperDistance() const;
+	float getWheelBase() const;
 
 	void setNextAgent(ADeepDriveAgent *agent, float distance);
 	void setPrevAgent(ADeepDriveAgent *agent, float distance);
@@ -202,10 +203,12 @@ protected:
 	float								FrontBumperDistance = 0.0f;
 
 	UPROPERTY(EditDefaultsOnly, Category = Car)
-	float								BackBumperDistance = 0.0f;
+	float 								BackBumperDistance = 0.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = Car)
+	float 								WheelBase = 0.0f;
 
 private:
-
 	typedef TMap<uint32, UCaptureCameraComponent*>	CaptureCameraMap;
 
 	UFUNCTION()
@@ -280,6 +283,10 @@ inline float ADeepDriveAgent::getBackBumperDistance() const
 	return BackBumperDistance;
 }
 
+inline float ADeepDriveAgent::getWheelBase() const
+{
+	return WheelBase;
+}
 
 inline void ADeepDriveAgent::setNextAgent(ADeepDriveAgent *agent, float distance)
 {

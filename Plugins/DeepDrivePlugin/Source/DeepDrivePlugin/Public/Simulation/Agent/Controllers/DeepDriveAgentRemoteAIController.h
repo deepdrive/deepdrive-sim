@@ -47,6 +47,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Configuration")
 	void Configure(const FDeepDriveRemoteAIControllerConfiguration &Configuration, int32 StartPositionSlot, ADeepDriveSimulation* DeepDriveSimulation);
 
+	UFUNCTION(BlueprintCallable, Category = "Configuration")
+	void ConfigureScenario(const FDeepDriveRemoteAIControllerConfiguration &Configuration, const FDeepDriveAgentScenarioConfiguration &ScenarioConfiguration, ADeepDriveSimulation* DeepDriveSimulation);
+
 private:
 
 };

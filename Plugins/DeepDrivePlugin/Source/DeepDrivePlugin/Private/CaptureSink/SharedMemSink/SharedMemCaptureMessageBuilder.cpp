@@ -53,6 +53,7 @@ void SharedMemCaptureMessageBuilder::begin(const DeepDriveDataOut &deepDriveData
 		m_Message->handbrake = deepDriveData.Handbrake;
 		m_Message->is_game_driving = deepDriveData.IsGameDriving;
 		m_Message->is_resetting = deepDriveData.IsResetting;
+		m_Message->scenario_finished = 0;
 		m_Message->num_cameras = 0;
 		m_Message->distance_along_route = deepDriveData.DistanceAlongRoute;
 		m_Message->route_length = deepDriveData.RouteLength;

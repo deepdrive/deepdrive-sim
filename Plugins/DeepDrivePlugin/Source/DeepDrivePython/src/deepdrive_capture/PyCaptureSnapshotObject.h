@@ -28,6 +28,8 @@ struct PyCaptureSnapshotObject
 
 	uint32_t			is_resetting;
 
+	uint32_t			scenario_finished;
+
 	double				speed;
 
 	double				steering;
@@ -88,6 +90,7 @@ static PyMemberDef PyCaptureSnapshotMembers[] =
 	{"sequence_number", T_UINT, offsetof(PyCaptureSnapshotObject, sequence_number), 0, "Capture snapshot sequence number"},
 	{"is_game_driving", T_UINT, offsetof(PyCaptureSnapshotObject, is_game_driving), 0, "Is game driving"},
 	{"is_resetting", T_UINT, offsetof(PyCaptureSnapshotObject, is_resetting), 0, "Is the car respawning"},
+	{"scenario_finished", T_UINT, offsetof(PyCaptureSnapshotObject, scenario_finished), 0, "Is scenarion finished"},
 	{"speed", T_DOUBLE, offsetof(PyCaptureSnapshotObject, speed), 0, "speed"},
 	{"steering", T_DOUBLE, offsetof(PyCaptureSnapshotObject, steering), 0, "0 is straight ahead, -1 is left, 1 is right"},
 	{"throttle", T_DOUBLE, offsetof(PyCaptureSnapshotObject, throttle), 0, "0 is coast / idle, -1 is reverse, 1 is full throttle ahead"},

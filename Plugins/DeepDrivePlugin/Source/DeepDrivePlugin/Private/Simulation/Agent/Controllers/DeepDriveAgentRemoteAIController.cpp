@@ -4,6 +4,8 @@
 #include "Public/Simulation/Agent/Controllers/DeepDriveAgentRemoteAIController.h"
 #include "Public/Simulation/DeepDriveSimulation.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
+#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetworkComponent.h"
+#include "Public/Simulation/RoadNetwork/DeepDriveRoute.h"
 #include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
 #include "Public/Simulation/Misc/DeepDriveRandomStream.h"
 
@@ -38,14 +40,46 @@ void ADeepDriveAgentRemoteAIController::SetControlValues(float steering, float t
 	}
 }
 
+
 bool ADeepDriveAgentRemoteAIController::Activate(ADeepDriveAgent &agent, bool keepPosition)
 {
 	bool activated = false;
-	if(keepPosition || initAgentOnTrack(agent))
+	switch(m_OperationMode)
 	{
-		activateController(agent);
-		m_hasCollisionOccured = false;
-		activated = true;
+		case OperationMode::Standard:
+			if(keepPosition || initAgentOnTrack(agent))
+			{
+				activateController(agent);
+				m_hasCollisionOccured = false;
+			}
+			break;
+
+		case OperationMode::Scenario:
+			{
+				UDeepDriveRoadNetworkComponent *roadNetwork = m_DeepDriveSimulation->RoadNetwork;
+				FVector start = m_ScenarionConfiguration.StartPosition;
+				FVector destination = m_ScenarionConfiguration.EndPosition;
+				TArray<uint32> routeLinks = roadNetwork->CalculateRoute(start, destination);
+
+				if (routeLinks.Num() > 0)
+				{
+					m_Route = GetWorld()->SpawnActor<ADeepDriveRoute>(FVector(0.0f, 0.0f, 0.0f), FRotator(0.0f, 0.0f, 0.0f), FActorSpawnParameters());
+
+					SDeepDriveRouteData routeData;
+					routeData.Start = start;
+					routeData.Destination = destination;
+					routeData.Links = routeLinks;
+					m_Route->initialize(roadNetwork->getRoadNetwork(), routeData);
+					m_Route->convert(start);
+					m_Route->placeAgentAtStart(agent);
+				}
+				else
+				{
+					roadNetwork->PlaceAgentOnRoad(&agent, start, true);
+				}
+				activated = true;
+			}
+			break;
 	}
 	return true;
 }
@@ -71,7 +105,18 @@ bool ADeepDriveAgentRemoteAIController::ResetAgent()
 void ADeepDriveAgentRemoteAIController::Configure(const FDeepDriveRemoteAIControllerConfiguration &Configuration, int32 StartPositionSlot, ADeepDriveSimulation* DeepDriveSimulation)
 {
 	m_DeepDriveSimulation = DeepDriveSimulation;
+	m_OperationMode = OperationMode::Standard;
+
 	m_Track = Configuration.Track;
 	m_StartPositionSlot = StartPositionSlot;
 	m_StartDistance = StartPositionSlot >= 0 && StartPositionSlot < Configuration.StartDistances.Num() ? Configuration.StartDistances[StartPositionSlot] : -1.0f;
+}
+
+void ADeepDriveAgentRemoteAIController::ConfigureScenario(const FDeepDriveRemoteAIControllerConfiguration &Configuration, const FDeepDriveAgentScenarioConfiguration &ScenarioConfiguration, ADeepDriveSimulation* DeepDriveSimulation)
+{
+	m_DeepDriveSimulation = DeepDriveSimulation;
+
+	m_OperationMode = OperationMode::Scenario;
+	m_ScenarionConfiguration.StartPosition = ScenarioConfiguration.StartPosition;
+	m_ScenarionConfiguration.EndPosition = ScenarioConfiguration.EndPosition;
 }

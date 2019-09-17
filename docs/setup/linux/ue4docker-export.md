@@ -1,16 +1,21 @@
 # Export from prebuilt docker image <a name="local-linux-export"></a>
 
+## Prerequisites
+
+- NVIDIA Docker 2
+
 Make sure the ue4-ci-helpers package is up to date
 
 ```
 pip install --upgrade ue4-ci-helpers
+pip install ue4-docker
 ```
 
 ## Build the ue4-full image
 
 https://adamrehn.com/docs/ue4-docker/use-cases/linux-installed-builds
 
-## Build the ue4-deepdrive-deps image
+## Build the deepdriveio/ue4-deepdrive-deps image
 
 https://github.com/deepdrive/ue4-deepdrive-deps
 

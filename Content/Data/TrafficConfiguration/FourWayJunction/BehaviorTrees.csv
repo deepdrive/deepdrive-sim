@@ -1,0 +1,35 @@
+#
+#	4 way junction sub types
+#
+#     |       |       ||	   |        |        ||       ||
+#   --+--   ==+==   --++--   --++==   ==++--   ==++--   --++==
+#     |       |       ||       ||       ||       |        |
+#
+#
+#     1       2        3       4        5        6        7
+#
+
+#	w/o traffic light
+# Junction Sub Type    | RightOfWay        | BehaviorTreeId
+           1             RightBeforeLeft     four_way_rbl
+           1             All-Way stop        four_way_aws
+           2             Yield               four_way_yield
+           2             Stop                four_way_stop
+           3             RoW                 four_way_row
+           4             RoW                 four_way_row
+           5             RoW                 four_way_row
+           6             Yield               four_way_yield
+           6             Stop                four_way_stop
+           7             Yield               four_way_yield
+           7             Stop                four_way_stop
+
+#	w/ traffic light
+# Junction Sub Type    | BehaviorTreeId
+           1             four_way_tl
+           2             four_way_tl
+           3             four_way_tl
+           4             four_way_tl
+           5             four_way_tl
+           6             four_way_tl
+           7             four_way_tl
+

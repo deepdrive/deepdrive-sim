@@ -34,4 +34,10 @@ private:
 
 	float			m_History[HistoryLength];
 	int32			m_nextHistoryIndex = 0;
+
+public:
+
+	float			m_curE;
+	float			m_curDE;
+	float			m_curSumE;
 };

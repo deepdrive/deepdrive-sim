@@ -5,6 +5,7 @@
 #include "Public/Simulation/DeepDriveSimulation.h"
 #include "Public/Simulation/Agent/DeepDriveAgentControllerBase.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
+#include "Public/Simulation/RoadNetwork/DeepDriveRoute.h"
 #include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
 #include "Runtime/Engine/Classes/Components/SplineComponent.h"
 #include "Runtime/Landscape/Classes/Landscape.h"
@@ -78,7 +79,7 @@ void ADeepDriveAgentControllerBase::OnAgentCollision(AActor *OtherActor, const F
 		m_CollisionData.CollisionNormal = HitResult.ImpactNormal;
 		m_hasCollisionOccured = true;
 
-//		UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentControllerBase::OnAgentCollision %ld"), now.ToUnixTimestamp() );
+		UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentControllerBase::OnAgentCollision %ld"), now.ToUnixTimestamp() );
 
 	}
 	else {
@@ -231,4 +232,10 @@ void ADeepDriveAgentControllerBase::SetSpeedRange(float MinSpeed, float MaxSpeed
 
 void ADeepDriveAgentControllerBase::OnDebugTrigger()
 {
+}
+
+
+FDeepDrivePath ADeepDriveAgentControllerBase::getPath()
+{
+	return m_Route ? m_Route->getPath() : FDeepDrivePath();
 }
