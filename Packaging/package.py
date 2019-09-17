@@ -41,7 +41,8 @@ def main():
 
     print('Created compressed archive "{}".'.format(archive))
 
-    upload_s3(archive, archive.split('/')[-1])
+    if '--upload' in sys.argv:
+        upload_s3(archive, archive.split('/')[-1])
 
 
 def install_uepy_requirements(dist):
