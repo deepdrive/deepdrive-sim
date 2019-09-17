@@ -1,17 +1,18 @@
 # Packaging
 
+## Setup
+
+```
+ pip install -r Packaging/requirements.txt
+```
+
 ## Linux
 
 To package a new binary version in Linux run
 ```
-./Packaging/package-linux.sh
+./Packaging/package-linux.sh [--upload]
 ```
 
-Upload to s3:
-
-```
-./Packaging/upload-linux.sh
-```
 
 ## Windows
 
