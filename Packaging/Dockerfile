@@ -8,4 +8,5 @@ FROM deepdriveio/ue4-deepdrive-deps:latest
 RUN pip3 install ue4-ci-helpers awscli boto
 WORKDIR /home/ue4
 
+# Bootstrap source into build container
 CMD curl -s -N https://raw.githubusercontent.com/deepdrive/deepdrive-sim/${DEEPDRIVE_COMMIT}/Packaging/ci-package.sh | bash

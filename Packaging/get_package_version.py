@@ -1,4 +1,7 @@
 from __future__ import print_function
+
+import platform
+
 from subprocess import Popen, PIPE
 import os
 from datetime import datetime, timedelta
@@ -43,6 +46,11 @@ def get_package_version():
         with open(os.path.join(version_path, 'VERSION'), 'w') as fw:
             fw.write(version)
     return version
+
+
+def get_package_filename():
+    return 'deepdrive-sim-%s-%s.zip' % (platform.system().lower(),
+                                        get_package_version())
 
 
 if __name__ == '__main__':

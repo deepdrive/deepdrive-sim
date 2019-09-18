@@ -2,6 +2,7 @@
 import os
 import stat
 import sys
+from glob import glob
 
 import boto
 import boto.s3
@@ -10,18 +11,25 @@ from ue4helpers import FilesystemUtils, ProjectPackager, UnrealUtils
 from os.path import abspath, dirname, join
 import shutil
 
+from get_package_version import get_package_filename, \
+    get_package_version
+
+ROOT = dirname(dirname(abspath(__file__)))
+VERSION = get_package_version()
+DEEPDRIVE_BUCKET_NAME = 'deepdrive'
+RELEASE_PATH = 'sim'
+RELEASE_CANDIDATE_PATH = 'sim/release_candidates'
+DEEPDRIVE_PACKAGE_NO_UPLOAD = 'DEEPDRIVE_PACKAGE_NO_UPLOAD' in os.environ
 
 def main():
-    # Compute the absolute path to the root of the repository
-    root = dirname(dirname(abspath(__file__)))
 
     # This is already done via using the ue4-deepdrive-deps base image
     # install_plugins(root)
 
     # Create our project packager
     packager = ProjectPackager(
-        root=root,
-        version=FilesystemUtils.read(join(root, 'Content', 'Data', 'VERSION')),
+        root=ROOT,
+        version=VERSION,
         archive='{name}-{platform}-{version}',
     )
     # Clean any previous build artifacts
@@ -31,7 +39,7 @@ def main():
     packager.package(args=['Development'])
 
     # Install dependencies like zmq and arrow of UEPy
-    install_uepy_requirements(join(root, 'dist'))
+    install_uepy_requirements(join(ROOT, 'dist'))
 
     # Compress the packaged distribution
     archive = packager.archive()
@@ -41,7 +49,7 @@ def main():
 
     print('Created compressed archive "{}".'.format(archive))
 
-    if '--upload' in sys.argv:
+    if '--upload' in sys.argv and not DEEPDRIVE_PACKAGE_NO_UPLOAD:
         upload_s3(archive, archive.split('/')[-1])
 
 
@@ -97,24 +105,50 @@ def ensure_uepy_executable(sim_path):
 
 
 def upload_s3(filepath, filename):
-    bucket_name = 'deepdrive'
     conn = boto.connect_s3()
-    bucket = conn.get_bucket(bucket_name)
+    bucket = conn.get_bucket(DEEPDRIVE_BUCKET_NAME)
 
-    print('Uploading %s to Amazon S3 bucket %s' % (filepath, bucket_name))
+    print('Uploading %s to Amazon S3 bucket %s' % (filepath,
+                                                   DEEPDRIVE_BUCKET_NAME))
 
     def percent_cb(complete, total):
         sys.stdout.write('%r of %r\n' % (complete, total))
         sys.stdout.flush()
 
     k = Key(bucket)
-    k.key = 'sim/' + filename
+    k.key = f'{RELEASE_CANDIDATE_PATH}/{filename}'
     k.set_contents_from_filename(filepath, cb=percent_cb, num_cb=10)
 
     print(f'Finished upload to '
-          f'https://s3-us-west-1.amazonaws.com/deepdrive/sim/{filename}')
+          f'https://s3-us-west-1.amazonaws.com/deepdrive/{k.key}')
+
+
+def copy_release_candidate_to_release():
+    filename = get_package_filename()
+    conn = boto.connect_s3()
+    bucket = conn.get_bucket(DEEPDRIVE_BUCKET_NAME)
+
+    src_key = Key(bucket)
+    src_key.key = f'{RELEASE_CANDIDATE_PATH}/{filename}'
+    dst_key = f'{RELEASE_PATH}/{filename}'
+    print(f'Copying sim to release on s3 in "{DEEPDRIVE_BUCKET_NAME}" bucket...'
+          f'\n\t{src_key.key} => {dst_key}')
+    src_key.copy(DEEPDRIVE_BUCKET_NAME, dst_key, preserve_acl=True,
+                 validate_dst_bucket=False)
+    print('Copy complete')
+
+def upload_latest_sim():
+    filepaths = glob(f'{ROOT}/deepdrive-sim-linux-*')
+    latest_filepath = max(filepaths, key=os.path.getctime)
+    filename = latest_filepath.split('/')[-1]
+    upload_s3(filepath=latest_filepath, filename=filename)
 
 
 if __name__ == '__main__':
-    main()
+    if '--upload-only' in sys.argv:
+        upload_latest_sim()
+    elif '--copy-release-candidate-to-release' in sys.argv:
+        copy_release_candidate_to_release()
+    else:
+        main()
 

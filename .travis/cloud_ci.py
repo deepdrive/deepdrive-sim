@@ -16,6 +16,8 @@ from github import UnknownObjectException
 
 import problem_constants.constants
 
+from Packaging.package import copy_release_candidate_to_release
+
 """
 Here we run the build and integration tests on our own infrastructure so that
 we can have full control over how things are run, but still keep track of things
@@ -54,17 +56,15 @@ def main():
     if not build_success:
         raise RuntimeError('Cloud build failed')
     else:
-        run_botleague_ci(branch)
+        passed_ci = run_botleague_ci(branch)
+        if passed_ci:
+            # Copy sim/release_candidates/ to sim/
+            copy_release_candidate_to_release()
 
 
 @log.catch(reraise=True)
-def run_botleague_ci(branch):
+def run_botleague_ci(branch) -> bool:
     # Send pull request to Botleague
-    # TODO: with the new container and source commit for each problem we
-    #  support, right now just domain randomization.
-    #  The pull request will specify “test_only”: true (OR BE A DRAFT?)
-    #  in problem.json if the pull request is not meant to be merged
-    #  into botleague. I.e. It’s just for a dev branch.
     log.info('Sending pull requests to botleague for supported problems')
     github_token = os.environ['BOTLEAGUE_GITHUB_TOKEN']
     github_client = Github(github_token)
@@ -112,8 +112,9 @@ def run_botleague_ci(branch):
         if BOTLEAGUE_LIAISON_HOST != DEFAULT_BOTLEAGUE_LIAISON_HOST:
             pull.body = Box(
                 botleague_liaison_host=BOTLEAGUE_LIAISON_HOST).to_json()
-        if branch not in ['master', 'v3_stable']:
+
         # if branch not in ['master']:
+        if branch not in ['master', 'v3_stable']:
             pull.draft = True
 
         pull_resp = create_pull_request(
@@ -128,6 +129,7 @@ def run_botleague_ci(branch):
              f'{problem_cis.to_json(indent=2, default=str)}')
     if all(p.status == 'passed' for p in problem_cis):
         log.success(f'Problem ci\'s passed!')
+        return True
     else:
         raise RuntimeError(f'Problem ci\'s failed! See above for details.')
 
