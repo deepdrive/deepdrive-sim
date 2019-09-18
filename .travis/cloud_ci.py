@@ -16,7 +16,7 @@ from github import UnknownObjectException
 
 import problem_constants.constants
 
-from Packaging.package import copy_release_candidate_to_release
+from package import copy_release_candidate_to_release
 
 """
 Here we run the build and integration tests on our own infrastructure so that
