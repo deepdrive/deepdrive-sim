@@ -123,7 +123,7 @@ void DeepDriveAgentSpeedController::update(float dT, float desiredSpeed, float d
 			curBrake = 0.0f;
 
 
-			UE_LOG(LogDeepDriveAgentSpeedController, Log, TEXT("DeepDriveAgentSpeedController::update desiredSpeed %4.2f curSpeed %4.2f eSpeed %f curThrottle %f | %f curBrake %f dThrottle %f"), desiredSpeed, curSpeedKmh, eSpeed, curThrottle, throttleDampFac, curBrake, yThrottle);
+//			UE_LOG(LogDeepDriveAgentSpeedController, Log, TEXT("DeepDriveAgentSpeedController::update desiredSpeed %4.2f curSpeed %4.2f eSpeed %f curThrottle %f | %f curBrake %f dThrottle %f"), desiredSpeed, curSpeedKmh, eSpeed, curThrottle, throttleDampFac, curBrake, yThrottle);
 		}
 
 		m_Agent->SetThrottle(curThrottle);
