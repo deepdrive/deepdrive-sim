@@ -16,8 +16,6 @@ from github import UnknownObjectException
 
 import problem_constants.constants
 
-from package import copy_release_candidate_to_release
-
 """
 Here we run the build and integration tests on our own infrastructure so that
 we can have full control over how things are run, but still keep track of things
@@ -29,7 +27,7 @@ PACKAGE_DIR = join(dirname(DIR), 'Packaging')
 sys.path.insert(0, PACKAGE_DIR)
 
 from get_package_version import get_package_version
-
+from package import copy_release_candidate_to_release
 
 DEFAULT_BOTLEAGUE_LIAISON_HOST = 'https://liaison.botleague.io'
 BOTLEAGUE_LIAISON_HOST = os.environ.get('BOTLEAGUE_LIAISON_HOST') or \
