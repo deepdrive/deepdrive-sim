@@ -51,26 +51,28 @@ void ADeepDriveTrafficLight::SwitchToRed()
 
 void ADeepDriveTrafficLight::SetToGreen(float ElapsedTime)
 {
-	m_remainingPhaseTime = ElapsedTime >= 0.0f ? RedToGreenDuration - ElapsedTime : -1.0f;
-	if(ElapsedTime >= 0.0f)
+	if(ElapsedTime < 0.0f || ElapsedTime >= RedToGreenDuration)
+		CurrentPhase = EDeepDriveTrafficLightPhase::GREEN;
+	else
 	{
+		m_remainingPhaseTime = RedToGreenDuration - ElapsedTime;
 		CurrentPhase = EDeepDriveTrafficLightPhase::RED_TO_GREEN;
 		m_nextPhase = EDeepDriveTrafficLightPhase::GREEN;
 	}
-	else
-		CurrentPhase = EDeepDriveTrafficLightPhase::GREEN;
+
 	OnPhaseChanged();
 }
 
 void ADeepDriveTrafficLight::SetToRed(float ElapsedTime)
 {
-	m_remainingPhaseTime = ElapsedTime >= 0.0f ? RedToGreenDuration - ElapsedTime : -1.0f;
-	if(ElapsedTime >= 0.0f)
+	if(ElapsedTime < 0.0f || ElapsedTime >= GreenToRedDuration)
+		CurrentPhase = EDeepDriveTrafficLightPhase::RED;
+	else
 	{
+		m_remainingPhaseTime = RedToGreenDuration - ElapsedTime;
 		CurrentPhase = EDeepDriveTrafficLightPhase::GREEN_TO_RED;
 		m_nextPhase = EDeepDriveTrafficLightPhase::RED;
 	}
-	else
-		CurrentPhase = EDeepDriveTrafficLightPhase::RED;
+
 	OnPhaseChanged();
 }

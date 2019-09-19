@@ -13,9 +13,9 @@ void DeepDrivePathManeuverAnnotations::annotate(DeepDrivePartialPath &path, TDee
 		{
 			UE_LOG(LogDeepDrivePathManeuverAnnotations, Log, TEXT("Binding behavior tree") );
 
-			maneuver.BehaviorTree->bind(path, maneuver);
 			maneuver.BehaviorTree->getBlackboard().setManeuver(maneuver);
 			maneuver.BehaviorTree->getBlackboard().setPartialPath(path);
+			maneuver.BehaviorTree->bind(path, maneuver);
 
 			float minEntryDist = TNumericLimits<float>::Max();
 			float minExitDist = TNumericLimits<float>::Max();

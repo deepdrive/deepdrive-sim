@@ -37,6 +37,8 @@ public:
 
 	int32 rewind(int32 fromIndex, float distanceCM, float *remainingDistance = 0) const;
 
+	float getDistance(int32 fromIndex, int32 toIndex);
+
 	static float SmootherStep(float edge0, float edge1, float val);
 
 private:

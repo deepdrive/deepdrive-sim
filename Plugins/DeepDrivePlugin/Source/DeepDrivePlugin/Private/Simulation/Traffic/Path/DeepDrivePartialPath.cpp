@@ -350,6 +350,13 @@ int32 DeepDrivePartialPath::rewind(int32 fromIndex, float distanceCM, float *rem
 	return fromIndex;
 }
 
+float DeepDrivePartialPath::getDistance(int32 fromIndex, int32 toIndex)
+{
+	return		toIndex >= fromIndex && fromIndex >= 0
+			?	FMath::Max(static_cast<float>(toIndex - fromIndex), 0.0f) * m_StepSize
+			:	-1.0f;
+}
+
 void DeepDrivePartialPath::showPath(UWorld *world)
 {
 	FColor col = FColor::Green;

@@ -44,20 +44,25 @@ void UDeepDriveTrafficLightsCtrlCmp::BeginPlay()
 				if(curCycleTime < circuit.Delay)
 				{
 					circuit.resetState();
+					UE_LOG(LogDeepDriveTrafficLightsCtrlCmp, Log, TEXT("Before Green: %f"));
 					for(auto &trafficLight : circuit.TrafficLights)
 						trafficLight->SetToRed(-1.0f);
 				}
 				else if(curCycleTime < (circuit.Delay + circuit.Duration) )
 				{
+					const float elapsedTime = curCycleTime - circuit.Delay;
 					circuit.setState(0);
+					UE_LOG(LogDeepDriveTrafficLightsCtrlCmp, Log, TEXT("Inside Green: %f"), elapsedTime);
 					for(auto &trafficLight : circuit.TrafficLights)
-						trafficLight->SetToGreen(curCycleTime - circuit.Delay);
+						trafficLight->SetToGreen(elapsedTime);
 				}
 				else
 				{
+					const float elapsedTime = curCycleTime - circuit.Delay - circuit.Duration;
 					circuit.setState(1);
+					UE_LOG(LogDeepDriveTrafficLightsCtrlCmp, Log, TEXT("After Green: %f"), elapsedTime);
 					for(auto &trafficLight : circuit.TrafficLights)
-						trafficLight->SetToRed(curCycleTime - circuit.Delay - circuit.Duration);
+						trafficLight->SetToRed(elapsedTime);
 				}
 			}
 			m_curCycleIndex = curIndex;
