@@ -123,13 +123,13 @@ def run_botleague_ci(branch) -> bool:
         problem_cis.append(Box(pr_number=pull_resp.json()['number'],
                                commit=head_sha))
     problem_cis = wait_for_problem_cis(problem_cis)
-    log.info(f'Finished problem ci runs: '
-             f'{problem_cis.to_json(indent=2, default=str)}')
     if all(p.status == 'passed' for p in problem_cis):
-        log.success(f'Problem ci\'s passed!')
+        log.success(f'Problem ci\'s passed! Problem cis were: '
+                 f'{problem_cis.to_json(indent=2, default=str)}')
         return True
     else:
-        raise RuntimeError(f'Problem ci\'s failed! See above for details.')
+        raise RuntimeError(f'Problem ci\'s failed! Problem cis were: '
+                 f'{problem_cis.to_json(indent=2, default=str)}')
 
 
 def wait_for_problem_cis(problem_cis: BoxList) -> BoxList:
@@ -141,6 +141,9 @@ def wait_for_problem_cis(problem_cis: BoxList) -> BoxList:
             pci.status = status_resp.status
             if status_resp.status == 'pending':
                 return None
+            elif status_resp.status == 'not-found':
+                raise RuntimeError(f'Problem CI not found. Looking for: '
+                                   f'{box2json(pci)}')
         return problem_cis
     return wait_for_fn(problem_cis_complete)
 
@@ -280,6 +283,10 @@ def get_head(full_repo_name: str, token: str, branch: str = 'master'):
     return ret
 
 
+def box2json(box: Box):
+    return box.to_json(indent=2, default=str)
+
+
 def play():
     get_head('botleague/botleague', os.environ['BOTLEAGUE_GITHUB_TOKEN'])
     # github_client = Github(os.environ['BOTLEAGUE_GITHUB_TOKEN'])
@@ -288,9 +295,18 @@ def play():
     # problem_def, problem_sha = get_file_from_github(botleague_repo,
     #                                                 problem_json_path)
 
+
+def test_wait_for_problem_cis():
+    ret = wait_for_problem_cis(BoxList([
+        Box(pr_number=96, commit='4a6a67702931920ee9a6813247d09d88b433d7b0')]))
+    return ret
+
+
 if __name__ == '__main__':
     if 'test_handle_job_results' in sys.argv:
         test_handle_job_results()
+    elif 'test_wait_for_problem_cis' in sys.argv:
+        test_wait_for_problem_cis()
     elif 'test_wait_for_job_to_finish' in sys.argv:
         test_wait_for_job_to_finish()
     elif 'run_botleague_ci' in sys.argv:
