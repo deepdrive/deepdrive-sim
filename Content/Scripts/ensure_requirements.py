@@ -8,15 +8,17 @@ import traceback
 
 REQ_DIR_NAME = 'UEPyPackages'
 REQUIREMENTS = [
-    dict(module='zmq', pip='pyzmq'),
-    dict(module='pyarrow', pip='pyarrow'),
-    dict(module='requests', pip='requests'),
+    dict(module='zmq', pip='pyzmq==18.0.1'),
+    dict(module='pyarrow', pip='pyarrow==0.12.1'),
+    dict(module='requests', pip='requests==2.21.0'),
 ]
 
 
 def ensure_requirements():
     curr_dir = os.path.dirname(get_this_filename())
+    print(f'Ensure requirements dir {curr_dir}')
     req_dir = str(Path(curr_dir).parent.parent.joinpath(REQ_DIR_NAME))
+    print(f'Ensure requirements req_dir {req_dir}')
     if req_dir not in sys.path:
         sys.path.insert(0, req_dir)
     for req in REQUIREMENTS:
@@ -25,8 +27,9 @@ def ensure_requirements():
         try:
             importlib.import_module(module)
         except ImportError:
-            print('Could not import %s. Installing to %s...' % (module, req_dir))
-            pip_install(pip_name, req_dir)
+            print('Could not import %s. Installing to %s...' %
+                  (module, req_dir))
+            pip_install(pip_name, req_dir, curr_dir)
         else:
             print('Found %s' % pip_name)
 
@@ -65,10 +68,11 @@ if __name__ == '__main__':
     # print(os.system('/media/a/data-ext4/UnrealEngine/Engine/Plugins/Marketplace/UnrealEnginePython/EmbeddedPython/Linux/bin/python3 -m pip install sarge'))
     # TODO: Try to create a tempfile within Unreal using the Pip TempFile class
 
-    import tempfile
-    import shutil
-
-    dirpath = tempfile.mkdtemp()
-    print('tmp file ' + str(dirpath))
-    pass
+    # import tempfile
+    # import shutil
+    #
+    # dirpath = tempfile.mkdtemp()
+    # print('tmp file ' + str(dirpath))
+    # pass
     # ensure_requirements()
+    pass
