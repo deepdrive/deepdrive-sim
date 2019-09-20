@@ -29,7 +29,7 @@ def ensure_requirements():
         except ImportError:
             print('Could not import %s. Installing to %s...' %
                   (module, req_dir))
-            pip_install(pip_name, req_dir, curr_dir)
+            pip_install(pip_name, req_dir)
         else:
             print('Found %s' % pip_name)
 
@@ -64,15 +64,4 @@ def get_this_filename():
 
 
 if __name__ == '__main__':
-    # import os
-    # print(os.system('/media/a/data-ext4/UnrealEngine/Engine/Plugins/Marketplace/UnrealEnginePython/EmbeddedPython/Linux/bin/python3 -m pip install sarge'))
-    # TODO: Try to create a tempfile within Unreal using the Pip TempFile class
-
-    # import tempfile
-    # import shutil
-    #
-    # dirpath = tempfile.mkdtemp()
-    # print('tmp file ' + str(dirpath))
-    # pass
-    # ensure_requirements()
-    pass
+    ensure_requirements()
