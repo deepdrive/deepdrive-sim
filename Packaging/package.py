@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import json
 import os
 import stat
 import sys
@@ -10,13 +11,15 @@ from boto.s3.key import Key
 from ue4helpers import FilesystemUtils, ProjectPackager, UnrealUtils
 from os.path import abspath, dirname, join
 import shutil
+from google.cloud import storage
 
 from get_package_version import get_package_filename, \
     get_package_version
 
 ROOT = dirname(dirname(abspath(__file__)))
 VERSION = get_package_version()
-DEEPDRIVE_BUCKET_NAME = 'deepdrive'
+AWS_DEEPDRIVE_BUCKET_NAME = 'deepdrive'
+GCS_DEEPDRIVE_BUCKET_NAME = 'deepdriveio'
 RELEASE_PATH = 'sim'
 RELEASE_CANDIDATE_PATH = 'sim/release_candidates'
 DEEPDRIVE_PACKAGE_NO_UPLOAD = 'DEEPDRIVE_PACKAGE_NO_UPLOAD' in os.environ
@@ -50,7 +53,10 @@ def main():
     print('Created compressed archive "{}".'.format(archive))
 
     if '--upload' in sys.argv and not DEEPDRIVE_PACKAGE_NO_UPLOAD:
-        upload_s3(archive, archive.split('/')[-1])
+        s3_url, gcs_url = upload_s3_and_gcs(archive, archive.split('/')[-1])
+        if 'IS_DEEPDRIVE_SIM_BUILD' in os.environ:
+            json_out = json.dumps(dict(s3_url=s3_url, gcs_url=gcs_url))
+            print(f'π__JSON_OUT_LINE_DELIMITER__π {json_out}')
 
 
 def install_uepy_requirements(dist):
@@ -104,44 +110,65 @@ def ensure_uepy_executable(sim_path):
     return uepy
 
 
-def upload_s3(filepath, filename):
-    conn = boto.connect_s3()
-    bucket = conn.get_bucket(DEEPDRIVE_BUCKET_NAME)
+def upload_s3_and_gcs(source_path: str, dest_filename: str):
+    s3_url = upload_s3(source_path, dest_filename)
+    gcs_url = upload_gcs(source_path, dest_filename)
+    return s3_url, gcs_url
 
-    print('Uploading %s to Amazon S3 bucket %s' % (filepath,
-                                                   DEEPDRIVE_BUCKET_NAME))
+def upload_gcs(source_path: str, dest_filename: str) -> str:
+    print('Uploading %s to GCS bucket %s' % (source_path,
+                                             GCS_DEEPDRIVE_BUCKET_NAME))
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket(GCS_DEEPDRIVE_BUCKET_NAME)
+    blob_name = f'{RELEASE_CANDIDATE_PATH}/{dest_filename}'
+    bucket.blob(blob_name).upload_from_filename(source_path)
+
+    url = f'https://storage.googleapis.com/deepdriveio/{blob_name}'
+    print(f'Finished upload to {url}')
+    return url
+
+
+def upload_s3(source_path: str, dest_filename: str) -> str:
+    conn = boto.connect_s3()
+    bucket = conn.get_bucket(AWS_DEEPDRIVE_BUCKET_NAME)
+
+    print('Uploading %s to Amazon S3 bucket %s' % (source_path,
+                                                   AWS_DEEPDRIVE_BUCKET_NAME))
 
     def percent_cb(complete, total):
         sys.stdout.write('%r of %r\n' % (complete, total))
         sys.stdout.flush()
 
     k = Key(bucket)
-    k.key = f'{RELEASE_CANDIDATE_PATH}/{filename}'
-    k.set_contents_from_filename(filepath, cb=percent_cb, num_cb=10)
+    k.key = f'{RELEASE_CANDIDATE_PATH}/{dest_filename}'
+    k.set_contents_from_filename(source_path, cb=percent_cb, num_cb=10)
 
-    print(f'Finished upload to '
-          f'https://s3-us-west-1.amazonaws.com/deepdrive/{k.key}')
+    url = f'https://s3-us-west-1.amazonaws.com/deepdrive/{k.key}'
+    print(f'Finished upload to {url}')
+
+    return url
 
 
 def copy_release_candidate_to_release():
     filename = get_package_filename()
     conn = boto.connect_s3()
-    bucket = conn.get_bucket(DEEPDRIVE_BUCKET_NAME)
+    bucket = conn.get_bucket(AWS_DEEPDRIVE_BUCKET_NAME)
 
     src_key = Key(bucket)
     src_key.key = f'{RELEASE_CANDIDATE_PATH}/{filename}'
     dst_key = f'{RELEASE_PATH}/{filename}'
-    print(f'Copying sim to release on s3 in "{DEEPDRIVE_BUCKET_NAME}" bucket...'
+    print(f'Copying sim to release on s3 in "{AWS_DEEPDRIVE_BUCKET_NAME}" bucket...'
           f'\n\t{src_key.key} => {dst_key}')
-    src_key.copy(DEEPDRIVE_BUCKET_NAME, dst_key, preserve_acl=True,
+    src_key.copy(AWS_DEEPDRIVE_BUCKET_NAME, dst_key, preserve_acl=True,
                  validate_dst_bucket=False)
     print('Copy complete')
 
 def upload_latest_sim():
+    # For local use
     filepaths = glob(f'{ROOT}/deepdrive-sim-linux-*')
     latest_filepath = max(filepaths, key=os.path.getctime)
-    filename = latest_filepath.split('/')[-1]
-    upload_s3(filepath=latest_filepath, filename=filename)
+    filename = str(latest_filepath.split('/')[-1])
+    upload_s3_and_gcs(source_path=latest_filepath, dest_filename=filename)
 
 
 if __name__ == '__main__':
