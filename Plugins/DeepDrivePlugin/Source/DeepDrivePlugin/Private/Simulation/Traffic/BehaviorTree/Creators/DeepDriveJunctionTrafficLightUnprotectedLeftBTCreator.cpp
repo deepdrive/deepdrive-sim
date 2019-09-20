@@ -6,9 +6,15 @@
 #include "Simulation/Traffic/BehaviorTree/DeepDriveTrafficBehaviorTree.h"
 #include "Simulation/Traffic/BehaviorTree/DeepDriveTrafficBehaviorTreeNode.h"
 
-#include "Simulation/Traffic/BehaviorTree/Tasks/DeepDriveTBTYieldTask.h"
-
 #include "Simulation/Traffic/BehaviorTree/DeepDriveBehaviorTreeFactory.h"
+
+#include "Simulation/Traffic/BehaviorTree/Tasks/DeepDriveTBTStopAtLocationTask.h"
+
+#include "Simulation/Traffic/BehaviorTree/Decorators/DeepDriveTBTCheckTrafficLightDecorator.h"
+#include "Simulation/Traffic/BehaviorTree/Decorators/DeepDriveTBTGreenToRedDecorator.h"
+#include "Simulation/Traffic/BehaviorTree/Decorators/DeepDriveTBTCheckRedDecorator.h"
+#include "Simulation/Traffic/BehaviorTree/Decorators/DeepDriveTBTCheckOncomingTrafficDecorator.h"
+
 
 bool DeepDriveJunctionTrafficLightUnprotectedLeftBTCreator::s_isRegistered = DeepDriveJunctionTrafficLightUnprotectedLeftBTCreator::registerCreator();
 
@@ -24,9 +30,23 @@ DeepDriveTrafficBehaviorTree* DeepDriveJunctionTrafficLightUnprotectedLeftBTCrea
 	DeepDriveTrafficBehaviorTree *behaviorTree = new DeepDriveTrafficBehaviorTree();
 	if (behaviorTree)
 	{
-		DeepDriveTrafficBehaviorTreeNode *yieldNode = behaviorTree->createNode(0);
+		DeepDriveTrafficBehaviorTreeNode *mainNode = behaviorTree->createNode(0);
 
-		yieldNode->addTask(new DeepDriveTBTYieldTask());
+		DeepDriveTrafficBehaviorTreeNode *redNode = behaviorTree->createNode(mainNode);
+		DeepDriveTrafficBehaviorTreeNode *greenToRedNode = behaviorTree->createNode(mainNode);
+		DeepDriveTrafficBehaviorTreeNode *greenNode = behaviorTree->createNode(mainNode);
+		DeepDriveTrafficBehaviorTreeNode *greenTrafficNode = behaviorTree->createNode(greenNode);
+
+		redNode->addDecorator(new DeepDriveTBTCheckRedDecorator);
+		redNode->addTask(new DeepDriveTBTStopAtLocationTask("StopLineLocation", 0.6f, true));
+
+		greenToRedNode->addDecorator(new DeepDriveTBTGreenToRedDecorator);
+		greenToRedNode->addTask(new DeepDriveTBTStopAtLocationTask("StopLineLocation", 0.6f, true));
+
+		greenNode->addDecorator(new DeepDriveTBTCheckTrafficLightDecorator(EDeepDriveTrafficLightPhase::GREEN, EDeepDriveTrafficLightPhase::RED_TO_GREEN));
+
+		greenTrafficNode->addDecorator( new DeepDriveTBTCheckOncomingTrafficDecorator("WaitingLocation") );
+		greenTrafficNode->addTask(new DeepDriveTBTStopAtLocationTask("WaitingLocation", 0.25f, true));
 	}
 
 	return behaviorTree;

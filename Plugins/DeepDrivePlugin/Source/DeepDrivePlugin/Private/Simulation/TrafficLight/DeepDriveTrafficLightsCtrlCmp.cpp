@@ -27,7 +27,6 @@ void UDeepDriveTrafficLightsCtrlCmp::BeginPlay()
 		totalDuration += cycle.Duration;
 
 	float curCycleTime = FMath::Fmod(TimeOffset, totalDuration);
-	m_curCycleTime = curCycleTime;
 	m_curCycleIndex = 0;
 	uint32 curIndex = 0;
 
@@ -66,15 +65,18 @@ void UDeepDriveTrafficLightsCtrlCmp::BeginPlay()
 				}
 			}
 			m_curCycleIndex = curIndex;
+			m_curCycleTime = curCycleTime;
 		}
 		else
 		{
+			UE_LOG(LogDeepDriveTrafficLightsCtrlCmp, Log, TEXT("Setting cycle %d to red"), curIndex );
 			for (auto &circuit : cycle.Circuits)
 			{
 				circuit.resetState();
 				for (auto &trafficLight : circuit.TrafficLights)
 				{
 					trafficLight->SetToRed(-1.0f);
+					UE_LOG(LogDeepDriveTrafficLightsCtrlCmp, Log, TEXT("  %d"), static_cast<int32> (trafficLight->CurrentPhase) );
 				}
 			}
 		}

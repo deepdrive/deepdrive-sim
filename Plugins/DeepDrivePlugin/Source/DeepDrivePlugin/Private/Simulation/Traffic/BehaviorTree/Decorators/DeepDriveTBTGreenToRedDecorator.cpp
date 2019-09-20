@@ -33,7 +33,7 @@ bool DeepDriveTBTGreenToRedDecorator::performCheck(DeepDriveTrafficBlackboard &b
 			const float dist = blackboard.getPartialPath()->getDistance(pathPointIndex, m_StopLineLocationIndex);
 			const float remainingGreenTime = maneuver->TrafficLight->getRemainingPhaseTime();
 			const float curSpeed = agent->getSpeed();
-			const float coveredDist = curSpeed * remainingGreenTime;
+			const float coveredDist = curSpeed * remainingGreenTime * 0.9f;
 
 			status = coveredDist <= dist ? 0 : 1;	// if there is no chance of making it, stop
 

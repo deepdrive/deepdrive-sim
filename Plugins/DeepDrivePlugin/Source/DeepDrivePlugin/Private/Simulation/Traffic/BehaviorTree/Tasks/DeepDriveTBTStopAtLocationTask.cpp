@@ -46,7 +46,7 @@ bool DeepDriveTBTStopAtLocationTask::execute(DeepDriveTrafficBlackboard &blackbo
 				speed = pathPointIndex < m_StopLocationIndex ? speed * speedFac : 0.0f;
 				m_hasStopped = pathPointIndex > m_StopBeginIndex && agent->getSpeedKmh() < 1.0f;
 
-				UE_LOG(LogDeepDriveTBTStopAtLocationTask, Log, TEXT("DeepDriveTBTStopAtLocationTask[%p] %d spd %f spdFac %f curT %f agntSpd %f -> %c"), this, pathPointIndex, speed, speedFac, curT, agent->getSpeedKmh(), m_hasStopped ? 'T' : 'F');
+				// UE_LOG(LogDeepDriveTBTStopAtLocationTask, Log, TEXT("DeepDriveTBTStopAtLocationTask[%p] %d spd %f spdFac %f curT %f agntSpd %f -> %c"), this, pathPointIndex, speed, speedFac, curT, agent->getSpeedKmh(), m_hasStopped ? 'T' : 'F');
 			}
 		}
 	}

@@ -26,8 +26,8 @@ DeepDriveTrafficBehaviorTree* DeepDriveJunctionRightOfWayBTCreator::createBehavi
 	if (behaviorTree)
 	{
 		DeepDriveTrafficBehaviorTreeNode *stopAtNode = behaviorTree->createNode(0);
-		stopAtNode->addTask(new DeepDriveTBTStopAtLocationTask("WaitingLocation", 0.6f, true));
 		stopAtNode->addDecorator( new DeepDriveTBTCheckOncomingTrafficDecorator("WaitingLocation") );
+		stopAtNode->addTask(new DeepDriveTBTStopAtLocationTask("WaitingLocation", 0.25f, true));
 	}
 
 	return behaviorTree;

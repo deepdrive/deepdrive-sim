@@ -33,7 +33,7 @@ bool DeepDriveTBTCheckOncomingTrafficDecorator::performCheck(DeepDriveTrafficBla
 		{
 			isJunctionClear = DeepDriveBehaviorTreeHelpers::isJunctionClear(blackboard);
 
-			UE_LOG(LogDeepDriveTBTCheckOncomingTrafficDecorator, Log, TEXT("LogDeepDriveTBTCheckOncomingTrafficDecorator [%d] junction clear %c"), agent->GetAgentId(), isJunctionClear ? 'T' : 'F');
+			// UE_LOG(LogDeepDriveTBTCheckOncomingTrafficDecorator, Log, TEXT("LogDeepDriveTBTCheckOncomingTrafficDecorator [%d] junction clear %c"), agent->GetAgentId(), isJunctionClear ? 'T' : 'F');
 		}
 	}
 	return !isJunctionClear;
