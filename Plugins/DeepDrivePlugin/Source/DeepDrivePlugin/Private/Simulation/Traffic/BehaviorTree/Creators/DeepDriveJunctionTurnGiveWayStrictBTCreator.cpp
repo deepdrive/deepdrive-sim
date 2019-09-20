@@ -31,7 +31,7 @@ DeepDriveTrafficBehaviorTree* DeepDriveJunctionTurnGiveWayStrictBTCreator::creat
 		DeepDriveTrafficBehaviorTreeNode *waitNode = behaviorTree->createNode(0);
 		DeepDriveTrafficBehaviorTreeNode *clearanceNode = behaviorTree->createNode(0);
 
-		stopAtNode->addTask(new DeepDriveTBTStopAtLocationTask());
+		stopAtNode->addTask(new DeepDriveTBTStopAtLocationTask("StopLineLocation", 0.6f, false));
 		waitNode->addTask(new DeepDriveTBTWaitTask(3.0f));
 		clearanceNode->addTask(new DeepDriveTBTWaitForClearance());
 	}

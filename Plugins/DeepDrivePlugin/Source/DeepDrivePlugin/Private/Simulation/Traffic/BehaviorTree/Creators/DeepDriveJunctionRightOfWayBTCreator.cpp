@@ -6,7 +6,8 @@
 #include "Simulation/Traffic/BehaviorTree/DeepDriveTrafficBehaviorTree.h"
 #include "Simulation/Traffic/BehaviorTree/DeepDriveTrafficBehaviorTreeNode.h"
 
-#include "Simulation/Traffic/BehaviorTree/Tasks/DeepDriveTBTWaitForOncomingTrafficTask.h"
+#include "Simulation/Traffic/BehaviorTree/Tasks/DeepDriveTBTStopAtLocationTask.h"
+#include "Simulation/Traffic/BehaviorTree/Decorators/DeepDriveTBTCheckOncomingTrafficDecorator.h"
 
 #include "Simulation/Traffic/BehaviorTree/DeepDriveBehaviorTreeFactory.h"
 
@@ -24,9 +25,9 @@ DeepDriveTrafficBehaviorTree* DeepDriveJunctionRightOfWayBTCreator::createBehavi
 	DeepDriveTrafficBehaviorTree *behaviorTree = new DeepDriveTrafficBehaviorTree();
 	if (behaviorTree)
 	{
-		DeepDriveTrafficBehaviorTreeNode *node = behaviorTree->createNode(0);
-
-		node->addTask(new DeepDriveTBTWaitForOncomingTrafficTask());
+		DeepDriveTrafficBehaviorTreeNode *stopAtNode = behaviorTree->createNode(0);
+		stopAtNode->addTask(new DeepDriveTBTStopAtLocationTask("WaitingLocation", 0.6f, true));
+		stopAtNode->addDecorator( new DeepDriveTBTCheckOncomingTrafficDecorator("WaitingLocation") );
 	}
 
 	return behaviorTree;

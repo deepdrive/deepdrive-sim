@@ -28,7 +28,10 @@ void DeepDriveTrafficBehaviorTreeNode::bind(DeepDrivePartialPath &path)
 {
 	for (auto &task : m_Tasks)
 		task->bind(m_Blackboard, path);
-	
+
+	for (auto &decorator : m_Decorators)
+		decorator->bind(m_Blackboard, path);
+
 	for(auto &childNode : m_Children)
 		childNode->bind(path);
 }

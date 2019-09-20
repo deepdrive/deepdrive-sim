@@ -63,6 +63,8 @@ public:
 
 	bool IsActive() const;
 
+	float getRemainingPhaseTime() const;
+
 private:
 
 	float								m_remainingPhaseTime = -1.0f;
@@ -73,4 +75,9 @@ private:
 inline bool ADeepDriveTrafficLight::IsActive() const
 {
 	return CurrentPhase != EDeepDriveTrafficLightPhase::OFF && CurrentPhase != EDeepDriveTrafficLightPhase::INACTIVE;
+}
+
+inline float ADeepDriveTrafficLight::getRemainingPhaseTime() const
+{
+	return m_remainingPhaseTime >= 0.0f ? m_remainingPhaseTime : -1.0f;
 }
