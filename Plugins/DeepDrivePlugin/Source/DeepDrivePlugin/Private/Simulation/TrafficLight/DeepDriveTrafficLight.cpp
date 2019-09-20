@@ -66,7 +66,10 @@ void ADeepDriveTrafficLight::SetToGreen(float ElapsedTime)
 void ADeepDriveTrafficLight::SetToRed(float ElapsedTime)
 {
 	if(ElapsedTime < 0.0f || ElapsedTime >= GreenToRedDuration)
+	{
 		CurrentPhase = EDeepDriveTrafficLightPhase::RED;
+		m_remainingPhaseTime = -1.0f;
+	}
 	else
 	{
 		m_remainingPhaseTime = RedToGreenDuration - ElapsedTime;

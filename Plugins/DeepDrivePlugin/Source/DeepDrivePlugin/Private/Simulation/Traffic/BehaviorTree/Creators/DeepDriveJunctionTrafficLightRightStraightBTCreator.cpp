@@ -31,9 +31,8 @@ DeepDriveTrafficBehaviorTree* DeepDriveJunctionTrafficLightRightStraightBTCreato
 		DeepDriveTrafficBehaviorTreeNode *mainNode = behaviorTree->createNode(0);
 
 		DeepDriveTrafficBehaviorTreeNode *redNode = behaviorTree->createNode(mainNode);
-		// DeepDriveTrafficBehaviorTreeNode *greenNode = behaviorTree->createNode(mainNode);
 		DeepDriveTrafficBehaviorTreeNode *greenToRedNode = behaviorTree->createNode(mainNode);
-		// DeepDriveTrafficBehaviorTreeNode *redToGreenNode = behaviorTree->createNode(mainNode);
+		// DeepDriveTrafficBehaviorTreeNode *greenNode = behaviorTree->createNode(mainNode);
 
 		redNode->addDecorator(new DeepDriveTBTCheckRedDecorator);
 		redNode->addTask(new DeepDriveTBTStopAtLocationTask("StopLineLocation", 0.6f, true));
