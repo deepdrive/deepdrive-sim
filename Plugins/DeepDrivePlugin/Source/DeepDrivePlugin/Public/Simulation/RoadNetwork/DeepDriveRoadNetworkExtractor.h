@@ -45,7 +45,7 @@ private:
 	FString buildSegmentName(const FString &linkName);
 
 	float getSpeedLimit(float speedLimit);
-	float getConnectionSpeedLimit(float speedLimit);
+	float getConnectionSpeedLimit(float speedLimit, EDeepDriveConnectionShape connectionShape);
 
 	UWorld								*m_World = 0;
 	SDeepDriveRoadNetwork 				&m_RoadNetwork;
@@ -69,7 +69,9 @@ inline float DeepDriveRoadNetworkExtractor::getSpeedLimit(float speedLimit)
 	return speedLimit > 0.0f ? speedLimit : DeepDriveRoadNetwork::SpeedLimitInTown;
 }
 
-inline float DeepDriveRoadNetworkExtractor::getConnectionSpeedLimit(float speedLimit)
+inline float DeepDriveRoadNetworkExtractor::getConnectionSpeedLimit(float speedLimit, EDeepDriveConnectionShape connectionShape)
 {
-	return speedLimit > 0.0f ? speedLimit : DeepDriveRoadNetwork::SpeedLimitConnection;
+	return		speedLimit > 0.0f
+			?	speedLimit
+			:	(connectionShape == EDeepDriveConnectionShape::STRAIGHT_LINE ? DeepDriveRoadNetwork::SpeedLimitInTown : DeepDriveRoadNetwork::SpeedLimitConnection);
 }

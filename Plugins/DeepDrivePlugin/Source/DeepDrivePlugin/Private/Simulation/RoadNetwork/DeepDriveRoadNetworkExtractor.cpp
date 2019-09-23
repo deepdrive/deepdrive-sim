@@ -207,8 +207,9 @@ uint32 DeepDriveRoadNetworkExtractor::addConnectionSegment(uint32 fromSegment, u
 	segment.Heading = calcHeading(segment.StartPoint, segment.EndPoint);
 	segment.LaneType = EDeepDriveLaneType::CONNECTION;
 
-	segment.SpeedLimit = getConnectionSpeedLimit(junctionConnectionProxy.SpeedLimit);
 	segment.ConnectionShape = junctionConnectionProxy.ConnectionShape;
+	segment.SpeedLimit = getConnectionSpeedLimit(junctionConnectionProxy.SpeedLimit, segment.ConnectionShape);
+
 	segment.CustomCurveParams[0] = junctionConnectionProxy.CustomCurveParams.Parameter0;
 	segment.CustomCurveParams[1] = junctionConnectionProxy.CustomCurveParams.Parameter1;
 	segment.CustomCurveParams[2] = junctionConnectionProxy.CustomCurveParams.Parameter2;
@@ -236,8 +237,8 @@ uint32 DeepDriveRoadNetworkExtractor::addStraightConnectionSegment(uint32 fromSe
 	segment.Heading = calcHeading(segment.StartPoint, segment.EndPoint);
 	segment.LaneType = EDeepDriveLaneType::CONNECTION;
 
-	segment.SpeedLimit = getConnectionSpeedLimit(speedLimit);
 	segment.ConnectionShape = generateCurve ? EDeepDriveConnectionShape::QUADRATIC_SPLINE : EDeepDriveConnectionShape::STRAIGHT_LINE;
+	segment.SpeedLimit = getConnectionSpeedLimit(speedLimit, segment.ConnectionShape);
 	// segment.SlowDownDistance = slowDownDistance;
 
 	m_RoadNetwork.Segments.Add(connectionId, segment);
@@ -372,7 +373,7 @@ uint32 DeepDriveRoadNetworkExtractor::addConnectionSegment(ADeepDriveRoadSegment
 		segment.LaneType = EDeepDriveLaneType::CONNECTION;
 
 		segment.ConnectionShape = EDeepDriveConnectionShape::ROAD_SEGMENT;
-		segment.SpeedLimit = getConnectionSpeedLimit(segment.SpeedLimit);
+		segment.SpeedLimit = getConnectionSpeedLimit(segment.SpeedLimit, segment.ConnectionShape);
 
 		const USplineComponent *spline = segmentProxy.getSpline();
 		if (spline && spline->GetNumberOfSplinePoints() > 2)

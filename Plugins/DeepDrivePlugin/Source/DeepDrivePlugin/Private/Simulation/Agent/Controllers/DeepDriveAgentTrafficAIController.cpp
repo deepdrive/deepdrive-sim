@@ -24,46 +24,6 @@ ADeepDriveAgentTrafficAIController::ADeepDriveAgentTrafficAIController()
 	m_BezierCurve = CreateDefaultSubobject<UBezierCurveComponent>(TEXT("BezierCurve"));
 }
 
-#if 0
-class DeepDrivePathPlanner
-{
-public:
-
-	void update(ADeepDriveAgent &agent)
-	{
-		/*
-			- map agent onto current path
-		 */
-	}
-
-	void advance(float deltSeconds, float &speed, float &brake, float &heading);
-	{
-		/*
-			- from current path get speed limit
-			- check for obstacles ahead and calculate thread level
-			- if no thread, check path for events
-				- for each event run behaviour tree altering heading, speed, brake
-			- if thread
-				- adapt speed, brake and heading accordingly
-		 */
-	}
-
-
-}
-
-void ADeepDriveAgentTrafficAIController::updateRouteGuidance( float DeltaSeconds )
-{
-	m_PathPlanner.update(*m_Agent)
-
-	m_PathPlanner.advance(DeltaSeconds, speed, brake, heading);
-	m_SpeedController->update(DeltaSeconds, speed, brake);
-	m_SteeringController->update(DeltaSeconds, heading);
-
-}
-
-#endif
-
-
 bool ADeepDriveAgentTrafficAIController::updateAgentOnPath( float DeltaSeconds )
 {
 	float speed = m_DesiredSpeed;
@@ -277,14 +237,14 @@ float ADeepDriveAgentTrafficAIController::checkForObstacle(float maxDistance)
 	FVector start = m_Agent->GetActorLocation() + forward * m_Agent->getFrontBumperDistance() + FVector(0.0f, 0.0f, 100.0f);
 	FVector end = start + forward * FMath::Max(maxDistance, m_Agent->getFrontBumperDistance());
 
-	DrawDebugLine(GetWorld(), start, end, FColor::Green, false, 0.0f, 100, 4.0f);
+	// DrawDebugLine(GetWorld(), start, end, FColor::Green, false, 0.0f, 100, 4.0f);
 
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(m_Agent);
 	if(GetWorld()->LineTraceSingleByChannel(hitResult, start, end, ECollisionChannel::ECC_Visibility, params, FCollisionResponseParams() ))
 	{
 		distance = hitResult.Distance;
-		DrawDebugLine(GetWorld(), start, start + forward * distance, FColor::Red, false, 0.0f, 100, 6.0f);
+		// DrawDebugLine(GetWorld(), start, start + forward * distance, FColor::Red, false, 0.0f, 100, 6.0f);
 	}
 
 	return distance;
