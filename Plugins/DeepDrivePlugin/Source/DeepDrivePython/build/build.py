@@ -141,16 +141,27 @@ def build_pypi(build_type, env, ext_root, py, sim_root):
         env['DOCKER_IMAGE'] = env.get('DOCKER_IMAGE') or 'quay.io/pypa/manylinux1_x86_64'
 
         # Build in CentOS to get a portable binary
-        run_command(['docker', 'run', '--rm', '-e', '"DEEPDRIVE_SRC_DIR=/io"',
-                     '-e', 'PYPI_USERNAME',
-                     '-e', 'PYPI_PASSWORD',
-                     '-e', 'DEEPDRIVE_BRANCH',
-                     '-e', 'DEEPDRIVE_VERSION',
-                     '-e', 'DEEPDRIVE_VERSION_SEGMENT',
-                     '-v', sim_root + '/Plugins/DeepDrivePlugin/Source:/io',
-                     env['DOCKER_IMAGE'],
-                     env['PRE_CMD'],
-                     '/io/DeepDrivePython/build/build-linux-wheels.sh'], env=env, cwd=os.path.dirname(DIR))
+
+        docker_options = [
+            '--rm',
+            '--net', 'host',
+            '-e', '"DEEPDRIVE_SRC_DIR=/io"',
+            '-e', 'PYPI_USERNAME',
+            '-e', 'PYPI_PASSWORD',
+            '-e', 'DEEPDRIVE_BRANCH',
+            '-e', 'DEEPDRIVE_VERSION',
+            '-e', 'DEEPDRIVE_VERSION_SEGMENT',
+            '-v', sim_root + '/Plugins/DeepDrivePlugin/Source:/io', ]
+
+        docker_positional_args = [
+            env['DOCKER_IMAGE'],
+            env['PRE_CMD'],
+            '/io/DeepDrivePython/build/build-linux-wheels.sh']
+
+        docker_command = ['docker', 'run'] + docker_options + \
+                         docker_positional_args
+
+        run_command(docker_command, env=env, cwd=os.path.dirname(DIR))
 
 
 def build_dev(env, ext_root, py):
