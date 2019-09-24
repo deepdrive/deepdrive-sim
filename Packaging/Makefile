@@ -3,8 +3,8 @@ TAG=deepdriveio/private:deepdrive-sim-package
 build:
 	docker build --network=host -t $(TAG) .
 
-package:
-	docker run -it --net=host $(TAG)
+bash:
+	docker run $(RUN_ARGS) -it $(TAG) bash
 
 push:
 	docker push $(TAG)
