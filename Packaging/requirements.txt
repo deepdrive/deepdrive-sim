@@ -2,3 +2,6 @@
 ue4-ci-helpers
 boto
 awscli
+requests
+certifi
+google-cloud-storage>=1.15.0

@@ -56,7 +56,7 @@ def main():
         s3_url, gcs_url = upload_s3_and_gcs(archive, archive.split('/')[-1])
         if 'IS_DEEPDRIVE_SIM_BUILD' in os.environ:
             json_out = json.dumps(dict(s3_url=s3_url, gcs_url=gcs_url))
-            print(f'π__JSON_OUT_LINE_DELIMITER__π {json_out}')
+            print(f'|~__JSON_OUT_LINE_DELIMITER__~| {json_out}')
 
 
 def install_uepy_requirements(dist):
