@@ -183,6 +183,7 @@ def wait_for_job_to_finish(job_id) -> Box:
         status_resp = get_job_status(job_id)
         job_status = dbox(status_resp.json())
         if job_status.status == 'finished':
+            print()  # End ... line
             return job_status
         elif not last_log_time or time.time() - last_log_time > 5:
             print('.', end='', flush=True)
