@@ -26,13 +26,13 @@ DeepDrivePartialPath::DeepDrivePartialPath(ADeepDriveAgent &agent, const SDeepDr
 void DeepDrivePartialPath::setup(const TArray<SDeepDriveBasePathSegment> &baseSegments)
 {
 	DeepDrivePathBuilder pathBuilder(m_RoadNetwork, m_PathPoints, m_BezierCurve);
-	pathBuilder.buildPath(baseSegments);
-
-	for (const SDeepDriveBasePathSegment &baseSegment : baseSegments)
-		if (baseSegment.Maneuver.FromLinkId && baseSegment.Maneuver.ToLinkId && baseSegment.Maneuver.BehaviorTree)
-			m_Maneuvers.Add(baseSegment.Maneuver);
+	pathBuilder.buildPath(baseSegments, m_Maneuvers);
+	UE_LOG(LogDeepDrivePartialPath, Log, TEXT("Path built with %d points"), m_PathPoints.Num());
 
 	{
+		DeepDrivePathManeuverAnnotations maneuverAnnotations;
+		maneuverAnnotations.annotate(*this, m_PathPoints, m_Maneuvers);
+
 		DeepDrivePathCurveAnnotation curveAnnotation;
 		curveAnnotation.annotate(m_PathPoints);
 
@@ -41,10 +41,6 @@ void DeepDrivePartialPath::setup(const TArray<SDeepDriveBasePathSegment> &baseSe
 
 		DeepDrivePathDistanceAnnotation distanceAnnotation;
 		distanceAnnotation.annotate(m_PathPoints, 0.0f);
-
-		DeepDrivePathManeuverAnnotations maneuverAnnotations;
-		maneuverAnnotations.annotate(*this, m_PathPoints, m_Maneuvers);
-
 
 		// int32 i = 0;
 		// for(auto &pathPoint : m_PathPoints)
@@ -72,11 +68,7 @@ void DeepDrivePartialPath::advance(float deltaSeconds, float &speed, float &stee
 
 	brake = speed > 0.0f ? 0.0f : 1.0f;
 
-	//steering = calcSteering(deltaSeconds);
-	//steering = calcSteering_Radius(deltaSeconds);
-	// steering = calcSteering_Angle(deltaSeconds);
-	// steering = calcSteering_Heading(deltaSeconds);
-	steering = calcSteering_Classic(deltaSeconds);
+	steering = calcSteering(deltaSeconds);
 
 	SDeepDriveManeuver *curManeuver = 0;
 	for(auto &m : m_Maneuvers)
@@ -95,6 +87,33 @@ void DeepDrivePartialPath::advance(float deltaSeconds, float &speed, float &stee
 		&&	curManeuver->BehaviorTree
 		)
 	{
+		if	(	curManeuver->DirectionIndicationBeginIndex >= 0
+			&&	m_curPathPointIndex >= curManeuver->DirectionIndicationBeginIndex
+			)
+		{
+			switch(curManeuver->ManeuverType)
+			{
+				case EDeepDriveManeuverType::TURN_RIGHT:
+					m_Agent.SetDirectionIndicatorState(EDeepDriveAgentDirectionIndicatorState::RIGHT);
+					break;
+				case EDeepDriveManeuverType::GO_ON_STRAIGHT:
+					m_Agent.SetDirectionIndicatorState(EDeepDriveAgentDirectionIndicatorState::OFF);
+					break;
+				case EDeepDriveManeuverType::TURN_LEFT:
+					m_Agent.SetDirectionIndicatorState(EDeepDriveAgentDirectionIndicatorState::LEFT);
+					break;
+			}
+			curManeuver->DirectionIndicationBeginIndex = -1;
+		}
+
+		if	(	curManeuver->DirectionIndicationEndIndex >= 0
+			&&	m_curPathPointIndex >= curManeuver->DirectionIndicationEndIndex
+			)
+		{
+			m_Agent.SetDirectionIndicatorState(EDeepDriveAgentDirectionIndicatorState::UNKNOWN);
+			curManeuver->DirectionIndicationEndIndex = -1;
+		}
+
 		curManeuver->BehaviorTree->execute(deltaSeconds, speed, m_curPathPointIndex);
 	}
 
@@ -107,126 +126,6 @@ bool DeepDrivePartialPath::isCloseToEnd(float distanceFromEnd) const
 }
 
 float DeepDrivePartialPath::calcSteering(float dT)
-{
-	const SDeepDrivePathPoint &curPathPoint = m_PathPoints[m_curPathPointIndex];
-	const SDeepDrivePathPoint &nextPathPoint = m_PathPoints[m_curPathPointIndex < (m_PathPoints.Num() - 1) ? m_curPathPointIndex + 1 : m_curPathPointIndex];
-
-	float steering = 0.0f;
-
-	FVector2D loc(m_curAgentLocation);
-	FVector2D dir2Loc(loc - FVector2D(curPathPoint.Location));
-
-	float dist2Ctr = FVector2D::DotProduct(dir2Loc, FMath::Lerp(curPathPoint.Normal, nextPathPoint.Normal, m_curPathSegmentT));
-
-	float steeringCorrection = FMath::SmoothStep(0.0f, 75.0f, FMath::Abs(dist2Ctr)) * 0.2f * FMath::Sign(dist2Ctr);
-
-	steeringCorrection = SmootherStep(m_PathConfiguration.PIDSteering.X, m_PathConfiguration.PIDSteering.Y, FMath::Abs(dist2Ctr)) * m_PathConfiguration.PIDSteering.Z * FMath::Sign(dist2Ctr);
-
-	steeringCorrection = FMath::Clamp(m_SteeringPIDCtrl.advance(dT, dist2Ctr), -10.5f, 10.5f);
-
-	steering = FMath::Clamp(steeringCorrection, -1.0f, 1.0f);
-
-	//steering = m_SteeringSmoother.add(steering);
-
-	m_totalTrackError += (m_curPathPointIndex < 50 ? 0.0f : 1.0f) * FMath::Abs(dist2Ctr);
-	UE_LOG(LogDeepDrivePartialPath, Log, TEXT("%5d) curE %f  dE %f sumE %f steering %f"), m_curPathPointIndex, m_SteeringPIDCtrl.m_curE, m_SteeringPIDCtrl.m_curDE, m_SteeringPIDCtrl.m_curSumE, steering);
-
-	return steering;
-}
-
-float DeepDrivePartialPath::calcSteering_Radius(float dT)
-{
-	const SDeepDrivePathPoint &curPathPoint = m_PathPoints[m_curPathPointIndex];
-	const SDeepDrivePathPoint &nextPathPoint = m_PathPoints[m_curPathPointIndex < (m_PathPoints.Num() - 1) ? m_curPathPointIndex + 1 : m_curPathPointIndex];
-	const float maxSteeringAngle = 50.0f;
-	const float WheelBase = m_Agent.getWheelBase();
-
-	const float curveRadius = curPathPoint.CurveRadius;
-	const float steeringAngle = curveRadius != 0.0f ? FMath::RadiansToDegrees(FMath::Asin(WheelBase / curveRadius)) : 0.0f;
-
-	float steering = steeringAngle / maxSteeringAngle;
-
-	FVector2D loc(m_curAgentLocation);
-	FVector2D dir2Loc(loc - FVector2D(curPathPoint.Location));
-
-	float dist2Ctr = FVector2D::DotProduct(dir2Loc, FMath::Lerp(curPathPoint.Normal, nextPathPoint.Normal, m_curPathSegmentT));
-
-	float steeringCorrection = FMath::SmoothStep(0.0f, 75.0f, FMath::Abs(dist2Ctr)) * 0.2f * FMath::Sign(dist2Ctr);
-
-	steeringCorrection = SmootherStep(m_PathConfiguration.PIDSteering.X, m_PathConfiguration.PIDSteering.Y, FMath::Abs(dist2Ctr)) * m_PathConfiguration.PIDSteering.Z * FMath::Sign(dist2Ctr);
-
-	//steering += steeringCorrection;
-
-	//steering = m_SteeringSmoother.add(steering);
-
-	m_totalTrackError += (m_curPathPointIndex < 50 ? 0.0f : 1.0f) * FMath::Abs(dist2Ctr);
-	UE_LOG(LogDeepDrivePartialPath, Log, TEXT("%5d) curveRad %f  steering %f"), m_curPathPointIndex, curveRadius, steering);
-
-	//UE_LOG(LogDeepDrivePartialPath, Log, TEXT("%5d) curE %f  dE %f sumE %f steering %f"), m_curPathPointIndex, m_SteeringPIDCtrl.m_curE, m_SteeringPIDCtrl.m_curDE, m_SteeringPIDCtrl.m_curSumE, steering);
-
-	return steering;
-}
-
-float DeepDrivePartialPath::calcSteering_Angle(float dT)
-{
-	const SDeepDrivePathPoint &curPathPoint = m_PathPoints[m_curPathPointIndex];
-	const SDeepDrivePathPoint &nextPathPoint = m_PathPoints[m_curPathPointIndex < (m_PathPoints.Num() - 1) ? m_curPathPointIndex + 1 : m_curPathPointIndex];
-
-	float curAng = curPathPoint.CurveAngle + nextPathPoint.CurveAngle + m_PathPoints[m_curPathPointIndex + 2].CurveAngle;
-
-	float steering = 2.0f * curAng / 50.0f;
-	steering = FMath::Clamp(steering, -1.0f, 1.0f);
-
-	UE_LOG(LogDeepDrivePartialPath, Log, TEXT("%5d) curveAng %f  steering %f"), m_curPathPointIndex, curAng, steering);
-
-	return steering;
-}
-
-float DeepDrivePartialPath::calcSteering_Heading(float dT)
-{
-	const SDeepDrivePathPoint &curPathPoint = m_PathPoints[m_curPathPointIndex];
-	const SDeepDrivePathPoint &nextPathPoint = m_PathPoints[m_curPathPointIndex < (m_PathPoints.Num() - 1) ? m_curPathPointIndex + 1 : m_curPathPointIndex];
-
-	float desiredHdg = FMath::Lerp(curPathPoint.Heading, nextPathPoint.Heading, m_curPathSegmentT);
-	float curHdg = m_Agent.GetActorForwardVector().HeadingAngle();
-	float delta = desiredHdg - curHdg;
-
-	float steering = m_SteeringPIDCtrl.advance(dT, delta) * dT;
-
-	const FVector &posAhead = m_PathPoints[m_curPathPointIndex + 3].Location;
-	FVector desiredForward = posAhead - m_curAgentLocation;
-	desiredForward.Z = 0.0f;
-	desiredForward.Normalize();
-	desiredHdg = FMath::RadiansToDegrees(desiredForward.HeadingAngle());
-
-	FVector curForward = m_Agent.GetActorForwardVector();
-	curForward.Z = 0.0f;
-	curHdg = FMath::RadiansToDegrees(curForward.HeadingAngle());
-
-	delta = desiredHdg - curHdg;
-	if (delta > 180.0f)
-	{
-		delta -= 360.0f;
-	}
-
-	if (delta < -180.0f)
-	{
-		delta += 360.0f;
-	}
-
-	steering = m_SteeringPIDCtrl.advance(dT, delta) * dT;
-	steering = FMath::Clamp(steering, -1.0f, 1.0f);
-
-	steering = m_SteeringSmoother.add(steering);
-
-	steering = FMath::Clamp(steering, -1.0f, 1.0f);
-
-	UE_LOG(LogDeepDrivePartialPath, Log, TEXT("%5d) desiredHdg %f curHdg %f delta %f steering %f"), m_curPathPointIndex, desiredHdg, curHdg, delta, steering);
-
-	return steering;
-}
-
-float DeepDrivePartialPath::calcSteering_Classic(float dT)
 {
 	const int32 ind0 = FMath::Min(m_curPathPointIndex + 4, m_PathPoints.Num() - 1);
 	const int32 ind1 = FMath::Min(m_curPathPointIndex + 5, m_PathPoints.Num() - 1);
@@ -333,6 +232,22 @@ int32 DeepDrivePartialPath::findClosestPathPoint(const FVector &location, float 
 	}
 
 	return index;
+}
+
+int32 DeepDrivePartialPath::windForward(int32 fromIndex, float distanceCM, float *remainingDistance) const
+{
+	const int32_t numPoints = m_PathPoints.Num() - 2;
+	while(fromIndex < numPoints && distanceCM > 0.0f)
+	{
+		const float curLength = (m_PathPoints[fromIndex - 1].Location - m_PathPoints[fromIndex].Location).Size();
+		++fromIndex;
+		distanceCM -= curLength;
+	}
+
+	if(remainingDistance)
+		*remainingDistance = distanceCM;
+
+	return fromIndex;
 }
 
 int32 DeepDrivePartialPath::rewind(int32 fromIndex, float distanceCM, float *remainingDistance) const

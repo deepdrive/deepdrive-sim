@@ -3,6 +3,7 @@
 #include "Private/Simulation/Traffic/Path/DeepDrivePartialPath.h"
 #include "Simulation/Traffic/Path/DeepDrivePathBuilder.h"
 #include "Private/Utils/DeepDriveUtils.h"
+#include "Private/Simulation/Traffic/Path/Annotations/DeepDrivePathDistanceAnnotation.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveBasePath);
 
@@ -110,6 +111,8 @@ void DeepDriveBasePath::extractCrossTrafficRoads(SDeepDriveManeuver &maneuver, c
 	
 		crossTrafficRoad.Paths.Add(TDeepDrivePathPoints());
 
+		TDeepDrivePathPoints &pathPoints = crossTrafficRoad.Paths.Last();
+
 		const SDeepDriveRoadLink &fromLink = m_RoadNetwork.Links[crossTrafficRoad.FromLinkId];
 		const SDeepDriveRoadLink &toLink = m_RoadNetwork.Links[crossTrafficRoad.ToLinkId];
 
@@ -123,8 +126,11 @@ void DeepDriveBasePath::extractCrossTrafficRoads(SDeepDriveManeuver &maneuver, c
 			SDeepDriveJunctionConnection junctionConnection;
 			if (junction.findJunctionConnection(crossTrafficRoad.FromLinkId, fromSegment.SegmentId, toSegment.SegmentId, junctionConnection))
 			{
-				DeepDrivePathBuilder pathBuilder(m_RoadNetwork, crossTrafficRoad.Paths.Last(), m_BezierCurve);
+				DeepDrivePathBuilder pathBuilder(m_RoadNetwork, pathPoints, m_BezierCurve);
 				pathBuilder.buildPath(fromSegment, toSegment, m_RoadNetwork.Segments[junctionConnection.ConnectionSegmentId], crossTrafficRoad.FromLength, crossTrafficRoad.ToLength);
+
+				DeepDrivePathDistanceAnnotation distanceAnnotation;
+				distanceAnnotation.annotate(pathPoints, 0.0f);
 
 				FBox2D curManArea = pathBuilder.getArea();
 				deepdrive::utils::expandBox2D(manArea, curManArea.Min);

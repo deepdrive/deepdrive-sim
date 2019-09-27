@@ -17,6 +17,7 @@ struct SDeepDrivePathConfiguration
 struct SDeepDrivePathPoint
 {
 	FVector				Location;
+	FVector2D			Direction;
 	FVector2D			Normal;
 
 	uint32				SegmentId;
@@ -35,13 +36,16 @@ typedef TArray<SDeepDrivePathPoint>	TDeepDrivePathPoints;
 
 struct SDeepDriveCrossTrafficRoad
 {
-	SDeepDriveCrossTrafficRoad(uint32 from, uint32 to, float fromLength, float toLength)
-		:	FromLinkId(from)
+	SDeepDriveCrossTrafficRoad(EDeepDriveManeuverType maneuverType, uint32 from, uint32 to, float fromLength, float toLength)
+		:	ManeuverType(maneuverType)
+		,	FromLinkId(from)
 		,	ToLinkId(to)
 		,	FromLength(fromLength)
 		,	ToLength(toLength)
 	{
 	}
+
+	EDeepDriveManeuverType				ManeuverType;
 
 	uint32								FromLinkId = 0;
 	uint32								ToLinkId = 0;
@@ -81,6 +85,9 @@ struct SDeepDriveManeuver
 
 	int32									EntryPointIndex = -1;
 	int32									ExitPointIndex = -1;
+
+	int32									DirectionIndicationBeginIndex = -1;
+	int32									DirectionIndicationEndIndex = -1;
 
 };
 

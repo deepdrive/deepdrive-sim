@@ -6,6 +6,7 @@
 #include "Public/DeepDriveData.h"
 #include "Components/SplineComponent.h"
 #include "Simulation/Agent/DeepDriveAgentControllerBase.h"
+#include "Simulation/Agent/DeepDriveAgentDirectionIndicator.h"
 #include "Private/Capture/DeepDriveCapture.h"
 
 #include "WheeledVehicleMovementComponent.h"
@@ -66,6 +67,9 @@ ADeepDriveAgent::ADeepDriveAgent()
 		box->OnComponentBeginOverlap.AddDynamic(this, &ADeepDriveAgent::OnBeginOverlap);
 		box->ComponentTags.Add(tags[i]);
 	}
+
+	DirectionIndicatorCmp = CreateDefaultSubobject<UDeepDriveAgentDirectionIndicator>(TEXT("DirectionIndicator"));
+	AddOwnedComponent(DirectionIndicatorCmp);
 }
 
 void ADeepDriveAgent::BeginPlay()
@@ -495,4 +499,20 @@ void ADeepDriveAgent::SetSpeedRange(float MinSpeed, float MaxSpeed)
 	ADeepDriveAgentControllerBase *ctrl = getAgentController();
 	if(ctrl)
 		ctrl->SetSpeedRange(MinSpeed, MaxSpeed);
+}
+
+void ADeepDriveAgent::SetDirectionIndicatorState(EDeepDriveAgentDirectionIndicatorState DirectionIndicator)
+{
+	m_DirectionIndicator = DirectionIndicator;
+	if(DirectionIndicatorCmp)
+	{
+
+	}
+
+	UE_LOG(LogDeepDriveAgent, Log, TEXT("SetDirectionIndicatorState %d"), static_cast<int32> (m_DirectionIndicator) );
+}
+
+EDeepDriveAgentDirectionIndicatorState ADeepDriveAgent::GetDirectionIndicatorState()
+{
+	return m_DirectionIndicator;
 }

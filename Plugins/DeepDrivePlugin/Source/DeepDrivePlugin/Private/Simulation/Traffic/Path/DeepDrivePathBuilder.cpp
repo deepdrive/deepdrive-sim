@@ -11,7 +11,7 @@ DeepDrivePathBuilder::DeepDrivePathBuilder(const SDeepDriveRoadNetwork &roadNetw
 {
 }
 
-void DeepDrivePathBuilder::buildPath(const TArray<SDeepDriveBasePathSegment> &baseSegments)
+void DeepDrivePathBuilder::buildPath(const TArray<SDeepDriveBasePathSegment> &baseSegments, TDeepDriveManeuvers &maneuvers)
 {
 	float carryOverDistance = 0.0f;
 	for(const SDeepDriveBasePathSegment &baseSegment : baseSegments)
@@ -22,6 +22,15 @@ void DeepDrivePathBuilder::buildPath(const TArray<SDeepDriveBasePathSegment> &ba
 			addRoadSegment(roadSegment, carryOverDistance, -1.0f);
 		}
 
+		SDeepDriveManeuver *curManeuver = 0;
+		if (baseSegment.Maneuver.FromLinkId && baseSegment.Maneuver.ToLinkId && baseSegment.Maneuver.BehaviorTree)
+		{
+			maneuvers.Add(baseSegment.Maneuver);
+			curManeuver = &maneuvers.Last();
+			curManeuver->DirectionIndicationBeginIndex = m_PathPoints.Num() - 1;
+		}
+
+
 		if(baseSegment.Connection.SegmentId)
 		{
 			const SDeepDriveRoadSegment &fromSegment = m_RoadNetwork.Segments[baseSegment.Connection.SegmentId];
@@ -29,6 +38,9 @@ void DeepDrivePathBuilder::buildPath(const TArray<SDeepDriveBasePathSegment> &ba
 			const SDeepDriveRoadSegment &connectionSegment = m_RoadNetwork.Segments[baseSegment.Connection.ConnectionSegmentId];
 			carryOverDistance = addConnectionSegment(fromSegment, toSegment, connectionSegment, carryOverDistance);
 		}
+
+		if(curManeuver)
+			curManeuver->DirectionIndicationEndIndex = m_PathPoints.Num() - 1;
 	}
 }
 
@@ -243,6 +255,11 @@ void DeepDrivePathBuilder::trimFromEnd(float distance)
 
 	if (i < m_PathPoints.Num())
 		m_PathPoints.RemoveAt(i, m_PathPoints.Num() - i);
+}
+
+int32 DeepDrivePathBuilder::rewind(float distance)
+{
+	return 0;
 }
 
 FBox2D DeepDrivePathBuilder::getArea() const

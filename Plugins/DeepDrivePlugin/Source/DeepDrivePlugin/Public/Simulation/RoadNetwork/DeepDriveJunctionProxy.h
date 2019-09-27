@@ -54,7 +54,7 @@ struct FDeepDriveJunctionConnectionProxy
 	EDeepDriveConnectionShape	ConnectionShape = EDeepDriveConnectionShape::STRAIGHT_LINE;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	float	SpeedLimit = 25.0f;
+	float	SpeedLimit = -1.0f;
 
 	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	// float	SlowDownDistance = 1000.0f;

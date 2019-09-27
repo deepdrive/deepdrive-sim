@@ -12,7 +12,7 @@ public:
 
 	DeepDrivePathBuilder(const SDeepDriveRoadNetwork &roadNetwork, TDeepDrivePathPoints &path, UBezierCurveComponent &bezierCmp);
 
-	void buildPath(const TArray<SDeepDriveBasePathSegment> &baseSegments);
+	void buildPath(const TArray<SDeepDriveBasePathSegment> &baseSegments, TDeepDriveManeuvers &maneuvers);
 
 	void buildPath(const SDeepDriveRoadSegment &from, const SDeepDriveRoadSegment &to, const SDeepDriveRoadSegment &connection, float fromLength, float toLength);
 
@@ -29,6 +29,8 @@ private:
 
 	void trimFromStart(float distance);
 	void trimFromEnd(float distance);
+
+	int32 rewind(float distance);
 
 	void extractTangentFromSegment(const SDeepDriveRoadSegment &segment, FVector &start, FVector &end, bool atStart);
 
