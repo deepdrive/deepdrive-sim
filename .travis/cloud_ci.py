@@ -139,7 +139,7 @@ def wait_for_problem_cis(problem_cis: BoxList) -> BoxList:
             status_resp = get_problem_ci_status(pci.pr_number, pci.commit)
             status_resp = dbox(status_resp.json())
             pci.status = status_resp.status
-            if status_resp.status == 'pending':
+            if status_resp.status in ['pending', 'not-found']:
                 return None
             elif status_resp.status == 'not-found':
                 raise RuntimeError(f'Problem CI not found. Looking for: '
