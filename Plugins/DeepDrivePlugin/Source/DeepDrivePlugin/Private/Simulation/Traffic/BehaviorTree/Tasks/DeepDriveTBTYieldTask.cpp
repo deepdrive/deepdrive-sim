@@ -43,7 +43,9 @@ bool DeepDriveTBTYieldTask::execute(DeepDriveTrafficBlackboard &blackboard, floa
 				
 				if(pathPointIndex >= m_CheckClearanceIndex)
 				{
+					float junctionClearValue = DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue(blackboard);
 					m_isJunctionClear = DeepDriveBehaviorTreeHelpers::isJunctionClear(blackboard);
+					UE_LOG(LogDeepDriveTBTYieldTask, Log, TEXT("DeepDriveTBTYieldTask clear value %f"), junctionClearValue);
 				}
 
 				if (pathPointIndex >= m_LineOfSightLocationIndex)

@@ -52,7 +52,7 @@ bool DeepDriveBehaviorTreeHelpers::isJunctionClear(DeepDriveTrafficBlackboard &b
 	return isJunctionClear;
 }
 
-float DeepDriveBehaviorTreeHelpers::getJunctionClearance(DeepDriveTrafficBlackboard &blackboard)
+float DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue(DeepDriveTrafficBlackboard &blackboard)
 {
 	ADeepDriveSimulation *simulation = blackboard.getSimulation();
 
@@ -60,7 +60,7 @@ float DeepDriveBehaviorTreeHelpers::getJunctionClearance(DeepDriveTrafficBlackbo
 	ADeepDriveAgent *agent = blackboard.getAgent();
 	TArray<ADeepDriveAgent *> agents = simulation->getAgents(maneuver->ManeuverArea, agent);
 
-	float clearance = 1.0f;
+	float clearance = 0.0f;
 
 	for(auto &curAgent : agents)
 	{
@@ -118,8 +118,8 @@ float DeepDriveBehaviorTreeHelpers::getJunctionClearance(DeepDriveTrafficBlackbo
 				for(auto &curPathPoint : curPath)
 				{
 					const float maxDistance2 = 400.0f * 400.0f;
-					float curDist2 = FMath::Clamp(maxDistance2 - FVector::DistSquared(curAgentLoc, curPathPoint.Location), 0.0f, maxDistance2);
-					const float headingFactor = FVector2D::DotProduct(forward, curPathPoint.Direction);
+					float curDist2 = FMath::Clamp((maxDistance2 - FVector::DistSquared(curAgentLoc, curPathPoint.Location)) / maxDistance2, 0.0f, 1.0f);
+					const float headingFactor = 0.5f * (FVector2D::DotProduct(forward, curPathPoint.Direction) + 1.0f);
 					const float curScore = headingFactor * curDist2;
 					if(curScore > bestScore)
 					{
@@ -129,7 +129,7 @@ float DeepDriveBehaviorTreeHelpers::getJunctionClearance(DeepDriveTrafficBlackbo
 			}
 		}
 
-		clearance = bestScore;
+		clearance = 1.0f - bestScore;
 	}
 
 	return clearance;
