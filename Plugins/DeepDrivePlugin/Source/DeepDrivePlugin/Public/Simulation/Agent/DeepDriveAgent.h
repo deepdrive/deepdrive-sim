@@ -14,6 +14,7 @@ struct DeepDriveDataOut;
 class UCaptureCameraComponent;
 class ADeepDriveAgentControllerBase;
 class ADeepDriveSimulation;
+class UDeepDriveAgentDirectionIndicator;
 
 /**
  * 
@@ -112,6 +113,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Agents")
 	void SetSpeedRange(float MinSpeed, float MaxSpeed);
 
+	UFUNCTION(BlueprintCallable, Category = "Agents")
+	void SetDirectionIndicatorState(EDeepDriveAgentDirectionIndicatorState DirectionIndicator);
+
+	UFUNCTION(BlueprintCallable, Category = "Agents")
+	EDeepDriveAgentDirectionIndicatorState GetDirectionIndicatorState();
+
 	void setCollisionMode(bool simple);
 	void setCollisionVisibility(bool visible);
 
@@ -208,6 +215,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = Car)
 	float 								WheelBase = 0.0f;
 
+	UPROPERTY(EditDefaultsOnly, Category = Car)
+	UDeepDriveAgentDirectionIndicator	*DirectionIndicatorCmp = 0;
+
 private:
 	typedef TMap<uint32, UCaptureCameraComponent*>	CaptureCameraMap;
 
@@ -226,6 +236,8 @@ private:
 	bool								m_hasFocus = false;
 
 	ADeepDriveAgentControllerBase		*m_AgentController = 0;
+
+	EDeepDriveAgentDirectionIndicatorState	m_DirectionIndicator = EDeepDriveAgentDirectionIndicatorState::UNKNOWN;
 
 	bool								m_SimpleCollisionMode = false;
 	bool								m_CollisionVisible = false;

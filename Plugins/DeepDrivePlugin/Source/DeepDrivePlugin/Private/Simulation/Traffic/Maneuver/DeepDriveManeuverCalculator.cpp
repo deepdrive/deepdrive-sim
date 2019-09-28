@@ -79,7 +79,7 @@ void DeepDriveManeuverCalculator::calculate(SDeepDriveRoute &route, ADeepDriveAg
 					}
 
 					for(auto crt : maneuver.CrossTrafficRoads)
-						UE_LOG(LogDeepDriveManeuverCalculator, Log, TEXT("CrossTraffic from %d to %d"), crt.FromLinkId, crt.ToLinkId);
+						UE_LOG(LogDeepDriveManeuverCalculator, Log, TEXT("CrossTraffic from %d to %d as %d"), crt.FromLinkId, crt.ToLinkId, static_cast<int32> (crt.ManeuverType));
 
 				}
 			}

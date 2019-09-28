@@ -55,6 +55,17 @@ enum class EDeepDriveAgentState : uint8
 };
 
 
+UENUM(BlueprintType)
+enum class EDeepDriveAgentDirectionIndicatorState : uint8
+{
+	UNKNOWN			= 0	UMETA(DisplayName = "Unknown"),
+	OFF				= 1	UMETA(DisplayName = "Off"),
+	LEFT			= 2	UMETA(DisplayName = "Left"),
+	RIGHT			= 3	UMETA(DisplayName = "Right"),
+	HAZARD_LIGHTS	= 4	UMETA(DisplayName = "Hazard lights")
+};
+
+
 USTRUCT(BlueprintType)
 struct FDeepDriveControllerData
 {

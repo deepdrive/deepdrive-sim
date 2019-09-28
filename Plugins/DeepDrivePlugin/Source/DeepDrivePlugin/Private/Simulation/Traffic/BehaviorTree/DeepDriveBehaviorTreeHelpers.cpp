@@ -24,10 +24,15 @@ bool DeepDriveBehaviorTreeHelpers::isJunctionClear(DeepDriveTrafficBlackboard &b
 				for (auto &curAgent : agents)
 				{
 					const FVector curAgentLoc = curAgent->GetActorLocation();
+					FVector2D forward(curAgent->GetActorForwardVector());
+					forward.Normalize();
+
 					//	check if agent close to this path
 					for (auto &curPathPoint : curPath)
 					{
-						if (FVector::DistSquared(curAgentLoc, curPathPoint.Location) < (10000.0f))
+						if	(	FVector::DistSquared(curAgentLoc, curPathPoint.Location) < (10000.0f)
+							&&	FVector2D::DotProduct(forward, curPathPoint.Direction) > 0.9f
+							)
 						{
 							isJunctionClear = false;
 							break;
@@ -45,4 +50,87 @@ bool DeepDriveBehaviorTreeHelpers::isJunctionClear(DeepDriveTrafficBlackboard &b
 	}
 
 	return isJunctionClear;
+}
+
+float DeepDriveBehaviorTreeHelpers::getJunctionClearance(DeepDriveTrafficBlackboard &blackboard)
+{
+	ADeepDriveSimulation *simulation = blackboard.getSimulation();
+
+	const SDeepDriveManeuver *maneuver = blackboard.getManeuver();
+	ADeepDriveAgent *agent = blackboard.getAgent();
+	TArray<ADeepDriveAgent *> agents = simulation->getAgents(maneuver->ManeuverArea, agent);
+
+	float clearance = 1.0f;
+
+	for(auto &curAgent : agents)
+	{
+		const FVector curAgentLoc = curAgent->GetActorLocation();
+		FVector2D forward(curAgent->GetActorForwardVector());
+		forward.Normalize();
+
+		uint32 agentDirectionMask = 0;
+		switch(curAgent->GetDirectionIndicatorState())
+		{
+			case EDeepDriveAgentDirectionIndicatorState::UNKNOWN:
+				agentDirectionMask = 0xF;
+				break;
+			case EDeepDriveAgentDirectionIndicatorState::LEFT:
+				agentDirectionMask = 1;
+				break;
+			case EDeepDriveAgentDirectionIndicatorState::OFF:
+				agentDirectionMask = 2;
+				break;
+			case EDeepDriveAgentDirectionIndicatorState::RIGHT:
+				agentDirectionMask = 4;
+				break;
+			case EDeepDriveAgentDirectionIndicatorState::HAZARD_LIGHTS:
+				agentDirectionMask = 8;
+				break;
+		}
+
+		float bestScore = 0.0f;
+		for(auto &crossTraffic : maneuver->CrossTrafficRoads)
+		{
+			uint32 maneuverMask = 0;
+
+			switch(crossTraffic.ManeuverType)
+			{
+				case EDeepDriveManeuverType::TURN_LEFT:
+					maneuverMask = 1;
+					break;
+				case EDeepDriveManeuverType::GO_ON_STRAIGHT:
+					maneuverMask = 2;
+					break;
+				case EDeepDriveManeuverType::TURN_RIGHT:
+					maneuverMask = 4;
+					break;
+				case EDeepDriveManeuverType::TRAFFIC_CIRCLE:
+					maneuverMask = 4;
+					break;
+			}
+
+			if	(	crossTraffic.Paths.Num() > 0
+				&&	(agentDirectionMask & maneuverMask) != 0
+				)
+			{
+				const TDeepDrivePathPoints &curPath = crossTraffic.Paths[0];
+
+				for(auto &curPathPoint : curPath)
+				{
+					const float maxDistance2 = 400.0f * 400.0f;
+					float curDist2 = FMath::Clamp(maxDistance2 - FVector::DistSquared(curAgentLoc, curPathPoint.Location), 0.0f, maxDistance2);
+					const float headingFactor = FVector2D::DotProduct(forward, curPathPoint.Direction);
+					const float curScore = headingFactor * curDist2;
+					if(curScore > bestScore)
+					{
+						bestScore = curScore;
+					}
+				}
+			}
+		}
+
+		clearance = bestScore;
+	}
+
+	return clearance;
 }

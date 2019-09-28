@@ -12,9 +12,13 @@ void DeepDrivePathDistanceAnnotation::annotate(TDeepDrivePathPoints &pathPoints,
 	{
 		SDeepDrivePathPoint &pathPoint = pathPoints[i];
 
-		const float curDistance = (pathPoint.Location - lastLocation).Size();
+		FVector direction = pathPoint.Location - lastLocation;
+
+		const float curDistance = direction.Size();
 		coveredDistance += curDistance;
 		pathPoint.Distance = coveredDistance;
+		direction.Normalize();
+		pathPoints[i - 1].Direction = FVector2D(direction);
 
 		lastLocation = pathPoint.Location;
 	}

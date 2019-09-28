@@ -35,6 +35,8 @@ public:
 
 	int32 findClosestPathPoint(const FVector &location, float *t);
 
+	int32 windForward(int32 fromIndex, float distanceCM, float *remainingDistance = 0) const;
+
 	int32 rewind(int32 fromIndex, float distanceCM, float *remainingDistance = 0) const;
 
 	float getDistance(int32 fromIndex, int32 toIndex);
@@ -46,10 +48,6 @@ private:
 	void findClosestPathPoint(const FVector &location);
 
 	float calcSteering(float dT);
-	float calcSteering_Radius(float dT);
-	float calcSteering_Angle(float dT);
-	float calcSteering_Heading(float dT);
-	float calcSteering_Classic(float dT);
 
 	ADeepDriveAgent 					&m_Agent;
 	const SDeepDriveRoadNetwork			&m_RoadNetwork;

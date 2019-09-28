@@ -1,5 +1,6 @@
 
-#include "Private/Simulation/Traffic/Path/Annotations/DeepDrivePathManeuverAnnotations.h"
+#include "Simulation/Traffic/Path/Annotations/DeepDrivePathManeuverAnnotations.h"
+#include "Simulation/Traffic/Path/DeepDrivePartialPath.h"
 #include "Simulation/Traffic/BehaviorTree/DeepDriveTrafficBlackboard.h"
 #include "Simulation/Traffic/BehaviorTree/DeepDriveTrafficBehaviorTree.h"
 
@@ -36,6 +37,12 @@ void DeepDrivePathManeuverAnnotations::annotate(DeepDrivePartialPath &path, TDee
 					maneuver.ExitPointIndex = ind;
 				}
 			}
+
+			maneuver.DirectionIndicationBeginIndex = path.rewind(maneuver.DirectionIndicationBeginIndex, 1500.0f);
+			// maneuver.DirectionIndicationEndIndex = path.windForward(maneuver.DirectionIndicationEndIndex, 500.0f);
+
+			UE_LOG(LogDeepDrivePathManeuverAnnotations, Log, TEXT("DirectionIndication %d %d | %d"), maneuver.DirectionIndicationBeginIndex, maneuver.DirectionIndicationEndIndex, maneuver.ExitPointIndex );
+
 		}
 		else
 		{
