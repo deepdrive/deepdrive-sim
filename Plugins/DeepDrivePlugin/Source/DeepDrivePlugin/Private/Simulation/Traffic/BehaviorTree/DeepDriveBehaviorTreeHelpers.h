@@ -12,5 +12,5 @@ public:
 
 	static bool isJunctionClear(DeepDriveTrafficBlackboard &blackboard);
 
-	static float getJunctionClearance(DeepDriveTrafficBlackboard &blackboard);
+	static float calculateJunctionClearValue(DeepDriveTrafficBlackboard &blackboard);
 };

@@ -14,7 +14,6 @@ struct DeepDriveDataOut;
 class UCaptureCameraComponent;
 class ADeepDriveAgentControllerBase;
 class ADeepDriveSimulation;
-class UDeepDriveAgentDirectionIndicator;
 
 /**
  * 
@@ -214,9 +213,6 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = Car)
 	float 								WheelBase = 0.0f;
-
-	UPROPERTY(EditDefaultsOnly, Category = Car)
-	UDeepDriveAgentDirectionIndicator	*DirectionIndicatorCmp = 0;
 
 private:
 	typedef TMap<uint32, UCaptureCameraComponent*>	CaptureCameraMap;
