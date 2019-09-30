@@ -41,10 +41,10 @@ def main():
         log.warning('Not building sim without ENABLE_SIM_BUILD=true')
         return
 
-    build_id = os.environ.get('TRAVIS_BUILD_ID') or \
+    build_id = os.environ.get('CIRCLE_BUILD_NUM') or \
                generate_rand_alphanumeric(6)
-    commit = os.environ['TRAVIS_COMMIT']
-    branch = os.environ['TRAVIS_BRANCH']
+    commit = os.environ['CIRCLE_SHA1']
+    branch = os.environ['CIRCLE_BRANCH']
     resp = requests.post('https://sim.deepdrive.io/build', json=dict(
         build_id=build_id,
         commit=commit,

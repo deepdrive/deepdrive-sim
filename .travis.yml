@@ -14,14 +14,12 @@ matrix:
     - docker
     env:
       - DOCKER_IMAGE=quay.io/pypa/manylinux1_x86_64
-      - ENABLE_SIM_BUILD=true
   - sudo: required
     services:
     - docker
     env:
       - DOCKER_IMAGE=quay.io/pypa/manylinux1_i686
       - PRE_CMD=linux32
-      - ENABLE_SIM_BUILD=false
 before_install:
   - sudo apt-get update
   - sudo apt-get install -y cppcheck
@@ -31,7 +29,7 @@ before_install:
 install:
 - docker pull $DOCKER_IMAGE
 script:
-- Test/cppcheck.sh && python -u .ci/cloud_ci.py && python -u Plugins/DeepDrivePlugin/Source/DeepDrivePython/build/build.py --type linux_bdist
+- Test/cppcheck.sh && python -u Plugins/DeepDrivePlugin/Source/DeepDrivePython/build/build.py --type linux_bdist
 
 
 git:

@@ -3,9 +3,15 @@ jobs:
   build:
     docker:
       - image: circleci/python:3.6.8
+        environment:
+          ENABLE_SIM_BUILD: true
     steps:
       - checkout
       - run:
           command: |
             ls -la
             pwd
+            pip install -r .ci/requirements.txt
+            pip install --upgrade --force-reinstall --ignore-installed --no-cache-dir git+git://github.com/botleague/botleague-helpers#egg=botleague-helpers
+            pip install --upgrade --force-reinstall --ignore-installed --no-cache-dir git+git://github.com/deepdrive/problem-constants#egg=problem-constants
+            python -u .ci/cloud_ci.py
