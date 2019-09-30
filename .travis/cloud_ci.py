@@ -10,11 +10,12 @@ from os.path import dirname, realpath, join
 import requests
 from box import Box, BoxList
 from github import Github
-from loguru import logger as log
 from retry import retry
 from github import UnknownObjectException
 
 import problem_constants.constants
+
+from logs import log
 
 """
 Here we run the build and integration tests on our own infrastructure so that
