@@ -68,8 +68,6 @@ ADeepDriveAgent::ADeepDriveAgent()
 		box->ComponentTags.Add(tags[i]);
 	}
 
-	DirectionIndicatorCmp = CreateDefaultSubobject<UDeepDriveAgentDirectionIndicator>(TEXT("DirectionIndicator"));
-	AddOwnedComponent(DirectionIndicatorCmp);
 }
 
 void ADeepDriveAgent::BeginPlay()
@@ -504,11 +502,6 @@ void ADeepDriveAgent::SetSpeedRange(float MinSpeed, float MaxSpeed)
 void ADeepDriveAgent::SetDirectionIndicatorState(EDeepDriveAgentDirectionIndicatorState DirectionIndicator)
 {
 	m_DirectionIndicator = DirectionIndicator;
-	if(DirectionIndicatorCmp)
-	{
-
-	}
-
 	UE_LOG(LogDeepDriveAgent, Log, TEXT("SetDirectionIndicatorState %d"), static_cast<int32> (m_DirectionIndicator) );
 }
 

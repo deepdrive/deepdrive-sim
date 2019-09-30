@@ -60,7 +60,7 @@ float DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue(DeepDriveTraffic
 	ADeepDriveAgent *agent = blackboard.getAgent();
 	TArray<ADeepDriveAgent *> agents = simulation->getAgents(maneuver->ManeuverArea, agent);
 
-	float clearance = 0.0f;
+	float clearValue = 1.0f;
 
 	for(auto &curAgent : agents)
 	{
@@ -129,8 +129,8 @@ float DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue(DeepDriveTraffic
 			}
 		}
 
-		clearance = 1.0f - bestScore;
+		clearValue = 1.0f - bestScore;
 	}
 
-	return clearance;
+	return clearValue;
 }

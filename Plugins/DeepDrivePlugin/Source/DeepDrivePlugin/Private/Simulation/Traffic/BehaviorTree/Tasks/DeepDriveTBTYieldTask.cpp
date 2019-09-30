@@ -31,6 +31,7 @@ void DeepDriveTBTYieldTask::bind(DeepDriveTrafficBlackboard &blackboard, DeepDri
 	UE_LOG(LogDeepDriveTBTYieldTask, Log, TEXT("DeepDriveTBTYieldTask::bind %d %d %d"), m_LineOfSightLocationIndex, m_StopRangeBeginIndex, m_SlowDownBeginIndex);
 }
 
+#if 1
 bool DeepDriveTBTYieldTask::execute(DeepDriveTrafficBlackboard &blackboard, float deltaSeconds, float &speed, int32 pathPointIndex)
 {
 	if (m_hasReachedStopLine == false)
@@ -40,27 +41,20 @@ bool DeepDriveTBTYieldTask::execute(DeepDriveTrafficBlackboard &blackboard, floa
 		{
 			if (m_SlowDownBeginIndex >= 0 && m_StopRangeBeginIndex >= 0)
 			{
-				
-				if(pathPointIndex >= m_CheckClearanceIndex)
+
+				if (pathPointIndex >= m_CheckClearanceIndex)
 				{
 					float junctionClearValue = DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue(blackboard);
 					m_isJunctionClear = DeepDriveBehaviorTreeHelpers::isJunctionClear(blackboard);
 					UE_LOG(LogDeepDriveTBTYieldTask, Log, TEXT("DeepDriveTBTYieldTask clear value %f"), junctionClearValue);
-				}
-
-				if (pathPointIndex >= m_LineOfSightLocationIndex)
-				{
-					if(m_isJunctionClear)
-						m_hasReachedStopLine = true;
-					else
-						speed = 0.0f;
+					speed *= junctionClearValue;
 				}
 				else if (pathPointIndex >= m_SlowDownBeginIndex)
 				{
 					const int32 curIndexDelta = pathPointIndex - m_SlowDownBeginIndex;
-					const float curT = static_cast<float> (curIndexDelta) / static_cast<float> (m_IndexDelta);
+					const float curT = static_cast<float>(curIndexDelta) / static_cast<float>(m_IndexDelta);
 					const float speedFac = 1.0f - FMath::SmoothStep(0.0f, 0.9f, curT);
-					
+
 					// UE_LOG(LogDeepDriveTBTYieldTask, Log, TEXT("DeepDriveTBTYieldTask %d slowing down t %f spdFac %f"), pathPointIndex, curT, speedFac);
 					speed = FMath::Max(speed * speedFac, SlowDownMinSpeed);
 				}
@@ -70,3 +64,46 @@ bool DeepDriveTBTYieldTask::execute(DeepDriveTrafficBlackboard &blackboard, floa
 
 	return !m_hasReachedStopLine;
 }
+
+#else
+
+bool DeepDriveTBTYieldTask::execute(DeepDriveTrafficBlackboard &blackboard, float deltaSeconds, float &speed, int32 pathPointIndex)
+{
+	if (m_hasReachedStopLine == false)
+	{
+		ADeepDriveAgent *agent = blackboard.getAgent();
+		if (agent)
+		{
+			if (m_SlowDownBeginIndex >= 0 && m_StopRangeBeginIndex >= 0)
+			{
+
+				if (pathPointIndex >= m_CheckClearanceIndex)
+				{
+					float junctionClearValue = DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue(blackboard);
+					m_isJunctionClear = DeepDriveBehaviorTreeHelpers::isJunctionClear(blackboard);
+					UE_LOG(LogDeepDriveTBTYieldTask, Log, TEXT("DeepDriveTBTYieldTask clear value %f"), junctionClearValue);
+				}
+
+				if (pathPointIndex >= m_LineOfSightLocationIndex)
+				{
+					if (m_isJunctionClear)
+						m_hasReachedStopLine = true;
+					else
+						speed = 0.0f;
+				}
+				else if (pathPointIndex >= m_SlowDownBeginIndex)
+				{
+					const int32 curIndexDelta = pathPointIndex - m_SlowDownBeginIndex;
+					const float curT = static_cast<float>(curIndexDelta) / static_cast<float>(m_IndexDelta);
+					const float speedFac = 1.0f - FMath::SmoothStep(0.0f, 0.9f, curT);
+
+					// UE_LOG(LogDeepDriveTBTYieldTask, Log, TEXT("DeepDriveTBTYieldTask %d slowing down t %f spdFac %f"), pathPointIndex, curT, speedFac);
+					speed = FMath::Max(speed * speedFac, SlowDownMinSpeed);
+				}
+			}
+		}
+	}
+
+	return !m_hasReachedStopLine;
+}
+#endif
