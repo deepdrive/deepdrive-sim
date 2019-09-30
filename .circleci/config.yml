@@ -6,22 +6,20 @@ jobs:
         environment:
           ENABLE_SIM_BUILD: true
     steps:
-      - restore_cache:
-          keys:
-            - source-v1-{{ .Branch }}-{{ .Revision }}
-            - source-v1-{{ .Branch }}-
-            - source-v1-
+#      - restore_cache:
+#          keys:
+#            - source-v1-{{ .Branch }}-{{ .Revision }}
+#            - source-v1-{{ .Branch }}-
+#            - source-v1-
       - checkout
-      - save_cache:
-          key: source-v1-{{ .Branch }}-{{ .Revision }}
-          paths:
-            - ".git"  # We need to use Git LFS eventually to take advantage of this as our repo is over Circle's 500MB cache limit
-      - run:
-          command: |
-            ls -la
-            pwd
-            pip install -r .ci/requirements.txt
-            pip install --upgrade --force-reinstall --ignore-installed --no-cache-dir git+git://github.com/botleague/botleague-helpers#egg=botleague-helpers
-            pip install --upgrade --force-reinstall --ignore-installed --no-cache-dir git+git://github.com/deepdrive/problem-constants#egg=problem-constants
-            python -u .ci/cloud_ci.py
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.7/site-packages
+#      - save_cache:
+#          key: source-v1-{{ .Branch }}-{{ .Revision }}
+#          paths:
+#            - ".git"  # We need to use Git LFS eventually to take advantage of this as our repo is over Circle's 500MB cache limit
+      - run: pip install -r .ci/requirements.txt
+      - run: pip install --upgrade --force-reinstall --ignore-installed --no-cache-dir git+git://github.com/botleague/botleague-helpers#egg=botleague-helpers
+      - run: pip install --upgrade --force-reinstall --ignore-installed --no-cache-dir git+git://github.com/deepdrive/problem-constants#egg=problem-constants
+      - run: python -u .ci/cloud_ci.py
 
