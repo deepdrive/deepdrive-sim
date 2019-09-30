@@ -6,7 +6,6 @@
 #include "Public/DeepDriveData.h"
 #include "Components/SplineComponent.h"
 #include "Simulation/Agent/DeepDriveAgentControllerBase.h"
-#include "Simulation/Agent/DeepDriveAgentDirectionIndicator.h"
 #include "Private/Capture/DeepDriveCapture.h"
 
 #include "WheeledVehicleMovementComponent.h"
