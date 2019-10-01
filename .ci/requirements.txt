@@ -7,4 +7,3 @@ PyGithub>=1.43.6
 ue4-ci-helpers
 awscli
 git+git://github.com/deepdrive/problem-constants#egg=problem-constants
-git+git://github.com/botleague/botleague-helpers#egg=botleague-helpers
