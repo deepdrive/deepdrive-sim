@@ -15,7 +15,8 @@ from github import UnknownObjectException
 
 import problem_constants.constants
 
-from logs import log
+from loguru import logger as log
+# from logs import log
 
 """
 Here we run the build and integration tests on our own infrastructure so that
