@@ -8,6 +8,7 @@ FROM deepdriveio/ue4-deepdrive-deps:latest
 COPY requirements.txt ./requirements.txt
 RUN pip3 install -r requirements.txt
 WORKDIR /home/ue4
+RUN git clone https://github.com/deepdrive/deepdrive-sim
 
 # Bootstrap source into build container
 CMD curl -s -N https://raw.githubusercontent.com/deepdrive/deepdrive-sim/${DEEPDRIVE_COMMIT}/Packaging/ci-package.sh | bash

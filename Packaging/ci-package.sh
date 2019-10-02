@@ -5,8 +5,9 @@ set -u  # Attempt to use undefined variable outputs error message, and forces an
 set -x  # Similar to verbose mode (-v), but expands commands
 set -o pipefail  # Causes a pipeline to return the exit status of the last command in the pipe that returned a non-zero return value.
 
-git clone --depth=1 --branch ${DEEPDRIVE_BRANCH} https://github.com/deepdrive/deepdrive-sim
 cd deepdrive-sim
+git clean -fxd
+git fetch origin ${DEEPDRIVE_BRANCH}
 git checkout -qf ${DEEPDRIVE_COMMIT}
 
 # https://stackoverflow.com/a/42982144/134077
