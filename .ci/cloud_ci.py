@@ -1,7 +1,7 @@
 import json
 import os
 import sys
-from typing import List
+from typing import List, Tuple
 
 import time
 from datetime import datetime
@@ -52,18 +52,20 @@ def main():
         branch=branch,
     ))
     job_id = resp.json()['job_id']
-    build_success = wait_for_build_result(job_id)
+    build_success, job = wait_for_build_result(job_id)
+
     if not build_success:
         raise RuntimeError('Cloud build failed')
     else:
-        passed_ci = run_botleague_ci(branch)
+        build_results = Box.from_json(job.results.json_results_from_logs)
+        passed_ci = run_botleague_ci(branch, sim_url=build_results.gcs_url)
         if passed_ci:
             # Copy sim/release_candidates/ to sim/
             copy_release_candidate_to_release()
 
 
 @log.catch(reraise=True)
-def run_botleague_ci(branch) -> bool:
+def run_botleague_ci(branch, sim_url) -> bool:
     # Send pull request to Botleague
     log.info('Sending pull requests to botleague for supported problems')
     github_token = os.environ['BOTLEAGUE_GITHUB_TOKEN']
@@ -109,9 +111,8 @@ def run_botleague_ci(branch) -> bool:
             body=f'',
             head=f'{botleague_fork_owner}:{botleague_branch_name}',
             base='master',)
-        if BOTLEAGUE_LIAISON_HOST != DEFAULT_BOTLEAGUE_LIAISON_HOST:
-            pull.body = Box(
-                botleague_liaison_host=BOTLEAGUE_LIAISON_HOST).to_json()
+
+        set_pull_body(pull, sim_url)
 
         # if branch not in ['master']:
         if branch not in ['master', 'v3_stable']:
@@ -132,6 +133,13 @@ def run_botleague_ci(branch) -> bool:
     else:
         raise RuntimeError(f'Problem ci\'s failed! Problem cis were: '
                  f'{problem_cis.to_json(indent=2, default=str)}')
+
+
+def set_pull_body(pull, sim_url):
+    pull.body = Box(replace_sim_url=sim_url)
+    if BOTLEAGUE_LIAISON_HOST != DEFAULT_BOTLEAGUE_LIAISON_HOST:
+        pull.body.botleague_liaison_host = BOTLEAGUE_LIAISON_HOST
+    pull.body = pull.body.to_json()
 
 
 def wait_for_problem_cis(problem_cis: BoxList) -> BoxList:
@@ -162,7 +170,7 @@ def wait_for_fn(fn: callable):
         time.sleep(1)
 
 
-def wait_for_build_result(job_id) -> bool:
+def wait_for_build_result(job_id) -> Tuple[bool, Box]:
     job = wait_for_job_to_finish(job_id)
     if job.results.errors:
         log.error(f'Build finished with errors. Job details:\n'
@@ -176,7 +184,7 @@ def wait_for_build_result(job_id) -> bool:
         log.info(f'Full job logs: '
                  f'{job.results.logs.to_json(indent=2, default=str)}')
 
-    return ret
+    return ret, job
 
 def wait_for_job_to_finish(job_id) -> Box:
     last_log_time = None
