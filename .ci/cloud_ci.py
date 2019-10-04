@@ -114,8 +114,8 @@ def run_botleague_ci(branch, sim_url) -> bool:
 
         set_pull_body(pull, sim_url)
 
-        # if branch not in ['master']:
-        if branch not in ['master', 'v3_stable']:
+        # if branch not in ['master']:  # Change to this after v3 is merged.
+        if branch not in ['master', 'v3']:
             pull.draft = True
 
         pull_resp = create_pull_request(
