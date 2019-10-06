@@ -4,6 +4,8 @@
 #include "Private/Utils/StateMachine/TStateMachine.hpp"
 #include "Private/Utils/StateMachine/TStateBase.hpp"
 
+DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveSimulationState, Log, All);
+
 class ADeepDriveSimulation;
 
 class DeepDriveSimulationStateBase;

@@ -4,6 +4,8 @@
 #include "Public/Simulation/Misc/BezierCurveComponent.h"
 #include "Private/Utils/DeepDriveUtils.h"
 
+DEFINE_LOG_CATEGORY(LogDeepDrivePathBuilder);
+
 DeepDrivePathBuilder::DeepDrivePathBuilder(const SDeepDriveRoadNetwork &roadNetwork, TDeepDrivePathPoints &path, UBezierCurveComponent &bezierCmp)
 	:	m_RoadNetwork(roadNetwork)
 	,	m_PathPoints(path)
@@ -28,6 +30,8 @@ void DeepDrivePathBuilder::buildPath(const TArray<SDeepDriveBasePathSegment> &ba
 			maneuvers.Add(baseSegment.Maneuver);
 			curManeuver = &maneuvers.Last();
 			curManeuver->DirectionIndicationBeginIndex = m_PathPoints.Num() - 1;
+
+			UE_LOG(LogDeepDrivePathBuilder, Log, TEXT("Maneuver from %d to %d ind %d"), baseSegment.Maneuver.FromLinkId, baseSegment.Maneuver.ToLinkId, curManeuver->DirectionIndicationBeginIndex);
 		}
 
 

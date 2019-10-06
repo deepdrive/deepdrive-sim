@@ -23,6 +23,11 @@ public:
 
 	void setup(const TArray<SDeepDriveBasePathSegment> &baseSegments);
 
+	void trimStart(const FVector &startPos);
+	void trimEnd(const FVector &endPos);
+
+	void annotate();
+	
 	/*
 		Return false when path is outdated, otherwise true
 	*/

@@ -9,7 +9,9 @@
 
 #include "Simulation/Traffic/BehaviorTree/Tasks/DeepDriveTBTStopAtLocationTask.h"
 #include "Simulation/Traffic/BehaviorTree/Tasks/DeepDriveTBTWaitTask.h"
-#include "Simulation/Traffic/BehaviorTree/Tasks/DeepDriveTBTWaitForClearance.h"
+#include "Simulation/Traffic/BehaviorTree/Tasks/DeepDriveTBTStopTask.h"
+
+#include "Simulation/Traffic/BehaviorTree/Decorators/DeepDriveTBTIsJunctionClearDecorator.h"
 
 #include "Simulation/Traffic/BehaviorTree/DeepDriveBehaviorTreeFactory.h"
 
@@ -29,11 +31,12 @@ DeepDriveTrafficBehaviorTree* DeepDriveJunctionTurnGiveWayStrictBTCreator::creat
 	{
 		DeepDriveTrafficBehaviorTreeNode *stopAtNode = behaviorTree->createNode(0);
 		DeepDriveTrafficBehaviorTreeNode *waitNode = behaviorTree->createNode(0);
-		DeepDriveTrafficBehaviorTreeNode *clearanceNode = behaviorTree->createNode(0);
+		DeepDriveTrafficBehaviorTreeNode *checkJunctionClearNode = behaviorTree->createNode(0);
 
 		stopAtNode->addTask(new DeepDriveTBTStopAtLocationTask("StopLineLocation", 0.6f, false));
 		waitNode->addTask(new DeepDriveTBTWaitTask(3.0f));
-		clearanceNode->addTask(new DeepDriveTBTWaitForClearance());
+		checkJunctionClearNode->addDecorator(new DeepDriveTBTIsJunctionClearDecorator(true));
+		checkJunctionClearNode->addTask(new DeepDriveTBTStopTask);
 	}
 
 	return behaviorTree;

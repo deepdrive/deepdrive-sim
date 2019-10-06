@@ -6,6 +6,8 @@
 struct SDeepDriveRoadNetwork;
 class UBezierCurveComponent;
 
+DECLARE_LOG_CATEGORY_EXTERN(LogDeepDrivePathBuilder, Log, All);
+
 class DeepDrivePathBuilder
 {
 public:

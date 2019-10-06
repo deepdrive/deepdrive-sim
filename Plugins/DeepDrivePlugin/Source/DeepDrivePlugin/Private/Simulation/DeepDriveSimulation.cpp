@@ -71,7 +71,7 @@ void ADeepDriveSimulation::PreInitializeComponents()
 	}
 
 	{
-		ScenarioMode = false;
+		ScenarioMode = InitialScenarioMode;
 		TArray<FString> tokens;
 		TArray<FString> switches;
 		FCommandLine::Parse(FCommandLine::Get(), tokens, switches);
@@ -113,8 +113,12 @@ void ADeepDriveSimulation::PreInitializeComponents()
 			{
 				m_StateMachine->registerState(new DeepDriveSimulationInitializeState(*m_StateMachine, ScenarioMode));
 				m_StateMachine->registerState(new DeepDriveSimulationRunningState(*m_StateMachine));
-				m_ConfigureState = new DeepDriveSimulationConfigureState(*m_StateMachine, GetWorld());
-				m_StateMachine->registerState(m_ConfigureState);
+				if(ScenarioMode)
+				{
+					m_ConfigureState = new DeepDriveSimulationConfigureState(*m_StateMachine, GetWorld());
+					m_StateMachine->registerState(m_ConfigureState);
+				}
+				
 				m_ResetState = new DeepDriveSimulationResetState(*m_StateMachine, GetWorld());
 				m_StateMachine->registerState(m_ResetState);
 			}
@@ -151,6 +155,8 @@ void ADeepDriveSimulation::BeginPlay()
 {
 	Super::BeginPlay();
 
+	ADeepDriveAgent::resetAgentId();
+	
 	if (m_StateMachine)
 	{
 		// active simulation

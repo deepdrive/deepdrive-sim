@@ -123,6 +123,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = Scenario)
 	bool	ScenarioMode = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
+	bool	InitialScenarioMode = false;
+
 	UFUNCTION(BlueprintCallable, Category = "Simulation")
 	void ConfigureSimulation(FDeepDriveScenarioConfiguration Configuration);
 

@@ -22,6 +22,7 @@ private:
 	int32			m_SlowDownBeginIndex = -1;
 	int32			m_StopRangeBeginIndex = -1;
 	int32			m_CheckClearanceIndex = -1;
+	int32			m_PastStopPointIndex = -1;
 
 	int32			m_IndexDelta = 0;
 
@@ -34,5 +35,6 @@ private:
 	const float		StopRangeBeginDistance = 300.0f;
 	const float		SlowDownBeginDistance = 2000.0f;
 	const float		CheckClearanceDistance = 600.0f;
+	const float 	PastStopPointDistance = 300.0f;
 	const float		SlowDownMinSpeed = 10.0f;
 };
