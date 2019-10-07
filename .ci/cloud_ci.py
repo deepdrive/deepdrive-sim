@@ -63,3 +63,6 @@ def run_botleague_ci_for_sim_build(branch, commit, job):
         # Copy sim/release_candidates/ to sim/
         copy_release_candidate_to_release()
         # TODO: Promote python bindings to PyPi default
+
+if __name__ == '__main__':
+    main()
