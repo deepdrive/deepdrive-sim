@@ -85,6 +85,8 @@ void ADeepDriveAgentTrafficAIController::Tick( float DeltaSeconds )
 					route.Links = m_DeepDriveSimulation->RoadNetwork->calculateRandomRoute(start, destination);
 					if (route.Links.Num() > 0)
 					{
+						route.Start = start;
+						route.Destination = destination;
 						DeepDriveManeuverCalculator *manCalc = m_DeepDriveSimulation->getManeuverCalculator();
 						if(manCalc)
 							manCalc->calculate(route, *m_Agent);

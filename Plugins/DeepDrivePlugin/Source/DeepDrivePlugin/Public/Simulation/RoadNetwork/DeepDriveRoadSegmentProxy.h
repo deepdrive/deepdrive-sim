@@ -23,7 +23,7 @@ protected:
 
 	virtual bool ShouldTickIfViewportsOnly() const override;
 
-  public:	
+public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

@@ -146,6 +146,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Agents")
 	ADeepDriveAgentControllerBase *getAgentController();
 
+	static void resetAgentId();
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = Cameras)
@@ -337,4 +339,9 @@ inline ADeepDriveAgent* ADeepDriveAgent::getPrevAgent(float maxDistance, float *
 inline void ADeepDriveAgent::setAgentController(ADeepDriveAgentControllerBase *ctrl)
 {
 	m_AgentController = ctrl;
+}
+
+inline void ADeepDriveAgent::resetAgentId()
+{
+	s_nextAgentId = 1;
 }

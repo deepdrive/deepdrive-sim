@@ -149,6 +149,9 @@ DeepDrivePartialPath* DeepDriveBasePath::createPartialPath()
 	DeepDrivePartialPath *path = new DeepDrivePartialPath(m_Agent, m_RoadNetwork, m_BezierCurve, m_PathConfiguration);
 
 	path->setup(m_RouteSegments);
+	path->trimStart(m_Route.Start);
+	path->trimEnd(m_Route.Destination);
+	path->annotate();
 
 	return path;
 }

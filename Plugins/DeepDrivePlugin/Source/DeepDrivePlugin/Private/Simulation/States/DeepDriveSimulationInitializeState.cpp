@@ -4,6 +4,8 @@
 #include "Public/Simulation/DeepDriveSimulation.h"
 #include "Public/Simulation/RoadNetwork/DeepDriveRoadNetworkComponent.h"
 
+DEFINE_LOG_CATEGORY(LogDeepDriveSimulationState);
+
 DeepDriveSimulationInitializeState::DeepDriveSimulationInitializeState(DeepDriveSimulationStateMachine &stateMachine, bool scenarioMode)
 	: DeepDriveSimulationStateBase(stateMachine, "Initialize")
 	,	m_ScenarioMode(scenarioMode)
@@ -19,6 +21,8 @@ void DeepDriveSimulationInitializeState::enter(ADeepDriveSimulation &deepDriveSi
 {
 	deepDriveSim.RegisterRandomStream("AgentPlacement", false);
 	deepDriveSim.RoadNetwork->Initialize(deepDriveSim);
+
+	UE_LOG(LogDeepDriveSimulationState, Log, TEXT("Initialize: ScenarioMode %c"), m_ScenarioMode ? 'T' : 'F' );
 }
 
 void DeepDriveSimulationInitializeState::update(ADeepDriveSimulation &deepDriveSim, float dT)

@@ -129,7 +129,8 @@ float DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue(DeepDriveTraffic
 			}
 		}
 
-		clearValue = 1.0f - bestScore;
+		const float curClearValue = 1.0f - bestScore;
+		clearValue = FMath::Min(curClearValue, clearValue);
 	}
 
 	return clearValue;

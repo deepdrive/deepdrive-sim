@@ -13,6 +13,8 @@
 #include "Simulation/Traffic/BehaviorTree/DeepDriveTrafficBehaviorTreeNode.h"
 #include "Simulation/Traffic/BehaviorTree/DeepDriveTrafficBlackboard.h"
 
+#include "Simulation/Agent/DeepDriveAgent.h"
+
 DEFINE_LOG_CATEGORY(LogDeepDriveManeuverCalculator);
 
 DeepDriveManeuverCalculator::DeepDriveManeuverCalculator(const SDeepDriveRoadNetwork &roadNetwork, ADeepDriveSimulation &simulation)
@@ -65,6 +67,7 @@ void DeepDriveManeuverCalculator::calculate(SDeepDriveRoute &route, ADeepDriveAg
 					DeepDriveTrafficBlackboard &blackboard = maneuver.BehaviorTree->getBlackboard();
 					blackboard.setSimulation(m_Simulation);
 					blackboard.setAgent(agent);
+					blackboard.setIntegerValue("AgentId", agent.GetAgentId());
 
 					blackboard.setVectorValue("StopLineLocation", fromLink.StopLineLocation);
 					blackboard.setVectorValue("LineOfSightLocation", junctionEntry->LineOfSight);

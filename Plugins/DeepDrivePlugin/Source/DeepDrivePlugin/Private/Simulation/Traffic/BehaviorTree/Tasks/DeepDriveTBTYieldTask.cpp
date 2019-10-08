@@ -25,6 +25,7 @@ void DeepDriveTBTYieldTask::bind(DeepDriveTrafficBlackboard &blackboard, DeepDri
 		m_StopRangeBeginIndex = path.rewind(m_LineOfSightLocationIndex, StopRangeBeginDistance);
 		m_SlowDownBeginIndex = path.rewind(m_LineOfSightLocationIndex, SlowDownBeginDistance, &m_SlowDownBeginDistance);
 		m_CheckClearanceIndex = path.rewind(m_LineOfSightLocationIndex, CheckClearanceDistance);
+		m_PastStopPointIndex = path.windForward(m_LineOfSightLocationIndex, PastStopPointDistance);
 		m_IndexDelta = m_StopRangeBeginIndex - m_SlowDownBeginIndex;
 	}
 
@@ -41,13 +42,16 @@ bool DeepDriveTBTYieldTask::execute(DeepDriveTrafficBlackboard &blackboard, floa
 		{
 			if (m_SlowDownBeginIndex >= 0 && m_StopRangeBeginIndex >= 0)
 			{
-
 				if (pathPointIndex >= m_CheckClearanceIndex)
 				{
-					float junctionClearValue = DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue(blackboard);
-					m_isJunctionClear = DeepDriveBehaviorTreeHelpers::isJunctionClear(blackboard);
-					UE_LOG(LogDeepDriveTBTYieldTask, Log, TEXT("DeepDriveTBTYieldTask clear value %f"), junctionClearValue);
-					speed *= junctionClearValue;
+					if (pathPointIndex <= m_PastStopPointIndex)
+					{
+						float junctionClearValue = DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue(blackboard);
+						UE_LOG(LogDeepDriveTBTYieldTask, Log, TEXT("DeepDriveTBTYieldTask[%d|%d] clear value %f"), pathPointIndex, m_CheckClearanceIndex, junctionClearValue);
+						speed *= junctionClearValue;
+					}
+					else
+						UE_LOG(LogDeepDriveTBTYieldTask, Log, TEXT("DeepDriveTBTYieldTask[%d|%d] Too late, Keep going"), pathPointIndex, m_PastStopPointIndex);
 				}
 				else if (pathPointIndex >= m_SlowDownBeginIndex)
 				{

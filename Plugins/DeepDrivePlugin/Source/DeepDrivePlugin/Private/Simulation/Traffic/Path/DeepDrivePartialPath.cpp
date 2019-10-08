@@ -28,26 +28,88 @@ void DeepDrivePartialPath::setup(const TArray<SDeepDriveBasePathSegment> &baseSe
 	DeepDrivePathBuilder pathBuilder(m_RoadNetwork, m_PathPoints, m_BezierCurve);
 	pathBuilder.buildPath(baseSegments, m_Maneuvers);
 	UE_LOG(LogDeepDrivePartialPath, Log, TEXT("Path built with %d points"), m_PathPoints.Num());
+}
 
+void DeepDrivePartialPath::trimStart(const FVector &startPos)
+{
+	const int32 numPoints = m_PathPoints.Num();
+	float bestDistStart = TNumericLimits<float>::Max();
+	int32 bestIndStart = -1;
+	for (signed i = numPoints - 1; i >= 0; --i)
 	{
-		DeepDrivePathManeuverAnnotations maneuverAnnotations;
-		maneuverAnnotations.annotate(*this, m_PathPoints, m_Maneuvers);
-
-		DeepDrivePathCurveAnnotation curveAnnotation;
-		curveAnnotation.annotate(m_PathPoints);
-
-		DeepDrivePathSpeedAnnotation speedAnnotation(m_RoadNetwork, 3.0f, 0.2f);
-		speedAnnotation.annotate(m_PathPoints);
-
-		DeepDrivePathDistanceAnnotation distanceAnnotation;
-		distanceAnnotation.annotate(m_PathPoints, 0.0f);
-
-		// int32 i = 0;
-		// for(auto &pathPoint : m_PathPoints)
-		// {
-		// 	UE_LOG(LogDeepDrivePartialPath, Log, TEXT("%5d) spd %f rad %6.1f dist %f remDist %f"), i++, pathPoint.SpeedLimit, pathPoint.CurveRadius * 0.01f, pathPoint.Distance, pathPoint.RemainingDistance);
-		// }
+		const float curDistStart = (startPos - m_PathPoints[i].Location).Size();
+		if (curDistStart <= bestDistStart)
+		{
+			bestDistStart = curDistStart;
+			bestIndStart = i;
+		}
 	}
+
+	if (bestIndStart >= 0)
+	{
+		TDeepDrivePathPoints trimmedPath;
+		for (int32 i = bestIndStart; i < numPoints; ++i)
+			trimmedPath.Add(m_PathPoints[i]);
+
+		m_PathPoints = trimmedPath;
+		UE_LOG(LogDeepDrivePartialPath, Log, TEXT("Path trimmed to %d points from start"), m_PathPoints.Num());
+
+		for(auto &man : m_Maneuvers)
+		{
+			if(man.EntryPointIndex >= bestIndStart)
+				man.EntryPointIndex -= bestIndStart;
+			if(man.ExitPointIndex >= bestIndStart)
+				man.ExitPointIndex -= bestIndStart;
+			if(man.DirectionIndicationBeginIndex >= bestIndStart)
+				man.DirectionIndicationBeginIndex -= bestIndStart;
+			if(man.DirectionIndicationEndIndex >= bestIndStart)
+				man.DirectionIndicationEndIndex -= bestIndStart;
+		}
+	}
+}
+
+void DeepDrivePartialPath::trimEnd(const FVector &endPos)
+{
+	const int32 numPoints = m_PathPoints.Num();
+	float bestDistEnd = TNumericLimits<float>::Max();
+	int32 bestIndEnd = -1;
+	for (signed i = numPoints - 1; i >= 0; --i)
+	{
+		const float curDistEnd = (endPos - m_PathPoints[i].Location).Size();
+		if (curDistEnd <= bestDistEnd)
+		{
+			bestDistEnd = curDistEnd;
+			bestIndEnd = i;
+		}
+	}
+
+	if(bestIndEnd >= 0 && bestIndEnd < numPoints)
+	{
+		m_PathPoints.SetNum(bestIndEnd + 1);
+		UE_LOG(LogDeepDrivePartialPath, Log, TEXT("Path trimmed to %d points from end"), m_PathPoints.Num());
+	}
+
+}
+
+void DeepDrivePartialPath::annotate()
+{
+	DeepDrivePathManeuverAnnotations maneuverAnnotations;
+	maneuverAnnotations.annotate(*this, m_PathPoints, m_Maneuvers);
+
+	DeepDrivePathCurveAnnotation curveAnnotation;
+	curveAnnotation.annotate(m_PathPoints);
+
+	DeepDrivePathSpeedAnnotation speedAnnotation(m_RoadNetwork, 3.0f, 0.2f);
+	speedAnnotation.annotate(m_PathPoints);
+
+	DeepDrivePathDistanceAnnotation distanceAnnotation;
+	distanceAnnotation.annotate(m_PathPoints, 0.0f);
+
+	// int32 i = 0;
+	// for(auto &pathPoint : m_PathPoints)
+	// {
+	// 	UE_LOG(LogDeepDrivePartialPath, Log, TEXT("%5d) spd %f rad %6.1f dist %f remDist %f"), i++, pathPoint.SpeedLimit, pathPoint.CurveRadius * 0.01f, pathPoint.Distance, pathPoint.RemainingDistance);
+	// }
 }
 
 bool DeepDrivePartialPath::update()
