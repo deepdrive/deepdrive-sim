@@ -25,6 +25,7 @@ before_install:
   - sudo apt-get install -y cppcheck
   - pip install -r .ci/requirements.txt
   - pip install --upgrade --force-reinstall --ignore-installed --no-cache-dir git+git://github.com/deepdrive/problem-constants#egg=problem-constants
+  - pip install --upgrade --force-reinstall --ignore-installed --no-cache-dir git+git://github.com/botleague/botleague-helpers#egg=botleague-helpers
 install:
 - docker pull $DOCKER_IMAGE
 script:
