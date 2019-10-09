@@ -2,6 +2,7 @@ import json
 import os
 import sys
 from typing import List, Tuple
+import requests
 
 import time
 from datetime import datetime
@@ -9,6 +10,7 @@ from os.path import dirname, realpath, join
 
 from botleague_helpers.ci import build_and_run_botleague_ci, run_botleague_ci, \
     dbox
+from botleague_helpers.utils import box2json
 from box import Box
 
 import problem_constants.constants
@@ -27,7 +29,7 @@ PACKAGE_DIR = join(dirname(DIR), 'Packaging')
 sys.path.insert(0, PACKAGE_DIR)
 
 from get_package_version import get_package_version
-from package import copy_release_candidate_to_release
+from package import copy_release_candidate_to_release, upload_s3_str
 
 
 @log.catch(reraise=True)
@@ -38,6 +40,21 @@ def main():
     build_and_run_botleague_ci(
         build_url='https://sim.deepdrive.io/build',
         run_botleague_ci_wrapper_fn=run_botleague_ci_for_sim_build)
+
+
+def promote_python_bindings(sim_version, commit, job):
+    # Check to see that the bindings have been uploaded to pypi (wait for them)
+    url = f'https://pypi.org/project/deepdrive/{sim_version}.dev0/'
+    log.info('Waiting for Travis to upload python bindings to pypi')
+    start = time.time()
+    while not requests.head(url).ok:
+        time.sleep(1)
+        if time.time() - start > (60 * 5):
+            raise RuntimeError('Timeout waiting for bindings to upload, '
+                               'check Travis')
+    log.success('Python bindings uploaded')
+    content = box2json(Box(commit=commit, build_job=job, version=sim_version))
+    upload_s3_str(content, f'validated-bindings-versions/{sim_version}')
 
 
 def run_botleague_ci_for_sim_build(branch, commit, job):
@@ -62,7 +79,11 @@ def run_botleague_ci_for_sim_build(branch, commit, job):
     if passed_ci:
         # Copy sim/release_candidates/ to sim/
         copy_release_candidate_to_release()
-        # TODO: Promote python bindings to PyPi default
+        promote_python_bindings(sim_version, commit, job)
 
 if __name__ == '__main__':
-    main()
+    if '--promote-bindings-version' in sys.argv:
+        promote_python_bindings('3.0.20191004233846', commit='asdf',
+                                job=Box(a=1))
+    else:
+        main()

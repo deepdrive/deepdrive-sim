@@ -149,6 +149,26 @@ def upload_s3(source_path: str, dest_filename: str) -> str:
     return url
 
 
+def upload_s3_str(content: str, dest_filename: str) -> str:
+    conn = boto.connect_s3()
+    bucket = conn.get_bucket(AWS_DEEPDRIVE_BUCKET_NAME)
+
+    print(f'Uploading to Amazon S3 bucket {AWS_DEEPDRIVE_BUCKET_NAME}')
+
+    def percent_cb(complete, total):
+        sys.stdout.write('%r of %r\n' % (complete, total))
+        sys.stdout.flush()
+
+    k = Key(bucket)
+    k.key = dest_filename
+    k.set_contents_from_string(content, cb=percent_cb, num_cb=10)
+
+    url = f'https://s3-us-west-1.amazonaws.com/deepdrive/{k.key}'
+    print(f'Finished upload to {url}')
+
+    return url
+
+
 def copy_release_candidate_to_release():
     filename = get_package_filename()
     conn = boto.connect_s3()
