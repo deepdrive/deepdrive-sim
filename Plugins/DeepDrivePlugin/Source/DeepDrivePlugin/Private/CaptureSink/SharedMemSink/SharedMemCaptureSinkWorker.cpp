@@ -26,6 +26,8 @@ SharedMemCaptureSinkWorker::SharedMemCaptureSinkWorker(const FString &sharedMemN
 			message->setMessageId();
 			m_SharedMemory->unlock(sizeof(DeepDriveMessageHeader));
 		}
+		// cppcheck-suppress memleak
+		// cppcheck 1.61-1 and 1.82-1 do not find this while 1.72-1 does
 	}
 }
 

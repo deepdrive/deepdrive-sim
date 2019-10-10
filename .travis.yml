@@ -31,7 +31,6 @@ install:
 script:
 - Test/cppcheck.sh && python -u Plugins/DeepDrivePlugin/Source/DeepDrivePython/build/build.py --type linux_bdist
 
-
 git:
   depth: 1
 addons:
