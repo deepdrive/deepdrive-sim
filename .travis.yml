@@ -29,7 +29,7 @@ before_install:
 install:
 - docker pull $DOCKER_IMAGE
 script:
-- Test/cppcheck.sh && python -u Plugins/DeepDrivePlugin/Source/DeepDrivePython/build/build.py --type linux_bdist
+- python -u Plugins/DeepDrivePlugin/Source/DeepDrivePython/build/build.py --type linux_bdist && python -u .ci/record_python_bindings.py
 
 git:
   depth: 1
