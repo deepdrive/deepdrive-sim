@@ -44,13 +44,14 @@ def main():
 
 def promote_python_bindings(sim_version, commit, job):
     # Check to see that the bindings have been uploaded to pypi (wait for them)
-    url = f'https://pypi.org/project/deepdrive/{sim_version}.dev0/'
-    log.info('Waiting for Travis to upload python bindings to pypi')
+    url = f'https://deepdrive.s3-us-west-1.amazonaws.com/' \
+        f'unvalidated-bindings-versions/{sim_version}.dev0/'
+    log.info('Waiting for Travis to record python bindings')
     start = time.time()
     while not requests.head(url).ok:
         time.sleep(1)
         if time.time() - start > (60 * 5):
-            raise RuntimeError('Timeout waiting for bindings to upload, '
+            raise RuntimeError('Timeout waiting for bindings to record, '
                                'check Travis')
     log.success('Python bindings uploaded')
     content = box2json(Box(commit=commit, build_job=job, version=sim_version))
