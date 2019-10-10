@@ -45,9 +45,10 @@ def main():
 def promote_python_bindings(sim_version, commit, job):
     # Check to see that the bindings have been uploaded to pypi (wait for them)
     url = f'https://deepdrive.s3-us-west-1.amazonaws.com/' \
-        f'unvalidated-bindings-versions/{sim_version}.dev0/'
+        f'unvalidated-bindings-versions/{sim_version}'
     log.info('Waiting for Travis to record python bindings')
     start = time.time()
+
     while not requests.head(url).ok:
         time.sleep(1)
         if time.time() - start > (60 * 5):
@@ -84,7 +85,7 @@ def run_botleague_ci_for_sim_build(branch, commit, job):
 
 if __name__ == '__main__':
     if '--promote-bindings-version' in sys.argv:
-        promote_python_bindings('3.0.20191004233846', commit='asdf',
+        promote_python_bindings('3.0.20191010224955', commit='asdf',
                                 job=Box(a=1))
     else:
         main()
