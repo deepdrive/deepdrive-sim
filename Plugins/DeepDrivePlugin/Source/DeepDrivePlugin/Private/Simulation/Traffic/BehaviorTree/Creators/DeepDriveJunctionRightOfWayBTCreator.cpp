@@ -7,7 +7,11 @@
 #include "Simulation/Traffic/BehaviorTree/DeepDriveTrafficBehaviorTreeNode.h"
 
 #include "Simulation/Traffic/BehaviorTree/Tasks/DeepDriveTBTStopAtLocationTask.h"
-#include "Simulation/Traffic/BehaviorTree/Decorators/DeepDriveTBTCheckOncomingTrafficDecorator.h"
+#include "Simulation/Traffic/BehaviorTree/Tasks/DeepDriveTBTWaitTask.h"
+#include "Simulation/Traffic/BehaviorTree/Tasks/DeepDriveTBTStopTask.h"
+#include "Simulation/Traffic/BehaviorTree/Tasks/DeepDriveTBTCheckIsJunctionClearTask.h"
+
+#include "Simulation/Traffic/BehaviorTree/Decorators/DeepDriveTBTCheckFlagDecorator.h"
 
 #include "Simulation/Traffic/BehaviorTree/DeepDriveBehaviorTreeFactory.h"
 
@@ -26,8 +30,17 @@ DeepDriveTrafficBehaviorTree* DeepDriveJunctionRightOfWayBTCreator::createBehavi
 	if (behaviorTree)
 	{
 		DeepDriveTrafficBehaviorTreeNode *stopAtNode = behaviorTree->createNode(0);
-		stopAtNode->addDecorator( new DeepDriveTBTCheckOncomingTrafficDecorator("WaitingLocation") );
-		stopAtNode->addTask(new DeepDriveTBTStopAtLocationTask("WaitingLocation", 0.25f, true));
+		DeepDriveTrafficBehaviorTreeNode *waitUntilClearNode = behaviorTree->createNode(0);
+
+		behaviorTree->getRootNode()->addDecorator(new DeepDriveTBTCheckFlagDecorator("IsJunctionClear", false, false));
+
+		TSharedPtr<DeepDriveTBTTaskBase> checkJunctionTask(new DeepDriveTBTCheckIsJunctionClearTask("WaitingLocation", 500.0f, true, "IsJunctionClear"));
+
+		stopAtNode->addTask(checkJunctionTask);
+		stopAtNode->addTask(new DeepDriveTBTStopAtLocationTask("WaitingLocation", 0.6f));
+
+		waitUntilClearNode->addTask(new DeepDriveTBTStopTask);
+		waitUntilClearNode->addTask(checkJunctionTask);
 	}
 
 	return behaviorTree;

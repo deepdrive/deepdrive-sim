@@ -15,28 +15,28 @@ public:
 	DeepDriveTrafficBlackboard();
 
 	void setBooleanValue(const FString &key, bool value);
-	bool getBooleanValue(const FString &key, bool defaultValue = false);
+	bool getBooleanValue(const FString &key, bool defaultValue = false) const;
 
 	void setFloatValue(const FString &key, float value);
-	float getFloatValue(const FString &key, float defaultValue = 0.0f);
+	float getFloatValue(const FString &key, float defaultValue = 0.0f) const;
 
 	void setIntegerValue(const FString &key, int32 value);
-	int32 getIntegerValue(const FString &key, int32 defaultValue = 0);
+	int32 getIntegerValue(const FString &key, int32 defaultValue = 0) const;
 
 	void setVectorValue(const FString &key, const FVector &value);
-	FVector getVectorValue(const FString &key, const FVector &defaultValue = FVector::ZeroVector);
+	FVector getVectorValue(const FString &key, const FVector &defaultValue = FVector::ZeroVector) const;
 
 	void setPartialPath(DeepDrivePartialPath &path);
-	DeepDrivePartialPath* getPartialPath();
+	DeepDrivePartialPath* getPartialPath() const;
 
 	void setManeuver(SDeepDriveManeuver &maneuver);
-	SDeepDriveManeuver* getManeuver();
+	SDeepDriveManeuver* getManeuver() const;
 
 	void setAgent(ADeepDriveAgent &agent);
-	ADeepDriveAgent* getAgent();
+	ADeepDriveAgent* getAgent() const;
 
 	void setSimulation(ADeepDriveSimulation &simulation);
-	ADeepDriveSimulation* getSimulation();
+	ADeepDriveSimulation* getSimulation() const;
 
 private:
 
@@ -57,7 +57,7 @@ inline void DeepDriveTrafficBlackboard::setPartialPath(DeepDrivePartialPath &pat
 	m_Path = &path;
 }
 
-inline DeepDrivePartialPath *DeepDriveTrafficBlackboard::getPartialPath()
+inline DeepDrivePartialPath *DeepDriveTrafficBlackboard::getPartialPath() const
 {
 	return m_Path;
 }
@@ -67,7 +67,7 @@ inline void DeepDriveTrafficBlackboard::setManeuver(SDeepDriveManeuver &maneuver
 	m_Maneuver = &maneuver;
 }
 
-inline SDeepDriveManeuver *DeepDriveTrafficBlackboard::getManeuver()
+inline SDeepDriveManeuver *DeepDriveTrafficBlackboard::getManeuver() const
 {
 	return m_Maneuver;
 }
@@ -77,7 +77,7 @@ inline void DeepDriveTrafficBlackboard::setAgent(ADeepDriveAgent &agent)
 	m_Agent = &agent;
 }
 
-inline ADeepDriveAgent *DeepDriveTrafficBlackboard::getAgent()
+inline ADeepDriveAgent *DeepDriveTrafficBlackboard::getAgent() const
 {
 	return m_Agent;
 }
@@ -87,7 +87,7 @@ inline void DeepDriveTrafficBlackboard::setSimulation(ADeepDriveSimulation &simu
 	m_Simulation = &simulation;
 }
 
-inline ADeepDriveSimulation* DeepDriveTrafficBlackboard::getSimulation()
+inline ADeepDriveSimulation* DeepDriveTrafficBlackboard::getSimulation() const
 {
 	return m_Simulation;
 }

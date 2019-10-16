@@ -17,7 +17,7 @@ void DeepDriveTrafficBlackboard::setBooleanValue(const FString &key, bool value)
 		m_BooleanMap.Add(key, value);
 }
 
-bool DeepDriveTrafficBlackboard::getBooleanValue(const FString &key, bool defaultValue)
+bool DeepDriveTrafficBlackboard::getBooleanValue(const FString &key, bool defaultValue) const
 {
 	return m_BooleanMap.Contains(key) ? m_BooleanMap[key] : defaultValue;
 }
@@ -30,7 +30,7 @@ void DeepDriveTrafficBlackboard::setFloatValue(const FString &key, float value)
 		m_FloatMap.Add(key, value);
 }
 
-float DeepDriveTrafficBlackboard::getFloatValue(const FString &key, float defaultValue)
+float DeepDriveTrafficBlackboard::getFloatValue(const FString &key, float defaultValue) const
 {
 	return m_FloatMap.Contains(key) ? m_FloatMap[key] : defaultValue;
 }
@@ -43,7 +43,7 @@ void DeepDriveTrafficBlackboard::setIntegerValue(const FString &key, int32 value
 		m_IntegerMap.Add(key, value);
 }
 
-int32 DeepDriveTrafficBlackboard::getIntegerValue(const FString &key, int32 defaultValue)
+int32 DeepDriveTrafficBlackboard::getIntegerValue(const FString &key, int32 defaultValue) const
 {
 	return m_IntegerMap.Contains(key) ? m_IntegerMap[key] : defaultValue;
 }
@@ -56,7 +56,7 @@ void DeepDriveTrafficBlackboard::setVectorValue(const FString &key, const FVecto
 		m_VectorMap.Add(key, value);
 }
 
-FVector DeepDriveTrafficBlackboard::getVectorValue(const FString &key, const FVector &defaultValue)
+FVector DeepDriveTrafficBlackboard::getVectorValue(const FString &key, const FVector &defaultValue) const
 {
 	return m_VectorMap.Contains(key) ? m_VectorMap[key] : defaultValue;
 }

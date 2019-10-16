@@ -10,7 +10,5 @@ class DeepDriveBehaviorTreeHelpers
 
 public:
 
-	static bool isJunctionClear(DeepDriveTrafficBlackboard &blackboard);
-
-	static float calculateJunctionClearValue(DeepDriveTrafficBlackboard &blackboard);
+	static float calculateJunctionClearValue(DeepDriveTrafficBlackboard &blackboard, bool ignoreTrafficLights);
 };

@@ -14,7 +14,7 @@ public:
 
 	DeepDriveTBTCheckTrafficLightDecorator(EDeepDriveTrafficLightPhase mainPhase, EDeepDriveTrafficLightPhase altPhase);
 
-	virtual bool performCheck(DeepDriveTrafficBlackboard &blackboard, int32 pathPointIndex);
+	virtual bool performCheck(DeepDriveTrafficBlackboard &blackboard, int32 pathPointIndex) const;
 
 private:
 

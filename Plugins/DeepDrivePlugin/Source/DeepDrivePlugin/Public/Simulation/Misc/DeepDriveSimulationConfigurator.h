@@ -76,16 +76,16 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Simulation)
 	ADeepDriveSimulation *Simulation = 0;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Configuration)
 	TArray< TSubclassOf<ADeepDriveAgent> >		Agents;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Configuration)
 	TArray<FDeepDriveSimulationScenario>	Scenarios;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Simulation)
 	int32	ScenarioIndex = 0;
 
 private:

@@ -1,6 +1,9 @@
 
 #pragma once
 
+#include "CoreMinimal.h"
+
+DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveTrafficBehaviorTree, Log, All);
 
 class DeepDriveTrafficBlackboard;
 class DeepDrivePartialPath;
@@ -11,7 +14,8 @@ class DeepDriveTrafficBehaviorTreeNode;
 class DeepDriveTrafficBehaviorTree
 {
 public:
-	DeepDriveTrafficBehaviorTree();
+
+	DeepDriveTrafficBehaviorTree(const FString &name = FString());
 
 	~DeepDriveTrafficBehaviorTree();
 
@@ -21,11 +25,17 @@ public:
 
 	void execute(float deltaSeconds, float &speed, int32 pathPointIndex);
 
-	DeepDriveTrafficBehaviorTreeNode* createNode(DeepDriveTrafficBehaviorTreeNode *rootNode);
+	DeepDriveTrafficBehaviorTreeNode* createNode(DeepDriveTrafficBehaviorTreeNode *rootNode, const FString &name = FString());
+
+	DeepDriveTrafficBehaviorTreeNode* getRootNode();
 
 	DeepDriveTrafficBlackboard& getBlackboard();
 
+	void activateDebugging();
+
 private :
+
+	FString										m_Name;
 
 	DeepDriveTrafficBlackboard					*m_Blackboard = 0;
 
@@ -35,7 +45,13 @@ private :
 	DeepDriveTrafficBehaviorTreeNode			*m_RootNode = 0;
 	TArray<DeepDriveTrafficBehaviorTreeNode*>	m_Nodes;
 
+	bool 										m_isDebuggingActive = false;
 };
+
+inline DeepDriveTrafficBehaviorTreeNode* DeepDriveTrafficBehaviorTree::getRootNode()
+{
+	return m_RootNode;
+}
 
 inline DeepDriveTrafficBlackboard &DeepDriveTrafficBehaviorTree::getBlackboard()
 {

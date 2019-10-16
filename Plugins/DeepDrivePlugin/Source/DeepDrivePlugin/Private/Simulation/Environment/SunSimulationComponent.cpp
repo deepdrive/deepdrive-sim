@@ -194,7 +194,6 @@ void USunSimulationComponent::prepareTimespan(float duration)
 
 void USunSimulationComponent::EnableSimulation(bool Enabled)
 {
-	/*
 	if(Enabled)
 	{
 		if(m_SimulationMode != Continous)
@@ -207,7 +206,6 @@ void USunSimulationComponent::EnableSimulation(bool Enabled)
 	{
 		m_SimulationMode = Idle;
 	}
-	*/
 }
 
 void USunSimulationComponent::SetSimulationSpeed(int32 SpeedInSeconds)

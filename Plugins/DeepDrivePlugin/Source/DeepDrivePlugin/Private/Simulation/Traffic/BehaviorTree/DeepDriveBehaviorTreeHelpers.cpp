@@ -5,54 +5,9 @@
 #include "Simulation/Traffic/Path/DeepDrivePathDefines.h"
 #include "Public/Simulation/DeepDriveSimulation.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
+#include "Simulation/TrafficLight/DeepDriveTrafficLight.h"
 
-bool DeepDriveBehaviorTreeHelpers::isJunctionClear(DeepDriveTrafficBlackboard &blackboard)
-{
-	ADeepDriveSimulation *simulation = blackboard.getSimulation();
-
-	const SDeepDriveManeuver *maneuver = blackboard.getManeuver();
-
-	TArray<ADeepDriveAgent *> agents = simulation->getAgents(maneuver->ManeuverArea, blackboard.getAgent());
-
-	bool isJunctionClear = true;
-	if (agents.Num() > 0)
-	{
-		for (auto &crossTrafficRoad : maneuver->CrossTrafficRoads)
-		{
-			for (auto &curPath : crossTrafficRoad.Paths)
-			{
-				for (auto &curAgent : agents)
-				{
-					const FVector curAgentLoc = curAgent->GetActorLocation();
-					FVector2D forward(curAgent->GetActorForwardVector());
-					forward.Normalize();
-
-					//	check if agent close to this path
-					for (auto &curPathPoint : curPath)
-					{
-						if	(	FVector::DistSquared(curAgentLoc, curPathPoint.Location) < (10000.0f)
-							&&	FVector2D::DotProduct(forward, curPathPoint.Direction) > 0.9f
-							)
-						{
-							isJunctionClear = false;
-							break;
-						}
-					}
-					if (!isJunctionClear)
-						break;
-				}
-				if (!isJunctionClear)
-					break;
-			}
-			if (!isJunctionClear)
-				break;
-		}
-	}
-
-	return isJunctionClear;
-}
-
-float DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue(DeepDriveTrafficBlackboard &blackboard)
+float DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue(DeepDriveTrafficBlackboard &blackboard, bool ignoreTrafficLights)
 {
 	ADeepDriveSimulation *simulation = blackboard.getSimulation();
 
@@ -109,8 +64,18 @@ float DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue(DeepDriveTraffic
 					break;
 			}
 
+			/*
+				Todo: when considering traffic lights it could be necessary not only checking current TL phase
+				but also consider whether agent has already passed "its" stop line, that is even if TL is read but agent has already
+				slipped over the stop line but will keep going
+			*/
+
 			if	(	crossTraffic.Paths.Num() > 0
 				&&	(agentDirectionMask & maneuverMask) != 0
+				&&	(	ignoreTrafficLights
+					||	crossTraffic.TrafficLight == 0
+					||	crossTraffic.TrafficLight->CurrentPhase != EDeepDriveTrafficLightPhase::RED
+					)
 				)
 			{
 				const TDeepDrivePathPoints &curPath = crossTraffic.Paths[0];

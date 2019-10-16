@@ -9,7 +9,7 @@ class DeepDriveTBTStopAtLocationTask : public DeepDriveTBTTaskBase
 {
 public:
 
-	DeepDriveTBTStopAtLocationTask(const FString &stopLocationName, float exponent, bool keepStopping);
+	DeepDriveTBTStopAtLocationTask(const FString &stopLocationName, float exponent);
 
 	virtual ~DeepDriveTBTStopAtLocationTask()	{	}
 
@@ -28,9 +28,6 @@ private:
 	int32			m_SlowDownBeginIndex = -1;
 
 	int32			m_IndexDelta = 0;
-
-	bool			m_hasStopped = false;
-	bool			m_keepStopping = false;
 
 	const float		StopBeginDistance = 400.0f;
 	const float		SlowDownBeginDistance = 2000.0f;

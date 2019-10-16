@@ -36,8 +36,9 @@ typedef TArray<SDeepDrivePathPoint>	TDeepDrivePathPoints;
 
 struct SDeepDriveCrossTrafficRoad
 {
-	SDeepDriveCrossTrafficRoad(EDeepDriveManeuverType maneuverType, uint32 from, uint32 to, float fromLength, float toLength)
+	SDeepDriveCrossTrafficRoad(EDeepDriveManeuverType maneuverType, ADeepDriveTrafficLight *trafficLight, uint32 from, uint32 to, float fromLength, float toLength)
 		:	ManeuverType(maneuverType)
+		,	TrafficLight(trafficLight)
 		,	FromLinkId(from)
 		,	ToLinkId(to)
 		,	FromLength(fromLength)
@@ -46,6 +47,7 @@ struct SDeepDriveCrossTrafficRoad
 	}
 
 	EDeepDriveManeuverType				ManeuverType;
+	ADeepDriveTrafficLight				*TrafficLight = 0;
 
 	uint32								FromLinkId = 0;
 	uint32								ToLinkId = 0;

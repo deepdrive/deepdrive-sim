@@ -10,6 +10,10 @@ class DeepDriveTBTTaskBase
 {
 public:
 
+	virtual ~DeepDriveTBTTaskBase()
+	{
+	}
+
 	virtual void bind(DeepDriveTrafficBlackboard &blackboard, DeepDrivePartialPath &path)
 	{
 	}

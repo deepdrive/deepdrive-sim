@@ -71,7 +71,11 @@ void ADeepDriveSimulation::PreInitializeComponents()
 	}
 
 	{
+#if WITH_EDITOR
 		ScenarioMode = InitialScenarioMode;
+#else
+		ScenarioMode = false;
+#endif
 		TArray<FString> tokens;
 		TArray<FString> switches;
 		FCommandLine::Parse(FCommandLine::Get(), tokens, switches);

@@ -20,7 +20,7 @@ DeepDriveTBTCheckTrafficLightDecorator::DeepDriveTBTCheckTrafficLightDecorator(E
 
 }
 
-bool DeepDriveTBTCheckTrafficLightDecorator::performCheck(DeepDriveTrafficBlackboard &blackboard, int32 pathPointIndex)
+bool DeepDriveTBTCheckTrafficLightDecorator::performCheck(DeepDriveTrafficBlackboard &blackboard, int32 pathPointIndex) const
 {
 	SDeepDriveManeuver *maneuver = blackboard.getManeuver();
 	const EDeepDriveTrafficLightPhase curPhase = maneuver && maneuver->TrafficLight ? maneuver->TrafficLight->CurrentPhase : EDeepDriveTrafficLightPhase::UNDEFINED;
