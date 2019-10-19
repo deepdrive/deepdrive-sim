@@ -123,7 +123,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, Category = Scenario)
 	bool	ScenarioMode = false;
 
-#if WITH_EDITOR
+#if WITH_EDITORONLY_DATA
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Debug)
 	bool	InitialScenarioMode = false;
 #endif
