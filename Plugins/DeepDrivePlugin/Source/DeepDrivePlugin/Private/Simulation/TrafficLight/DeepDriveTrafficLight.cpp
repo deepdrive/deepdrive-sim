@@ -35,17 +35,33 @@ void ADeepDriveTrafficLight::Tick(float DeltaTime)
 
 void ADeepDriveTrafficLight::SwitchToGreen()
 {
-	m_remainingPhaseTime = RedToGreenDuration;
-	CurrentPhase = EDeepDriveTrafficLightPhase::RED_TO_GREEN;
-	m_nextPhase = EDeepDriveTrafficLightPhase::GREEN;
+	if(RedToGreenDuration > 0.0f)
+	{
+		m_remainingPhaseTime = RedToGreenDuration;
+		CurrentPhase = EDeepDriveTrafficLightPhase::RED_TO_GREEN;
+		m_nextPhase = EDeepDriveTrafficLightPhase::GREEN;
+	}
+	else
+	{
+		m_remainingPhaseTime = -1.0f;
+		CurrentPhase = EDeepDriveTrafficLightPhase::GREEN;
+	}
 	OnPhaseChanged();
 }
 
 void ADeepDriveTrafficLight::SwitchToRed()
 {
-	m_remainingPhaseTime = GreenToRedDuration;
-	CurrentPhase = EDeepDriveTrafficLightPhase::GREEN_TO_RED;
-	m_nextPhase = EDeepDriveTrafficLightPhase::RED;
+	if(GreenToRedDuration > 0.0f)
+	{
+		m_remainingPhaseTime = GreenToRedDuration;
+		CurrentPhase = EDeepDriveTrafficLightPhase::GREEN_TO_RED;
+		m_nextPhase = EDeepDriveTrafficLightPhase::RED;
+	}
+	else
+	{
+		m_remainingPhaseTime = -1.0f;
+		CurrentPhase = EDeepDriveTrafficLightPhase::RED;
+	}
 	OnPhaseChanged();
 }
 
