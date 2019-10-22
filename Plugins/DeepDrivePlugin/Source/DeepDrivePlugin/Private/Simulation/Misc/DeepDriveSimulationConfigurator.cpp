@@ -9,6 +9,8 @@
 #include "Public/Simulation/RoadNetwork/DeepDriveRoadLinkProxy.h"
 #include "Public/Simulation/RoadNetwork/DeepDriveRoadSegmentProxy.h"
 
+#include "Runtime/Engine/Classes/Commandlets/Commandlet.h"
+
 // Sets default values
 ADeepDriveSimulationConfigurator::ADeepDriveSimulationConfigurator()
 {
@@ -23,6 +25,25 @@ void ADeepDriveSimulationConfigurator::BeginPlay()
 	Super::BeginPlay();
 
 	m_StartCounter = 2;	
+
+	{
+#if WITH_EDITOR
+		m_ScenarioIndex = InitialScenarioIndex;
+#else
+		m_ScenarioIndex = -1;
+#endif
+		TArray<FString> tokens;
+		TArray<FString> switches;
+		TMap<FString, FString> params;
+		UCommandlet::ParseCommandLine(FCommandLine::Get(), tokens, switches, params);
+		UE_LOG(LogDeepDriveSimulation, Log, TEXT("Scenario:  %d %d %d"), tokens.Num(), switches.Num(), params.Num() );
+
+		if(params.Contains("scenario_index"))
+		{
+			m_ScenarioIndex = FCString::Atoi(*(params["scenario_index"]));
+			UE_LOG(LogDeepDriveSimulation, Log, TEXT("Found it %d"), m_ScenarioIndex);
+		}
+	}
 }
 
 // Called every frame
@@ -39,9 +60,9 @@ void ADeepDriveSimulationConfigurator::Tick(float DeltaTime)
 		{
 			m_StartCounter = -1;
 
-			if(ScenarioIndex >= 0 && ScenarioIndex < Scenarios.Num() && Agents.Num() > 0)
+			if(m_ScenarioIndex >= 0 && m_ScenarioIndex < Scenarios.Num() && Agents.Num() > 0)
 			{
-				const FDeepDriveSimulationScenario &scenario = Scenarios[ScenarioIndex];
+				const FDeepDriveSimulationScenario &scenario = Scenarios[m_ScenarioIndex];
 
 				FDeepDriveScenarioConfiguration scenarioConfig;
 				scenarioConfig.EgoAgent.Agent = Agents[FMath::RandRange(0, Agents.Num() - 1)];

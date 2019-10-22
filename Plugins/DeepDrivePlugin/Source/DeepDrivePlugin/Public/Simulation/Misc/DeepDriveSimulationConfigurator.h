@@ -85,12 +85,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Configuration)
 	TArray<FDeepDriveSimulationScenario>	Scenarios;
 
+#if WITH_EDITORONLY_DATA
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Simulation)
-	int32	ScenarioIndex = 0;
+	int32 InitialScenarioIndex = 0;
+#endif
 
 private:
 
 	FVector resolvePosition(const FDeepDriveRoadLocation &roadLocation);
+
+	int32				m_ScenarioIndex = 0;
 
 	int32				m_StartCounter = 0;
 };
