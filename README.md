@@ -2,5 +2,12 @@
 
 Unreal based simulator and Python interface to Deepdrive
 
-[**Docs**](https://simdocs.deepdrive.io/v/v3/docs)
+## Usage
+
+Checkout our [main repo](https://github.com/deepdrive/deepdrive)
+
+
+## Simulator docs
+
+https://simdocs.deepdrive.io/v/v3/docs
 
