@@ -283,6 +283,15 @@ void ADeepDriveSimulation::Turn(float AxisValue)
 	}
 }
 
+void ADeepDriveSimulation::Brake(float AxisValue)
+{
+	if (m_curAgentController)
+	{
+		m_curAgentController->Brake(AxisValue);
+	}
+}
+
+
 void ADeepDriveSimulation::SelectCamera(EDeepDriveAgentCameraType CameraType)
 {
 	if (CameraType != m_curCameraType)

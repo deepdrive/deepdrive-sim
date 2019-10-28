@@ -43,6 +43,8 @@ public:
 
 	virtual void MoveRight(float axisValue);
 
+	virtual void Brake(float axisValue);
+
 	UFUNCTION(BlueprintCallable, Category = "Configuration")
 	void Configure(const FDeepDriveManualControllerConfiguration &Configuration, int32 StartPositionSlot, ADeepDriveSimulation* DeepDriveSimulation);
 

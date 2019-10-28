@@ -42,7 +42,12 @@ void ADeepDriveAgentControllerBase::MoveForward(float axisValue)
 void ADeepDriveAgentControllerBase::MoveRight(float axisValue)
 {
 
-}	
+}
+
+void ADeepDriveAgentControllerBase::Brake(float axisValue)
+{
+
+}
 
 void ADeepDriveAgentControllerBase::SetControlValues(float steering, float throttle, float brake, bool handbrake)
 {

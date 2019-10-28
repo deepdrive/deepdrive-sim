@@ -147,6 +147,9 @@ public:
 	void Turn(float AxisValue);
 
 	UFUNCTION(BlueprintCallable, Category = "Input")
+	void Brake(float AxisValue);
+
+	UFUNCTION(BlueprintCallable, Category = "Input")
 	void SelectCamera(EDeepDriveAgentCameraType CameraType);
 
 	UFUNCTION(BlueprintCallable, Category = "Input")

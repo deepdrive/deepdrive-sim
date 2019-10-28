@@ -47,20 +47,13 @@ void ADeepDriveAgentManualController::MoveForward(float axisValue)
 {
 	if(m_Agent)
 	{
-		if(axisValue >= 0.0f)
+		if(axisValue > 0.0f)
 		{
 			m_Agent->GetVehicleMovementComponent()->SetTargetGear(1, false);
-			m_Agent->SetBrake(0.0f);
 		}
 		else if( axisValue < 0.0f)
 		{
 			m_Agent->GetVehicleMovementComponent()->SetTargetGear(-1, false);
-			m_Agent->SetBrake(m_Agent->GetVehicleMovementComponent()->GetForwardSpeed() > 0.0f);
-		}
-		else
-		{
-			m_Agent->GetVehicleMovementComponent()->SetTargetGear(0, false);
-			m_Agent->SetBrake(1.0f);
 		}
 
 		m_Agent->SetThrottle(axisValue);
@@ -76,6 +69,16 @@ void ADeepDriveAgentManualController::MoveRight(float axisValue)
 		m_Agent->setIsGameDriving(true);
 	}
 }
+
+void ADeepDriveAgentManualController::Brake(float axisValue)
+{
+	if(m_Agent)
+	{
+		const float curBrakeValue = FMath::Clamp(axisValue, 0.0f, 1.0f);
+		m_Agent->SetBrake(curBrakeValue);
+	}
+}
+
 
 void ADeepDriveAgentManualController::Configure(const FDeepDriveManualControllerConfiguration &Configuration, int32 StartPositionSlot, ADeepDriveSimulation* DeepDriveSimulation)
 {
