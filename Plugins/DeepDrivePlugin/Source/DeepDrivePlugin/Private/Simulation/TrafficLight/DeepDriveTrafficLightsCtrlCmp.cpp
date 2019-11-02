@@ -45,7 +45,8 @@ void UDeepDriveTrafficLightsCtrlCmp::BeginPlay()
 					circuit.resetState();
 					UE_LOG(LogDeepDriveTrafficLightsCtrlCmp, Log, TEXT("Before Green: %f"));
 					for(auto &trafficLight : circuit.TrafficLights)
-						trafficLight->SetToRed(-1.0f);
+						if(trafficLight)
+							trafficLight->SetToRed(-1.0f);
 				}
 				else if(curCycleTime < (circuit.Delay + circuit.Duration) )
 				{
@@ -53,7 +54,8 @@ void UDeepDriveTrafficLightsCtrlCmp::BeginPlay()
 					circuit.setState(0);
 					UE_LOG(LogDeepDriveTrafficLightsCtrlCmp, Log, TEXT("Inside Green: %f"), elapsedTime);
 					for(auto &trafficLight : circuit.TrafficLights)
-						trafficLight->SetToGreen(elapsedTime);
+						if (trafficLight)
+							trafficLight->SetToGreen(elapsedTime);
 				}
 				else
 				{
@@ -61,7 +63,8 @@ void UDeepDriveTrafficLightsCtrlCmp::BeginPlay()
 					circuit.setState(1);
 					UE_LOG(LogDeepDriveTrafficLightsCtrlCmp, Log, TEXT("After Green: %f"), elapsedTime);
 					for(auto &trafficLight : circuit.TrafficLights)
-						trafficLight->SetToRed(elapsedTime);
+						if (trafficLight)
+							trafficLight->SetToRed(elapsedTime);
 				}
 			}
 			m_curCycleIndex = curIndex;
@@ -75,8 +78,11 @@ void UDeepDriveTrafficLightsCtrlCmp::BeginPlay()
 				circuit.resetState();
 				for (auto &trafficLight : circuit.TrafficLights)
 				{
-					trafficLight->SetToRed(-1.0f);
-					UE_LOG(LogDeepDriveTrafficLightsCtrlCmp, Log, TEXT("  %d"), static_cast<int32> (trafficLight->CurrentPhase) );
+					if (trafficLight)
+					{
+						trafficLight->SetToRed(-1.0f);
+						UE_LOG(LogDeepDriveTrafficLightsCtrlCmp, Log, TEXT("  %d"), static_cast<int32>(trafficLight->CurrentPhase));
+					}
 				}
 			}
 		}
