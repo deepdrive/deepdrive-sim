@@ -122,8 +122,13 @@ def build_pypi(build_type, env, ext_root, py, sim_root):
         for name in os.listdir(os.path.join(ext_root, 'dist')):
             if env['DEEPDRIVE_VERSION'] in name and name.endswith(".whl"):
                 twine = os.path.join(scripts_dir, 'twine')
-                run_command([twine, 'upload', os.path.join(ext_root, 'dist', name), '-u', env['PYPI_USERNAME'],
-                             '-p', env['PYPI_PASSWORD']], env=env, cwd=ext_root)
+                run_command([
+                    twine, 'upload',
+                    os.path.join(ext_root, 'dist', name),
+                    '-u', env['PYPI_USERNAME'],
+                    '-p', env['PYPI_PASSWORD'],
+                    '--skip-existing',
+                ], env=env, cwd=ext_root)
     elif build_type == 'linux_bdist':
         def ensure_no_binaries_of_type(file_extension):
             ret = glob.glob(DIR + '/**/*' + file_extension, recursive=True)

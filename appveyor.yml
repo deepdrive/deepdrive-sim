@@ -3,6 +3,7 @@ environment:
     - PYTHON: "C:\\Python35"
     - PYTHON: "C:\\Python35-x64"
     - PYTHON: "C:\\Python36-x64"
+    - PYTHON: "C:\\Python37-x64"
   PYPI_USERNAME: crizcraig
   PYPI_PASSWORD:
     secure: 84vzW3J+7QzFeJWztHo1xww5E8/oS1d4SpqeJ/2W2AA=
