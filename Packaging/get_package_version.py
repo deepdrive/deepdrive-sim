@@ -42,7 +42,7 @@ def get_package_version():
         last_commit_timestamp = last_commit_time.strftime('%Y%m%d%H%M%S')
 
         with open(os.path.join(version_path, 'MAJOR_MINOR_VERSION')) as fr:
-            version = '%s.%s' % (fr.read(), last_commit_timestamp)
+            version = '%s.%s' % (fr.read().strip(), last_commit_timestamp)
         with open(os.path.join(version_path, 'VERSION'), 'w') as fw:
             fw.write(version)
     return version
