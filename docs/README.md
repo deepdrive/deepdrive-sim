@@ -4,6 +4,15 @@
 
 [Development setup instructions](/docs/setup)
 
+## Requirements
+
+- Linux
+- Python 3.6+
+- 20GB disk space
+- 8GB RAM
+
+NOTE: Windows support has been removed due to a mismatch of resources and interest. The main impediment to Windows working is the lack of an embedded python interpreter and issues installing the correct packages from uepy-requirements.txt. 
+
 
 ## Development Tips
 
