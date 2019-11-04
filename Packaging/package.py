@@ -8,6 +8,7 @@ from glob import glob
 import boto
 import boto.s3
 from boto.s3.key import Key
+from retry import retry
 from ue4helpers import FilesystemUtils, ProjectPackager, UnrealUtils
 from os.path import abspath, dirname, join
 import shutil
@@ -115,6 +116,7 @@ def upload_s3_and_gcs(source_path: str, dest_filename: str):
     gcs_url = upload_gcs(source_path, dest_filename)
     return s3_url, gcs_url
 
+@retry(tries=5)
 def upload_gcs(source_path: str, dest_filename: str) -> str:
     print('Uploading %s to GCS bucket %s' % (source_path,
                                              GCS_DEEPDRIVE_BUCKET_NAME))
@@ -128,6 +130,7 @@ def upload_gcs(source_path: str, dest_filename: str) -> str:
     return url
 
 
+@retry(tries=5)
 def upload_s3(source_path: str, dest_filename: str) -> str:
     conn = boto.connect_s3()
     bucket = conn.get_bucket(AWS_DEEPDRIVE_BUCKET_NAME)
