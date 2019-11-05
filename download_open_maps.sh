@@ -15,5 +15,3 @@ if [[ ! -f "${JAMESTOWN_ZIP}" ]]; then
 fi
 unzip ${JAMESTOWN_ZIP} -d ${DIR}/Plugins/DeepDriveCityPlugin/Content
 rm ${JAMESTOWN_ZIP}
-
-# TODO: Kevindale from private bucket
