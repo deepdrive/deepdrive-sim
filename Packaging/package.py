@@ -248,6 +248,8 @@ if __name__ == '__main__':
         copy_release_candidate_to_release()
     elif '--download-jamestown' in sys.argv:
         download_jamestown()
+    elif '--download-kevindale' in sys.argv:
+        download_kevindale()
     else:
         main()
 
