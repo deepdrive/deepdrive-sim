@@ -3,13 +3,14 @@ import json
 import os
 import stat
 import sys
+import zipfile
 from glob import glob
 
 import boto
 import boto.s3
 from boto.s3.key import Key
 from retry import retry
-from ue4helpers import FilesystemUtils, ProjectPackager, UnrealUtils
+from ue4helpers import ProjectPackager, UnrealUtils
 from os.path import abspath, dirname, join
 import shutil
 from google.cloud import storage
@@ -39,6 +40,9 @@ def main():
     # Clean any previous build artifacts
     packager.clean()
 
+    # Download binary maps
+    download_binary_maps()
+
     # Package the project
     packager.package(args=['Development'])
 
@@ -58,6 +62,12 @@ def main():
         if 'IS_DEEPDRIVE_SIM_BUILD' in os.environ:
             json_out = json.dumps(dict(s3_url=s3_url, gcs_url=gcs_url))
             print(f'|~__JSON_OUT_LINE_DELIMITER__~| {json_out}')
+
+
+def download_binary_maps():
+    download_gcs(bucket_name='deepdrive-private', source_path='pd.zip',
+                 dest_path='/tmp/pd.zip')
+    unzip(source_path='/tmp/pd.zip', dest_path=os.path.join(ROOT, 'Content'))
 
 
 def install_uepy_requirements(dist):
@@ -81,7 +91,9 @@ def install_plugins(root):
 
     # Download and extract the prebuilt binaries for  the UnrealEnginePython plugin
     print('Downloading and extracting the prebuilt UnrealEnginePython plugin...')
-    UnrealUtils.install_plugin(join(root, 'Packaging', 'UnrealEnginePython-20190128-Linux.zip'), 'UnrealEnginePython')
+    UnrealUtils.install_plugin(join(root, 'Packaging',
+                                    'UnrealEnginePython-20190128-Linux.zip'),
+                               'UnrealEnginePython')
 
 
 def reformat_name(archive_name):
@@ -102,7 +114,7 @@ def get_uepy_path(sim_path):
 def ensure_uepy_executable(sim_path):
     """
     Ensure the UEPY python binary is executable
-    :param path: Path to UEPy python binary
+    :param sim_path: Path to UEPy python binary
     :return:
     """
     uepy = get_uepy_path(sim_path)
@@ -194,11 +206,35 @@ def upload_latest_sim():
     upload_s3_and_gcs(source_path=latest_filepath, dest_filename=filename)
 
 
+def download_gcs(bucket_name: str, source_path: str, dest_path: str):
+    print(f'Downloading gs://{bucket_name}/{source_path} to {dest_path}...')
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket(bucket_name)
+    bucket.blob(source_path).download_to_filename(dest_path)
+
+def unzip(source_path: str, dest_path: str):
+    zip_ref = zipfile.ZipFile(source_path, 'r')
+    print(f'Unzipping temp file {source_path} to {dest_path}...')
+    try:
+        zip_ref.extractall(dest_path)
+    except Exception:
+        print('You may want to close all programs that may have these files '
+              'open or delete existing '
+              'folders this is trying to overwrite')
+        raise
+    finally:
+        zip_ref.close()
+        os.remove(source_path)
+        print(f'Removed temp file {source_path}')
+
+
 if __name__ == '__main__':
     if '--upload-only' in sys.argv:
         upload_latest_sim()
     elif '--copy-release-candidate-to-release' in sys.argv:
         copy_release_candidate_to_release()
+    elif '--download-binary-maps' in sys.argv:
+        download_binary_maps()
     else:
         main()
 
