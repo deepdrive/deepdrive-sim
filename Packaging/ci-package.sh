@@ -13,6 +13,4 @@ git checkout -qf ${DEEPDRIVE_COMMIT}
 # https://stackoverflow.com/a/42982144/134077
 export REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 
-./download_open_maps.sh
-
 python3 -u Packaging/package.py --upload

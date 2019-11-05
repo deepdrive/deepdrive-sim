@@ -40,8 +40,8 @@ def main():
     # Clean any previous build artifacts
     packager.clean()
 
-    # Download binary maps
-    download_binary_maps()
+    # Download maps
+    download_maps()
 
     # Package the project
     packager.package(args=['Development'])
@@ -64,10 +64,23 @@ def main():
             print(f'|~__JSON_OUT_LINE_DELIMITER__~| {json_out}')
 
 
-def download_binary_maps():
+def download_maps():
+    download_kevindale()
+    download_jamestown()
+
+
+def download_kevindale():
     download_gcs(bucket_name='deepdrive-private', source_path='pd.zip',
                  dest_path='/tmp/pd.zip')
     unzip(source_path='/tmp/pd.zip', dest_path=os.path.join(ROOT, 'Content'))
+
+
+def download_jamestown():
+    download_gcs(bucket_name='deepdriveio',
+                 source_path='unreal_assets/JamestownParallelDomainDeepdriveSmallMap.zip',
+                 dest_path='/tmp/JamestownParallelDomainDeepdriveSmallMap.zip')
+    unzip(source_path='/tmp/JamestownParallelDomainDeepdriveSmallMap.zip',
+          dest_path=os.path.join(ROOT, 'Plugins/DeepDriveCityPlugin/Content'))
 
 
 def install_uepy_requirements(dist):
@@ -233,8 +246,8 @@ if __name__ == '__main__':
         upload_latest_sim()
     elif '--copy-release-candidate-to-release' in sys.argv:
         copy_release_candidate_to_release()
-    elif '--download-binary-maps' in sys.argv:
-        download_binary_maps()
+    elif '--download-jamestown' in sys.argv:
+        download_jamestown()
     else:
         main()
 
