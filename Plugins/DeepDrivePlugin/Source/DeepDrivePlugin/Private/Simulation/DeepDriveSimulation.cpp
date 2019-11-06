@@ -70,6 +70,16 @@ void ADeepDriveSimulation::PreInitializeComponents()
 		}
 	}
 
+	for (auto &comp : GetComponents())
+	{
+		UCaptureSinkComponentBase *captureSinkComp = Cast<UCaptureSinkComponentBase>(comp);
+		if (captureSinkComp)
+		{
+			m_CaptureSinks.Add(captureSinkComp);
+			UE_LOG(LogDeepDriveSimulation, Log, TEXT("Found sink %s"), *(captureSinkComp->getName()));
+		}
+	}
+
 	{
 #if WITH_EDITOR
 		ScenarioMode = InitialScenarioMode;
@@ -470,17 +480,6 @@ void ADeepDriveSimulation::initializeAgents()
 		m_curAgentController = Cast<ADeepDriveAgentControllerBase>(m_curAgent->GetController());
 
 		SelectCamera(EDeepDriveAgentCameraType::CHASE_CAMERA);
-
-		const TSet < UActorComponent * > &components = GetComponents();
-		for (auto &comp : components)
-		{
-			UCaptureSinkComponentBase *captureSinkComp = Cast<UCaptureSinkComponentBase>(comp);
-			if (captureSinkComp)
-			{
-				m_CaptureSinks.Add(captureSinkComp);
-				UE_LOG(LogDeepDriveSimulation, Log, TEXT("Found sink %s"), *(captureSinkComp->getName()));
-			}
-		}
 	}
 }
 
