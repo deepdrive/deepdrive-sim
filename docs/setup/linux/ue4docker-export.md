@@ -36,10 +36,10 @@ ue4 setroot ~/UnrealInstalled
 Now you're ready to build and run the project. This is what you'll do any 
 time you've pulled in the latest changes from GitHub as well.
 
-Download all maps
+Download maps
 
 ```
-./download_all_maps.sh
+python Packaging/package.py --download-jamestown
 ```
 
 ### Clean and build
