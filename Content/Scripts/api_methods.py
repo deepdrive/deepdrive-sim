@@ -54,7 +54,8 @@ class Api(object):
         return self._world
 
     def get_observation(self):
-        ret = dict(vehicle_positions=self.get_vehicle_positions())
+        # ret = dict(vehicle_positions=self.get_vehicle_positions())
+        ret = dict(vehicle_positions=[])
         return ret
 
     def get_objects_of_type(self, object_type, world):
