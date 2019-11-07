@@ -28,7 +28,7 @@ void DeepDriveTBTStopAtLocationTask::bind(DeepDriveTrafficBlackboard &blackboard
 			m_IndexDelta = m_StopLocationIndex - m_SlowDownBeginIndex;
 		}
 
-		UE_LOG(LogDeepDriveTBTStopAtLocationTask, Log, TEXT("DeepDriveTBTStopAtLocationTask::bind %s (%s) %d %d"), *m_StopLocationName, *(stopLocation.ToString()), m_StopLocationIndex, m_SlowDownBeginIndex);
+		UE_LOG(LogDeepDriveTBTStopAtLocationTask, Log, TEXT("DeepDriveTBTStopAtLocationTask::bind [%d] %s (%s) %d %d"), blackboard.getAgent()->GetAgentId(), *m_StopLocationName, *(stopLocation.ToString()), m_StopLocationIndex, m_SlowDownBeginIndex);
 	}
 }
 
@@ -38,7 +38,7 @@ bool DeepDriveTBTStopAtLocationTask::execute(DeepDriveTrafficBlackboard &blackbo
 	ADeepDriveAgent *agent = blackboard.getAgent();
 	if (agent)
 	{
-		if (m_SlowDownBeginIndex && pathPointIndex >= m_SlowDownBeginIndex)
+		if (m_SlowDownBeginIndex >= 0 && pathPointIndex >= m_SlowDownBeginIndex)
 		{
 			const int32 curIndexDelta = pathPointIndex - m_SlowDownBeginIndex;
 			const float curT = FMath::Clamp(1.0f - static_cast<float>(curIndexDelta) / static_cast<float>(m_IndexDelta), 0.0f, 1.0f);
