@@ -62,6 +62,7 @@ class DummyPyActor:
 
     def tick(self, delta_time):
         if self.world is None:
+            print('Searching for unreal world for UnrealEnginePython')
             self._find_world()
         elif not self.started_server:
             print('Creating new event loop. You should only see this once!')
@@ -98,11 +99,13 @@ class DummyPyActor:
             # self.worlds.append(self.uobject.get_current_level()) # A LEVEL IS NOT A WORLD
             pass
 
-        self.worlds = [w for w in self.worlds if 'DeepDriveSim_Demo.DeepDriveSim_Demo' in w.get_full_name()]
+        self.worlds = [w for w in self.worlds if valid_world(w)]
+        print(self.worlds)
 
         for w in self.worlds:
+            # [print(a.get_full_name()) for a in w.all_actors()]
             self.ai_controllers = [a for a in w.all_actors()
-                                   if 'LocalAIController_'.lower() in a.get_full_name().lower()]
+                                   if valid_ai_controller_name(a)]
             if self.ai_controllers:
                 self.world = w
                 print('Found current world: ' + str(w))
@@ -114,3 +117,22 @@ class DummyPyActor:
         return self.world
 
 
+def valid_world(world):
+    full_name = world.get_full_name()
+    substrings = [
+        'DeepDriveSim_Demo.DeepDriveSim_Demo',
+        'DeepDriveSim_Kevindale_Full.DeepDriveSim_Kevindale_Full',
+        'DeepDriveSim_Kevindale_Bare.DeepDriveSim_Kevindale_Bare',
+        'DeepDriveSim_CityMap_Demo.DeepDriveSim_CityMap_Demo',]
+    for s in substrings:
+        if s in full_name:
+            return True
+    return False
+
+def valid_ai_controller_name(actor):
+    full_name = actor.get_full_name().lower()
+    substrings = ['.LocalAIControllerCreator_'.lower()]
+    for s in substrings:
+        if s in full_name:
+            return True
+    return False
