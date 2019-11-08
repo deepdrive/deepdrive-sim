@@ -110,6 +110,8 @@ class DummyPyActor:
                 self.world = w
                 print('Found current world: ' + str(w))
                 break
+            else:
+                print(f'no valid ai controller found in {w.get_full_name()}')
         else:
             # print('Current world not detected')
             pass
@@ -123,7 +125,9 @@ def valid_world(world):
         'DeepDriveSim_Demo.DeepDriveSim_Demo',
         'DeepDriveSim_Kevindale_Full.DeepDriveSim_Kevindale_Full',
         'DeepDriveSim_Kevindale_Bare.DeepDriveSim_Kevindale_Bare',
-        'DeepDriveSim_CityMap_Demo.DeepDriveSim_CityMap_Demo',]
+        'DeepDriveSim_CityMap_Demo.DeepDriveSim_CityMap_Demo',
+        'DeepDriveSim_CityMapTraffic_Demo.DeepDriveSim_CityMapTraffic_Demo',
+    ]
     for s in substrings:
         if s in full_name:
             return True
