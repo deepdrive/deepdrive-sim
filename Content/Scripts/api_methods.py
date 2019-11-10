@@ -64,6 +64,7 @@ class Api(object):
         return self.ue_objects_by_type[object_type]
 
     def populate_objects_by_type(self, world):
+        print('Getting objects by type')
         ret = collections.defaultdict(list)
         objects = world.all_objects()
         for o in objects:
@@ -76,6 +77,7 @@ class Api(object):
 
     def get_sim(self, world=None):
         # TODO: Add sim and world to a singleton
+        print('Getting api methods sim')
         world = world or self.world
         sim_objs = self.get_objects_of_type('DeepDriveSim_C', world)
         if len(sim_objs) > 1:
@@ -87,6 +89,7 @@ class Api(object):
         return ret
 
     def get_actor_by_name(self, name, world=None):
+        print('Getting actor by name')
         world = world or self.get_world()
         pattern = name + r'(_.*\d+)?$'
         r = re.compile(pattern)
@@ -104,6 +107,7 @@ class Api(object):
         return ret
 
     def reset(self, enable_traffic=False):
+        print('Resetting')
         sim = self.get_sim()
         if not enable_traffic:
             print('Disabling traffic for next reset...')
@@ -117,6 +121,7 @@ class Api(object):
         return self.set_ego_kph(min_mph * MPH_2_KPH, max_mph * MPH_2_KPH)
 
     def get_ego_agent(self):
+        print('Getting ego agent')
         sim = self.get_sim()
         agents = sim.GetAgentsList()
         ego = [a for a in agents if a.IsEgoAgent()]
@@ -130,6 +135,7 @@ class Api(object):
         return 42
 
     def get_agents(self):
+        print('Getting agent list')
         ret = []
         agents = self.sim.GetAgentsList()
         # print('\n'.join(dir(agents[0])))
@@ -145,6 +151,7 @@ class Api(object):
         return ret
 
     def get_vehicle_positions(self):
+        print('Getting vehicle positions')
         ret = []
         agents = self.sim.GetAgentsList()
 
