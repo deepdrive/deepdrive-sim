@@ -1,8 +1,7 @@
 # Building the python bindings 
 
 ```
-cd Plugins/DeepDrivePlugin/Source/DeepDrivePython
-python build/build.py --type dev
+install-local-bindings.sh
 ```
 
 # Pushing bindings to PyPi
