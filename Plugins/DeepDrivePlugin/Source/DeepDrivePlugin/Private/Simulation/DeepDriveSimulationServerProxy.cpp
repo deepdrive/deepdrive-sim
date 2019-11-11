@@ -91,9 +91,9 @@ bool DeepDriveSimulationServerProxy::RequestAgentControl()
 
 void DeepDriveSimulationServerProxy::ReleaseAgentControl()
 {
-	m_DeepDriveSim.SelectMode(EDeepDriveAgentControlMode::LOCAL_AI);
+	m_DeepDriveSim.SelectMode(m_DeepDriveSim.InitialControllerMode);
 
-	UE_LOG(LogDeepDriveSimulationServerProxy, Log, TEXT("Control released - ensuring agent controller is LocalAI"));
+	UE_LOG(LogDeepDriveSimulationServerProxy, Log, TEXT("Control released - switiching back to initial controller mode: %d"), static_cast<uint32>(m_DeepDriveSim.InitialControllerMode));
 }
 
 void DeepDriveSimulationServerProxy::ResetAgent()
