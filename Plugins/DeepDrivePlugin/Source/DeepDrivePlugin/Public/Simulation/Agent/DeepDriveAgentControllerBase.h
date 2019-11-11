@@ -58,6 +58,12 @@ public:
 
 	virtual void OnDebugTrigger();
 
+	virtual	float getDistanceAlongRoute();
+
+	virtual	float getRouteLength();
+
+	virtual	float getDistanceToCenterOfTrack();
+
 	const FString& getControllerName() const;
 
 	void OnAgentCollision(AActor *OtherActor, const FHitResult &HitResult, const FName &Tag);
@@ -65,15 +71,6 @@ public:
 	void getCollisionData(DeepDriveCollisionData &collisionDataOut);
 
 	bool updateAgentOnTrack();
-
-	//	ToDo: make virtual
-	float getDistanceAlongRoute();
-
-	//	ToDo: make virtual
-	float getRouteLength();
-
-	//	ToDo: make virtual
-	float getDistanceToCenterOfTrack();
 
 	void setIsPassing(bool isPassing);
 	bool isPassing() const;

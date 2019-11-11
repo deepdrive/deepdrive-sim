@@ -86,8 +86,13 @@ public:
 	TArray<FDeepDriveSimulationScenario>	Scenarios;
 
 #if WITH_EDITORONLY_DATA
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Simulation)
 	int32 InitialScenarioIndex = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Simulation)
+	bool InitialRemotelyControlled = false;
+
 #endif
 
 private:
@@ -97,4 +102,6 @@ private:
 	int32				m_ScenarioIndex = 0;
 
 	int32				m_StartCounter = 0;
+
+	bool				m_isRemotelyControlled = false;
 };

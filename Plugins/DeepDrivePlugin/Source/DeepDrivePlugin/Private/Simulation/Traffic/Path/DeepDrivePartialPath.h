@@ -34,7 +34,13 @@ public:
 	bool update();
 	void advance(float deltaSeconds, float &speed, float &steering, float &brake);
 
+	float getRouteLength() const;
+
 	bool isCloseToEnd(float distanceFromEnd) const;
+
+	float getDistanceAlongRoute() const;
+
+	float getDistanceToCenterOfTrack() const;
 
 	void showPath(UWorld *world);
 

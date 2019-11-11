@@ -29,6 +29,7 @@ void ADeepDriveSimulationConfigurator::BeginPlay()
 	{
 #if WITH_EDITOR
 		m_ScenarioIndex = InitialScenarioIndex;
+		m_isRemotelyControlled = InitialRemotelyControlled;
 #else
 		m_ScenarioIndex = -1;
 #endif
@@ -42,6 +43,14 @@ void ADeepDriveSimulationConfigurator::BeginPlay()
 		{
 			m_ScenarioIndex = FCString::Atoi(*(params["scenario_index"]));
 			UE_LOG(LogDeepDriveSimulation, Log, TEXT("Found it %d"), m_ScenarioIndex);
+		}
+		for (auto &s : switches)
+		{
+			if (s == "remote_ai")
+			{
+				m_isRemotelyControlled = true;
+				break;
+			}
 		}
 	}
 }
@@ -69,6 +78,7 @@ void ADeepDriveSimulationConfigurator::Tick(float DeltaTime)
 				scenarioConfig.EgoAgent.StartPosition = resolvePosition(scenario.EgoAgent.Start);
 				scenarioConfig.EgoAgent.EndPosition = resolvePosition(scenario.EgoAgent.Destination);
 				scenarioConfig.EgoAgent.MaxSpeed = FMath::RandRange(scenario.EgoAgent.MinSpeed, scenario.EgoAgent.MaxSpeed);
+				scenarioConfig.EgoAgent.IsRemotelyControlled = m_isRemotelyControlled;
 
 				for(auto &scenarioAgent : scenario.AdditionalAgents)
 				{

@@ -34,6 +34,21 @@ bool DeepDrivePathPlanner::isCloseToEnd(float distanceFromEnd) const
     return m_curBasePath ? m_curBasePath->isCloseToEnd(distanceFromEnd) : true;
 }
 
+float DeepDrivePathPlanner::getRouteLength() const
+{
+    return m_curBasePath ? m_curBasePath->getRouteLength() : 0.0f;
+}
+
+float DeepDrivePathPlanner::getDistanceAlongRoute() const
+{
+    return m_curBasePath ? m_curBasePath->getDistanceAlongRoute() : 0.0f;
+}
+
+float DeepDrivePathPlanner::getDistanceToCenterOfTrack() const
+{
+    return m_curBasePath ? m_curBasePath->getDistanceToCenterOfTrack() : 0.0f;
+}
+
 void DeepDrivePathPlanner::showPath(UWorld *world)
 {
     if(m_curBasePath)

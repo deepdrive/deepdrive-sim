@@ -29,6 +29,12 @@ public:
 
 	bool isCloseToEnd(float distanceFromEnd) const;
 
+	float getRouteLength() const;
+
+	float getDistanceAlongRoute() const;
+
+	float getDistanceToCenterOfTrack() const;
+
 	void showPath(UWorld *world);
 
 private:
