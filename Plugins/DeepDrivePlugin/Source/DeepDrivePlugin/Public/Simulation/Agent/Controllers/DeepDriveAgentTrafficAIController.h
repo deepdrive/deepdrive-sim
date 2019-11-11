@@ -61,6 +61,12 @@ public:
 
 	virtual bool ResetAgent();
 
+	virtual float getDistanceAlongRoute();
+
+	virtual float getRouteLength();
+
+	virtual float getDistanceToCenterOfTrack();
+
 	UFUNCTION(BlueprintCallable, Category = "Configuration")
 	void Configure(const FDeepDriveTrafficAIControllerConfiguration &Configuration, int32 StartPositionSlot, ADeepDriveSimulation* DeepDriveSimulation);
 

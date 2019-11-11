@@ -182,6 +182,29 @@ void DeepDrivePartialPath::advance(float deltaSeconds, float &speed, float &stee
 	// UE_LOG(LogDeepDrivePartialPath, Log, TEXT("%5d) dist2ctr %f steering %f corr %f totE %f"), m_curPathPointIndex, dist2Ctr, steering, steeringCorrection, m_totalTrackError);
 }
 
+float DeepDrivePartialPath::getRouteLength() const
+{
+	return m_PathPoints.Num() > 0 ? m_PathPoints.Last().Distance : 0.0f; 
+}
+
+float DeepDrivePartialPath::getDistanceAlongRoute() const
+{
+	return		m_curPathPointIndex >= 0 && m_curPathPointIndex < m_PathPoints.Num()
+			?	m_PathPoints[m_curPathPointIndex].RemainingDistance
+			:	0.0f;
+}
+
+float DeepDrivePartialPath::getDistanceToCenterOfTrack() const
+{
+	float dist2Ctr = 0.0f;
+	if(m_curPathPointIndex >= 0 && m_curPathPointIndex < m_PathPoints.Num())
+	{
+
+	}
+	return dist2Ctr;
+}
+
+
 bool DeepDrivePartialPath::isCloseToEnd(float distanceFromEnd) const
 {
     return m_PathPoints[m_curPathPointIndex].RemainingDistance <= distanceFromEnd;

@@ -205,6 +205,21 @@ bool ADeepDriveAgentTrafficAIController::ResetAgent()
 	return res;
 }
 
+float ADeepDriveAgentTrafficAIController::getDistanceAlongRoute()
+{
+	return m_PathPlanner && m_Agent ? m_PathPlanner->getDistanceAlongRoute() : 0.0f;
+}
+
+float ADeepDriveAgentTrafficAIController::getRouteLength()
+{
+	return m_PathPlanner && m_Agent ? m_PathPlanner->getRouteLength() : 0.0f;
+}
+
+float ADeepDriveAgentTrafficAIController::getDistanceToCenterOfTrack()
+{
+	return m_PathPlanner && m_Agent ? m_PathPlanner->getDistanceToCenterOfTrack() : 0.0f;
+}
+
 void ADeepDriveAgentTrafficAIController::Configure(const FDeepDriveTrafficAIControllerConfiguration &Configuration, int32 StartPositionSlot, ADeepDriveSimulation* DeepDriveSimulation)
 {
 	m_Configuration = Configuration;

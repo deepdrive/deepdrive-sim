@@ -52,6 +52,20 @@ bool DeepDriveBasePath::isCloseToEnd(float distanceFromEnd) const
     return m_PartialPath ? m_PartialPath->isCloseToEnd(distanceFromEnd) : true;
 }
 
+float DeepDriveBasePath::getRouteLength() const
+{
+    return m_PartialPath ? m_PartialPath->getRouteLength() : 0.0f;
+}
+
+float DeepDriveBasePath::getDistanceAlongRoute() const
+{
+    return m_PartialPath ? m_PartialPath->getDistanceAlongRoute() : 0.0f;
+}
+
+float DeepDriveBasePath::getDistanceToCenterOfTrack() const
+{
+    return m_PartialPath ? m_PartialPath->getDistanceToCenterOfTrack() : 0.0f;
+}
 
 void DeepDriveBasePath::showPath(UWorld *world)
 {
