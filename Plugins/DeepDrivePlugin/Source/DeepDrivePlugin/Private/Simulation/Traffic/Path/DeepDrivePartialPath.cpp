@@ -190,7 +190,7 @@ float DeepDrivePartialPath::getRouteLength() const
 float DeepDrivePartialPath::getDistanceAlongRoute() const
 {
 	return		m_curPathPointIndex >= 0 && m_curPathPointIndex < m_PathPoints.Num()
-			?	m_PathPoints[m_curPathPointIndex].RemainingDistance
+			?	m_PathPoints.Last().Distance - m_PathPoints[m_curPathPointIndex].RemainingDistance
 			:	0.0f;
 }
 
