@@ -223,6 +223,8 @@ public:
 	void spawnAdditionalAgents();
 	bool hasAdditionalAgents();
 
+	EDeepDriveAgentControlMode getControllerMode() const;
+
 	bool hasEgoAgent() const;
 	void onEgoAgentChanged(bool added);
 
@@ -236,7 +238,7 @@ private:
 
 	bool isActive() const;
 
-	ADeepDriveAgent* spawnAgent(const FDeepDriveAgentScenarioConfiguration &scenarioCfg, bool remotelyControlled);
+	ADeepDriveAgent *spawnAgent(const FDeepDriveAgentScenarioConfiguration &scenarioCfg, bool isEgoAgent, bool remotelyControlled);
 
 	ADeepDriveAgent* spawnAgent(EDeepDriveAgentControlMode mode, int32 configSlot, int32 startPosSlot);
 
@@ -311,4 +313,9 @@ inline FDateTime ADeepDriveSimulation::getSimulationStartTime()
 inline bool ADeepDriveSimulation::hasAdditionalAgents()
 {
 	return m_Agents.Num() > 1;
+}
+
+inline EDeepDriveAgentControlMode ADeepDriveSimulation::getControllerMode() const
+{
+	return m_curAgentMode;
 }

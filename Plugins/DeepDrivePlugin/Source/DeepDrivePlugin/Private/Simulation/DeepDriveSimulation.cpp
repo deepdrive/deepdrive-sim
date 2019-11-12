@@ -498,7 +498,7 @@ void ADeepDriveSimulation::removeAgents(bool removeEgo)
 	m_Agents.SetNum(removeEgo ? 0 : 1);
 }
 
-ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(const FDeepDriveAgentScenarioConfiguration &scenarioCfg, bool remotelyControlled)
+ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(const FDeepDriveAgentScenarioConfiguration &scenarioCfg, bool isEgoAgent, bool remotelyControlled)
 {
 	FTransform transform(scenarioCfg.StartPosition);
 
@@ -521,7 +521,8 @@ ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(const FDeepDriveAgentScenarioC
 			{
 				if (controller->Activate(*agent, false))
 				{
-					m_curAgentMode = mode;
+					if(isEgoAgent)
+						m_curAgentMode = mode;
 					OnAgentSpawned(agent);
 				}
 			}

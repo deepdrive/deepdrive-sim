@@ -18,7 +18,9 @@ public:
 
 	ADeepDriveAgentRemoteTrafficAIController();
 
-	void SetControlValues(float steering, float throttle, float brake, bool handbrake);
+	virtual void Tick(float DeltaSeconds) override;
+
+	virtual void SetControlValues(float steering, float throttle, float brake, bool handbrake);
 
 	virtual bool Activate(ADeepDriveAgent &agent, bool keepPosition);
 
@@ -42,11 +44,6 @@ protected:
 	FDeepDriveTrafficAIControllerConfiguration		m_Configuration;
 
 private:
-
-	bool updateAgentOnPath( float DeltaSeconds);
-
-	float checkForObstacle(float maxDistance);
-	float calculateSafetyDistance();
 
 	enum State
 	{
