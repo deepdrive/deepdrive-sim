@@ -82,7 +82,9 @@ void DeepDriveSimulationServerProxy::UnregisterCaptureCamera(uint32 cameraId)
 bool DeepDriveSimulationServerProxy::RequestAgentControl()
 {
 	bool res = true;
-	m_DeepDriveSim.SelectMode(EDeepDriveAgentControlMode::REMOTE_AI);
+
+	if (m_DeepDriveSim.getControllerMode() != EDeepDriveAgentControlMode::REMOTE_AI)
+		m_DeepDriveSim.SelectMode(EDeepDriveAgentControlMode::REMOTE_AI);
 
 	UE_LOG(LogDeepDriveSimulationServerProxy, Log, TEXT("Control requested - ensuring agent controller is RemoteAI"));
 
