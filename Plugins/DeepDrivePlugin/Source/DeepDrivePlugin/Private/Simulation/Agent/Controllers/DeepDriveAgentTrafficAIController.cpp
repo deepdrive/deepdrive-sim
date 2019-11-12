@@ -44,7 +44,7 @@ bool ADeepDriveAgentTrafficAIController::updateAgentOnPath( float DeltaSeconds )
 
 	// m_SteeringController->update(DeltaSeconds, heading);
 
-	return m_PathPlanner->isCloseToEnd(800.0f);
+	return m_PathPlanner->isCloseToEnd(200.0f);
 }
 
 void ADeepDriveAgentTrafficAIController::Tick( float DeltaSeconds )
