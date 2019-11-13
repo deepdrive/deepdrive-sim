@@ -10,6 +10,6 @@ Checkout our [main repo](https://github.com/deepdrive/deepdrive)
 ## Simulator docs
 
 [Simulator docs](
-https://simdocs.deepdrive.io/v/v3/docs) for making changes to the sim.
+https://simdocs.deepdrive.io/docs) for making changes to the sim.
 
 
