@@ -32,9 +32,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "CaptureCamera")
 	bool	IsCapturingActive = true;
 
-	UPROPERTY(EditDefaultsOnly, Category = "CaptureCamera")
-	bool	CaptureSceneEveryFrame = false;
-
 	UFUNCTION(BlueprintCallable, Category = "CaptureCamera")
 	void Initialize(UTextureRenderTarget2D *colorRenderTarget, UTextureRenderTarget2D *depthRenderTarget, float FoV);
 
