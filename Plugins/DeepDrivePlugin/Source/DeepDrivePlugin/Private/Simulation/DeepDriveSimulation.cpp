@@ -80,6 +80,7 @@ void ADeepDriveSimulation::PreInitializeComponents()
 		}
 	}
 
+	bool forceRemoteAI = false;
 	{
 #if WITH_EDITOR
 		ScenarioMode = InitialScenarioMode;
@@ -94,11 +95,20 @@ void ADeepDriveSimulation::PreInitializeComponents()
 			if(s == "scenario_mode")
 			{
 				ScenarioMode = true;
-				break;
+			}
+			else if (s == "remote_ai")
+			{
+				forceRemoteAI = true;
 			}
 		}
 	}
-	UE_LOG(LogDeepDriveSimulation, Log, TEXT(">> Scenario Mode %c"), ScenarioMode ? 'T' :'F');
+	UE_LOG(LogDeepDriveSimulation, Log, TEXT(">> Scenario Mode %c RemoteAI %c"), ScenarioMode ? 'T' :'F', forceRemoteAI ? 'T' : 'F');
+
+	if(forceRemoteAI && ScenarioMode == false)
+	{
+		InitialControllerMode = EDeepDriveAgentControlMode::REMOTE_AI;
+		UE_LOG(LogDeepDriveSimulation, Log, TEXT("Intital Controller Mode forced to be RemoteAI"));
+	}
 
 	if (!alreadyRegistered)
 	{
