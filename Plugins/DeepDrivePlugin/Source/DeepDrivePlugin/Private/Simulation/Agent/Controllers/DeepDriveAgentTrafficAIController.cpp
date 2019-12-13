@@ -60,8 +60,9 @@ void ADeepDriveAgentTrafficAIController::Tick( float DeltaSeconds )
 					if (isCloseToEnd)
 					{
 						m_State = m_StartIndex < 0 && m_OperationMode == OperationMode::Standard ? Waiting : Idle;
-						m_Agent->SetThrottle(0.0f);
-						m_Agent->SetBrake(1.0f);
+						m_Agent->SetThrottle(0.5f);
+						UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("BRAKING"));
+						m_Agent->SetBrake(1.0f);  // THIS IS PROB THE ONE!
 						m_Agent->SetSteering(0.0f);
 
 						m_WaitTimer = FMath::RandRange(3.0f, 4.0f);

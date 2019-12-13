@@ -20,7 +20,7 @@ public:
 private:
 
 	FString			m_StopLocationName;
-	float			m_Exponent = 1.0f;
+	float			m_Exponent = 0.5f;
 
 	int32			m_StopLocationIndex = -1;
 	int32			m_StopBeginIndex = -1;
@@ -29,6 +29,6 @@ private:
 
 	int32			m_IndexDelta = 0;
 
-	const float		StopBeginDistance = 400.0f;
-	const float		SlowDownBeginDistance = 2000.0f;
+	const float		StopBeginDistance = 2000.0f;
+	const float		SlowDownBeginDistance = 10000.0f;
 };
