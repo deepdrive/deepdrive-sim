@@ -105,6 +105,7 @@ void ADeepDriveAgentTrafficAIController::Tick( float DeltaSeconds )
 				m_Agent->SetThrottle(0.0f);
 				m_Agent->SetBrake(1.0f);
 				m_Agent->SetSteering(0.0f);
+//				UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("IDLING!"));
 				break;
 		}
 	}
@@ -208,7 +209,9 @@ bool ADeepDriveAgentTrafficAIController::ResetAgent()
 
 float ADeepDriveAgentTrafficAIController::getDistanceAlongRoute()
 {
-	return m_PathPlanner && m_Agent ? m_PathPlanner->getDistanceAlongRoute() : 0.0f;
+	float ret = m_PathPlanner && m_Agent ? m_PathPlanner->getDistanceAlongRoute() : 0.0f;
+//	UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("getDistanceAlongRoute %f"), ret);
+	return ret;
 }
 
 float ADeepDriveAgentTrafficAIController::getRouteLength()

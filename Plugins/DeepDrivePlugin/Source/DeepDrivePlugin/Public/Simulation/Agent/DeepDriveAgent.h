@@ -148,6 +148,8 @@ public:
 
 	static void resetAgentId();
 
+	float								m_curThrottle = 0.0f;
+
 protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = Cameras)
@@ -243,7 +245,6 @@ private:
 	CaptureCameraMap					m_CaptureCameras;
 	
 	float								m_curSteering = 0.0f;
-	float								m_curThrottle = 0.0f;
 	float								m_curBrake = 0.0f;
 	bool								m_curHandbrake;
 
