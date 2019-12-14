@@ -43,13 +43,13 @@ public:
 	virtual void MoveForward(float axisValue);
 
 	virtual void MoveRight(float axisValue);
-	
+
 	virtual void Brake(float axisValue);
-	
+
 	virtual void SetControlValues(float steering, float throttle, float brake, bool handbrake);
-	
+
 	virtual bool ResetAgent( /* const SimulationConfiguration &configuration */);
-	
+
 	virtual void OnRemoveAgent();
 
 	virtual void SetSpeedRange(float MinSpeed, float MaxSpeed);
@@ -123,6 +123,10 @@ protected:
 
 	bool								m_hasCollisionOccured = false;
 	DeepDriveCollisionData				m_CollisionData;
+
+	float								m_InputTimer = -1.0f;
+
+	const float							InputThreshold = 0.01f;
 };
 
 

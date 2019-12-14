@@ -14,6 +14,8 @@
 #include "Private/Simulation/Traffic/Path/DeepDrivePathPlanner.h"
 #include "Simulation/Traffic/Maneuver/DeepDriveManeuverCalculator.h"
 
+#include "WheeledVehicleMovementComponent.h"
+
 ADeepDriveAgentTrafficAIController::ADeepDriveAgentTrafficAIController()
 {
 	m_ControllerName = "Traffic AI Controller";
@@ -49,9 +51,14 @@ bool ADeepDriveAgentTrafficAIController::updateAgentOnPath( float DeltaSeconds )
 
 void ADeepDriveAgentTrafficAIController::Tick( float DeltaSeconds )
 {
-	if(m_Agent && m_SpeedController)
+	if(m_InputTimer > 0.0f)
 	{
-		switch(m_State)
+		m_InputTimer -= DeltaSeconds;
+	}
+	else if(m_Agent && m_SpeedController)
+	{
+		m_Agent->GetVehicleMovementComponent()->SetTargetGear(1, false);
+		switch (m_State)
 		{
 			case ActiveRouteGuidance:
 				{

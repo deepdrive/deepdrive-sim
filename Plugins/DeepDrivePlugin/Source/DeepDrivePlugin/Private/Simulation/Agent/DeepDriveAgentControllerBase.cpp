@@ -10,6 +10,8 @@
 #include "Runtime/Engine/Classes/Components/SplineComponent.h"
 #include "Runtime/Landscape/Classes/Landscape.h"
 
+#include "WheeledVehicleMovementComponent.h"
+
 DEFINE_LOG_CATEGORY(LogDeepDriveAgentControllerBase);
 
 ADeepDriveAgentControllerBase::ADeepDriveAgentControllerBase()
@@ -36,17 +38,56 @@ void ADeepDriveAgentControllerBase::Deactivate()
 
 void ADeepDriveAgentControllerBase::MoveForward(float axisValue)
 {
+	if (m_Agent)
+	{
+		if(FMath::Abs(axisValue) > InputThreshold)
+			m_InputTimer = 0.1f;
 
+		if(m_InputTimer > 0.0f)
+		{
+			if (axisValue > 0.0f)
+			{
+				m_Agent->GetVehicleMovementComponent()->SetTargetGear(1, false);
+			}
+			else if (axisValue < 0.0f)
+			{
+				m_Agent->GetVehicleMovementComponent()->SetTargetGear(-1, false);
+			}
+
+			m_Agent->SetThrottle(axisValue);
+			m_Agent->setIsGameDriving(true);
+		}
+	}
 }
 
 void ADeepDriveAgentControllerBase::MoveRight(float axisValue)
 {
+	if (m_Agent)
+	{
+		if(FMath::Abs(axisValue) > InputThreshold)
+			m_InputTimer = 0.1f;
 
+		if (m_InputTimer > 0.0f)
+		{
+			m_Agent->SetSteering(axisValue);
+			m_Agent->setIsGameDriving(true);
+		}
+	}
 }
 
 void ADeepDriveAgentControllerBase::Brake(float axisValue)
 {
+	if (m_Agent)
+	{
+		if(axisValue > InputThreshold)
+			m_InputTimer = 0.1f;
 
+		if(m_InputTimer > 0.0f)
+		{
+			const float curBrakeValue = FMath::Clamp(axisValue, 0.0f, 1.0f);
+			m_Agent->SetBrake(curBrakeValue);
+		}
+	}
 }
 
 void ADeepDriveAgentControllerBase::SetControlValues(float steering, float throttle, float brake, bool handbrake)

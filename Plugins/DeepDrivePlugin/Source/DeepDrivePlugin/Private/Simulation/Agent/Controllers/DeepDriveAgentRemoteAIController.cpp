@@ -20,6 +20,14 @@ ADeepDriveAgentRemoteAIController::ADeepDriveAgentRemoteAIController()
 	m_isCollisionEnabled = true;
 }
 
+void ADeepDriveAgentRemoteAIController::Tick(float DeltaSeconds)
+{
+	if (m_InputTimer > 0.0f)
+	{
+		m_InputTimer -= DeltaSeconds;
+	}
+}
+
 void ADeepDriveAgentRemoteAIController::OnConfigureSimulation(const SimulationConfiguration &configuration, bool initialConfiguration)
 {
 	UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentRemoteAIController Reconfigure %f"), configuration.agent_start_location);
@@ -33,10 +41,12 @@ void ADeepDriveAgentRemoteAIController::OnConfigureSimulation(const SimulationCo
 
 void ADeepDriveAgentRemoteAIController::SetControlValues(float steering, float throttle, float brake, bool handbrake)
 {
-	if (m_Agent)
-	{
-		m_Agent->SetControlValues(steering, throttle, brake, handbrake);
-		m_Agent->setIsGameDriving(false);
+	if	(	m_Agent
+		&&	m_InputTimer <= 0.0f
+		)
+		{
+			m_Agent->SetControlValues(steering, throttle, brake, handbrake);
+			m_Agent->setIsGameDriving(false);
 	}
 }
 

@@ -100,7 +100,6 @@ private:
 	SDeepDrivePathConfiguration			*m_PathConfiguration = 0;
 	DeepDrivePathPlanner				*m_PathPlanner = 0;
 
-
 	int32								m_StartIndex;
 
 	float								m_DesiredSpeed = 0.0f;

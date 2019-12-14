@@ -36,6 +36,8 @@ public:
 
 	ADeepDriveAgentRemoteAIController();
 
+	virtual void Tick(float DeltaSeconds) override;
+
 	virtual void OnConfigureSimulation(const SimulationConfiguration &configuration, bool initialConfiguration);
 
 	virtual bool Activate(ADeepDriveAgent &agent, bool keepPosition);

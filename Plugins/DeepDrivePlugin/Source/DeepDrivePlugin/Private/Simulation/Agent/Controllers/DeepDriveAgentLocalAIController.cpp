@@ -17,6 +17,8 @@
 
 #include "Private/Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentAbortOvertakingState.h"
 
+#include "WheeledVehicleMovementComponent.h"
+
 DEFINE_LOG_CATEGORY(LogDeepDriveAgentLocalAIController);
 
 ADeepDriveAgentLocalAIController::ADeepDriveAgentLocalAIController()
@@ -27,7 +29,6 @@ ADeepDriveAgentLocalAIController::ADeepDriveAgentLocalAIController()
 	//	for testing purposes
 	m_isCollisionEnabled = true;
 }
-
 
 bool ADeepDriveAgentLocalAIController::Activate(ADeepDriveAgent &agent, bool keepPosition)
 {
@@ -112,8 +113,14 @@ void ADeepDriveAgentLocalAIController::Configure(const FDeepDriveLocalAIControll
 
 void ADeepDriveAgentLocalAIController::Tick( float DeltaSeconds )
 {
-	if (m_Agent && m_Track)
+	if (m_InputTimer > 0.0f)
 	{
+		m_InputTimer -= DeltaSeconds;
+	}
+	else if (m_Agent && m_Track)
+	{
+		m_Agent->GetVehicleMovementComponent()->SetTargetGear(1, false);
+
 		FVector curAgentLocation = m_Agent->GetActorLocation();
 		m_Track->setBaseLocation(curAgentLocation);
 

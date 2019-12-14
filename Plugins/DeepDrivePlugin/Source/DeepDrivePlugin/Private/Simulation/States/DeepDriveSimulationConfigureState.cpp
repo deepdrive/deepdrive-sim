@@ -3,7 +3,7 @@
 #include "Private/Simulation/States/DeepDriveSimulationConfigureState.h"
 #include "Public/Simulation/DeepDriveSimulation.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
-#include "Public/Simulation/Agent/Controllers/DeepDriveAgentCityAIController.h"
+#include "Public/Simulation/Agent/DeepDriveAgentControllerBase.h"
 #include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
 #include "Public/Simulation/Misc/DeepDriveRandomStream.h"
 

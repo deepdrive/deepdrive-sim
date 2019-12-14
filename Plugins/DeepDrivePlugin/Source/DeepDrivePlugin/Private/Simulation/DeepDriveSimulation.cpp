@@ -10,7 +10,6 @@
 #include "Private/Simulation/States/DeepDriveSimulationConfigureState.h"
 #include "Private/Simulation/States/DeepDriveSimulationResetState.h"
 #include "Public/Simulation/Agent/Controllers/DeepDriveAgentOneOffController.h"
-#include "Public/Simulation/Agent/Controllers/DeepDriveAgentCityAIController.h"
 
 #include "Private/Server/DeepDriveServer.h"
 #include "Public/Simulation/DeepDriveSimulationServerProxy.h"
