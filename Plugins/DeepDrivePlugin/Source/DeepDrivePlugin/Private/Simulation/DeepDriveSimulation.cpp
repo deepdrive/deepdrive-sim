@@ -522,7 +522,7 @@ ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(const FDeepDriveAgentScenarioC
 		agent->initialize(*this);
 		agent->setResetTransform(transform);
 
-		EDeepDriveAgentControlMode mode = remotelyControlled ? EDeepDriveAgentControlMode::REMOTE_AI : EDeepDriveAgentControlMode::CITY_AI;
+		EDeepDriveAgentControlMode mode = remotelyControlled ? EDeepDriveAgentControlMode::REMOTE_AI : EDeepDriveAgentControlMode::LOCAL_AI;
 		if(ControllerCreators.Contains(mode))
 		{
 			ADeepDriveAgentControllerBase *controller = ControllerCreators[mode]->CreateAgentControllerForScenario(scenarioCfg, this);
