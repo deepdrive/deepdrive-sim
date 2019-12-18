@@ -13,6 +13,9 @@
 #include "Simulation/Traffic/BehaviorTree/DeepDriveTrafficBehaviorTreeNode.h"
 #include "Simulation/Traffic/BehaviorTree/DeepDriveTrafficBlackboard.h"
 
+#include "Simulation/Traffic/BehaviorTree/Tasks/DeepDriveTBTStopAtLocationTask.h"
+#include "Simulation/Traffic/BehaviorTree/Tasks/DeepDriveTBTHasPassedLocationTask.h"
+
 #include "Simulation/Agent/DeepDriveAgent.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveManeuverCalculator);
@@ -89,5 +92,40 @@ void DeepDriveManeuverCalculator::calculate(SDeepDriveRoute &route, ADeepDriveAg
 
 			route.Maneuvers.Add(maneuver);
 		}
+	}
+	addFinalManeuver(route, agent);
+}
+
+void DeepDriveManeuverCalculator::addFinalManeuver(SDeepDriveRoute &route, ADeepDriveAgent &agent)
+{
+	TArray<uint32> &routeLinks = route.Links;
+	const SDeepDriveRoadLink &finalLink = m_RoadNetwork.Links[routeLinks.Last()];
+
+	SDeepDriveManeuver maneuver;
+	maneuver.FromLinkId = finalLink.LinkId;
+	maneuver.ToLinkId = finalLink.LinkId;
+
+	maneuver.JunctionType = EDeepDriveJunctionType::DESTINATION_REACHED;
+
+	maneuver.EntryPoint = finalLink.StartPoint;
+	maneuver.ExitPoint = finalLink.EndPoint;
+
+	DeepDriveTrafficBehaviorTree *behaviorTree = new DeepDriveTrafficBehaviorTree("StopAtEnd");
+	if (behaviorTree)
+	{
+		maneuver.BehaviorTree = behaviorTree;
+
+		DeepDriveTrafficBehaviorTreeNode *stopAtNode = behaviorTree->createNode(0);
+
+		stopAtNode->addTask(new DeepDriveTBTStopAtLocationTask("DestinationLocation", 0.25f, 0.0f));
+		stopAtNode->addTask(new DeepDriveTBTHasPassedLocationTask("DestinationLocation", 0.0f, "DestinationReached"));
+
+		DeepDriveTrafficBlackboard &blackboard = behaviorTree->getBlackboard();
+		blackboard.setSimulation(m_Simulation);
+		blackboard.setAgent(agent);
+		blackboard.setIntegerValue("AgentId", agent.GetAgentId());
+		blackboard.setVectorValue("DestinationLocation", route.Destination);
+
+		route.Maneuvers.Add(maneuver);
 	}
 }

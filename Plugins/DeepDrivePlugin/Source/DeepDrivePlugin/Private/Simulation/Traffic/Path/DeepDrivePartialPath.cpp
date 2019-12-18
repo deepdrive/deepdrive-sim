@@ -6,6 +6,7 @@
 #include "Private/Simulation/Traffic/Path/Annotations/DeepDrivePathSpeedAnnotation.h"
 #include "Private/Simulation/Traffic/Path/Annotations/DeepDrivePathDistanceAnnotation.h"
 #include "Private/Simulation/Traffic/Path/Annotations/DeepDrivePathManeuverAnnotations.h"
+#include "Simulation/Traffic/BehaviorTree/DeepDriveTrafficBlackboard.h"
 
 #include "Simulation/Traffic/BehaviorTree/DeepDriveTrafficBehaviorTree.h"
 
@@ -177,6 +178,14 @@ void DeepDrivePartialPath::advance(float deltaSeconds, float &speed, float &stee
 		}
 
 		curManeuver->BehaviorTree->execute(deltaSeconds, speed, m_curPathPointIndex);
+
+		if	(	curManeuver->JunctionType == EDeepDriveJunctionType::DESTINATION_REACHED
+			&&	m_hasReachedDestination == false
+			)
+		{
+			m_hasReachedDestination = curManeuver->BehaviorTree->getBlackboard().getBooleanValue("DestinationReached", false);
+		}
+
 	}
 
 	// UE_LOG(LogDeepDrivePartialPath, Log, TEXT("%5d) dist2ctr %f steering %f corr %f totE %f"), m_curPathPointIndex, dist2Ctr, steering, steeringCorrection, m_totalTrackError);
@@ -204,11 +213,6 @@ float DeepDrivePartialPath::getDistanceToCenterOfTrack() const
 	return dist2Ctr;
 }
 
-
-bool DeepDrivePartialPath::isCloseToEnd(float distanceFromEnd) const
-{
-    return m_PathPoints[m_curPathPointIndex].RemainingDistance <= distanceFromEnd;
-}
 
 float DeepDrivePartialPath::calcSteering(float dT)
 {

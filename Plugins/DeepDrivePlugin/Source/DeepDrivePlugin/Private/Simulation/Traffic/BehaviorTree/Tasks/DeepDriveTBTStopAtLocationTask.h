@@ -8,8 +8,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveTBTStopAtLocationTask, Log, All);
 class DeepDriveTBTStopAtLocationTask : public DeepDriveTBTTaskBase
 {
 public:
-
-	DeepDriveTBTStopAtLocationTask(const FString &stopLocationName, float exponent);
+	DeepDriveTBTStopAtLocationTask(const FString &stopLocationName, float exponent, float stopBeginDistance = 400.0f, float slowDownBeginDistance = 2000.0f);
 
 	virtual ~DeepDriveTBTStopAtLocationTask()	{	}
 
@@ -29,6 +28,6 @@ private:
 
 	int32			m_IndexDelta = 0;
 
-	const float		StopBeginDistance = 400.0f;
-	const float		SlowDownBeginDistance = 2000.0f;
+	const float		StopBeginDistance;
+	const float		SlowDownBeginDistance;
 };

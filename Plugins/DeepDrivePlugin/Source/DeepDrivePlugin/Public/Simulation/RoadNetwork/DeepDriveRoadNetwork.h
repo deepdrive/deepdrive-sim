@@ -74,7 +74,9 @@ enum class EDeepDriveJunctionType : uint8
 	PASS_THROUGH 			= 0 UMETA(DisplayName = "Pass Through"),
 	FOUR_WAY_JUNCTION		= 1 UMETA(DisplayName = "Four Way Junction"),
 	T_JUNCTION				= 2 UMETA(DisplayName = "T-Junction"),
-	TRAFFIC_CIRCLE			= 3 UMETA(DisplayName = "Traffic Circle")
+	TRAFFIC_CIRCLE			= 3 UMETA(DisplayName = "Traffic Circle"),
+
+	DESTINATION_REACHED		= 255 UMETA(Hidden)
 };
 
 UENUM(BlueprintType)

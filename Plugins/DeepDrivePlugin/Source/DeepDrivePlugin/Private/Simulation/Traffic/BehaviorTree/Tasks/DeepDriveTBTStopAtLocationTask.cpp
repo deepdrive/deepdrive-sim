@@ -7,10 +7,12 @@
 
 DEFINE_LOG_CATEGORY(LogDeepDriveTBTStopAtLocationTask);
 
-DeepDriveTBTStopAtLocationTask::DeepDriveTBTStopAtLocationTask(const FString &stopLocationName, float exponent)
+DeepDriveTBTStopAtLocationTask::DeepDriveTBTStopAtLocationTask(const FString &stopLocationName, float exponent, float stopBeginDistance, float slowDownBeginDistance)
+	:	m_StopLocationName(stopLocationName)
+	,	m_Exponent(exponent)
+	,	StopBeginDistance(stopBeginDistance)
+	,	SlowDownBeginDistance(slowDownBeginDistance)
 {
-	m_StopLocationName = stopLocationName;
-	m_Exponent = exponent;
 }
 
 void DeepDriveTBTStopAtLocationTask::bind(DeepDriveTrafficBlackboard &blackboard, DeepDrivePartialPath &path)
@@ -45,7 +47,7 @@ bool DeepDriveTBTStopAtLocationTask::execute(DeepDriveTrafficBlackboard &blackbo
 			const float speedFac = FMath::Pow(curT, m_Exponent);
 
 			speed = pathPointIndex < m_StopLocationIndex ? speed * speedFac : 0.0f;
-			hasStopped = pathPointIndex > m_StopBeginIndex && agent->getSpeedKmh() < 1.0f;
+			hasStopped = pathPointIndex >= m_StopBeginIndex && agent->getSpeedKmh() < 1.0f;
 
 			// UE_LOG(LogDeepDriveTBTStopAtLocationTask, Log, TEXT("DeepDriveTBTStopAtLocationTask[%p] %d spd %f spdFac %f curT %f agntSpd %f -> %c"), this, pathPointIndex, speed, speedFac, curT, agent->getSpeedKmh(), m_hasStopped ? 'T' : 'F');
 		}

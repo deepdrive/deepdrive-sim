@@ -46,7 +46,9 @@ bool ADeepDriveAgentTrafficAIController::updateAgentOnPath( float DeltaSeconds )
 
 	// m_SteeringController->update(DeltaSeconds, heading);
 
-	return m_PathPlanner->isCloseToEnd(200.0f);
+	const bool hasReachedDestination = m_PathPlanner->hasReachedDestination();
+
+	return hasReachedDestination;
 }
 
 void ADeepDriveAgentTrafficAIController::Tick( float DeltaSeconds )
@@ -62,9 +64,9 @@ void ADeepDriveAgentTrafficAIController::Tick( float DeltaSeconds )
 		{
 			case ActiveRouteGuidance:
 				{
-					const bool isCloseToEnd = updateAgentOnPath(DeltaSeconds);
+					const bool hasReachedDestination  = updateAgentOnPath(DeltaSeconds);
 
-					if (isCloseToEnd)
+					if (hasReachedDestination)
 					{
 						m_State = m_StartIndex < 0 && m_OperationMode == OperationMode::Standard ? Waiting : Idle;
 						m_Agent->SetThrottle(0.0f);

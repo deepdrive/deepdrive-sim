@@ -29,7 +29,7 @@ void DeepDrivePathBuilder::buildPath(const TArray<SDeepDriveBasePathSegment> &ba
 		{
 			maneuvers.Add(baseSegment.Maneuver);
 			curManeuver = &maneuvers.Last();
-			curManeuver->DirectionIndicationBeginIndex = m_PathPoints.Num() - 1;
+			curManeuver->DirectionIndicationBeginIndex = curManeuver->JunctionType == EDeepDriveJunctionType::DESTINATION_REACHED ? -1 : m_PathPoints.Num() - 1;
 
 			UE_LOG(LogDeepDrivePathBuilder, Log, TEXT("Maneuver from %d to %d ind %d"), baseSegment.Maneuver.FromLinkId, baseSegment.Maneuver.ToLinkId, curManeuver->DirectionIndicationBeginIndex);
 		}
@@ -44,7 +44,7 @@ void DeepDrivePathBuilder::buildPath(const TArray<SDeepDriveBasePathSegment> &ba
 		}
 
 		if(curManeuver)
-			curManeuver->DirectionIndicationEndIndex = m_PathPoints.Num() - 1;
+			curManeuver->DirectionIndicationEndIndex = curManeuver->JunctionType == EDeepDriveJunctionType::DESTINATION_REACHED ? -1 : m_PathPoints.Num() - 1;
 	}
 }
 

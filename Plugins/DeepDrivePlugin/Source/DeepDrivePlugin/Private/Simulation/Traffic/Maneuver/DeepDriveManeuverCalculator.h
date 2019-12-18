@@ -8,6 +8,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveManeuverCalculator, Log, All);
 struct SDeepDriveRoadNetwork;
 struct SDeepDriveRoute;
 struct SDeepDriveManeuver;
+struct SDeepDriveRoadLink;
 class ADeepDriveAgent;
 class ADeepDriveSimulation;
 
@@ -29,6 +30,8 @@ private:
 	void extractCrossRoadTraffic(SDeepDriveManeuver &maneuver);
 
 	void calculateFakedManeuver(SDeepDriveRoute &route, ADeepDriveAgent &agent);
+
+	void addFinalManeuver(SDeepDriveRoute &route, ADeepDriveAgent &agent);
 
 	const SDeepDriveRoadNetwork				&m_RoadNetwork;
 
