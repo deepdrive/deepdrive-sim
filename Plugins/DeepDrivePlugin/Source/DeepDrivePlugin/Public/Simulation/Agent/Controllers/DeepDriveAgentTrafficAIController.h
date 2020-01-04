@@ -109,4 +109,8 @@ private:
 	float								m_WaitTimer = 0.0f;
 
 	bool								m_showPath = false;
+
+	FVector								m_maxAcceleration;
+	FVector								m_totalAcceleration;
+	uint32								m_numAccelerationSamples;
 };

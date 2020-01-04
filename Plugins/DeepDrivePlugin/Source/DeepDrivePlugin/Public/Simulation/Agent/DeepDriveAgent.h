@@ -130,6 +130,7 @@ public:
 
 	float getSpeed() const;
 	float getSpeedKmh() const;
+	const FVector& getAcceleration() const;
 
 	float getFrontBumperDistance() const;
 	float getBackBumperDistance() const;
@@ -296,6 +297,11 @@ inline float ADeepDriveAgent::getBackBumperDistance() const
 inline float ADeepDriveAgent::getWheelBase() const
 {
 	return WheelBase;
+}
+
+inline const FVector& ADeepDriveAgent::getAcceleration() const
+{
+	return m_Acceleration;
 }
 
 inline void ADeepDriveAgent::setNextAgent(ADeepDriveAgent *agent, float distance)

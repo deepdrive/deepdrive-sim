@@ -46,6 +46,18 @@ bool ADeepDriveAgentTrafficAIController::updateAgentOnPath( float DeltaSeconds )
 
 	// m_SteeringController->update(DeltaSeconds, heading);
 
+	const FVector &curAcc = m_Agent->getAcceleration();
+	const float accX = FMath::Abs(FVector::DotProduct(curAcc, m_Agent->GetActorForwardVector()));
+
+	m_maxAcceleration.X = FMath::Max(m_maxAcceleration.X, accX);
+	if(accX > 0.01f)
+	{
+		m_totalAcceleration.X += accX;
+		m_numAccelerationSamples++;
+	}
+
+	// UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("TrafficAICtrl: cur %f max %s avg %s"), accX, *(m_maxAcceleration.ToString()), *((m_totalAcceleration / static_cast<float>(m_numAccelerationSamples)).ToString()));
+
 	const bool hasReachedDestination = m_PathPlanner->hasReachedDestination();
 
 	return hasReachedDestination;
@@ -59,7 +71,16 @@ void ADeepDriveAgentTrafficAIController::Tick( float DeltaSeconds )
 	}
 	else if(m_Agent && m_SpeedController)
 	{
-		m_Agent->GetVehicleMovementComponent()->SetTargetGear(1, false);
+		// m_Agent->GetVehicleMovementComponent()->SetTargetGear(1, false);
+
+		// m_Agent->SetThrottle(m_Configuration.PIDThrottle.X);
+		// m_Agent->SetBrake(0.0f);
+		///m_Agent->SetSteering(0.0f);
+
+		m_SpeedController->update(DeltaSeconds, 45.0f, 0.0f);
+
+		return;
+
 		switch (m_State)
 		{
 			case ActiveRouteGuidance:
@@ -70,7 +91,7 @@ void ADeepDriveAgentTrafficAIController::Tick( float DeltaSeconds )
 					{
 						m_State = m_StartIndex < 0 && m_OperationMode == OperationMode::Standard ? Waiting : Idle;
 						m_Agent->SetThrottle(0.0f);
-						m_Agent->SetBrake(1.0f);
+						m_Agent->SetBrake(0.0f);
 						m_Agent->SetSteering(0.0f);
 
 						m_WaitTimer = FMath::RandRange(3.0f, 4.0f);
@@ -111,7 +132,7 @@ void ADeepDriveAgentTrafficAIController::Tick( float DeltaSeconds )
 
 			case Idle:
 				m_Agent->SetThrottle(0.0f);
-				m_Agent->SetBrake(1.0f);
+				m_Agent->SetBrake(0.0f);
 				m_Agent->SetSteering(0.0f);
 				break;
 		}
@@ -198,7 +219,12 @@ bool ADeepDriveAgentTrafficAIController::Activate(ADeepDriveAgent &agent, bool k
 	}
 
 	if(res)
+	{
+		m_maxAcceleration = FVector::ZeroVector;
+		m_totalAcceleration = FVector::ZeroVector;
+		m_numAccelerationSamples = 0;
 		activateController(agent);
+	}
 
 	return res;
 }

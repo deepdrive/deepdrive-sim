@@ -53,7 +53,22 @@ private:
 	PIDController					m_ThrottlePIDCtrl;
 	PIDController					m_BrakePIDCtrl;
 
+	FVector							m_ThrottleParams;
+
+	UPROPERTY()
+	UCurveFloat						*m_ThrottleCurve = 0;
+
 	float							m_curThrottle = 0.0f;
+
+	float							m_prevSpeedDelta = 0.0f;
+
+	enum
+	{
+		NumSpeedDeltas = 10
+	};
+	float							m_SpeedDeltas[NumSpeedDeltas];
+	float							m_SpeedDeltaSum = 0.0f;
+	int32							m_nextSpeedDeltaInd = 0;
 
 	float							m_SafetyDistanceFactor = 1.0f;
 	FVector2D						m_BrakingDistanceRange;
