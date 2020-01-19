@@ -59,6 +59,8 @@ public:
 
 	virtual bool Activate(ADeepDriveAgent &agent, bool keepPosition);
 
+	virtual void Reset();
+
 	virtual bool ResetAgent();
 
 	virtual float getDistanceAlongRoute();
@@ -73,11 +75,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Configuration")
 	void ConfigureScenario(const FDeepDriveTrafficAIControllerConfiguration &Configuration, const FDeepDriveAgentScenarioConfiguration &ScenarioConfiguration, ADeepDriveSimulation* DeepDriveSimulation);
 
-protected:
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIProps")
-	FDeepDriveTrafficAIControllerConfiguration		m_Configuration;
-
 private:
 
 	bool updateAgentOnPath( float DeltaSeconds);
@@ -91,6 +88,8 @@ private:
 		ActiveRouteGuidance,
 		Waiting
 	};
+
+	FDeepDriveTrafficAIControllerConfiguration	m_Configuration;
 
 	UPROPERTY()
 	UBezierCurveComponent				*m_BezierCurve = 0;

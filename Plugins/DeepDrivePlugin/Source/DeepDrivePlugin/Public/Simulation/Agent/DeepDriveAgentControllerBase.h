@@ -38,7 +38,11 @@ public:
 
 	virtual bool Activate(ADeepDriveAgent &agent, bool keepPosition);
 
-	virtual void Deactivate();
+	virtual void RequestControl();
+
+	virtual void ReleaseControl();
+
+	virtual void Reset();
 
 	virtual void MoveForward(float axisValue);
 
@@ -102,6 +106,8 @@ protected:
 
 	ADeepDriveSimulation				*m_DeepDriveSimulation = 0;
 	ADeepDriveAgent						*m_Agent = 0;
+
+	bool								m_isRemotelyControlled = false;
 
 	OperationMode						m_OperationMode = OperationMode::Standard;
 	ScenarionConfiguration				m_ScenarionConfiguration;

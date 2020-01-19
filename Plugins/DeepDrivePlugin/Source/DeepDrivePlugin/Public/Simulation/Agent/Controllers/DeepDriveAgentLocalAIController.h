@@ -110,6 +110,8 @@ public:
 
 	virtual bool Activate(ADeepDriveAgent &agent, bool keepPosition);
 
+	virtual void Reset();
+
 	virtual bool ResetAgent();
 
 	virtual void SetSpeedRange(float MinSpeed, float MaxSpeed);
@@ -120,6 +122,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Configuration")
 	void Configure(const FDeepDriveLocalAIControllerConfiguration &Configuration, int32 StartPositionSlot, ADeepDriveSimulation* DeepDriveSimulation);
+
+	UFUNCTION(BlueprintCallable, Category = "Configuration")
+	void ConfigureScenario(const FDeepDriveLocalAIControllerConfiguration &Configuration, const FDeepDriveAgentScenarioConfiguration &ScenarioConfiguration, ADeepDriveSimulation *DeepDriveSimulation);
 
 	//float calculateOvertakingScore();
 	//float calculateOvertakingScore(int32 maxAgentsToOvertake, float overtakingSpeed, ADeepDriveAgent* &finalAgent);
@@ -142,31 +147,22 @@ public:
 
 protected:
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIProps")
 	FDeepDriveLocalAIControllerConfiguration	m_Configuration;
 
-//	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIProps")
 	DeepDriveAgentLocalAIStateMachineContext	*m_StateMachineCtx = 0;
 
-//	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIProps")
 	DeepDriveAgentSpeedController				*m_SpeedController = 0;
 
-//	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIProps")
 	DeepDriveAgentSteeringController			*m_SteeringController = 0;
 
-//	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIProps")
 	ADeepDriveSplineTrack						*m_OppositeTrack = 0;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIProps")
 	float										m_DesiredSpeed;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIProps")
 	float										m_SafetyDistanceFactor = 1.0f;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIProps")
 	float										m_BrakingDeceleration = 800.0f;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "AIProps")
 	bool										m_isPaused = false;
 
 private:

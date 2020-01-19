@@ -57,7 +57,7 @@ void ADeepDriveAgentTrafficAIController::Tick( float DeltaSeconds )
 	{
 		m_InputTimer -= DeltaSeconds;
 	}
-	else if(m_Agent && m_SpeedController)
+	else if(m_Agent && m_SpeedController && !m_isRemotelyControlled)
 	{
 		m_Agent->GetVehicleMovementComponent()->SetTargetGear(1, false);
 		switch (m_State)
@@ -171,17 +171,26 @@ bool ADeepDriveAgentTrafficAIController::Activate(ADeepDriveAgent &agent, bool k
 			break;
 	}
 
+	bool firstActivate = false;
 	if (route.Links.Num() > 0)
 	{
 		//route->convert(start);
 		//route->placeAgentAtStart(agent);
 
-		m_SpeedController = new DeepDriveAgentSpeedController(m_Configuration.PIDThrottle, m_Configuration.PIDBrake);
-		m_SpeedController->initialize(agent);
+		if(m_SpeedController == 0)
+		{
+			m_SpeedController = new DeepDriveAgentSpeedController(m_Configuration.PIDThrottle, m_Configuration.PIDBrake);
+			m_SpeedController->initialize(agent);
+			firstActivate = true;
+		}
 
-		m_PathConfiguration = new SDeepDrivePathConfiguration;
-		m_PathConfiguration->PIDSteering = m_Configuration.PIDSteering;
-		m_PathPlanner = new DeepDrivePathPlanner(agent, roadNetwork->getRoadNetwork(), *m_BezierCurve, *m_PathConfiguration);
+		if(m_PathConfiguration == 0)
+		{
+			m_PathConfiguration = new SDeepDrivePathConfiguration;
+			m_PathConfiguration->PIDSteering = m_Configuration.PIDSteering;
+		}
+		if(m_PathPlanner == 0)
+			m_PathPlanner = new DeepDrivePathPlanner(agent, roadNetwork->getRoadNetwork(), *m_BezierCurve, *m_PathConfiguration);
 
 		DeepDriveManeuverCalculator *manCalc = m_DeepDriveSimulation->getManeuverCalculator();
 		if(manCalc)
@@ -197,10 +206,15 @@ bool ADeepDriveAgentTrafficAIController::Activate(ADeepDriveAgent &agent, bool k
 		roadNetwork->PlaceAgentOnRoad(&agent, route.Start, true);
 	}
 
-	if(res)
+	if (res && firstActivate)
 		activateController(agent);
 
 	return res;
+}
+
+void ADeepDriveAgentTrafficAIController::Reset()
+{
+	Activate(*m_Agent, false);
 }
 
 bool ADeepDriveAgentTrafficAIController::ResetAgent()

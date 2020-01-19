@@ -32,7 +32,17 @@ bool ADeepDriveAgentControllerBase::Activate(ADeepDriveAgent &agent, bool keepPo
 	return false;
 }
 
-void ADeepDriveAgentControllerBase::Deactivate()
+void ADeepDriveAgentControllerBase::RequestControl()
+{
+	m_isRemotelyControlled = true;
+}
+
+void ADeepDriveAgentControllerBase::ReleaseControl()
+{
+	m_isRemotelyControlled = false;
+}
+
+void ADeepDriveAgentControllerBase::Reset()
 {
 }
 
@@ -92,7 +102,14 @@ void ADeepDriveAgentControllerBase::Brake(float axisValue)
 
 void ADeepDriveAgentControllerBase::SetControlValues(float steering, float throttle, float brake, bool handbrake)
 {
-
+	if	(	m_Agent
+		&&	m_InputTimer <= 0.0f
+		&&	m_isRemotelyControlled
+		)
+		{
+			m_Agent->SetControlValues(steering, throttle, brake, handbrake);
+			m_Agent->setIsGameDriving(false);
+	}
 }
 
 bool ADeepDriveAgentControllerBase::ResetAgent()

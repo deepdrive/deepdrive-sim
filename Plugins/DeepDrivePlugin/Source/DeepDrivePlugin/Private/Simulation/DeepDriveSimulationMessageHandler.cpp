@@ -88,7 +88,7 @@ void DeepDriveSimulationMessageHandler::reset(const deepdrive::server::MessageHe
 		if (controller)
 		{
 			controller->OnConfigureSimulation(configuration, false);
-			controller->ResetAgent();
+			controller->Reset();
 		}
 	}
 

@@ -75,6 +75,12 @@ bool ADeepDriveAgentLocalAIController::Activate(ADeepDriveAgent &agent, bool kee
 	return activated;
 }
 
+void ADeepDriveAgentLocalAIController::Reset()
+{
+	if (m_Track && m_Agent)
+		resetAgentPosOnSpline(*m_Agent, m_Track->GetSpline(), m_StartDistance);
+}
+
 bool ADeepDriveAgentLocalAIController::ResetAgent()
 {
 	if(m_Track && m_Agent)
@@ -110,6 +116,15 @@ void ADeepDriveAgentLocalAIController::Configure(const FDeepDriveLocalAIControll
 	m_SafetyDistanceFactor = Configuration.SafetyDistanceFactor;
 }
 
+void ADeepDriveAgentLocalAIController::ConfigureScenario(const FDeepDriveLocalAIControllerConfiguration &Configuration, const FDeepDriveAgentScenarioConfiguration &ScenarioConfiguration, ADeepDriveSimulation *DeepDriveSimulation)
+{
+	m_Configuration = Configuration;
+	m_DeepDriveSimulation = DeepDriveSimulation;
+
+	m_DesiredSpeed = FMath::RandRange(Configuration.SpeedRange.X, Configuration.SpeedRange.Y);
+	m_Track = Configuration.Track;
+
+}
 
 void ADeepDriveAgentLocalAIController::Tick( float DeltaSeconds )
 {
@@ -117,7 +132,7 @@ void ADeepDriveAgentLocalAIController::Tick( float DeltaSeconds )
 	{
 		m_InputTimer -= DeltaSeconds;
 	}
-	else if (m_Agent && m_Track)
+	else if (m_Agent && m_Track && !m_isRemotelyControlled)
 	{
 		m_Agent->GetVehicleMovementComponent()->SetTargetGear(1, false);
 
