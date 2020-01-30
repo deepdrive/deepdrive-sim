@@ -1,7 +1,7 @@
 # Building the python bindings 
 
 ```
-install-local-bindings.sh
+install-dev-bindings.sh
 ```
 
 # Pushing bindings to PyPi
