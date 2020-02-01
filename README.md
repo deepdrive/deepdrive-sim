@@ -1,4 +1,4 @@
-# Deepdrive sim [![CircleCI](https://circleci.com/gh/deepdrive/deepdrive-sim.svg?style=svg)](https://circleci.com/gh/deepdrive/deepdrive-sim)
+# Deepdrive Sim [![CircleCI](https://circleci.com/gh/deepdrive/deepdrive-sim.svg?style=svg)](https://circleci.com/gh/deepdrive/deepdrive-sim)
 
 Unreal based simulator and Python interface to Deepdrive
 
@@ -6,10 +6,7 @@ Unreal based simulator and Python interface to Deepdrive
 
 Checkout our [main repo](https://github.com/deepdrive/deepdrive)
 
-
 ## Simulator docs
 
 [Simulator docs](
 https://simdocs.deepdrive.io/docs) for making changes to the sim.
-
-
