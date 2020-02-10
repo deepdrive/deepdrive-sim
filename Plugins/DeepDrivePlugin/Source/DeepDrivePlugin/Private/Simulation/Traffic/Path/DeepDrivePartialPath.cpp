@@ -157,13 +157,13 @@ void DeepDrivePartialPath::advance(float deltaSeconds, float &speed, float &stee
 			switch(curManeuver->ManeuverType)
 			{
 				case EDeepDriveManeuverType::TURN_RIGHT:
-					m_Agent.SetDirectionIndicatorState(EDeepDriveAgentDirectionIndicatorState::RIGHT);
+					m_Agent.setTurnSignalState(EDeepDriveAgentTurnSignalState::RIGHT);
 					break;
 				case EDeepDriveManeuverType::GO_ON_STRAIGHT:
-					m_Agent.SetDirectionIndicatorState(EDeepDriveAgentDirectionIndicatorState::OFF);
+					m_Agent.setTurnSignalState(EDeepDriveAgentTurnSignalState::OFF);
 					break;
 				case EDeepDriveManeuverType::TURN_LEFT:
-					m_Agent.SetDirectionIndicatorState(EDeepDriveAgentDirectionIndicatorState::LEFT);
+					m_Agent.setTurnSignalState(EDeepDriveAgentTurnSignalState::LEFT);
 					break;
 			}
 			curManeuver->DirectionIndicationBeginIndex = -1;
@@ -173,7 +173,7 @@ void DeepDrivePartialPath::advance(float deltaSeconds, float &speed, float &stee
 			&&	m_curPathPointIndex >= curManeuver->DirectionIndicationEndIndex
 			)
 		{
-			m_Agent.SetDirectionIndicatorState(EDeepDriveAgentDirectionIndicatorState::UNKNOWN);
+			m_Agent.setTurnSignalState(EDeepDriveAgentTurnSignalState::UNKNOWN);
 			curManeuver->DirectionIndicationEndIndex = -1;
 		}
 

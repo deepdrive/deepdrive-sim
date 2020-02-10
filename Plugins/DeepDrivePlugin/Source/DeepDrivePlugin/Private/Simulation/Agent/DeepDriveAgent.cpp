@@ -498,13 +498,22 @@ void ADeepDriveAgent::SetSpeedRange(float MinSpeed, float MaxSpeed)
 		ctrl->SetSpeedRange(MinSpeed, MaxSpeed);
 }
 
-void ADeepDriveAgent::SetDirectionIndicatorState(EDeepDriveAgentDirectionIndicatorState DirectionIndicator)
+void ADeepDriveAgent::setTurnSignalState(EDeepDriveAgentTurnSignalState TurnSignal)
 {
-	m_DirectionIndicator = DirectionIndicator;
-	UE_LOG(LogDeepDriveAgent, Log, TEXT("SetDirectionIndicatorState %d"), static_cast<int32> (m_DirectionIndicator) );
+	if(m_TurnSignal != TurnSignal)
+	{
+		m_TurnSignal = TurnSignal;
+		UE_LOG(LogDeepDriveAgent, Log, TEXT("SetTurnSignalState for agent %d to %d"), m_AgentId, static_cast<int32>(m_TurnSignal));
+
+		if (OnTurnSignalStateChanged.IsBound())
+		{
+			OnTurnSignalStateChanged.Broadcast(m_TurnSignal);
+		}
+	}
+
 }
 
-EDeepDriveAgentDirectionIndicatorState ADeepDriveAgent::GetDirectionIndicatorState()
+EDeepDriveAgentTurnSignalState ADeepDriveAgent::GetTurnSignalState()
 {
-	return m_DirectionIndicator;
+	return m_TurnSignal;
 }

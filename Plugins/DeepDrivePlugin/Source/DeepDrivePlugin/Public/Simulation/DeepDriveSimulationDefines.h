@@ -46,7 +46,7 @@ enum class EDeepDriveAgentState : uint8
 
 
 UENUM(BlueprintType)
-enum class EDeepDriveAgentDirectionIndicatorState : uint8
+enum class EDeepDriveAgentTurnSignalState : uint8
 {
 	UNKNOWN			= 0	UMETA(DisplayName = "Unknown"),
 	OFF				= 1	UMETA(DisplayName = "Off"),
