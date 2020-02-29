@@ -78,7 +78,7 @@ def run_botleague_ci_for_sim_build(branch, commit, job):
         sim_url=build_results.gcs_url,
         supported_problems=problem_constants.constants.SUPPORTED_PROBLEMS)
 
-    if passed_ci:
+    if passed_ci and branch in ['master']:  # TODO: Use botleague helpers release branches
         # Copy sim/release_candidates/ to sim/
         copy_release_candidate_to_release()
         promote_python_bindings(sim_version, commit, job)
