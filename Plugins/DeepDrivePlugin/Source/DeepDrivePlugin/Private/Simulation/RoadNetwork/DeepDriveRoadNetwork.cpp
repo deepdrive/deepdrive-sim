@@ -72,7 +72,7 @@ bool SDeepDriveJunction::isTurningAllowed(uint32 fromLinkId, uint32 toLinkId) co
 			for(auto &turnDefinition : entry.TurnDefinitions)
 			{
 				if (turnDefinition.ToLinkId == toLinkId)
-					return turnDefinition.ManeuverType != EDeepDriveManeuverType::TURN_BAN;
+					return turnDefinition.ManeuverType != EDeepDriveManeuverType::UNDEFINED;
 			}
 		}
 	}
@@ -94,7 +94,7 @@ EDeepDriveManeuverType SDeepDriveJunction::getManeuverType(uint32 fromLinkId, ui
 		}
 	}
 
-	return EDeepDriveManeuverType::TURN_BAN;
+	return EDeepDriveManeuverType::UNDEFINED;
 }
 
 

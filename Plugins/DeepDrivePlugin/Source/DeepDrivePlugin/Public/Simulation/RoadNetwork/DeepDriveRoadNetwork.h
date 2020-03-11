@@ -61,7 +61,7 @@ enum class EDeepDriveRightOfWay : uint8
 UENUM(BlueprintType)
 enum class EDeepDriveManeuverType : uint8
 {
-	TURN_BAN	 			= 0 UMETA(DisplayName = "Turn Ban"),
+	UNDEFINED	 			= 0 UMETA(DisplayName = "Undefined"),
 	TURN_RIGHT				= 1 UMETA(DisplayName = "Turn Right"),
 	GO_ON_STRAIGHT			= 2 UMETA(DisplayName = "Go on straight"),
 	TURN_LEFT				= 3 UMETA(DisplayName = "Turn Left"),

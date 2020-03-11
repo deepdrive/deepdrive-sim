@@ -41,8 +41,7 @@ namespace deepdrive { namespace server {
 struct MessageHeader;
 } }
 
-
-UCLASS()
+UCLASS(Abstract)
 class DEEPDRIVEPLUGIN_API ADeepDriveSimulation	:	public AActor
 {
 	friend class DeepDriveSimulationRunningState;
