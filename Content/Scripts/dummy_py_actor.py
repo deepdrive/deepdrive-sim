@@ -135,7 +135,7 @@ def valid_world(world):
 
 def valid_ai_controller_name(actor):
     full_name = actor.get_full_name().lower()
-    substrings = ['.LocalAIControllerCreator_'.lower()]
+    substrings = ['.TrafficAIControllerCreator_'.lower()]
     for s in substrings:
         if s in full_name:
             return True
