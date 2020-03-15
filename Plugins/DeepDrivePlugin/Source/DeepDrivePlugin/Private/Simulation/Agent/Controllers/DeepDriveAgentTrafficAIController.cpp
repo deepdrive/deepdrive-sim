@@ -174,9 +174,6 @@ bool ADeepDriveAgentTrafficAIController::Activate(ADeepDriveAgent &agent, bool k
 	bool firstActivate = false;
 	if (route.Links.Num() > 0)
 	{
-		//route->convert(start);
-		//route->placeAgentAtStart(agent);
-
 		if(m_SpeedController == 0)
 		{
 			m_SpeedController = new DeepDriveAgentSpeedController(m_Configuration.PIDThrottle, m_Configuration.PIDBrake);
@@ -198,16 +195,19 @@ bool ADeepDriveAgentTrafficAIController::Activate(ADeepDriveAgent &agent, bool k
 		m_PathPlanner->setRoute(route);
 
 		res = true;
+		if (firstActivate)
+			activateController(agent);
 		m_State = ActiveRouteGuidance;
 		m_Route = 0;
 	}
 	else
 	{
-		roadNetwork->PlaceAgentOnRoad(&agent, route.Start, true);
-	}
+		if (roadNetwork->getRoadNetwork().Junctions.Num() > 0)
+			roadNetwork->PlaceAgentOnRoad(&agent, route.Start, true);
 
-	if (res && firstActivate)
+		res = true;
 		activateController(agent);
+	}
 
 	return res;
 }
