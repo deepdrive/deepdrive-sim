@@ -83,6 +83,8 @@ public:
 
 	FDeepDrivePath getPath();
 
+	bool isRemotelyControlled() const;
+
 protected:
 
 	enum OperationMode
@@ -154,4 +156,9 @@ inline bool ADeepDriveAgentControllerBase::isPassing() const
 inline void ADeepDriveAgentControllerBase::restoreStartPositionSlot(int32 startPositionSlot)
 {
 	m_StartPositionSlot = startPositionSlot;
+}
+
+inline bool ADeepDriveAgentControllerBase::isRemotelyControlled() const
+{
+	return m_isRemotelyControlled;
 }

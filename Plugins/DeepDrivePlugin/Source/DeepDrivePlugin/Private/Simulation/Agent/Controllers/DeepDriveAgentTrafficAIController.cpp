@@ -159,7 +159,11 @@ bool ADeepDriveAgentTrafficAIController::Activate(ADeepDriveAgent &agent, bool k
 			}
 			else if(m_StartIndex < m_Configuration.StartPositions.Num())
 			{
-				roadNetwork->PlaceAgentOnRoad(&agent, m_Configuration.StartPositions[m_StartIndex], true);
+				if(roadNetwork->PlaceAgentOnRoad(&agent, m_Configuration.StartPositions[m_StartIndex], true) == false)
+				{
+					FTransform transform(FRotator(0.0f, 0.0f, 0.0f), m_Configuration.StartPositions[m_StartIndex], FVector(1.0f, 1.0f, 1.0f));
+					agent.SetActorTransform(transform, false, 0, ETeleportType::TeleportPhysics);
+				}
 			}
 			break;
 

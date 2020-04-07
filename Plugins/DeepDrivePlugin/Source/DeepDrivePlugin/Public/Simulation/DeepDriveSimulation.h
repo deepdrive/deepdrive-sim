@@ -17,7 +17,7 @@ class DeepDriveSimulationCaptureProxy;
 class DeepDriveSimulationServerProxy;
 class DeepDriveSimulationStateMachine;
 class DeepDriveSimulationServer;
-class DeepDriveSimulationMessageHandler;
+class DeepDriveSimulationRequestHandler;
 class DeepDriveSimulationConfigureState;
 class DeepDriveSimulationResetState;
 class DeepDriveManeuverCalculator;
@@ -47,11 +47,12 @@ class DEEPDRIVEPLUGIN_API ADeepDriveSimulation	:	public AActor
 	friend class DeepDriveSimulationRunningState;
 	friend class DeepDriveSimulationConfigureState;
 	friend class DeepDriveSimulationResetState;
-	friend class DeepDriveSimulationMessageHandler;
+	friend class DeepDriveSimulationRequests;
+	friend class DeepDriveMultiAgentRequests;
 
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this actor's properties
 	ADeepDriveSimulation();
 
@@ -245,7 +246,7 @@ private:
 	DeepDriveSimulationConfigureState		*m_ConfigureState = 0;
 	DeepDriveSimulationResetState			*m_ResetState = 0;
 	DeepDriveSimulationServer				*m_SimulationServer = 0;
-	DeepDriveSimulationMessageHandler		*m_MessageHandler = 0;
+	DeepDriveSimulationRequestHandler		*m_RequestHandler = 0;
 	DeepDriveSimulationServerProxy			*m_ServerProxy = 0;
 	DeepDriveSimulationCaptureProxy			*m_CaptureProxy = 0;
 	TArray<UCaptureSinkComponentBase*>		m_CaptureSinks;

@@ -19,6 +19,8 @@ public:
 
 	int32 send(const void *data, uint32 bytesToSend);
 
+	int32 read(void *buffer, uint32 bytesToRead, uint32 timeOutMS);
+
 	uint32 receive(void *buffer, uint32 size);
 
 	bool receive(void *buffer, uint32 size, uint32 timeOutMS);

@@ -3,13 +3,16 @@
 #include "DeepDrivePluginPrivatePCH.h"
 #include "DeepDriveSimulation.h"
 #include "Private/Server/DeepDriveSimulationServer.h"
-#include "Private/Simulation/DeepDriveSimulationMessageHandler.h"
+#include "Private/Simulation/DeepDriveSimulationRequestHandler.h"
 #include "Private/Simulation/DeepDriveSimulationStateMachine.h"
 #include "Private/Simulation/States/DeepDriveSimulationInitializeState.h"
 #include "Private/Simulation/States/DeepDriveSimulationRunningState.h"
 #include "Private/Simulation/States/DeepDriveSimulationConfigureState.h"
 #include "Private/Simulation/States/DeepDriveSimulationResetState.h"
 #include "Public/Simulation/Agent/Controllers/DeepDriveAgentOneOffController.h"
+
+#include "Private/Simulation/Requests/DeepDriveSimulationRequests.h"
+#include "Private/Simulation/Requests/DeepDriveMultiAgentRequests.h"
 
 #include "Private/Server/DeepDriveServer.h"
 #include "Public/Simulation/DeepDriveSimulationServerProxy.h"
@@ -26,7 +29,7 @@
 
 #include "Public/CaptureSink/CaptureSinkComponentBase.h"
 
-DEFINE_LOG_CATEGORY(LogDeepDriveSimulation);
+	DEFINE_LOG_CATEGORY(LogDeepDriveSimulation);
 
 FDateTime ADeepDriveSimulation::m_SimulationStartTime;
 
@@ -119,7 +122,12 @@ void ADeepDriveSimulation::PreInitializeComponents()
 			if (m_SimulationServer)
 			{
 				m_SimulationServer->start();
-				m_MessageHandler = new DeepDriveSimulationMessageHandler(*this, *m_SimulationServer);
+				m_RequestHandler = new DeepDriveSimulationRequestHandler(*this, *m_SimulationServer);
+				if(m_RequestHandler)
+				{
+					DeepDriveSimulationRequests::registerHandlers(*m_RequestHandler);
+					DeepDriveMultiAgentRequests::registerHandlers(*m_RequestHandler);
+				}
 			}
 		}
 
@@ -214,8 +222,8 @@ void ADeepDriveSimulation::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
-	if(m_MessageHandler)
-		m_MessageHandler->handleMessages();
+	if(m_RequestHandler)
+		m_RequestHandler->handleRequests();
 
 	if (m_StateMachine)
 		m_StateMachine->update(*this, DeltaTime);
@@ -411,8 +419,8 @@ void ADeepDriveSimulation::enqueueMessage(deepdrive::server::MessageHeader *mess
 {
 	if (message)
 	{
-	 	if(m_MessageHandler)
-	 		m_MessageHandler->enqueueMessage(*message);
+	 	if(m_RequestHandler)
+	 		m_RequestHandler->enqueueRequest(*message);
 	 	else
 			FMemory::Free(message);
 	}

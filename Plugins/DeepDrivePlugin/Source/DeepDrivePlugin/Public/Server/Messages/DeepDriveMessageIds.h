@@ -5,19 +5,20 @@
 
 namespace deepdrive { namespace server {
 
-enum class MessageId	:	uint32
+enum class MessageId : uint32
 {
 	/*
 		Connection handling
 	*/
 	Undefined,
+	GenericBooleanResponse,
+	
 	RegisterClientRequest,
 	RegisterClientResponse,
 	UnregisterClientRequest,
 	UnregisterClientResponse,
 	KeepAliveRequest,
 	KeepAliveResponse,
-
 
 	/*
 		Configuration
@@ -30,7 +31,6 @@ enum class MessageId	:	uint32
 	SetCapturePatternResponse,
 	SetCaptureConfigurationRequest,
 	SetCaptureConfigurationResponse,
-
 
 	/*
 		Control
@@ -51,7 +51,6 @@ enum class MessageId	:	uint32
 	SetViewModeRequest,
 	SetViewModeResponse,
 
-
 	/*
 		Simulation
 	*/
@@ -65,8 +64,20 @@ enum class MessageId	:	uint32
 	SetDateAndTimeRequest,
 	SetDateAndTimeResponse,
 	SetSunSimulationSpeedRequest,
-	SetSunSimulationSpeedResponse
+	SetSunSimulationSpeedResponse,
 
+	/*
+		Multi Agent
+	*/
+	GetAgentsListRequest,
+	GetAgentsListResponse,
+	RequestControlRequest,
+	RequestControlResponse,
+	ReleaseControlRequest,
+	ReleaseControlResponse,
+	SetControlValuesRequest,
+	SetControlValuesResponse,
+	StepRequest,
+	StepResponse
 };
-	
 } }		//	namespaces

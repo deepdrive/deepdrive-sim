@@ -153,7 +153,11 @@ bool DeepDriveSimulationServer::checkForMessages()
 	bool connected = m_ClientSocket->Recv(m_ReceiveBuffer, m_curReceiveBufferSize, bytesRead, ESocketReceiveFlags::None);
 	if (connected && bytesRead > 0)
 	{
-		// UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("[%d] Received %d bytes: %d"), m_ClientId, bytesRead, bytesRead > 4 ? *(reinterpret_cast<uint32*>(m_ReceiveBuffer)) : 0);
+		if (bytesRead >= 8)
+		{
+			// uint32 *buffer = reinterpret_cast<uint32*>(m_ReceiveBuffer);
+			// UE_LOG(LogDeepDriveSimulationServer, Log, TEXT("Received %d bytes: %d %d"), bytesRead, buffer[0], buffer[1]);
+		}
 		m_MessageAssembler.add(m_ReceiveBuffer, bytesRead);
 	}
 

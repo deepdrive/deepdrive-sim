@@ -3,41 +3,12 @@
 #include "Engine.h"
 
 #include "deepdrive_simulation/DeepDriveSimulation.hpp"
-#include "common/ClientErrorCode.hpp"
+#include "deepdrive_simulation/deepdrive_simulation_error.h"
 
 #include "deepdrive_simulation/PySimulationGraphicsSettingsObject.h"
 
 #include <iostream>
 
-static DeepDriveSimulation *g_DeepDriveSimulation = 0;
-
-static PyObject *DeepDriveClientError;
-static PyObject *ConnectionLostError;
-static PyObject *NotConnectedError;
-static PyObject *TimeOutError;
-static PyObject *ClientDoesntExistError;
-static PyObject *UnknownError;
-
-static PyObject* handleError(int32 errorCode)
-{
-	if(errorCode == ClientErrorCode::NOT_CONNECTED)
-	{
-		PyErr_SetString(ClientDoesntExistError, "Client doesn't exist");
-	}
-	else if(errorCode == ClientErrorCode::CONNECTION_LOST)
-	{
-		PyErr_SetString(ConnectionLostError, "Connection to server lost");
-	}
-	else if(errorCode == ClientErrorCode::TIME_OUT)
-	{
-		PyErr_SetString(TimeOutError, "Network time out");
-	}
-	else if(errorCode == ClientErrorCode::UNKNOWN_ERROR)
-	{
-		PyErr_SetString(UnknownError, "Unknown network error");
-	}
-	return 0;
-}
 
 /*	Create a new client, tries to connect to specified DeepDriveServer
  *
@@ -68,14 +39,14 @@ static PyObject* deepdrive_simulation_connect(PyObject *self, PyObject *args, Py
 
 		if(ip4Address.set(ipStr, port))
 		{
-			if(g_DeepDriveSimulation == 0)
+			if(DeepDriveSimulation::getInstance() == 0)
 			{
-				g_DeepDriveSimulation = new DeepDriveSimulation(ip4Address);
+				DeepDriveSimulation::create(ip4Address);
 				std::cout << "Created DeepDriveSimulation\n";
 
-				if(g_DeepDriveSimulation && g_DeepDriveSimulation->isConnected())
+				if(DeepDriveSimulation::getInstance() && DeepDriveSimulation::getInstance()->isConnected())
 				{
-					const int32 configureRes = g_DeepDriveSimulation->configureSimulation(seed, timeDilation, startLocation, reinterpret_cast<PySimulationGraphicsSettingsObject*> (graphicsSettings));
+					const int32 configureRes = DeepDriveSimulation::getInstance()->configureSimulation(seed, timeDilation, startLocation, reinterpret_cast<PySimulationGraphicsSettingsObject*> (graphicsSettings));
 					if(configureRes < 0)
 						handleError(configureRes);
 					else
@@ -101,12 +72,7 @@ static PyObject* deepdrive_simulation_connect(PyObject *self, PyObject *args, Py
 static PyObject* deepdriuve_simulation_disconnect(PyObject *self, PyObject *args)
 {
 	uint32 res = 0;
-	if(g_DeepDriveSimulation)
-	{
-		delete g_DeepDriveSimulation;
-		g_DeepDriveSimulation = 0;
-	}
-
+	DeepDriveSimulation::destroy();
 
 	return Py_BuildValue("i", res);
 }
@@ -121,7 +87,7 @@ static PyObject* reset_simulation(PyObject *self, PyObject *args, PyObject *keyW
 {
 	uint32 res = 0;
 
-	if(g_DeepDriveSimulation)
+	if(DeepDriveSimulation::getInstance())
 	{
 		float timeDilation = 1.0f;
 		float startLocation = -1.0f; 
@@ -130,7 +96,7 @@ static PyObject* reset_simulation(PyObject *self, PyObject *args, PyObject *keyW
 		int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "|ff", keyWordList, &timeDilation, &startLocation);
 		if(ok)
 		{
-			const int32 requestRes = g_DeepDriveSimulation->resetSimulation(timeDilation, startLocation);
+			const int32 requestRes = DeepDriveSimulation::getInstance()->resetSimulation(timeDilation, startLocation);
 			if(requestRes >= 0)
 				res = static_cast<uint32> (requestRes);
 			else
@@ -156,14 +122,14 @@ static PyObject* set_graphics_settings(PyObject *self, PyObject *args)
 {
 	uint32 res = 0;
 
-	if(g_DeepDriveSimulation)
+	if(DeepDriveSimulation::getInstance())
 	{
 		PyObject *graphicsSettings = 0;
 
 		int32 ok = PyArg_ParseTuple(args, "O!", &PySimulationGraphicsSettingsType, &graphicsSettings);
 		if(ok)
 		{
-			const int32 requestRes = g_DeepDriveSimulation->setGraphicsSettings(reinterpret_cast<PySimulationGraphicsSettingsObject*> (graphicsSettings));
+			const int32 requestRes = DeepDriveSimulation::getInstance()->setGraphicsSettings(reinterpret_cast<PySimulationGraphicsSettingsObject*> (graphicsSettings));
 			if(requestRes >= 0)
 				res = static_cast<uint32> (requestRes);
 			else
@@ -194,7 +160,7 @@ static PyObject* set_date_and_time(PyObject *self, PyObject *args, PyObject *key
 {
 	uint32 res = 0;
 
-	if(g_DeepDriveSimulation)
+	if(DeepDriveSimulation::getInstance())
 	{
 		uint32 year = 2011;
 		uint32 month = 8;
@@ -206,7 +172,7 @@ static PyObject* set_date_and_time(PyObject *self, PyObject *args, PyObject *key
 		int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "|IIIII", keyWordList, &year, &month, &day, &hour, &minute);
 		if(ok)
 		{
-			const int32 requestRes = g_DeepDriveSimulation->setDateAndTime(year, month, day, minute, hour);
+			const int32 requestRes = DeepDriveSimulation::getInstance()->setDateAndTime(year, month, day, minute, hour);
 			if(requestRes >= 0)
 				res = static_cast<uint32> (requestRes);
 			else
@@ -230,7 +196,7 @@ static PyObject* set_sun_simulation_speed(PyObject *self, PyObject *args, PyObje
 {
 	uint32 res = 0;
 
-	if(g_DeepDriveSimulation)
+	if(DeepDriveSimulation::getInstance())
 	{
 		uint32 speed = 0;
 
@@ -238,7 +204,7 @@ static PyObject* set_sun_simulation_speed(PyObject *self, PyObject *args, PyObje
 		int32 ok = PyArg_ParseTupleAndKeywords(args, keyWords, "|I", keyWordList, &speed);
 		if(ok)
 		{
-			const int32 initRes = g_DeepDriveSimulation->setSpeed(speed);
+			const int32 initRes = DeepDriveSimulation::getInstance()->setSpeed(speed);
 			if(initRes >= 0)
 				res = static_cast<uint32> (initRes);
 			else
@@ -271,6 +237,8 @@ static struct PyModuleDef deepdrive_simulation_module = {
 		DeepDriveClientMethods
 };
 
+extern PyObject* create_multi_agent_module();
+
 PyMODINIT_FUNC PyInit_deepdrive_simulation(void)
 {
 	// if (PyType_Ready(&PyDeepDriveClientRegisterClientRequestType) < 0)
@@ -281,33 +249,14 @@ PyMODINIT_FUNC PyInit_deepdrive_simulation(void)
 	if (PyType_Ready(&PySimulationGraphicsSettingsType) < 0)
 		return 0;
 
-
 	PyObject *m  = PyModule_Create(&deepdrive_simulation_module);
 	if (m)
 	{
-		DeepDriveClientError = PyErr_NewException("deepdrive_simulation.error", NULL, NULL);
-		Py_INCREF(DeepDriveClientError);
-		PyModule_AddObject(m, "error", DeepDriveClientError);
+		PyObject *mam = create_multi_agent_module();
+		Py_INCREF(mam);
+		PyModule_AddObject(m, "multi_agent", mam);
 
-		ConnectionLostError = PyErr_NewException("deepdrive_simulation.connection_lost", NULL, NULL);
-		Py_INCREF(ConnectionLostError);
-		PyModule_AddObject(m, "connection_lost", ConnectionLostError);
-
-		NotConnectedError = PyErr_NewException("deepdrive_simulation.not_connected", NULL, NULL);
-		Py_INCREF(NotConnectedError);
-		PyModule_AddObject(m, "not_connected", NotConnectedError);
-
-		TimeOutError = PyErr_NewException("deepdrive_simulation.time_out", NULL, NULL);
-		Py_INCREF(TimeOutError);
-		PyModule_AddObject(m, "time_out", TimeOutError);
-
-		ClientDoesntExistError = PyErr_NewException("deepdrive_simulation.client_doesnt_exist", NULL, NULL);
-		Py_INCREF(ClientDoesntExistError);
-		PyModule_AddObject(m, "client_doesnt_exist", ClientDoesntExistError);
-
-		UnknownError = PyErr_NewException("deepdrive_simulation.unknown_error", NULL, NULL);
-		Py_INCREF(UnknownError);
-		PyModule_AddObject(m, "unknown_error", UnknownError);
+		setupErrorTypes(m);
 
 		Py_INCREF(&PySimulationGraphicsSettingsType);
 		PyModule_AddObject(m, "SimulationGraphicsSettings", (PyObject *)&PySimulationGraphicsSettingsType);
