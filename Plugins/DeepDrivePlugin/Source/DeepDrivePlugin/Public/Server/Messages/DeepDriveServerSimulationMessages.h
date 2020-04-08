@@ -153,6 +153,12 @@ struct GetAgentsListResponse : public server::MessageHeader
 	uint32		agent_count;
 
 	uint32		agent_ids[1];
+
+	static size_t getMessageSize(uint32 agentCount)
+	{
+		return sizeof(GetAgentsListResponse) + (agentCount > 0 ? (sizeof(uint32) * (agentCount - 1)) : 0);
+	}
+
 };
 
 struct RequestControlRequest : public MessageHeader
