@@ -302,6 +302,7 @@ uint32 DeepDriveRoadNetworkExtractor::addLink(ADeepDriveRoadLinkProxy &linkProxy
 
 		m_LinkCache.Add(proxyObjName, linkId);
 		m_RoadNetwork.Links.Add(linkId, link);
+		m_RoadNetwork.LinkNameMap.Add(linkId, proxyObjName);
 
 		m_LinkProxies.Add(&linkProxy);
 

@@ -165,6 +165,12 @@ FVector SDeepDriveRoadNetwork::getLocationOnLink(uint32 linkId, EDeepDriveLaneTy
 	return location;
 }
 
+FString SDeepDriveRoadNetwork::getDebugLinkName(uint32 linkId) const
+{
+	FString name = LinkNameMap.Contains(linkId) ? LinkNameMap[linkId] : "Unknown Link";
+
+	return "(" + FString::FromInt(linkId) + ") " + name;
+}
 
 FVector SDeepDriveRoadSegment::findClosestPoint(const FVector &pos) const
 {

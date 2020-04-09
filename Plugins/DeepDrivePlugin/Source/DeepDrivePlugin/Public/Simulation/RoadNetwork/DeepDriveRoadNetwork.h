@@ -251,9 +251,13 @@ struct SDeepDriveRoadNetwork
 	TMap<uint32, SDeepDriveRoadLink>		Links;
 	TMap<uint32, SDeepDriveRoadSegment> 	Segments;
 
+	TMap<uint32, FString>					LinkNameMap;
+
 	uint32 findClosestLink(const FVector &pos) const;
 	uint32 findClosestSegment(const FVector &pos, EDeepDriveLaneType laneType) const;
 	FVector getLocationOnLink(uint32 linkId, EDeepDriveLaneType laneType, float t) const;
+
+	FString getDebugLinkName(uint32 linkId) const;
 
 };
 
