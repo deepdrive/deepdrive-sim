@@ -43,7 +43,7 @@ void DeepDriveManeuverCalculator::calculate(SDeepDriveRoute &route, ADeepDriveAg
 		const SDeepDriveJunctionEntry *junctionEntry = 0;
 		if(junction.findJunctionEntry(fromLinkId, junctionEntry))
 		{
-			UE_LOG(LogDeepDriveManeuverCalculator, Log, TEXT("Calc maneuver from %d to %d"), fromLinkId, toLinkId );
+			UE_LOG(LogDeepDriveManeuverCalculator, Log, TEXT("Calc maneuver from %s to %s"), *(m_RoadNetwork.getDebugLinkName(fromLinkId)), *(m_RoadNetwork.getDebugLinkName(toLinkId)) );
 
 			SDeepDriveManeuver maneuver;
 			maneuver.JunctionType = junction.JunctionType;
@@ -85,8 +85,7 @@ void DeepDriveManeuverCalculator::calculate(SDeepDriveRoute &route, ADeepDriveAg
 					}
 
 					for(auto crt : maneuver.CrossTrafficRoads)
-						UE_LOG(LogDeepDriveManeuverCalculator, Log, TEXT("CrossTraffic from %d to %d as %d"), crt.FromLinkId, crt.ToLinkId, static_cast<int32> (crt.ManeuverType));
-
+						UE_LOG(LogDeepDriveManeuverCalculator, Log, TEXT("CrossTraffic from %s to %s as %d"), *(m_RoadNetwork.getDebugLinkName(crt.FromLinkId)), *(m_RoadNetwork.getDebugLinkName(crt.ToLinkId)), static_cast<int32> (crt.ManeuverType));
 				}
 			}
 
@@ -108,7 +107,7 @@ void DeepDriveManeuverCalculator::addFinalManeuver(SDeepDriveRoute &route, ADeep
 	maneuver.JunctionType = EDeepDriveJunctionType::DESTINATION_REACHED;
 
 	maneuver.EntryPoint = finalLink.StartPoint;
-	maneuver.ExitPoint = finalLink.EndPoint;
+	maneuver.ExitPoint = route.Destination;
 
 	DeepDriveTrafficBehaviorTree *behaviorTree = new DeepDriveTrafficBehaviorTree("StopAtEnd");
 	if (behaviorTree)

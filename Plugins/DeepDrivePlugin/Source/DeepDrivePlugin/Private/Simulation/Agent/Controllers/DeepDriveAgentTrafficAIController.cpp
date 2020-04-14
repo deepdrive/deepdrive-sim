@@ -87,7 +87,7 @@ void ADeepDriveAgentTrafficAIController::Tick( float DeltaSeconds )
 				{
 					FVector start = m_Agent->GetActorLocation();
 					FVector destination;
-					UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentTrafficAIController::Activate Random start pos %s"), *(start.ToString()) );
+					UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentTrafficAIController::Tick %d) Calculate new random route starting from %s"), m_Agent->GetAgentId(), *(start.ToString()) );
 
 					SDeepDriveRoute route;
 
@@ -96,6 +96,7 @@ void ADeepDriveAgentTrafficAIController::Tick( float DeltaSeconds )
 					{
 						route.Start = start;
 						route.Destination = destination;
+						UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentTrafficAIController::Tick %d) to destination %s"), m_Agent->GetAgentId(), *(destination.ToString()));
 						DeepDriveManeuverCalculator *manCalc = m_DeepDriveSimulation->getManeuverCalculator();
 						if(manCalc)
 							manCalc->calculate(route, *m_Agent);
@@ -144,10 +145,11 @@ bool ADeepDriveAgentTrafficAIController::Activate(ADeepDriveAgent &agent, bool k
 	
 					} while(fromLinkId == 0 ||	m_DeepDriveSimulation->isLocationOccupied(route.Start, 300.0f));
 					
-					UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentTrafficAIController::Activate Random start pos %s"), *(route.Start.ToString()) );
+					UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentTrafficAIController::Activate %d) Random start pos %s"), agent.GetAgentId(), *(route.Start.ToString()) );
 
 					roadNetwork->PlaceAgentOnRoad(&agent, route.Start, true);
 					route.Links = roadNetwork->calculateRandomRoute(route.Start, route.Destination);
+					UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentTrafficAIController::Activate %d) Random Destination %s"), agent.GetAgentId(), *(route.Destination.ToString()));
 				}
 				else
 				{
