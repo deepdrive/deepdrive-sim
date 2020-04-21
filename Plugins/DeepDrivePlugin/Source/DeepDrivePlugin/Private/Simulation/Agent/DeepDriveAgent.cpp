@@ -8,6 +8,8 @@
 #include "Simulation/Agent/DeepDriveAgentControllerBase.h"
 #include "Private/Capture/DeepDriveCapture.h"
 
+#include "ActorEventLoggerComponent.h"
+
 #include "WheeledVehicleMovementComponent.h"
 #include "Runtime/Engine/Classes/Kismet/KismetRenderingLibrary.h"
 
@@ -69,6 +71,18 @@ ADeepDriveAgent::ADeepDriveAgent()
 
 }
 
+void ADeepDriveAgent::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+	
+	m_EventLogger = Cast<UActorEventLoggerComponent>(GetComponentByClass(UActorEventLoggerComponent::StaticClass()));
+	if(m_EventLogger)
+	{
+		m_EventLogger->setUniqueActorName(FString::Printf(TEXT("DeepDriveAgent_%d"), m_AgentId));
+	}
+}
+
+
 void ADeepDriveAgent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -117,6 +131,9 @@ void ADeepDriveAgent::Tick( float DeltaSeconds )
 		++m_NumberOfLaps;
 		UE_LOG(LogDeepDriveAgent, Log, TEXT("Laps finished %d"), m_NumberOfLaps );
 	}
+
+	if(m_EventLogger)
+		m_EventLogger->LogActorTransform(GetActorTransform());
 }
 
 int32 ADeepDriveAgent::RegisterCaptureCamera(float fieldOfView, int32 captureWidth, int32 captureHeight, FVector relativePosition, FVector relativeRotation, const FString &label)

@@ -14,6 +14,7 @@ struct DeepDriveDataOut;
 class UCaptureCameraComponent;
 class ADeepDriveAgentControllerBase;
 class ADeepDriveSimulation;
+class UActorEventLoggerComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTurnSignalStateChanged, EDeepDriveAgentTurnSignalState, NewState);
 
@@ -30,6 +31,8 @@ public:
 	ADeepDriveAgent();
 
 	void initialize(ADeepDriveSimulation &sim);
+
+	virtual void PostInitializeComponents() override;
 
 	virtual void BeginPlay() override;
 
@@ -265,6 +268,8 @@ private:
 	int32								m_NumberOfLaps = 0;
 
 	static int32						s_nextAgentId;
+
+	UActorEventLoggerComponent			*m_EventLogger = 0;
 };
 
 inline void ADeepDriveAgent::initialize(ADeepDriveSimulation &sim)

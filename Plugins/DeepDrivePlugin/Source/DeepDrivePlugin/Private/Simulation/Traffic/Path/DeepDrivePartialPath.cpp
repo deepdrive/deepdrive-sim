@@ -12,6 +12,8 @@
 
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 
+#include "ActorEventLogging/ActorEventLogging.h"
+
 DEFINE_LOG_CATEGORY(LogDeepDrivePartialPath);
 
 DeepDrivePartialPath::DeepDrivePartialPath(ADeepDriveAgent &agent, const SDeepDriveRoadNetwork &roadNetwork, UBezierCurveComponent &bezierCmp, const SDeepDrivePathConfiguration &pathCfg)
@@ -142,6 +144,7 @@ void DeepDrivePartialPath::advance(float deltaSeconds, float &speed, float &stee
 		{
 			curManeuver = &m;
 			// UE_LOG(LogDeepDrivePartialPath, Log, TEXT("Found maneuver at %d from %d to %d"), m_curPathPointIndex, m.EntryPointIndex, m.ExitPointIndex);
+			AEL_MESSAGE(m_Agent, TEXT("Found maneuver at %d from %d to %d"), m_curPathPointIndex, m.EntryPointIndex, m.ExitPointIndex);
 			break;
 		}
 	}
@@ -184,8 +187,8 @@ void DeepDrivePartialPath::advance(float deltaSeconds, float &speed, float &stee
 			)
 		{
 			m_hasReachedDestination = curManeuver->BehaviorTree->getBlackboard().getBooleanValue("DestinationReached", false);
+			AEL_MESSAGE(m_Agent, TEXT("Destination reached at %d"), m_curPathPointIndex);
 		}
-
 	}
 
 	// UE_LOG(LogDeepDrivePartialPath, Log, TEXT("%5d) dist2ctr %f steering %f corr %f totE %f"), m_curPathPointIndex, dist2Ctr, steering, steeringCorrection, m_totalTrackError);

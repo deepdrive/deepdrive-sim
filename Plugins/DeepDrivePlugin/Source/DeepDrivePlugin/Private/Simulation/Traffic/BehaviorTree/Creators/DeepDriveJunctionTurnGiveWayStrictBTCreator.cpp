@@ -27,7 +27,7 @@ bool DeepDriveJunctionTurnGiveWayStrictBTCreator::registerCreator()
 
 DeepDriveTrafficBehaviorTree* DeepDriveJunctionTurnGiveWayStrictBTCreator::createBehaviorTree()
 {
-	DeepDriveTrafficBehaviorTree *behaviorTree = new DeepDriveTrafficBehaviorTree();
+	DeepDriveTrafficBehaviorTree *behaviorTree = new DeepDriveTrafficBehaviorTree("GiveWayStrict");
 	if (behaviorTree)
 	{
 		DeepDriveTrafficBehaviorTreeNode *stopAtNode = behaviorTree->createNode(0);

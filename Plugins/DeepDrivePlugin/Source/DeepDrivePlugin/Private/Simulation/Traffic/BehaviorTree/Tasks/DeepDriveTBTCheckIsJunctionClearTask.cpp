@@ -7,6 +7,8 @@
 #include "Simulation/Agent/DeepDriveAgent.h"
 #include "Private/Simulation/Traffic/Path/DeepDrivePartialPath.h"
 
+#include "ActorEventLogging/ActorEventLogging.h"
+
 DEFINE_LOG_CATEGORY(LogDeepDriveTBTCheckIsJunctionClearTask);
 
 DeepDriveTBTCheckIsJunctionClearTask::DeepDriveTBTCheckIsJunctionClearTask(const FString &refLocationName, float distance, bool ignoreTrafficLights)
@@ -53,6 +55,7 @@ bool DeepDriveTBTCheckIsJunctionClearTask::execute(DeepDriveTrafficBlackboard &b
 			blackboard.setBooleanValue(m_FlagName, isJunctionClear);
 
 		// UE_LOG(LogDeepDriveTBTCheckIsJunctionClearTask, Log, TEXT("LogDeepDriveTBTCheckIsJunctionClearTask::execute [%d] %d %c"), blackboard.getAgent()->GetAgentId(), pathPointIndex, isJunctionClear ? 'T' : 'F');
+		AEL_MESSAGE((*(blackboard.getAgent())), TEXT("CheckIsJunctionClearTask::execute %d %c"), pathPointIndex, isJunctionClear ? 'T' : 'F');
 	}
 
 	return true;

@@ -27,7 +27,7 @@ bool DeepDriveJunctionTrafficLightRightStraightBTCreator::registerCreator()
 
 DeepDriveTrafficBehaviorTree* DeepDriveJunctionTrafficLightRightStraightBTCreator::createBehaviorTree()
 {
-	DeepDriveTrafficBehaviorTree *behaviorTree = new DeepDriveTrafficBehaviorTree();
+	DeepDriveTrafficBehaviorTree *behaviorTree = new DeepDriveTrafficBehaviorTree("TL_StraightOrRight");
 	if (behaviorTree)
 	{
 		DeepDriveTrafficBehaviorTreeNode *greenNode = behaviorTree->createNode(0);

@@ -16,6 +16,8 @@
 
 #include "WheeledVehicleMovementComponent.h"
 
+#include "ActorEventLogging/ActorEventLogging.h"
+
 ADeepDriveAgentTrafficAIController::ADeepDriveAgentTrafficAIController()
 {
 	m_ControllerName = "Traffic AI Controller";
@@ -122,6 +124,8 @@ void ADeepDriveAgentTrafficAIController::Tick( float DeltaSeconds )
 bool ADeepDriveAgentTrafficAIController::Activate(ADeepDriveAgent &agent, bool keepPosition)
 {
 	bool res = false;
+
+	AEL_ENSURE_TICK_ORDER(*this);
 
 	UDeepDriveRoadNetworkComponent *roadNetwork = m_DeepDriveSimulation->RoadNetwork;
 

@@ -26,7 +26,7 @@ bool DeepDriveJunctionTurnYieldBTCreator::registerCreator()
 
 DeepDriveTrafficBehaviorTree* DeepDriveJunctionTurnYieldBTCreator::createBehaviorTree()
 {
-	DeepDriveTrafficBehaviorTree *behaviorTree = new DeepDriveTrafficBehaviorTree();
+	DeepDriveTrafficBehaviorTree *behaviorTree = new DeepDriveTrafficBehaviorTree("Yield");
 	if (behaviorTree)
 	{
 		DeepDriveTrafficBehaviorTreeNode *stopAtNode = behaviorTree->createNode(0);
