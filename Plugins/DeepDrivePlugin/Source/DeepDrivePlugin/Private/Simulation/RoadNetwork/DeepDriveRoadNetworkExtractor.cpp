@@ -151,7 +151,13 @@ void DeepDriveRoadNetworkExtractor::extract()
 							SDeepDriveTurnDefinition turnDefinition;
 							turnDefinition.ToLinkId = m_LinkCache[toName];
 							turnDefinition.ManeuverType = turnDefinitionProxy.ManeuverType;
-							turnDefinition.WaitingLocation = turnDefinitionProxy.WaitingLocation;
+							if(turnDefinitionProxy.WaitingLocation.IsZero())
+							{
+								UE_LOG(LogDeepDriveRoadNetworkExtractor, Log, TEXT("Link %s turning to %s has no WaitingLocation, using end of link instead"), *(m_RoadNetwork.getDebugLinkName(linkId)), *toName );
+								turnDefinition.WaitingLocation = m_RoadNetwork.Links[linkId].EndPoint;
+							}
+							else
+								turnDefinition.WaitingLocation = turnDefinitionProxy.WaitingLocation;
 							turnDefinition.TrafficLight = turnDefinitionProxy.TrafficLight ? turnDefinitionProxy.TrafficLight : entryProxy.TrafficLight;
 
 							entry.TurnDefinitions.Add(turnDefinition);

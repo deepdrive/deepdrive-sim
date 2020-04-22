@@ -36,15 +36,25 @@ void AActorEventLogReplayManager::Tick(float DeltaTime)
 		case Loading:
 			break;
 
-		case Replaying:
-			++m_curFrameIndex;
-			if(m_curFrameIndex < m_FrameCount)
+		case ForwardReplay:
 			{
-				replayCurrentFrame();
-				propagateFrameIndex();
+				m_curFrame += m_ReplayRate;
+				const int32 frameIdx = FMath::FloorToInt(m_curFrame);
+				if(frameIdx >= m_FrameCount)
+				{
+					m_curFrameIndex = m_FrameCount - 1;
+					m_curFrame = m_curFrameIndex;
+					m_curState = Idle;
+					if(OnReplayStateChanged.IsBound())
+						OnReplayStateChanged.Broadcast(false);
+				}
+				if(frameIdx != m_curFrameIndex)
+				{
+					m_curFrameIndex = frameIdx;
+					replayCurrentFrame();
+					propagateFrameIndex();
+				}
 			}
-			else
-				m_curFrameIndex = m_FrameCount - 1;
 			break;
 	}
 
@@ -87,6 +97,7 @@ FActorEventLogData AActorEventLogReplayManager::LoadActorEventLog(FString FileNa
 				aelData.Id = id;
 				aelData.ActorName = rael->getActorName();
 				aelData.ActorDescription = rael->getActorDescription();
+				aelData.Actor = actor;
 
 				updateFrameCount();
 				rael->replayFrame(m_curFrameIndex);
@@ -122,6 +133,8 @@ void AActorEventLogReplayManager::GoToFrame(int32 FrameIndex)
 			)
 			m_curFrameIndex = m_FrameCount - 1;
 		
+		m_curFrame = m_curFrameIndex;
+		
 		replayCurrentFrame();
 		propagateFrameIndex();
 	}
@@ -132,6 +145,7 @@ void AActorEventLogReplayManager::GoToFirstFrame()
 	if (m_curState == Idle)
 	{
 		m_curFrameIndex = 0;
+		m_curFrame = 0.0f;
 		replayCurrentFrame();
 		propagateFrameIndex();
 	}
@@ -142,6 +156,7 @@ void AActorEventLogReplayManager::GoToLastFrame()
 	if (m_curState == Idle)
 	{
 		m_curFrameIndex = m_FrameCount - 1;
+		m_curFrame = m_curFrameIndex;
 		replayCurrentFrame();
 		propagateFrameIndex();
 	}
@@ -154,6 +169,7 @@ void AActorEventLogReplayManager::NextFrame()
 		++m_curFrameIndex;
 		if(m_curFrameIndex >= m_FrameCount)
 			m_curFrameIndex = m_FrameCount - 1;
+		m_curFrame = m_curFrameIndex;
 		
 		replayCurrentFrame();
 		propagateFrameIndex();
@@ -167,6 +183,7 @@ void AActorEventLogReplayManager::PreviousFrame()
 		--m_curFrameIndex;
 		if(m_curFrameIndex < 0)
 			m_curFrameIndex = 0;
+		m_curFrame = m_curFrameIndex;
 		
 		replayCurrentFrame();
 		propagateFrameIndex();
@@ -175,13 +192,43 @@ void AActorEventLogReplayManager::PreviousFrame()
 
 void AActorEventLogReplayManager::Replay()
 {
+}
+
+void AActorEventLogReplayManager::SetReplayRate(float Rate)
+{
+	m_ReplayRate = Rate;
+}
+
+void AActorEventLogReplayManager::ReplayForward()
+{
 	if(m_ActorEventLogs.Num() > 0)
-		m_curState = Replaying;
+	{
+		if(m_curState != ForwardReplay)
+		{
+			m_curState = ForwardReplay;
+
+			if(OnReplayStateChanged.IsBound())
+				OnReplayStateChanged.Broadcast(true);
+		}
+	}
+}
+
+void AActorEventLogReplayManager::ReplayBackward()
+{
+	if(m_ActorEventLogs.Num() > 0)
+		m_curState = BackwardReplay;
 }
 
 void AActorEventLogReplayManager::StopReplay()
 {
-	m_curState = Idle;
+	if	(	m_curState == ForwardReplay
+		||	m_curState == BackwardReplay
+		)
+	{
+		if(OnReplayStateChanged.IsBound())
+			OnReplayStateChanged.Broadcast(false);
+		m_curState = Idle;
+	}
 }
 
 void AActorEventLogReplayManager::TogglePause()

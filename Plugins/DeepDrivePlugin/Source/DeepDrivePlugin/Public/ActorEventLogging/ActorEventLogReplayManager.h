@@ -10,6 +10,7 @@ DECLARE_LOG_CATEGORY_EXTERN(LogActorEventReplayManager, Log, All);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FFrameCountChanged, int32, FrameCount);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FFrameIndexChanged, int32, FrameIndex);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FReplayStateChanged, bool, IsPlaying);
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FBeginReplayFrame);
 
@@ -28,6 +29,9 @@ struct FActorEventLogData
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Default)
 	FString		ActorDescription;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Default)
+	AActor		*Actor = 0;;
 
 };
 
@@ -75,6 +79,15 @@ public:
 	void Replay();
 
 	UFUNCTION(BlueprintCallable, Category = "Control")
+	void SetReplayRate(float Rate);
+
+	UFUNCTION(BlueprintCallable, Category = "Control")
+	void ReplayForward();
+
+	UFUNCTION(BlueprintCallable, Category = "Control")
+	void ReplayBackward();
+
+	UFUNCTION(BlueprintCallable, Category = "Control")
 	void StopReplay();
 
 	UFUNCTION(BlueprintCallable, Category = "Control")
@@ -96,14 +109,19 @@ public:
 	FBeginReplayFrame OnBeginReplayFrame;
 
 	UPROPERTY(BlueprintAssignable)
+	FReplayStateChanged	OnReplayStateChanged;
+
+	UPROPERTY(BlueprintAssignable)
 	FMessageEvent OnMessageEvent;
 
 private:
+
 	enum State
 	{
 		Idle,
 		Loading,
-		Replaying
+		ForwardReplay,
+		BackwardReplay
 	};
 
 	void replayCurrentFrame();
@@ -119,8 +137,11 @@ private:
 
 	State										m_curState = Idle;
 
-	int32										m_FrameCount;
-	int32										m_curFrameIndex;
+	int32										m_FrameCount = 0;
+	float										m_curFrame = 0.0f;
+	int32										m_curFrameIndex = 0;
+
+	float										m_ReplayRate = 1.0f;
 
 };
 
