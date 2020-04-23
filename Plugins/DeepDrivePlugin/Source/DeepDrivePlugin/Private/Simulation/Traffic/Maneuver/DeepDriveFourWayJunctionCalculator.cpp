@@ -103,7 +103,8 @@ void DeepDriveFourWayJunctionCalculator::extractCrossRoadTraffic(uint32 curEntry
 				{
 					if ((mask & (1 << static_cast<uint32>(turnDef.ManeuverType))) != 0)
 					{
-						maneuver.CrossTrafficRoads.Add(SDeepDriveCrossTrafficRoad(turnDef.ManeuverType, entry.getTrafficLight(turnDef.ToLinkId), curEntryLinkId, turnDef.ToLinkId, 2500.0f, 1000.0f));
+						// ToDo: have some heuristic for from and to length based on road type, that is speed
+						maneuver.CrossTrafficRoads.Add(SDeepDriveCrossTrafficRoad(turnDef.ManeuverType, entry.getTrafficLight(turnDef.ToLinkId), curEntryLinkId, turnDef.ToLinkId, 2500.0f, 10.0f));
 					}
 				}
 			}

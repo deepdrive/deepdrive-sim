@@ -34,7 +34,7 @@ DeepDriveTrafficBehaviorTree* DeepDriveJunctionTurnYieldBTCreator::createBehavio
 
 		behaviorTree->getRootNode()->addDecorator( new DeepDriveTBTCheckFlagDecorator("IsJunctionClear", false, false) );
 
-		TSharedPtr<DeepDriveTBTTaskBase> checkJunctionTask(new DeepDriveTBTCheckIsJunctionClearTask("StopLineLocation", 1500.0f, true, "IsJunctionClear"));
+		TSharedPtr<DeepDriveTBTTaskBase> checkJunctionTask(new DeepDriveTBTCheckIsJunctionClearTask("StopLineLocation", 0.0f, true, "IsJunctionClear"));
 
 		stopAtNode->addTask(checkJunctionTask);
 		stopAtNode->addTask(new DeepDriveTBTStopAtLocationTask("StopLineLocation", 0.6f));

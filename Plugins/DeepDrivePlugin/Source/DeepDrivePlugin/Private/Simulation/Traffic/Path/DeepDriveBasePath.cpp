@@ -126,7 +126,7 @@ void DeepDriveBasePath::extractCrossTrafficRoads(SDeepDriveManeuver &maneuver, c
 
 	for(auto &crossTrafficRoad : maneuver.CrossTrafficRoads)
 	{
-		UE_LOG(LogDeepDriveBasePath, Log, TEXT("Extracting cross traffic roads for junction %d from link %d to link %d"), junction.JunctionId, crossTrafficRoad.FromLinkId, crossTrafficRoad.ToLinkId);
+		UE_LOG(LogDeepDriveBasePath, Log, TEXT("Extracting cross traffic roads for junction %d from link %s to link %s"), junction.JunctionId, *(m_RoadNetwork.getDebugLinkName(crossTrafficRoad.FromLinkId)), *(m_RoadNetwork.getDebugLinkName(crossTrafficRoad.ToLinkId)) );
 	
 		crossTrafficRoad.Paths.Add(TDeepDrivePathPoints());
 
