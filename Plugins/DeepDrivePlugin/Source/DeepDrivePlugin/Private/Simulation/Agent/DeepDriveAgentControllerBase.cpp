@@ -144,6 +144,7 @@ void ADeepDriveAgentControllerBase::OnAgentCollision(AActor *OtherActor, const F
 
 		ADeepDriveAgent *otherAgent = Cast<ADeepDriveAgent>(OtherActor);
 		UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentControllerBase::OnAgentCollision %d) with other agent %d at %ld"), m_Agent->GetAgentId(), otherAgent ? otherAgent->GetAgentId() : -1, now.ToUnixTimestamp());
+
 	}
 	else
 	{

@@ -38,7 +38,11 @@ bool ADeepDriveAgentTrafficAIController::updateAgentOnPath( float DeltaSeconds )
 	const float safetyDistance = calculateSafetyDistance();
 	float dist2Obstacle = checkForObstacle(safetyDistance);
 	if(dist2Obstacle >= 0.0f)
+	{
+		const float speedBefore = speed;
 		speed *= FMath::SmoothStep(300.0f, FMath::Max(500.0f, safetyDistance * 0.8f), dist2Obstacle);
+		AEL_MESSAGE(*m_Agent, TEXT("Distance to obstacle %f speed of %f reduced to %f"), dist2Obstacle, speedBefore, speed );
+	}
 
 	brake = speed > 0.0f ? 0.0f : 1.0f;
 

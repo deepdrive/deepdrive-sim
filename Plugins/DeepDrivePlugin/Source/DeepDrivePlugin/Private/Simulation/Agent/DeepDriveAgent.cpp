@@ -8,7 +8,7 @@
 #include "Simulation/Agent/DeepDriveAgentControllerBase.h"
 #include "Private/Capture/DeepDriveCapture.h"
 
-#include "ActorEventLoggerComponent.h"
+#include "ActorEventLogging/ActorEventLogging.h"
 
 #include "WheeledVehicleMovementComponent.h"
 #include "Runtime/Engine/Classes/Kismet/KismetRenderingLibrary.h"
@@ -488,6 +488,10 @@ void ADeepDriveAgent::OnBeginOverlap(UPrimitiveComponent *OverlappedComponent, A
 			)
 		{
 			// UE_LOG(LogDeepDriveAgent, Log, TEXT("OnBeginOverlap %s with %s"), *(OverlappedComponent->GetName()), *(OtherActor->GetName()) );
+
+			ADeepDriveAgent *otherAgent = Cast<ADeepDriveAgent>(OtherActor);
+
+			AEL_MESSAGE(*this, TEXT("Collision of %s with %s other agent %d"), *(OverlappedComponent->GetReadableName()), *(OtherComp->GetReadableName()), otherAgent ? otherAgent->GetAgentId() : -1 );
 
 			ADeepDriveAgentControllerBase *ctrl = getAgentController();
 			if (ctrl)

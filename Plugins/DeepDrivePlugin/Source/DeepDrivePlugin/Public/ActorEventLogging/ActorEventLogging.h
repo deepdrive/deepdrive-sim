@@ -6,7 +6,7 @@
 
 #define AEL_MESSAGE(ActorRef, Format, ...) \
 { \
-	UActorEventLoggerComponent *eventLogCmp = Cast<UActorEventLoggerComponent>(ActorRef.GetComponentByClass(UActorEventLoggerComponent::StaticClass())); \
+	UActorEventLoggerComponent *eventLogCmp = Cast<UActorEventLoggerComponent>((ActorRef).GetComponentByClass(UActorEventLoggerComponent::StaticClass())); \
 	if(eventLogCmp) \
 		eventLogCmp->LogMessage(FString::Printf(Format, ##__VA_ARGS__)); \
 }
