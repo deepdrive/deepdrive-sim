@@ -57,6 +57,22 @@ void ReplayActorEventLog::updateOnIdle(float deltaSeconds)
 	}
 }
 
+void ReplayActorEventLog::addFilter(FName EventType)
+{
+	m_Filters.Add(EventType);
+}
+
+void ReplayActorEventLog::removeFilter(FName EventType)
+{
+	m_Filters.Remove(EventType);
+}
+
+
+void ReplayActorEventLog::clearFilters()
+{
+	m_Filters.Empty();
+}
+
 void ReplayActorEventLog::replayFrame(int32 frameIndex)
 {
 	const TArray< TSharedPtr< FJsonValue > > &frames = m_JsonObject->GetArrayField("Frames");
@@ -95,11 +111,12 @@ void ReplayActorEventLog::replayFrame(int32 frameIndex)
 
 }
 
-
 void ReplayActorEventLog::handleEvent(const TSharedPtr<FJsonObject> &event)
 {
 	FString eventType;
-	if(event->TryGetStringField("Type", eventType))
+	if	(	event->TryGetStringField("Type", eventType)
+		&&	m_Filters.Contains(*eventType) == false
+		)
 	{
 		if(eventType == "ActorTransform")
 		{

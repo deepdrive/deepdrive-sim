@@ -60,6 +60,15 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "FileHandling")
 	TArray<FString> GetAvailableActorEventLogs(FString BasePath);
 
+	UFUNCTION(BlueprintCallable, Category = "Filter")
+	void AddFilter(int32 ActorId, FName EventType);
+
+	UFUNCTION(BlueprintCallable, Category = "Filter")
+	void RemoveFilter(int32 ActorId, FName EventType);
+
+	UFUNCTION(BlueprintCallable, Category = "Filter")
+	void ClearFilters(int32 ActorId);
+
 	UFUNCTION(BlueprintCallable, Category = "Control")
 	void GoToFrame(int32 FrameIndex);
 

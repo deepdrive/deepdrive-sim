@@ -22,6 +22,12 @@ public:
 	
 	void setPhysicsEnabled(bool enablePhysics, bool enableGravity);
 
+	void addFilter(FName EventType);
+
+	void removeFilter(FName EventType);
+
+	void clearFilters();
+
 	void replayFrame(int32 frameIndex);
 
 	const FString& getFileName() const;
@@ -53,6 +59,7 @@ private:
 	FString							m_ActorClassName;
 
 	AActor							*m_Actor = 0;
+	TSet<FName>						m_Filters;
 
 	FTransform						m_curTransform;
 	bool 							m_KeepTransformFixed = true;

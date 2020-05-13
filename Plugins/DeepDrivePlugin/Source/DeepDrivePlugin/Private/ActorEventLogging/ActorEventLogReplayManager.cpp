@@ -123,6 +123,33 @@ TArray<FString> AActorEventLogReplayManager::GetAvailableActorEventLogs(FString 
 	return logs;
 }
 
+void AActorEventLogReplayManager::AddFilter(int32 ActorId, FName EventType)
+{
+	if(m_ActorEventLogs.Contains(ActorId))
+	{
+		m_ActorEventLogs[ActorId]->addFilter(EventType);
+		replayCurrentFrame();
+	}
+}
+
+void AActorEventLogReplayManager::RemoveFilter(int32 ActorId, FName EventType)
+{
+	if (m_ActorEventLogs.Contains(ActorId))
+	{
+		m_ActorEventLogs[ActorId]->removeFilter(EventType);
+		replayCurrentFrame();
+	}
+}
+
+void AActorEventLogReplayManager::ClearFilters(int32 ActorId)
+{
+	if (m_ActorEventLogs.Contains(ActorId))
+	{
+		m_ActorEventLogs[ActorId]->clearFilters();
+		replayCurrentFrame();
+	}
+}
+
 void AActorEventLogReplayManager::GoToFrame(int32 FrameIndex)
 {
 	if(m_curState == Idle)
