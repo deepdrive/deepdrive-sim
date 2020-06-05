@@ -4,7 +4,7 @@
 #include "Simulation/Traffic/BehaviorTree/DeepDriveTrafficBlackboard.h"
 
 #include "Agent/DeepDriveAgent.h"
-#include "ActorEventLogging/ActorEventLogging.h"
+// #include "ActorEventLogging/ActorEventLogging.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveTrafficBehaviorTree);
 
@@ -43,7 +43,7 @@ void DeepDriveTrafficBehaviorTree::execute(float deltaSeconds, float &speed, int
 	if(m_isDebuggingActive)
 		UE_LOG(LogDeepDriveTrafficBehaviorTree, Log, TEXT("DeepDriveTrafficBehaviorTree::execute %s started at index %d"), *m_Name, pathPointIndex);
 
-	AEL_MESSAGE((*m_Blackboard->getAgent()), TEXT("DeepDriveTrafficBehaviorTree::execute %s at index %d"), *m_Name, pathPointIndex);
+	// AEL_MESSAGE((*m_Blackboard->getAgent()), TEXT("DeepDriveTrafficBehaviorTree::execute %s at index %d"), *m_Name, pathPointIndex);
 
 	if (m_RootNode)
 	{

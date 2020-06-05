@@ -12,7 +12,7 @@
 
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 
-#include "ActorEventLogging/ActorEventLogging.h"
+// #include "ActorEventLogging/ActorEventLogging.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDrivePartialPath);
 
@@ -144,7 +144,7 @@ void DeepDrivePartialPath::advance(float deltaSeconds, float &speed, float &stee
 		{
 			curManeuver = &m;
 			// UE_LOG(LogDeepDrivePartialPath, Log, TEXT("Found maneuver at %d from %d to %d"), m_curPathPointIndex, m.EntryPointIndex, m.ExitPointIndex);
-			AEL_MESSAGE(m_Agent, TEXT("Found maneuver at %d from %d to %d"), m_curPathPointIndex, m.EntryPointIndex, m.ExitPointIndex);
+			// AEL_MESSAGE(m_Agent, TEXT("Found maneuver at %d from %d to %d"), m_curPathPointIndex, m.EntryPointIndex, m.ExitPointIndex);
 			break;
 		}
 	}
@@ -187,7 +187,7 @@ void DeepDrivePartialPath::advance(float deltaSeconds, float &speed, float &stee
 			)
 		{
 			m_hasReachedDestination = curManeuver->BehaviorTree->getBlackboard().getBooleanValue("DestinationReached", false);
-			AEL_MESSAGE(m_Agent, TEXT("Destination reached at %d"), m_curPathPointIndex);
+			// AEL_MESSAGE(m_Agent, TEXT("Destination reached at %d"), m_curPathPointIndex);
 		}
 	}
 

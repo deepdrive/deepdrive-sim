@@ -8,7 +8,7 @@
 #include "Simulation/Agent/DeepDriveAgentControllerBase.h"
 #include "Private/Capture/DeepDriveCapture.h"
 
-#include "ActorEventLogging/ActorEventLogging.h"
+// #include "ActorEventLogging/ActorEventLogging.h"
 
 #include "WheeledVehicleMovementComponent.h"
 #include "Runtime/Engine/Classes/Kismet/KismetRenderingLibrary.h"
@@ -75,11 +75,11 @@ void ADeepDriveAgent::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	
-	m_EventLogger = Cast<UActorEventLoggerComponent>(GetComponentByClass(UActorEventLoggerComponent::StaticClass()));
-	if(m_EventLogger)
-	{
-		m_EventLogger->setUniqueActorName(FString::Printf(TEXT("DeepDriveAgent_%d"), m_AgentId));
-	}
+	// m_EventLogger = Cast<UActorEventLoggerComponent>(GetComponentByClass(UActorEventLoggerComponent::StaticClass()));
+	// if(m_EventLogger)
+	// {
+	// 	m_EventLogger->setUniqueActorName(FString::Printf(TEXT("DeepDriveAgent_%d"), m_AgentId));
+	// }
 }
 
 
@@ -132,8 +132,8 @@ void ADeepDriveAgent::Tick( float DeltaSeconds )
 		UE_LOG(LogDeepDriveAgent, Log, TEXT("Laps finished %d"), m_NumberOfLaps );
 	}
 
-	if(m_EventLogger)
-		m_EventLogger->LogActorTransform(GetActorTransform());
+	// if(m_EventLogger)
+	// 	m_EventLogger->LogActorTransform(GetActorTransform());
 }
 
 int32 ADeepDriveAgent::RegisterCaptureCamera(float fieldOfView, int32 captureWidth, int32 captureHeight, FVector relativePosition, FVector relativeRotation, const FString &label)
@@ -491,7 +491,7 @@ void ADeepDriveAgent::OnBeginOverlap(UPrimitiveComponent *OverlappedComponent, A
 
 			ADeepDriveAgent *otherAgent = Cast<ADeepDriveAgent>(OtherActor);
 
-			AEL_MESSAGE(*this, TEXT("Collision of %s with %s other agent %d"), *(OverlappedComponent->GetReadableName()), *(OtherComp->GetReadableName()), otherAgent ? otherAgent->GetAgentId() : -1 );
+			// AEL_MESSAGE(*this, TEXT("Collision of %s with %s other agent %d"), *(OverlappedComponent->GetReadableName()), *(OtherComp->GetReadableName()), otherAgent ? otherAgent->GetAgentId() : -1 );
 
 			ADeepDriveAgentControllerBase *ctrl = getAgentController();
 			if (ctrl)

@@ -269,7 +269,7 @@ private:
 
 	static int32						s_nextAgentId;
 
-	UActorEventLoggerComponent			*m_EventLogger = 0;
+	// UActorEventLoggerComponent			*m_EventLogger = 0;
 };
 
 inline void ADeepDriveAgent::initialize(ADeepDriveSimulation &sim)

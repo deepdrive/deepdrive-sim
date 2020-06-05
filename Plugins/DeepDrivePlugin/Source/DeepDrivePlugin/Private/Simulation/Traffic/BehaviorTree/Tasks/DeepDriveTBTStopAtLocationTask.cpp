@@ -5,7 +5,7 @@
 
 #include "Private/Simulation/Traffic/Path/DeepDrivePartialPath.h"
 
-#include "ActorEventLogging/ActorEventLogging.h"
+// #include "ActorEventLogging/ActorEventLogging.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveTBTStopAtLocationTask);
 
@@ -52,7 +52,7 @@ bool DeepDriveTBTStopAtLocationTask::execute(DeepDriveTrafficBlackboard &blackbo
 			hasStopped = pathPointIndex >= m_StopBeginIndex && agent->getSpeedKmh() < 1.0f;
 
 			// UE_LOG(LogDeepDriveTBTStopAtLocationTask, Log, TEXT("DeepDriveTBTStopAtLocationTask[%p] %d spd %f spdFac %f curT %f agntSpd %f -> %c"), this, pathPointIndex, speed, speedFac, curT, agent->getSpeedKmh(), m_hasStopped ? 'T' : 'F');
-			AEL_MESSAGE((*agent), TEXT("StopAtLocationTask %d spd %f spdFac %f curT %f agntSpd %f -> %c"), pathPointIndex, speed, speedFac, curT, agent->getSpeedKmh(), hasStopped ? 'T' : 'F');
+			// AEL_MESSAGE((*agent), TEXT("StopAtLocationTask %d spd %f spdFac %f curT %f agntSpd %f -> %c"), pathPointIndex, speed, speedFac, curT, agent->getSpeedKmh(), hasStopped ? 'T' : 'F');
 		}
 	}
 
