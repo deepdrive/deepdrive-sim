@@ -36,7 +36,8 @@ public class DeepDrivePlugin : ModuleRules
 			new string[]
 			{
 				"Core",
-				"Sockets","Networking"
+				"Sockets","Networking",
+                "ActorEventLogging"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);

@@ -8,7 +8,7 @@
 #include "Simulation/Agent/DeepDriveAgentControllerBase.h"
 #include "Private/Capture/DeepDriveCapture.h"
 
-// #include "ActorEventLogging/ActorEventLogging.h"
+#include "ActorEventLogging/Public/ActorEventLogging.h"
 
 #include "WheeledVehicleMovementComponent.h"
 #include "Runtime/Engine/Classes/Kismet/KismetRenderingLibrary.h"
@@ -132,8 +132,7 @@ void ADeepDriveAgent::Tick( float DeltaSeconds )
 		UE_LOG(LogDeepDriveAgent, Log, TEXT("Laps finished %d"), m_NumberOfLaps );
 	}
 
-	// if(m_EventLogger)
-	// 	m_EventLogger->LogActorTransform(GetActorTransform());
+	AEL_LOG_TRANSFORM(*this, GetActorTransform());
 }
 
 int32 ADeepDriveAgent::RegisterCaptureCamera(float fieldOfView, int32 captureWidth, int32 captureHeight, FVector relativePosition, FVector relativeRotation, const FString &label)
