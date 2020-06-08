@@ -16,7 +16,7 @@
 
 #include "WheeledVehicleMovementComponent.h"
 
-// #include "ActorEventLogging/ActorEventLogging.h"
+#include "ActorEventLogging/Public/ActorEventLogging.h"
 
 ADeepDriveAgentTrafficAIController::ADeepDriveAgentTrafficAIController()
 {
@@ -41,7 +41,7 @@ bool ADeepDriveAgentTrafficAIController::updateAgentOnPath( float DeltaSeconds )
 	{
 		const float speedBefore = speed;
 		speed *= FMath::SmoothStep(300.0f, FMath::Max(500.0f, safetyDistance * 0.8f), dist2Obstacle);
-		// AEL_MESSAGE(*m_Agent, TEXT("Distance to obstacle %f speed of %f reduced to %f"), dist2Obstacle, speedBefore, speed );
+		AEL_MESSAGE(*m_Agent, TEXT("Distance to obstacle %f speed of %f reduced to %f"), dist2Obstacle, speedBefore, speed );
 	}
 
 	brake = speed > 0.0f ? 0.0f : 1.0f;
@@ -129,7 +129,7 @@ bool ADeepDriveAgentTrafficAIController::Activate(ADeepDriveAgent &agent, bool k
 {
 	bool res = false;
 
-	// AEL_ENSURE_TICK_ORDER(*this);
+	AEL_ENSURE_TICK_ORDER(*this);
 
 	UDeepDriveRoadNetworkComponent *roadNetwork = m_DeepDriveSimulation->RoadNetwork;
 

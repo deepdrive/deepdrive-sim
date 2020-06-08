@@ -74,12 +74,6 @@ ADeepDriveAgent::ADeepDriveAgent()
 void ADeepDriveAgent::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	
-	// m_EventLogger = Cast<UActorEventLoggerComponent>(GetComponentByClass(UActorEventLoggerComponent::StaticClass()));
-	// if(m_EventLogger)
-	// {
-	// 	m_EventLogger->setUniqueActorName(FString::Printf(TEXT("DeepDriveAgent_%d"), m_AgentId));
-	// }
 }
 
 
@@ -490,7 +484,7 @@ void ADeepDriveAgent::OnBeginOverlap(UPrimitiveComponent *OverlappedComponent, A
 
 			ADeepDriveAgent *otherAgent = Cast<ADeepDriveAgent>(OtherActor);
 
-			// AEL_MESSAGE(*this, TEXT("Collision of %s with %s other agent %d"), *(OverlappedComponent->GetReadableName()), *(OtherComp->GetReadableName()), otherAgent ? otherAgent->GetAgentId() : -1 );
+			AEL_MESSAGE(*this, TEXT("Collision of %s with %s other agent %d"), *(OverlappedComponent->GetReadableName()), *(OtherComp->GetReadableName()), otherAgent ? otherAgent->GetAgentId() : -1 );
 
 			ADeepDriveAgentControllerBase *ctrl = getAgentController();
 			if (ctrl)
