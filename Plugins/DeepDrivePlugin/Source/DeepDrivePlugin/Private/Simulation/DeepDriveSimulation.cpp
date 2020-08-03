@@ -29,7 +29,7 @@
 
 #include "Public/CaptureSink/CaptureSinkComponentBase.h"
 
-	DEFINE_LOG_CATEGORY(LogDeepDriveSimulation);
+DEFINE_LOG_CATEGORY(LogDeepDriveSimulation);
 
 FDateTime ADeepDriveSimulation::m_SimulationStartTime;
 

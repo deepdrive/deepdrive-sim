@@ -19,5 +19,15 @@
 			"Type": "Runtime",
 			"LoadingPhase": "PreDefault"
 		}
+	],
+	"Plugins": [
+		{
+			"Name": "ActorEventLogging",
+			"Enabled": true
+		},
+		{
+			"Name": "PhysXVehicles",
+			"Enabled": true
+		}
 	]
 }

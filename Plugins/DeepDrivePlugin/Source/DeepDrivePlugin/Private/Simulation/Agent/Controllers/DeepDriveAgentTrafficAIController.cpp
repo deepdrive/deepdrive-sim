@@ -16,7 +16,7 @@
 
 #include "WheeledVehicleMovementComponent.h"
 
-#include "ActorEventLogging/Public/ActorEventLogging.h"
+#include "ActorEventLogging/Public/ActorEventLoggingMacros.h"
 
 ADeepDriveAgentTrafficAIController::ADeepDriveAgentTrafficAIController()
 {

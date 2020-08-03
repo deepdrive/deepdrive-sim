@@ -8,7 +8,7 @@
 #include "Simulation/Agent/DeepDriveAgentControllerBase.h"
 #include "Private/Capture/DeepDriveCapture.h"
 
-#include "ActorEventLogging/Public/ActorEventLogging.h"
+#include "ActorEventLogging/Public/ActorEventLoggingMacros.h"
 
 #include "WheeledVehicleMovementComponent.h"
 #include "Runtime/Engine/Classes/Kismet/KismetRenderingLibrary.h"

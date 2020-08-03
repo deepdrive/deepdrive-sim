@@ -7,7 +7,7 @@
 #include "Simulation/Agent/DeepDriveAgent.h"
 #include "Private/Simulation/Traffic/Path/DeepDrivePartialPath.h"
 
-#include "ActorEventLogging/Public/ActorEventLogging.h"
+#include "ActorEventLogging/Public/ActorEventLoggingMacros.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveTBTCheckIsJunctionClearTask);
 
