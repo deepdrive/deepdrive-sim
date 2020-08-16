@@ -6,10 +6,13 @@
 #include "Private/Simulation/Traffic/Path/Annotations/DeepDrivePathSpeedAnnotation.h"
 #include "Private/Simulation/Traffic/Path/Annotations/DeepDrivePathDistanceAnnotation.h"
 #include "Private/Simulation/Traffic/Path/Annotations/DeepDrivePathManeuverAnnotations.h"
+#include "Simulation/Traffic/BehaviorTree/DeepDriveTrafficBlackboard.h"
 
 #include "Simulation/Traffic/BehaviorTree/DeepDriveTrafficBehaviorTree.h"
 
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
+
+#include "ActorEventLogging/Public/ActorEventLoggingMacros.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDrivePartialPath);
 
@@ -141,6 +144,7 @@ void DeepDrivePartialPath::advance(float deltaSeconds, float &speed, float &stee
 		{
 			curManeuver = &m;
 			// UE_LOG(LogDeepDrivePartialPath, Log, TEXT("Found maneuver at %d from %d to %d"), m_curPathPointIndex, m.EntryPointIndex, m.ExitPointIndex);
+			AEL_MESSAGE(m_Agent, TEXT("Found maneuver at %d from %d to %d"), m_curPathPointIndex, m.EntryPointIndex, m.ExitPointIndex);
 			break;
 		}
 	}
@@ -156,13 +160,13 @@ void DeepDrivePartialPath::advance(float deltaSeconds, float &speed, float &stee
 			switch(curManeuver->ManeuverType)
 			{
 				case EDeepDriveManeuverType::TURN_RIGHT:
-					m_Agent.SetDirectionIndicatorState(EDeepDriveAgentDirectionIndicatorState::RIGHT);
+					m_Agent.setTurnSignalState(EDeepDriveAgentTurnSignalState::RIGHT);
 					break;
 				case EDeepDriveManeuverType::GO_ON_STRAIGHT:
-					m_Agent.SetDirectionIndicatorState(EDeepDriveAgentDirectionIndicatorState::OFF);
+					m_Agent.setTurnSignalState(EDeepDriveAgentTurnSignalState::OFF);
 					break;
 				case EDeepDriveManeuverType::TURN_LEFT:
-					m_Agent.SetDirectionIndicatorState(EDeepDriveAgentDirectionIndicatorState::LEFT);
+					m_Agent.setTurnSignalState(EDeepDriveAgentTurnSignalState::LEFT);
 					break;
 			}
 			curManeuver->DirectionIndicationBeginIndex = -1;
@@ -172,11 +176,19 @@ void DeepDrivePartialPath::advance(float deltaSeconds, float &speed, float &stee
 			&&	m_curPathPointIndex >= curManeuver->DirectionIndicationEndIndex
 			)
 		{
-			m_Agent.SetDirectionIndicatorState(EDeepDriveAgentDirectionIndicatorState::UNKNOWN);
+			m_Agent.setTurnSignalState(EDeepDriveAgentTurnSignalState::UNKNOWN);
 			curManeuver->DirectionIndicationEndIndex = -1;
 		}
 
 		curManeuver->BehaviorTree->execute(deltaSeconds, speed, m_curPathPointIndex);
+
+		if	(	curManeuver->JunctionType == EDeepDriveJunctionType::DESTINATION_REACHED
+			&&	m_hasReachedDestination == false
+			)
+		{
+			m_hasReachedDestination = curManeuver->BehaviorTree->getBlackboard().getBooleanValue("DestinationReached", false);
+			AEL_MESSAGE(m_Agent, TEXT("Destination reached at %d"), m_curPathPointIndex);
+		}
 	}
 
 	// UE_LOG(LogDeepDrivePartialPath, Log, TEXT("%5d) dist2ctr %f steering %f corr %f totE %f"), m_curPathPointIndex, dist2Ctr, steering, steeringCorrection, m_totalTrackError);
@@ -204,11 +216,6 @@ float DeepDrivePartialPath::getDistanceToCenterOfTrack() const
 	return dist2Ctr;
 }
 
-
-bool DeepDrivePartialPath::isCloseToEnd(float distanceFromEnd) const
-{
-    return m_PathPoints[m_curPathPointIndex].RemainingDistance <= distanceFromEnd;
-}
 
 float DeepDrivePartialPath::calcSteering(float dT)
 {

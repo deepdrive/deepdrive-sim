@@ -90,12 +90,17 @@ bool DeepDriveRouteCalculator::calculate(const FVector &start, const FVector &de
 				success = true;
 				UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Route successfully calculated %d links total cost %f"), linksOut.Num(), totalCost );
 				for(auto &linkId : linksOut)
-					UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("  %d"), linkId );
+					UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("  %s"), *(m_RoadNetwork.getDebugLinkName(linkId)) );
 
 			}
 			else
 			{
 				UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Route calculation failed") );
+				while(currentLink)
+				{
+					UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("  %s"), *(m_RoadNetwork.getDebugLinkName(currentLink->LinkId)) );
+					currentLink = currentLink->Predecessor;
+				}
 			}
 		}
 	}
@@ -112,7 +117,7 @@ bool DeepDriveRouteCalculator::expandLink(const Link &currentLink)
 {
 	bool found = false;
 	const SDeepDriveJunction &junction = m_RoadNetwork.Junctions[ m_RoadNetwork.Links[ currentLink.LinkId ].ToJunctionId ];
-	UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Expanding link %d with junction Link %d"), currentLink.LinkId, junction.JunctionId);
+	UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Expanding link %s with junction Link %d"), *(m_RoadNetwork.getDebugLinkName(currentLink.LinkId)), junction.JunctionId);
 	for (auto &outLinkId : junction.LinksOut)
 	{
 		// UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Checking link %d"), outLinkId );
@@ -139,7 +144,7 @@ bool DeepDriveRouteCalculator::expandLink(const Link &currentLink)
 			float tentativeG = currentLink.CostG + curC;
 
 			Link *successorLink = m_OpenList.get(outLinkId);
-			UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("Successor Link %d %p with cost %f"), outLinkId, successorLink, tentativeG);
+			UE_LOG(LogDeepDriveRouteCalc, Log, TEXT("   Successor Link %s %p with cost %f"), *(m_RoadNetwork.getDebugLinkName(outLinkId)), successorLink, tentativeG);
 			if (successorLink && tentativeG >= successorLink->CostG)
 				continue;
 
@@ -168,6 +173,7 @@ DeepDriveRouteCalculator::Link* DeepDriveRouteCalculator::acquireLink(uint32 lin
 		link->Position = m_RoadNetwork.Junctions[ m_RoadNetwork.Links[linkId].ToJunctionId ].Center;
 		link->CostG = costG;
 		link->CostF = costG + (m_Destination - link->Position).Size();
+
 	}
 
 	return link;

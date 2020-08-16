@@ -47,9 +47,9 @@ void DeepDriveBasePath::advance(float deltaSeconds, float &speed, float &steerin
 	}
 }
 
-bool DeepDriveBasePath::isCloseToEnd(float distanceFromEnd) const
+bool DeepDriveBasePath::hasReachedDestination() const
 {
-    return m_PartialPath ? m_PartialPath->isCloseToEnd(distanceFromEnd) : true;
+    return m_PartialPath ? m_PartialPath->hasReachedDestination() : true;
 }
 
 float DeepDriveBasePath::getRouteLength() const
@@ -89,7 +89,12 @@ void DeepDriveBasePath::convertRouteLinks()
 		const SDeepDriveLane &lane = link.Lanes[curLane];
 		basePathSegment.Segments.Append(lane.Segments);
 
-		if (!lastLink)
+		if (lastLink)
+		{
+			if (curManeuverInd < m_Route.Maneuvers.Num())
+				basePathSegment.Maneuver = m_Route.Maneuvers[curManeuverInd++];
+		}
+		else
 		{
 			const SDeepDriveRoadLink &nextLink = m_RoadNetwork.Links[m_Route.Links[i + 1]];
 			const SDeepDriveRoadSegment &segment = m_RoadNetwork.Segments[lane.Segments[lane.Segments.Num() - 1]];
@@ -121,7 +126,7 @@ void DeepDriveBasePath::extractCrossTrafficRoads(SDeepDriveManeuver &maneuver, c
 
 	for(auto &crossTrafficRoad : maneuver.CrossTrafficRoads)
 	{
-		UE_LOG(LogDeepDriveBasePath, Log, TEXT("Extracting cross traffic roads for junction %d from link %d to link %d"), junction.JunctionId, crossTrafficRoad.FromLinkId, crossTrafficRoad.ToLinkId);
+		UE_LOG(LogDeepDriveBasePath, Log, TEXT("Extracting cross traffic roads for junction %d from link %s to link %s"), junction.JunctionId, *(m_RoadNetwork.getDebugLinkName(crossTrafficRoad.FromLinkId)), *(m_RoadNetwork.getDebugLinkName(crossTrafficRoad.ToLinkId)) );
 	
 		crossTrafficRoad.Paths.Add(TDeepDrivePathPoints());
 

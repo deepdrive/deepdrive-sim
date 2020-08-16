@@ -60,3 +60,15 @@ bool ADeepDriveAgentOneOffController::Activate(ADeepDriveAgent &agent, bool keep
 	}
 	return res;
 }
+
+void ADeepDriveAgentOneOffController::MoveForward(float axisValue)
+{
+}
+
+void ADeepDriveAgentOneOffController::MoveRight(float axisValue)
+{
+}
+
+void ADeepDriveAgentOneOffController::Brake(float axisValue)
+{
+}

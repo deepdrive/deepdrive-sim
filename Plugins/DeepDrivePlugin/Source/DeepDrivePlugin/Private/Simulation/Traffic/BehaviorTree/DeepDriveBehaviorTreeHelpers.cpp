@@ -24,21 +24,21 @@ float DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue(DeepDriveTraffic
 		forward.Normalize();
 
 		uint32 agentDirectionMask = 0;
-		switch(curAgent->GetDirectionIndicatorState())
+		switch(curAgent->GetTurnSignalState())
 		{
-			case EDeepDriveAgentDirectionIndicatorState::UNKNOWN:
+			case EDeepDriveAgentTurnSignalState::UNKNOWN:
 				agentDirectionMask = 0xF;
 				break;
-			case EDeepDriveAgentDirectionIndicatorState::LEFT:
+			case EDeepDriveAgentTurnSignalState::LEFT:
 				agentDirectionMask = 1;
 				break;
-			case EDeepDriveAgentDirectionIndicatorState::OFF:
+			case EDeepDriveAgentTurnSignalState::OFF:
 				agentDirectionMask = 2;
 				break;
-			case EDeepDriveAgentDirectionIndicatorState::RIGHT:
+			case EDeepDriveAgentTurnSignalState::RIGHT:
 				agentDirectionMask = 4;
 				break;
-			case EDeepDriveAgentDirectionIndicatorState::HAZARD_LIGHTS:
+			case EDeepDriveAgentTurnSignalState::HAZARD_LIGHTS:
 				agentDirectionMask = 8;
 				break;
 		}

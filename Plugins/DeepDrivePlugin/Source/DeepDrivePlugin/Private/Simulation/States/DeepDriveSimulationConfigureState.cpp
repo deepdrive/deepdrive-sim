@@ -3,7 +3,7 @@
 #include "Private/Simulation/States/DeepDriveSimulationConfigureState.h"
 #include "Public/Simulation/DeepDriveSimulation.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
-#include "Public/Simulation/Agent/Controllers/DeepDriveAgentCityAIController.h"
+#include "Public/Simulation/Agent/DeepDriveAgentControllerBase.h"
 #include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
 #include "Public/Simulation/Misc/DeepDriveRandomStream.h"
 
@@ -40,7 +40,7 @@ void DeepDriveSimulationConfigureState::update(ADeepDriveSimulation &deepDriveSi
 
 	UE_LOG(LogDeepDriveSimulation, Log, TEXT("Spawning ego agent"));
 
-	deepDriveSim.m_curAgent = deepDriveSim.spawnAgent(m_Configuration.EgoAgent, true, m_Configuration.EgoAgent.IsRemotelyControlled);
+	deepDriveSim.m_curAgent = deepDriveSim.spawnAgent(m_Configuration.EgoAgent, m_Configuration.EgoAgent.IsRemotelyControlled);
 	deepDriveSim.OnCurrentAgentChanged(deepDriveSim.m_curAgent);
 
 	deepDriveSim.m_curAgentController = Cast<ADeepDriveAgentControllerBase>(deepDriveSim.m_curAgent->GetController());
@@ -49,7 +49,7 @@ void DeepDriveSimulationConfigureState::update(ADeepDriveSimulation &deepDriveSi
 	UE_LOG(LogDeepDriveSimulation, Log, TEXT("Spawning additional agents %d"), m_Configuration.Agents.Num());
 	for (auto &agentCfg : m_Configuration.Agents)
 	{
-		ADeepDriveAgent *agent = deepDriveSim.spawnAgent(agentCfg, false, false);
+		ADeepDriveAgent *agent = deepDriveSim.spawnAgent(agentCfg, false);
 	}
 
 	m_StateMachine.setNextState("Running");

@@ -1,16 +1,28 @@
 
 #include "deepdrive_simulation/DeepDriveSimulation.hpp"
 #include "deepdrive_simulation/PySimulationGraphicsSettingsObject.h"
-
-#include "Public/Server/Messages/DeepDriveServerSimulationMessages.h"
+#include "deepdrive_simulation/PyMultiAgentSnapshotObject.h"
 
 #include "socket/IP4ClientSocket.hpp"
 #include "common/ClientErrorCode.hpp"
 
 #include <iostream>
 
+DeepDriveSimulation *DeepDriveSimulation::theInstance = 0;
+
+void DeepDriveSimulation::create(const IP4Address &ip4Address)
+{
+	theInstance = new DeepDriveSimulation(ip4Address);
+}
+
+void DeepDriveSimulation::destroy()
+{
+	delete theInstance;
+	theInstance = 0;
+}
+
 DeepDriveSimulation::DeepDriveSimulation(const IP4Address &ip4Address)
-	:	m_Socket()
+	: m_Socket()
 {
 	m_Socket.connect(ip4Address);
 }
@@ -194,3 +206,156 @@ int32 DeepDriveSimulation::setSpeed(uint32 speed)
 	return res;
 }
 
+int32 DeepDriveSimulation::getAgentsList(std::vector<uint32> &list)
+{
+	deepdrive::server::GetAgentsListRequest req;
+	int32 res = m_Socket.send(&req, sizeof(req));
+	if(res >= 0)
+	{
+		deepdrive::server::GetAgentsListResponse response;
+		res = m_Socket.read(&response, sizeof(response), 1000);
+		if (res == sizeof(response))
+		{
+			if (response.agent_count)
+			{
+				list.push_back(response.agent_ids[0]);
+				for (uint32 i = 1; i < response.agent_count; ++i)
+				{
+					uint32 curId;
+					if(m_Socket.read(&curId, sizeof(curId), 0) == sizeof(uint32))
+						list.push_back(curId);
+					else
+						break;
+				}
+			}
+
+			std::cout << "GetAgentsListResponse received containing" << list.size() << " agents\n";
+			res = NO_ERROR;
+		}
+	}
+
+	return res;
+}
+
+int32 DeepDriveSimulation::requestControl(const std::vector<uint32> &ids)
+{
+	const size_t msgSize = sizeof(deepdrive::server::RequestControlRequest) + (ids.size() > 0 ? sizeof(uint32) * (ids.size() - 1) : 0);
+	int8 *msgBuf = new int8[msgSize];
+	deepdrive::server::RequestControlRequest *req = new (msgBuf) deepdrive::server::RequestControlRequest(ids.size(), ids.data());
+
+	int32 res = m_Socket.send(req, msgSize);
+	if (res >= 0)
+	{
+		std::cout << "RequestControlRequest sent with " << req->agent_count << " agents, msgSize " << msgSize << "\n";
+
+		deepdrive::server::RequestControlResponse response;
+		if (m_Socket.receive(&response, sizeof(response), 1000))
+		{
+			res = static_cast<int32>(response.result);
+			std::cout << "RequestControlResponse received\n";
+		}
+		else
+		{
+			std::cout << "Waiting for RequestControlResponse, time out\n";
+			res = TIME_OUT;
+		}
+	}
+
+	delete [] msgBuf;
+
+	return res;
+}
+
+int32 DeepDriveSimulation::releaseControl(const std::vector<uint32> &ids)
+{
+	const size_t msgSize = sizeof(deepdrive::server::ReleaseControlRequest) + (ids.size() > 0 ? sizeof(uint32) * (ids.size() - 1) : 0);
+	int8 *msgBuf = new int8[msgSize];
+	deepdrive::server::ReleaseControlRequest *req = new (msgBuf) deepdrive::server::ReleaseControlRequest(ids.size(), ids.data());
+
+	int32 res = m_Socket.send(req, msgSize);
+	if (res >= 0)
+	{
+		std::cout << "ReleaseControlRequest sent with " << req->agent_count << " agents, msgSize " << msgSize << "\n";
+
+		deepdrive::server::RequestControlResponse response;
+		if (m_Socket.receive(&response, sizeof(response), 1000))
+		{
+			res = static_cast<int32>(response.result);
+			std::cout << "ReleaseControlResponse received\n";
+		}
+		else
+		{
+			std::cout << "Waiting for ReleaseControlResponse, time out\n";
+			res = TIME_OUT;
+		}
+	}
+
+	delete[] msgBuf;
+
+	return res;
+}
+
+int32 DeepDriveSimulation::setControlValues(const std::vector<deepdrive::server::SetControlValuesRequest::ControlValueSet> &controlValues)
+{
+	const size_t msgSize = deepdrive::server::SetControlValuesRequest::getMessageSize(controlValues.size());
+	int8 *msgBuf = new int8[msgSize];
+	deepdrive::server::SetControlValuesRequest *req = new (msgBuf) deepdrive::server::SetControlValuesRequest(controlValues.size(), controlValues.data());
+
+	int32 res = m_Socket.send(req, msgSize);
+	if (res >= 0)
+	{
+		std::cout << "SetControlValuesRequest sent with " << req->agent_count << " agents, msgSize " << msgSize << "\n";
+
+		deepdrive::server::GenericBooleanResponse response;
+		if (m_Socket.receive(&response, sizeof(response), 1000))
+		{
+			res = static_cast<int32>(response.result);
+			std::cout << "SetControlValues response received\n";
+		}
+		else
+		{
+			std::cout << "Waiting for SetControlValues response, time out\n";
+			res = TIME_OUT;
+		}
+	}
+
+	delete[] msgBuf;
+
+	return res;
+}
+
+int32 DeepDriveSimulation::step(std::vector<PyMultiAgentSnapshotObject*> &snapshots)
+{
+	deepdrive::server::StepRequest req;
+	int32 res = m_Socket.send(&req, sizeof(req));
+	if (res >= 0)
+	{
+		deepdrive::server::StepResponse response;
+		res = m_Socket.read(&response, sizeof(response), 1000);
+		if (res == sizeof(response))
+		{
+			if (response.agent_count)
+			{
+				PyMultiAgentSnapshotObject *snapshot;
+				snapshot = reinterpret_cast<PyMultiAgentSnapshotObject *>(PyMultiAgentSnapshotType.tp_new(&PyMultiAgentSnapshotType, 0, 0));
+				snapshots.push_back(snapshot);
+				for (uint32 i = 1; i < response.agent_count; ++i)
+				{
+					deepdrive::server::StepResponse::SnapshotData curSnapshot;
+					if (m_Socket.read(&curSnapshot, sizeof(curSnapshot), 0) == sizeof(curSnapshot))
+					{
+						snapshot = reinterpret_cast<PyMultiAgentSnapshotObject *>(PyMultiAgentSnapshotType.tp_new(&PyMultiAgentSnapshotType, 0, 0));
+						snapshots.push_back(snapshot);
+					}
+					else
+						break;
+				}
+			}
+
+			std::cout << "Steo received containing" << snapshots.size() << " snapshots\n";
+			res = NO_ERROR;
+		}
+	}
+
+	return res;
+}

@@ -24,9 +24,11 @@ void UCaptureCameraComponent::Initialize(UTextureRenderTarget2D *colorRenderTarg
 
 	m_SceneCapture = NewObject<USceneCaptureComponent2D>(owningActor, FName( *("ColorCaptureComponent_" + FString::FromInt(CameraId)) ));
 	m_SceneCapture->RegisterComponent();
+	m_SceneCapture->ProfilingEventName = "DeepDriveCapture_Scene";
 
 	m_DepthCapture = NewObject<USceneCaptureComponent2D>(owningActor, FName( *("DepthCaptureComponent_" + FString::FromInt(CameraId)) ));
 	m_DepthCapture->RegisterComponent();
+	m_DepthCapture->ProfilingEventName = "DeepDriveCapture_Depth";
 
 	if (m_SceneCapture && m_DepthCapture)
 	{
@@ -43,17 +45,22 @@ void UCaptureCameraComponent::Initialize(UTextureRenderTarget2D *colorRenderTarg
 
 		if(IsCapturingActive)
 		{
+			m_SceneCapture->bCaptureEveryFrame = true;
+			m_SceneCapture->bCaptureOnMovement = true;
 			m_SceneCapture->Activate();
+
+			m_DepthCapture->bCaptureEveryFrame = m_needsSeparateDepthCapture;
+			m_DepthCapture->bCaptureOnMovement = m_needsSeparateDepthCapture;
 			m_DepthCapture->Activate();
-			m_SceneCapture->bCaptureEveryFrame = CaptureSceneEveryFrame;
-			m_SceneCapture->bCaptureOnMovement = CaptureSceneEveryFrame;
 		}
 		else
 		{
 			m_SceneCapture->Deactivate();
-			m_DepthCapture->Deactivate();
 			m_SceneCapture->bCaptureEveryFrame = false;
 			m_SceneCapture->bCaptureOnMovement = false;
+			m_DepthCapture->Deactivate();
+			m_DepthCapture->bCaptureEveryFrame = false;
+			m_DepthCapture->bCaptureOnMovement = false;
 		}
 
 		m_SceneCapture->AttachToComponent(this, FAttachmentTransformRules(EAttachmentRule::KeepRelative, false));
@@ -87,10 +94,12 @@ void UCaptureCameraComponent::ActivateCapturing()
 	if (m_SceneCapture)
 	{
 		m_SceneCapture->Activate();
-		m_SceneCapture->bCaptureEveryFrame = CaptureSceneEveryFrame;
-		m_SceneCapture->bCaptureOnMovement = CaptureSceneEveryFrame;
+		m_SceneCapture->bCaptureEveryFrame = true;
+		m_SceneCapture->bCaptureOnMovement = true;
 
 		m_DepthCapture->Activate();
+		m_DepthCapture->bCaptureEveryFrame = m_needsSeparateDepthCapture;
+		m_DepthCapture->bCaptureOnMovement = m_needsSeparateDepthCapture;
 	}
 	IsCapturingActive = true;
 }
@@ -105,6 +114,8 @@ void UCaptureCameraComponent::DeactivateCapturing()
 		m_SceneCapture->bCaptureOnMovement = false;
 
 		m_DepthCapture->Deactivate();
+		m_DepthCapture->bCaptureEveryFrame = false;
+		m_DepthCapture->bCaptureOnMovement = false;
 	}
 	IsCapturingActive = false;
 }
@@ -120,31 +131,9 @@ bool UCaptureCameraComponent::capture(SCaptureRequest &reqData)
 		FTextureRenderTargetResource *sceneSrc = m_SceneCapture ? m_SceneCapture->TextureTarget->GameThread_GetRenderTargetResource() : 0;
 		if (sceneSrc)
 		{
-			if (!CaptureSceneEveryFrame)
-			{
-				if(m_hasValidViewMode)
-					m_SceneCapture->bCaptureEveryFrame = true;
-
-				m_SceneCapture->CaptureScene();
-
-				if(m_hasValidViewMode)
-					m_SceneCapture->bCaptureEveryFrame = false;
-			}
 			reqData.scene_capture_source = sceneSrc;
 
-			FTextureRenderTargetResource *depthSrc = m_hasValidViewMode && m_needsSeparateDepthCapture && m_DepthCapture ? m_DepthCapture->TextureTarget->GameThread_GetRenderTargetResource() : 0;
-			if(depthSrc)
-			{
-				if (!CaptureSceneEveryFrame)
-				{
-					m_DepthCapture->bCaptureEveryFrame = true;
-					m_DepthCapture->CaptureScene();
-					m_DepthCapture->bCaptureEveryFrame = false;
-				}
-				reqData.depth_capture_source = depthSrc;
-			}
-			else
-				reqData.depth_capture_source = 0;
+			reqData.depth_capture_source = m_hasValidViewMode && m_needsSeparateDepthCapture && m_DepthCapture ? m_DepthCapture->TextureTarget->GameThread_GetRenderTargetResource() : 0;
 	
 			reqData.camera_type = CameraType;
 			reqData.camera_id = CameraId;
@@ -168,14 +157,23 @@ void UCaptureCameraComponent::setViewMode(const FDeepDriveViewMode *viewMode)
 			m_hasValidViewMode = true;
 			m_InternalCaptureEncoding = viewMode->ViewModeEncoding;
 			m_needsSeparateDepthCapture = m_InternalCaptureEncoding == EDeepDriveInternalCaptureEncoding::SEPARATE ? true : false;
-		}
 
-		if(m_hasValidViewMode)
 			m_SceneCapture->CaptureSource = ESceneCaptureSource::SCS_FinalColorLDR;
+		}
+		else
+		{
+			m_hasValidViewMode = false;
+			m_needsSeparateDepthCapture = false;
+		}
 	}
 	else
 	{
 		m_SceneCapture->CaptureSource = ESceneCaptureSource::SCS_SceneColorSceneDepth;
 		m_InternalCaptureEncoding = EDeepDriveInternalCaptureEncoding::RGB_DEPTH;
+		m_hasValidViewMode = false;
+		m_needsSeparateDepthCapture = false;
 	}
+
+	m_DepthCapture->bCaptureEveryFrame = m_needsSeparateDepthCapture;
+	m_DepthCapture->bCaptureOnMovement = m_needsSeparateDepthCapture;
 }

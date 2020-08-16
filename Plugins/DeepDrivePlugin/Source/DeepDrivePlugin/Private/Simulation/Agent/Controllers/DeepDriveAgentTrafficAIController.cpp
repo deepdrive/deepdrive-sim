@@ -14,6 +14,10 @@
 #include "Private/Simulation/Traffic/Path/DeepDrivePathPlanner.h"
 #include "Simulation/Traffic/Maneuver/DeepDriveManeuverCalculator.h"
 
+#include "WheeledVehicleMovementComponent.h"
+
+#include "ActorEventLogging/Public/ActorEventLoggingMacros.h"
+
 ADeepDriveAgentTrafficAIController::ADeepDriveAgentTrafficAIController()
 {
 	m_ControllerName = "Traffic AI Controller";
@@ -34,7 +38,11 @@ bool ADeepDriveAgentTrafficAIController::updateAgentOnPath( float DeltaSeconds )
 	const float safetyDistance = calculateSafetyDistance();
 	float dist2Obstacle = checkForObstacle(safetyDistance);
 	if(dist2Obstacle >= 0.0f)
+	{
+		const float speedBefore = speed;
 		speed *= FMath::SmoothStep(300.0f, FMath::Max(500.0f, safetyDistance * 0.8f), dist2Obstacle);
+		AEL_MESSAGE(*m_Agent, TEXT("Distance to obstacle %f speed of %f reduced to %f"), dist2Obstacle, speedBefore, speed );
+	}
 
 	brake = speed > 0.0f ? 0.0f : 1.0f;
 
@@ -44,20 +52,27 @@ bool ADeepDriveAgentTrafficAIController::updateAgentOnPath( float DeltaSeconds )
 
 	// m_SteeringController->update(DeltaSeconds, heading);
 
-	return m_PathPlanner->isCloseToEnd(200.0f);
+	const bool hasReachedDestination = m_PathPlanner->hasReachedDestination();
+
+	return hasReachedDestination;
 }
 
 void ADeepDriveAgentTrafficAIController::Tick( float DeltaSeconds )
 {
-	if(m_Agent && m_SpeedController)
+	if(m_InputTimer > 0.0f)
 	{
-		switch(m_State)
+		m_InputTimer -= DeltaSeconds;
+	}
+	else if(m_Agent && m_SpeedController && !m_isRemotelyControlled)
+	{
+		m_Agent->GetVehicleMovementComponent()->SetTargetGear(1, false);
+		switch (m_State)
 		{
 			case ActiveRouteGuidance:
 				{
-					const bool isCloseToEnd = updateAgentOnPath(DeltaSeconds);
+					const bool hasReachedDestination  = updateAgentOnPath(DeltaSeconds);
 
-					if (isCloseToEnd)
+					if (hasReachedDestination)
 					{
 						m_State = m_StartIndex < 0 && m_OperationMode == OperationMode::Standard ? Waiting : Idle;
 						m_Agent->SetThrottle(0.0f);
@@ -78,7 +93,7 @@ void ADeepDriveAgentTrafficAIController::Tick( float DeltaSeconds )
 				{
 					FVector start = m_Agent->GetActorLocation();
 					FVector destination;
-					UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentTrafficAIController::Activate Random start pos %s"), *(start.ToString()) );
+					UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentTrafficAIController::Tick %d) Calculate new random route starting from %s"), m_Agent->GetAgentId(), *(start.ToString()) );
 
 					SDeepDriveRoute route;
 
@@ -87,6 +102,7 @@ void ADeepDriveAgentTrafficAIController::Tick( float DeltaSeconds )
 					{
 						route.Start = start;
 						route.Destination = destination;
+						UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentTrafficAIController::Tick %d) to destination %s"), m_Agent->GetAgentId(), *(destination.ToString()));
 						DeepDriveManeuverCalculator *manCalc = m_DeepDriveSimulation->getManeuverCalculator();
 						if(manCalc)
 							manCalc->calculate(route, *m_Agent);
@@ -113,6 +129,8 @@ bool ADeepDriveAgentTrafficAIController::Activate(ADeepDriveAgent &agent, bool k
 {
 	bool res = false;
 
+	AEL_ENSURE_TICK_ORDER(*this);
+
 	UDeepDriveRoadNetworkComponent *roadNetwork = m_DeepDriveSimulation->RoadNetwork;
 
 	m_showPath = roadNetwork->ShowRoutes;
@@ -135,10 +153,11 @@ bool ADeepDriveAgentTrafficAIController::Activate(ADeepDriveAgent &agent, bool k
 	
 					} while(fromLinkId == 0 ||	m_DeepDriveSimulation->isLocationOccupied(route.Start, 300.0f));
 					
-					UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentTrafficAIController::Activate Random start pos %s"), *(route.Start.ToString()) );
+					UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentTrafficAIController::Activate %d) Random start pos %s"), agent.GetAgentId(), *(route.Start.ToString()) );
 
 					roadNetwork->PlaceAgentOnRoad(&agent, route.Start, true);
 					route.Links = roadNetwork->calculateRandomRoute(route.Start, route.Destination);
+					UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentTrafficAIController::Activate %d) Random Destination %s"), agent.GetAgentId(), *(route.Destination.ToString()));
 				}
 				else
 				{
@@ -150,7 +169,11 @@ bool ADeepDriveAgentTrafficAIController::Activate(ADeepDriveAgent &agent, bool k
 			}
 			else if(m_StartIndex < m_Configuration.StartPositions.Num())
 			{
-				roadNetwork->PlaceAgentOnRoad(&agent, m_Configuration.StartPositions[m_StartIndex], true);
+				if(roadNetwork->PlaceAgentOnRoad(&agent, m_Configuration.StartPositions[m_StartIndex], true) == false)
+				{
+					FTransform transform(FRotator(0.0f, 0.0f, 0.0f), m_Configuration.StartPositions[m_StartIndex], FVector(1.0f, 1.0f, 1.0f));
+					agent.SetActorTransform(transform, false, 0, ETeleportType::TeleportPhysics);
+				}
 			}
 			break;
 
@@ -162,17 +185,23 @@ bool ADeepDriveAgentTrafficAIController::Activate(ADeepDriveAgent &agent, bool k
 			break;
 	}
 
+	bool firstActivate = false;
 	if (route.Links.Num() > 0)
 	{
-		//route->convert(start);
-		//route->placeAgentAtStart(agent);
+		if(m_SpeedController == 0)
+		{
+			m_SpeedController = new DeepDriveAgentSpeedController(m_Configuration.PIDThrottle, m_Configuration.PIDBrake);
+			m_SpeedController->initialize(agent);
+			firstActivate = true;
+		}
 
-		m_SpeedController = new DeepDriveAgentSpeedController(m_Configuration.PIDThrottle, m_Configuration.PIDBrake);
-		m_SpeedController->initialize(agent);
-
-		m_PathConfiguration = new SDeepDrivePathConfiguration;
-		m_PathConfiguration->PIDSteering = m_Configuration.PIDSteering;
-		m_PathPlanner = new DeepDrivePathPlanner(agent, roadNetwork->getRoadNetwork(), *m_BezierCurve, *m_PathConfiguration);
+		if(m_PathConfiguration == 0)
+		{
+			m_PathConfiguration = new SDeepDrivePathConfiguration;
+			m_PathConfiguration->PIDSteering = m_Configuration.PIDSteering;
+		}
+		if(m_PathPlanner == 0)
+			m_PathPlanner = new DeepDrivePathPlanner(agent, roadNetwork->getRoadNetwork(), *m_BezierCurve, *m_PathConfiguration);
 
 		DeepDriveManeuverCalculator *manCalc = m_DeepDriveSimulation->getManeuverCalculator();
 		if(manCalc)
@@ -180,18 +209,26 @@ bool ADeepDriveAgentTrafficAIController::Activate(ADeepDriveAgent &agent, bool k
 		m_PathPlanner->setRoute(route);
 
 		res = true;
+		if (firstActivate)
+			activateController(agent);
 		m_State = ActiveRouteGuidance;
 		m_Route = 0;
 	}
 	else
 	{
-		roadNetwork->PlaceAgentOnRoad(&agent, route.Start, true);
+		if (roadNetwork->getRoadNetwork().Junctions.Num() > 0)
+			roadNetwork->PlaceAgentOnRoad(&agent, route.Start, true);
+
+		res = true;
+		activateController(agent);
 	}
 
-	if(res)
-		activateController(agent);
-
 	return res;
+}
+
+void ADeepDriveAgentTrafficAIController::Reset()
+{
+	Activate(*m_Agent, false);
 }
 
 bool ADeepDriveAgentTrafficAIController::ResetAgent()

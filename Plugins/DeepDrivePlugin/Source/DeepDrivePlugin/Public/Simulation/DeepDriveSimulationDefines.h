@@ -10,17 +10,7 @@
 
 class UDeepDriveRandomStream;
 class ADeepDriveAgent;
-
-UENUM(BlueprintType)
-enum class EDeepDriveAgentControlMode : uint8
-{
-	NONE			= 0	UMETA(DisplayName = "None"),
-	MANUAL			= 1	UMETA(DisplayName = "Manual"),
-	REMOTE_AI		= 2	UMETA(DisplayName = "RemoteAI"),
-	LOCAL_AI		= 3	UMETA(DisplayName = "LocalAI"),
-	CITY_AI			= 4	UMETA(DisplayName = "CityAI")
-};
-
+class ADeepDriveAgentControllerCreator;
 
 UENUM(BlueprintType)
 enum class EDeepDriveAgentCameraType : uint8
@@ -56,7 +46,7 @@ enum class EDeepDriveAgentState : uint8
 
 
 UENUM(BlueprintType)
-enum class EDeepDriveAgentDirectionIndicatorState : uint8
+enum class EDeepDriveAgentTurnSignalState : uint8
 {
 	UNKNOWN			= 0	UMETA(DisplayName = "Unknown"),
 	OFF				= 1	UMETA(DisplayName = "Off"),
@@ -135,7 +125,7 @@ struct FDeepDriveAdditionalAgentData
 	TSubclassOf<ADeepDriveAgent>	Agent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	EDeepDriveAgentControlMode		Mode;
+	ADeepDriveAgentControllerCreator *ControllerCreator = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
 	int32	ConfigurationSlot;

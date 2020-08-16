@@ -67,7 +67,7 @@ struct SDeepDriveManeuver
 
 	EDeepDriveJunctionType					JunctionType = EDeepDriveJunctionType::PASS_THROUGH;
 	EDeepDriveJunctionSubType				JunctionSubType = EDeepDriveJunctionSubType::AUTO_DETECT;
-	EDeepDriveManeuverType					ManeuverType = EDeepDriveManeuverType::TURN_BAN;
+	EDeepDriveManeuverType					ManeuverType = EDeepDriveManeuverType::UNDEFINED;
 	EDeepDriveRightOfWay					RightOfWay = EDeepDriveRightOfWay::RIGHT_OF_WAY;
 
 	EDeepDriveRoadPriority					FromRoadPriority = EDeepDriveRoadPriority::MINOR_ROAD;

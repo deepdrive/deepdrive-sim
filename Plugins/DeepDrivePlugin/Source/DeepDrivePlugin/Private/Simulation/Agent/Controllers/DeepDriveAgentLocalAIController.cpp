@@ -17,6 +17,8 @@
 
 #include "Private/Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentAbortOvertakingState.h"
 
+#include "WheeledVehicleMovementComponent.h"
+
 DEFINE_LOG_CATEGORY(LogDeepDriveAgentLocalAIController);
 
 ADeepDriveAgentLocalAIController::ADeepDriveAgentLocalAIController()
@@ -27,7 +29,6 @@ ADeepDriveAgentLocalAIController::ADeepDriveAgentLocalAIController()
 	//	for testing purposes
 	m_isCollisionEnabled = true;
 }
-
 
 bool ADeepDriveAgentLocalAIController::Activate(ADeepDriveAgent &agent, bool keepPosition)
 {
@@ -74,6 +75,12 @@ bool ADeepDriveAgentLocalAIController::Activate(ADeepDriveAgent &agent, bool kee
 	return activated;
 }
 
+void ADeepDriveAgentLocalAIController::Reset()
+{
+	if (m_Track && m_Agent)
+		resetAgentPosOnSpline(*m_Agent, m_Track->GetSpline(), m_StartDistance);
+}
+
 bool ADeepDriveAgentLocalAIController::ResetAgent()
 {
 	if(m_Track && m_Agent)
@@ -109,11 +116,26 @@ void ADeepDriveAgentLocalAIController::Configure(const FDeepDriveLocalAIControll
 	m_SafetyDistanceFactor = Configuration.SafetyDistanceFactor;
 }
 
+void ADeepDriveAgentLocalAIController::ConfigureScenario(const FDeepDriveLocalAIControllerConfiguration &Configuration, const FDeepDriveAgentScenarioConfiguration &ScenarioConfiguration, ADeepDriveSimulation *DeepDriveSimulation)
+{
+	m_Configuration = Configuration;
+	m_DeepDriveSimulation = DeepDriveSimulation;
+
+	m_DesiredSpeed = FMath::RandRange(Configuration.SpeedRange.X, Configuration.SpeedRange.Y);
+	m_Track = Configuration.Track;
+
+}
 
 void ADeepDriveAgentLocalAIController::Tick( float DeltaSeconds )
 {
-	if (m_Agent && m_Track)
+	if (m_InputTimer > 0.0f)
 	{
+		m_InputTimer -= DeltaSeconds;
+	}
+	else if (m_Agent && m_Track && !m_isRemotelyControlled)
+	{
+		m_Agent->GetVehicleMovementComponent()->SetTargetGear(1, false);
+
 		FVector curAgentLocation = m_Agent->GetActorLocation();
 		m_Track->setBaseLocation(curAgentLocation);
 

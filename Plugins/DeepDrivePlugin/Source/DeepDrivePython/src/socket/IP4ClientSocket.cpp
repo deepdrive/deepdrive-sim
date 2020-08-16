@@ -48,6 +48,18 @@ int32 IP4ClientSocket::send(const void *data, uint32 bytesToSend)
 	return m_ClientSocketImpl ? m_ClientSocketImpl->send(data, bytesToSend) : ClientErrorCode::NOT_CONNECTED;
 }
 
+int32 IP4ClientSocket::read(void *buffer, uint32 bytesToRead, uint32 timeOutMS)
+{
+	if(m_ClientSocketImpl)
+	{
+		if(timeOutMS)
+			return m_ClientSocketImpl->receive(buffer, bytesToRead, timeOutMS);
+		else
+			return m_ClientSocketImpl->receive(buffer, bytesToRead);
+	}
+	return ClientErrorCode::NOT_CONNECTED;
+}
+
 uint32 IP4ClientSocket::receive(void *buffer, uint32 size)
 {
 	return m_ClientSocketImpl ? m_ClientSocketImpl->receive(buffer, size) : 0;

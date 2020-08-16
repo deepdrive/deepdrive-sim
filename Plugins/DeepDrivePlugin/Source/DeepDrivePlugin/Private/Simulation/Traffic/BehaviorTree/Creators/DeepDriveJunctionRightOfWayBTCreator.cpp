@@ -26,7 +26,7 @@ bool DeepDriveJunctionRightOfWayBTCreator::registerCreator()
 
 DeepDriveTrafficBehaviorTree* DeepDriveJunctionRightOfWayBTCreator::createBehaviorTree()
 {
-	DeepDriveTrafficBehaviorTree *behaviorTree = new DeepDriveTrafficBehaviorTree();
+	DeepDriveTrafficBehaviorTree *behaviorTree = new DeepDriveTrafficBehaviorTree("RightOfWay");
 	if (behaviorTree)
 	{
 		DeepDriveTrafficBehaviorTreeNode *stopAtNode = behaviorTree->createNode(0);

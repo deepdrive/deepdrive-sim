@@ -37,7 +37,7 @@ public:
 	FVector GetRandomLocation(EDeepDriveLaneType PreferredLaneType, int32 relPos);
 
 	UFUNCTION(BlueprintCallable, Category = "Route")
-	void PlaceAgentOnRoad(ADeepDriveAgent *Agent, const FVector &Location, bool OnClosestSegment);
+	bool PlaceAgentOnRoad(ADeepDriveAgent *Agent, const FVector &Location, bool OnClosestSegment);
 
 	UFUNCTION(BlueprintCallable, Category = "Route")
 	void PlaceAgentOnRoadRandomly(ADeepDriveAgent *Agent);

@@ -31,7 +31,10 @@ sources_client = ['src/deepdrive_client/deepdrive_client.cpp'
                   ]
 
 sources_simulation = ['src/deepdrive_simulation/deepdrive_simulation.cpp'
+    , 'src/deepdrive_simulation/deepdrive_simulation_multi_agent.cpp'
+    , 'src/deepdrive_simulation/deepdrive_simulation_error.cpp'
     , 'src/deepdrive_simulation/DeepDriveSimulation.cpp'
+    , 'src/deepdrive_simulation/PyMultiAgentSnapshotObject.cpp'
     , 'src/socket/IP4Address.cpp'
     , 'src/socket/IP4ClientSocket.cpp'
     , 'src/common/NumPyUtils.cpp'

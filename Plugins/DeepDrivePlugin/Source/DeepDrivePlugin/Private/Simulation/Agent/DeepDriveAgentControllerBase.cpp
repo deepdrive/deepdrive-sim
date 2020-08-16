@@ -10,6 +10,8 @@
 #include "Runtime/Engine/Classes/Components/SplineComponent.h"
 #include "Runtime/Landscape/Classes/Landscape.h"
 
+#include "WheeledVehicleMovementComponent.h"
+
 DEFINE_LOG_CATEGORY(LogDeepDriveAgentControllerBase);
 
 ADeepDriveAgentControllerBase::ADeepDriveAgentControllerBase()
@@ -30,28 +32,84 @@ bool ADeepDriveAgentControllerBase::Activate(ADeepDriveAgent &agent, bool keepPo
 	return false;
 }
 
-void ADeepDriveAgentControllerBase::Deactivate()
+void ADeepDriveAgentControllerBase::RequestControl()
+{
+	m_isRemotelyControlled = true;
+}
+
+void ADeepDriveAgentControllerBase::ReleaseControl()
+{
+	m_isRemotelyControlled = false;
+}
+
+void ADeepDriveAgentControllerBase::Reset()
 {
 }
 
 void ADeepDriveAgentControllerBase::MoveForward(float axisValue)
 {
+	if (m_Agent)
+	{
+		if(FMath::Abs(axisValue) > InputThreshold)
+			m_InputTimer = 0.1f;
 
+		if(m_InputTimer > 0.0f)
+		{
+			if (axisValue > 0.0f)
+			{
+				m_Agent->GetVehicleMovementComponent()->SetTargetGear(1, false);
+			}
+			else if (axisValue < 0.0f)
+			{
+				m_Agent->GetVehicleMovementComponent()->SetTargetGear(-1, false);
+			}
+
+			m_Agent->SetThrottle(axisValue);
+			m_Agent->setIsGameDriving(true);
+		}
+	}
 }
 
 void ADeepDriveAgentControllerBase::MoveRight(float axisValue)
 {
+	if (m_Agent)
+	{
+		if(FMath::Abs(axisValue) > InputThreshold)
+			m_InputTimer = 0.1f;
 
+		if (m_InputTimer > 0.0f)
+		{
+			m_Agent->SetSteering(axisValue);
+			m_Agent->setIsGameDriving(true);
+		}
+	}
 }
 
 void ADeepDriveAgentControllerBase::Brake(float axisValue)
 {
+	if (m_Agent)
+	{
+		if(axisValue > InputThreshold)
+			m_InputTimer = 0.1f;
 
+		if(m_InputTimer > 0.0f)
+		{
+			const float curBrakeValue = FMath::Clamp(axisValue, 0.0f, 1.0f);
+			m_Agent->SetBrake(curBrakeValue);
+		}
+	}
 }
 
 void ADeepDriveAgentControllerBase::SetControlValues(float steering, float throttle, float brake, bool handbrake)
 {
-
+	if	(	m_Agent
+		&&	m_InputTimer <= 0.0f
+		&&	m_isRemotelyControlled
+		)
+		{
+			m_Agent->SetControlValues(steering, throttle, brake, handbrake);
+			m_Agent->setIsGameDriving(false);
+	}
 }
 
 bool ADeepDriveAgentControllerBase::ResetAgent()
@@ -84,10 +142,12 @@ void ADeepDriveAgentControllerBase::OnAgentCollision(AActor *OtherActor, const F
 		m_CollisionData.CollisionNormal = HitResult.ImpactNormal;
 		m_hasCollisionOccured = true;
 
-		UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentControllerBase::OnAgentCollision %ld"), now.ToUnixTimestamp() );
+		ADeepDriveAgent *otherAgent = Cast<ADeepDriveAgent>(OtherActor);
+		UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentControllerBase::OnAgentCollision %d) with other agent %d at %ld"), m_Agent->GetAgentId(), otherAgent ? otherAgent->GetAgentId() : -1, now.ToUnixTimestamp());
 
 	}
-	else {
+	else
+	{
 	    UE_LOG(LogDeepDriveAgentControllerBase, Log, TEXT("ADeepDriveAgentControllerBase::OnAgentCollision ignored due to m_isCollisionEnabled == false"));
 	}
 }

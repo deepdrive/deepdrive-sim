@@ -29,9 +29,9 @@ void DeepDrivePathPlanner::advance(float deltaSeconds, float &speed, float &stee
     }
 }
 
-bool DeepDrivePathPlanner::isCloseToEnd(float distanceFromEnd) const
+bool DeepDrivePathPlanner::hasReachedDestination() const
 {
-    return m_curBasePath ? m_curBasePath->isCloseToEnd(distanceFromEnd) : true;
+    return m_curBasePath ? m_curBasePath->hasReachedDestination() : true;
 }
 
 float DeepDrivePathPlanner::getRouteLength() const

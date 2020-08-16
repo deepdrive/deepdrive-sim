@@ -8,6 +8,8 @@
 #include "Simulation/Agent/DeepDriveAgentControllerBase.h"
 #include "Private/Capture/DeepDriveCapture.h"
 
+#include "ActorEventLogging/Public/ActorEventLoggingMacros.h"
+
 #include "WheeledVehicleMovementComponent.h"
 #include "Runtime/Engine/Classes/Kismet/KismetRenderingLibrary.h"
 
@@ -69,6 +71,12 @@ ADeepDriveAgent::ADeepDriveAgent()
 
 }
 
+void ADeepDriveAgent::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+}
+
+
 void ADeepDriveAgent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -117,6 +125,8 @@ void ADeepDriveAgent::Tick( float DeltaSeconds )
 		++m_NumberOfLaps;
 		UE_LOG(LogDeepDriveAgent, Log, TEXT("Laps finished %d"), m_NumberOfLaps );
 	}
+
+	AEL_LOG_TRANSFORM(*this, GetActorTransform());
 }
 
 int32 ADeepDriveAgent::RegisterCaptureCamera(float fieldOfView, int32 captureWidth, int32 captureHeight, FVector relativePosition, FVector relativeRotation, const FString &label)
@@ -472,6 +482,10 @@ void ADeepDriveAgent::OnBeginOverlap(UPrimitiveComponent *OverlappedComponent, A
 		{
 			// UE_LOG(LogDeepDriveAgent, Log, TEXT("OnBeginOverlap %s with %s"), *(OverlappedComponent->GetName()), *(OtherActor->GetName()) );
 
+			ADeepDriveAgent *otherAgent = Cast<ADeepDriveAgent>(OtherActor);
+
+			AEL_MESSAGE(*this, TEXT("Collision of %s with %s other agent %d"), *(OverlappedComponent->GetReadableName()), *(OtherComp->GetReadableName()), otherAgent ? otherAgent->GetAgentId() : -1 );
+
 			ADeepDriveAgentControllerBase *ctrl = getAgentController();
 			if (ctrl)
 			{
@@ -498,13 +512,22 @@ void ADeepDriveAgent::SetSpeedRange(float MinSpeed, float MaxSpeed)
 		ctrl->SetSpeedRange(MinSpeed, MaxSpeed);
 }
 
-void ADeepDriveAgent::SetDirectionIndicatorState(EDeepDriveAgentDirectionIndicatorState DirectionIndicator)
+void ADeepDriveAgent::setTurnSignalState(EDeepDriveAgentTurnSignalState TurnSignal)
 {
-	m_DirectionIndicator = DirectionIndicator;
-	UE_LOG(LogDeepDriveAgent, Log, TEXT("SetDirectionIndicatorState %d"), static_cast<int32> (m_DirectionIndicator) );
+	if(m_TurnSignal != TurnSignal)
+	{
+		m_TurnSignal = TurnSignal;
+		UE_LOG(LogDeepDriveAgent, Log, TEXT("SetTurnSignalState for agent %d to %d"), m_AgentId, static_cast<int32>(m_TurnSignal));
+
+		if (OnTurnSignalStateChanged.IsBound())
+		{
+			OnTurnSignalStateChanged.Broadcast(m_TurnSignal);
+		}
+	}
+
 }
 
-EDeepDriveAgentDirectionIndicatorState ADeepDriveAgent::GetDirectionIndicatorState()
+EDeepDriveAgentTurnSignalState ADeepDriveAgent::GetTurnSignalState()
 {
-	return m_DirectionIndicator;
+	return m_TurnSignal;
 }

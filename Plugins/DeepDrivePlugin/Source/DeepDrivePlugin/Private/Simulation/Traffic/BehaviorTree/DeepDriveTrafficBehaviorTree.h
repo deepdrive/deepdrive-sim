@@ -33,7 +33,9 @@ public:
 
 	void activateDebugging();
 
-private :
+	const FString& getName() const;
+
+private:
 
 	FString										m_Name;
 
@@ -56,4 +58,9 @@ inline DeepDriveTrafficBehaviorTreeNode* DeepDriveTrafficBehaviorTree::getRootNo
 inline DeepDriveTrafficBlackboard &DeepDriveTrafficBehaviorTree::getBlackboard()
 {
 	return *m_Blackboard;
+}
+
+inline const FString& DeepDriveTrafficBehaviorTree::getName() const
+{
+	return m_Name;
 }

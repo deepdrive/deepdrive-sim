@@ -27,7 +27,7 @@ public:
 
 	void advance(float deltaSeconds, float &speed, float &steering, float &brake);
 
-	bool isCloseToEnd(float distanceFromEnd) const;
+	bool hasReachedDestination() const;
 
 	float getRouteLength() const;
 

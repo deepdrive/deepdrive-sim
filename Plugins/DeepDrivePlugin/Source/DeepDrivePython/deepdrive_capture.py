@@ -12,6 +12,7 @@ import deepdrive_simulation
 
 def cleanUp(clientId):
     deepdrive_client.release_agent_control(clientId)
+    deepdrive_capture.unregister_camera(clientId, camIds[0])
     deepdrive_capture.close()
     deepdrive_client.close(clientId)
     deepdrive_simulation.disconnect()

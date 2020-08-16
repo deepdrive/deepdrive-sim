@@ -36,7 +36,7 @@ public:
 
 	float getRouteLength() const;
 
-	bool isCloseToEnd(float distanceFromEnd) const;
+	bool hasReachedDestination() const;
 
 	float getDistanceAlongRoute() const;
 
@@ -71,6 +71,8 @@ private:
 	float								m_curPathSegmentT = 0.0f;
 	float								m_Length = 0.0f;
 
+	bool								m_hasReachedDestination = false;
+
 	TDeepDriveManeuvers					m_Maneuvers;
 
 	FVector								m_curAgentLocation;
@@ -85,3 +87,8 @@ private:
 	float								m_totalTrackError = 0.0f;
 
 };
+
+inline bool DeepDrivePartialPath::hasReachedDestination() const
+{
+    return m_hasReachedDestination;
+}

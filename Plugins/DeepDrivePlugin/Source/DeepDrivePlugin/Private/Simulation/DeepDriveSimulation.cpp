@@ -3,14 +3,16 @@
 #include "DeepDrivePluginPrivatePCH.h"
 #include "DeepDriveSimulation.h"
 #include "Private/Server/DeepDriveSimulationServer.h"
-#include "Private/Simulation/DeepDriveSimulationMessageHandler.h"
+#include "Private/Simulation/DeepDriveSimulationRequestHandler.h"
 #include "Private/Simulation/DeepDriveSimulationStateMachine.h"
 #include "Private/Simulation/States/DeepDriveSimulationInitializeState.h"
 #include "Private/Simulation/States/DeepDriveSimulationRunningState.h"
 #include "Private/Simulation/States/DeepDriveSimulationConfigureState.h"
 #include "Private/Simulation/States/DeepDriveSimulationResetState.h"
 #include "Public/Simulation/Agent/Controllers/DeepDriveAgentOneOffController.h"
-#include "Public/Simulation/Agent/Controllers/DeepDriveAgentCityAIController.h"
+
+#include "Private/Simulation/Requests/DeepDriveSimulationRequests.h"
+#include "Private/Simulation/Requests/DeepDriveMultiAgentRequests.h"
 
 #include "Private/Server/DeepDriveServer.h"
 #include "Public/Simulation/DeepDriveSimulationServerProxy.h"
@@ -80,6 +82,7 @@ void ADeepDriveSimulation::PreInitializeComponents()
 		}
 	}
 
+	bool forceRemoteAI = false;
 	{
 #if WITH_EDITOR
 		ScenarioMode = InitialScenarioMode;
@@ -94,11 +97,19 @@ void ADeepDriveSimulation::PreInitializeComponents()
 			if(s == "scenario_mode")
 			{
 				ScenarioMode = true;
-				break;
+			}
+			else if (s == "remote_ai")
+			{
+				forceRemoteAI = true;
 			}
 		}
 	}
-	UE_LOG(LogDeepDriveSimulation, Log, TEXT(">> Scenario Mode %c"), ScenarioMode ? 'T' :'F');
+	UE_LOG(LogDeepDriveSimulation, Log, TEXT(">> Scenario Mode %c RemoteAI %c"), ScenarioMode ? 'T' :'F', forceRemoteAI ? 'T' : 'F');
+
+	if(forceRemoteAI && ScenarioMode == false)
+	{
+		UE_LOG(LogDeepDriveSimulation, Log, TEXT("Intital Controller Mode forced to be RemoteAI"));
+	}
 
 	if (!alreadyRegistered)
 	{
@@ -111,7 +122,12 @@ void ADeepDriveSimulation::PreInitializeComponents()
 			if (m_SimulationServer)
 			{
 				m_SimulationServer->start();
-				m_MessageHandler = new DeepDriveSimulationMessageHandler(*this, *m_SimulationServer);
+				m_RequestHandler = new DeepDriveSimulationRequestHandler(*this, *m_SimulationServer);
+				if(m_RequestHandler)
+				{
+					DeepDriveSimulationRequests::registerHandlers(*m_RequestHandler);
+					DeepDriveMultiAgentRequests::registerHandlers(*m_RequestHandler);
+				}
 			}
 		}
 
@@ -206,8 +222,8 @@ void ADeepDriveSimulation::Tick( float DeltaTime )
 {
 	Super::Tick( DeltaTime );
 
-	if(m_MessageHandler)
-		m_MessageHandler->handleMessages();
+	if(m_RequestHandler)
+		m_RequestHandler->handleRequests();
 
 	if (m_StateMachine)
 		m_StateMachine->update(*this, DeltaTime);
@@ -385,35 +401,6 @@ void ADeepDriveSimulation::switchToCamera(EDeepDriveAgentCameraType type)
 	}
 }
 
-void ADeepDriveSimulation::SelectMode(EDeepDriveAgentControlMode Mode)
-{
-	if(Mode != m_curAgentMode)
-	{
-		UEnum* pEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("EDeepDriveAgentControlMode") , true);
-		UE_LOG(LogDeepDriveSimulation, Log, TEXT("SelectMode activating new mode: %s"), *(pEnum ? pEnum->GetNameByIndex(static_cast<uint8>(Mode)).ToString() : FString("UNKOWN")) );
-
-		ADeepDriveAgentControllerBase *controller = spawnController(Mode, 0, 0);
-		ADeepDriveAgentControllerBase *prevController = Cast<ADeepDriveAgentControllerBase> (m_curAgent->GetController());
-
-		if	(	controller
-			&&	controller->Activate(*m_curAgent, true)
-			)
-		{
-			if(prevController)
-			{
-				prevController->Deactivate();
-				prevController->Destroy();
-			}
-
-			controller->restoreStartPositionSlot(StartPositionSlot);
-
-			m_curAgentMode = Mode;
-			m_curAgentController = controller;
-		}
-
-	}
-}
-
 void ADeepDriveSimulation::NextAgent()
 {
 	switchToAgent((m_curAgentIndex + 1) % m_Agents.Num());
@@ -432,8 +419,8 @@ void ADeepDriveSimulation::enqueueMessage(deepdrive::server::MessageHeader *mess
 {
 	if (message)
 	{
-	 	if(m_MessageHandler)
-	 		m_MessageHandler->enqueueMessage(*message);
+	 	if(m_RequestHandler)
+	 		m_RequestHandler->enqueueRequest(*message);
 	 	else
 			FMemory::Free(message);
 	}
@@ -468,9 +455,26 @@ bool ADeepDriveSimulation::resetAgent()
 	return m_curAgentController ? m_curAgentController->ResetAgent() : false;
 }
 
+bool ADeepDriveSimulation::requestControl()
+{
+	bool res = false;
+	if(m_curAgentController)
+	{
+		m_curAgentController->RequestControl();
+		res = true;
+	}
+	return true;
+}
+
+void ADeepDriveSimulation::releaseControl()
+{
+	if(m_curAgentController)
+		m_curAgentController->ReleaseControl();
+}
+
 void ADeepDriveSimulation::initializeAgents()
 {
-	m_curAgent = spawnAgent(InitialControllerMode, InitialConfigurationSlot, StartPositionSlot);
+	m_curAgent = spawnAgent(ControllerCreator, InitialConfigurationSlot, StartPositionSlot);
 	if (m_curAgent)
 	{
 		spawnAdditionalAgents();
@@ -498,7 +502,7 @@ void ADeepDriveSimulation::removeAgents(bool removeEgo)
 	m_Agents.SetNum(removeEgo ? 0 : 1);
 }
 
-ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(const FDeepDriveAgentScenarioConfiguration &scenarioCfg, bool isEgoAgent, bool remotelyControlled)
+ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(const FDeepDriveAgentScenarioConfiguration &scenarioCfg, bool remotelyControlled)
 {
 	FTransform transform(scenarioCfg.StartPosition);
 
@@ -513,18 +517,15 @@ ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(const FDeepDriveAgentScenarioC
 		agent->initialize(*this);
 		agent->setResetTransform(transform);
 
-		EDeepDriveAgentControlMode mode = remotelyControlled ? EDeepDriveAgentControlMode::REMOTE_AI : EDeepDriveAgentControlMode::CITY_AI;
-		if(ControllerCreators.Contains(mode))
+		ADeepDriveAgentControllerBase *controller = ControllerCreator->CreateAgentControllerForScenario(scenarioCfg, this);
+		if (controller)
 		{
-			ADeepDriveAgentControllerBase *controller = ControllerCreators[mode]->CreateAgentControllerForScenario(scenarioCfg, this);
-			if (controller)
+			if (controller->Activate(*agent, false))
 			{
-				if (controller->Activate(*agent, false))
-				{
-					if(isEgoAgent)
-						m_curAgentMode = mode;
-					OnAgentSpawned(agent);
-				}
+				if(remotelyControlled)
+					controller->RequestControl();
+
+				OnAgentSpawned(agent);
 			}
 		}
 	}
@@ -532,7 +533,7 @@ ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(const FDeepDriveAgentScenarioC
 	return agent;
 }
 
-ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(EDeepDriveAgentControlMode mode, int32 configSlot, int32 startPosSlot)
+ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(ADeepDriveAgentControllerCreator *ctrlCreator, int32 configSlot, int32 startPosSlot)
 {
 	UE_LOG(LogDeepDriveSimulation, Log, TEXT("Try to spawn agent config slot %d startPosSlot %d"), configSlot, startPosSlot );
 
@@ -545,12 +546,11 @@ ADeepDriveAgent* ADeepDriveSimulation::spawnAgent(EDeepDriveAgentControlMode mod
 		agent->initialize(*this);
 		agent->setResetTransform(transform);
 
-		ADeepDriveAgentControllerBase *controller = spawnController(mode, configSlot, startPosSlot);
-		if(controller)
+		ADeepDriveAgentControllerBase *controller = ctrlCreator->CreateAgentController(configSlot, startPosSlot, this);
+		if (controller)
 		{
 			if(controller->Activate(*agent, false))
 			{
-				m_curAgentMode = mode;
 				OnAgentSpawned(agent);
 				UE_LOG(LogDeepDriveSimulation, Log, TEXT("Spawning agent controlled by %s"), *(controller->getControllerName()) );
 			}
@@ -580,7 +580,7 @@ void ADeepDriveSimulation::spawnAdditionalAgents()
 			m_Agents.Add(agent);
 			agent->setResetTransform(transform);
 
-			ADeepDriveAgentControllerBase *controller = spawnController(data.Mode, data.ConfigurationSlot, data.StartPositionSlot);
+			ADeepDriveAgentControllerBase *controller = (data.ControllerCreator ? data.ControllerCreator : ControllerCreator)->CreateAgentController(data.ConfigurationSlot, data.StartPositionSlot, this);
 			if (controller)
 			{
 				if (controller->Activate(*agent, false))
@@ -598,22 +598,6 @@ void ADeepDriveSimulation::spawnAdditionalAgents()
 			UE_LOG(LogDeepDriveSimulation, Log, TEXT("Couldn't spawn additional agent"));
 
 	}
-}
-
-ADeepDriveAgentControllerBase* ADeepDriveSimulation::spawnController(EDeepDriveAgentControlMode mode, int32 configSlot, int32 startPosSlot)
-{
-	ADeepDriveAgentControllerBase *controller = 0;
-
-	if(ControllerCreators.Contains(mode))
-	{
-		controller = ControllerCreators[mode]->CreateAgentController(configSlot, startPosSlot, this);
-	}
-	else
-	{
-		UE_LOG(LogDeepDriveSimulation, Error, TEXT("spawnController No controller creator found") );
-	}
-
-	return controller;
 }
 
 void ADeepDriveSimulation::switchToAgent(int32 index)

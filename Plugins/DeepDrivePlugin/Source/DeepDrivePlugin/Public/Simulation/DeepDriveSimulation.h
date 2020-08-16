@@ -17,7 +17,7 @@ class DeepDriveSimulationCaptureProxy;
 class DeepDriveSimulationServerProxy;
 class DeepDriveSimulationStateMachine;
 class DeepDriveSimulationServer;
-class DeepDriveSimulationMessageHandler;
+class DeepDriveSimulationRequestHandler;
 class DeepDriveSimulationConfigureState;
 class DeepDriveSimulationResetState;
 class DeepDriveManeuverCalculator;
@@ -41,18 +41,18 @@ namespace deepdrive { namespace server {
 struct MessageHeader;
 } }
 
-
-UCLASS()
+UCLASS(Abstract)
 class DEEPDRIVEPLUGIN_API ADeepDriveSimulation	:	public AActor
 {
 	friend class DeepDriveSimulationRunningState;
 	friend class DeepDriveSimulationConfigureState;
 	friend class DeepDriveSimulationResetState;
-	friend class DeepDriveSimulationMessageHandler;
+	friend class DeepDriveSimulationRequests;
+	friend class DeepDriveMultiAgentRequests;
 
 	GENERATED_BODY()
 
-public:	
+public:
 	// Sets default values for this actor's properties
 	ADeepDriveSimulation();
 
@@ -88,7 +88,7 @@ public:
 	TSubclassOf<ADeepDriveAgent>	Agent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
-	EDeepDriveAgentControlMode	InitialControllerMode = EDeepDriveAgentControlMode::NONE;
+	ADeepDriveAgentControllerCreator	*ControllerCreator = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
 	int32	InitialConfigurationSlot;
@@ -98,9 +98,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
 	TArray<FDeepDriveAdditionalAgentData>	AdditionalAgents;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
-	TMap<EDeepDriveAgentControlMode, ADeepDriveAgentControllerCreator*>	ControllerCreators;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Agents)
 	ADeepDriveSplineTrack	*OneOffAgentsTrack = 0;
@@ -151,9 +148,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Input")
 	void SelectCamera(EDeepDriveAgentCameraType CameraType);
-
-	UFUNCTION(BlueprintCallable, Category = "Input")
-	void SelectMode(EDeepDriveAgentControlMode Mode);
 
 	UFUNCTION(BlueprintCallable, Category = "Spectator")
 	void NextAgent();
@@ -209,7 +203,10 @@ public:
 	void enqueueMessage(deepdrive::server::MessageHeader *message);
 
 	bool resetAgent();
-	
+
+	bool requestControl();
+	void releaseControl();
+
 	ADeepDriveAgent* getCurrentAgent() const;
 	ADeepDriveAgentControllerBase* getCurrentAgentController() const;
 	TArray<UCaptureSinkComponentBase*>& getCaptureSinks();
@@ -222,8 +219,6 @@ public:
 	void removeAgents(bool removeEgo);
 	void spawnAdditionalAgents();
 	bool hasAdditionalAgents();
-
-	EDeepDriveAgentControlMode getControllerMode() const;
 
 	bool hasEgoAgent() const;
 	void onEgoAgentChanged(bool added);
@@ -238,11 +233,9 @@ private:
 
 	bool isActive() const;
 
-	ADeepDriveAgent *spawnAgent(const FDeepDriveAgentScenarioConfiguration &scenarioCfg, bool isEgoAgent, bool remotelyControlled);
+	ADeepDriveAgent *spawnAgent(const FDeepDriveAgentScenarioConfiguration &scenarioCfg, bool remotelyControlled);
 
-	ADeepDriveAgent* spawnAgent(EDeepDriveAgentControlMode mode, int32 configSlot, int32 startPosSlot);
-
-	ADeepDriveAgentControllerBase* spawnController(EDeepDriveAgentControlMode mode, int32 configSlot, int32 startPosSlot);
+	ADeepDriveAgent *spawnAgent(ADeepDriveAgentControllerCreator *ctrlCreator, int32 configSlot, int32 startPosSlot);
 
 	void switchToAgent(int32 index);
 	void switchToCamera(EDeepDriveAgentCameraType type);
@@ -253,7 +246,7 @@ private:
 	DeepDriveSimulationConfigureState		*m_ConfigureState = 0;
 	DeepDriveSimulationResetState			*m_ResetState = 0;
 	DeepDriveSimulationServer				*m_SimulationServer = 0;
-	DeepDriveSimulationMessageHandler		*m_MessageHandler = 0;
+	DeepDriveSimulationRequestHandler		*m_RequestHandler = 0;
 	DeepDriveSimulationServerProxy			*m_ServerProxy = 0;
 	DeepDriveSimulationCaptureProxy			*m_CaptureProxy = 0;
 	TArray<UCaptureSinkComponentBase*>		m_CaptureSinks;
@@ -265,7 +258,6 @@ private:
 	TArray<ADeepDriveAgent*>				m_Agents;
 	int32									m_curAgentIndex = 0;
 	ADeepDriveAgent							*m_curAgent = 0;
-	EDeepDriveAgentControlMode				m_curAgentMode = EDeepDriveAgentControlMode::NONE;
 
 	TMap<int32, ADeepDriveAgent*>			m_OneOffAgents;
 	int32									m_nextOneOffAgentId = 1;
@@ -313,9 +305,4 @@ inline FDateTime ADeepDriveSimulation::getSimulationStartTime()
 inline bool ADeepDriveSimulation::hasAdditionalAgents()
 {
 	return m_Agents.Num() > 1;
-}
-
-inline EDeepDriveAgentControlMode ADeepDriveSimulation::getControllerMode() const
-{
-	return m_curAgentMode;
 }

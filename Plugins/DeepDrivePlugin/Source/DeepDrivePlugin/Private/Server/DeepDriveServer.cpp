@@ -468,27 +468,6 @@ void DeepDriveServer::setViewMode(const deepdrive::server::MessageHeader &messag
 	}
 }
 
-#if 0
-void DeepDriveServer::resetSimulation(const deepdrive::server::MessageHeader &message)
-{
-	if (m_Clients.Num() > 0)
-	{
-		const deepdrive::server::ResetSimulationRequest &req = static_cast<const deepdrive::server::ResetSimulationRequest&> (message);
-		DeepDriveClientConnection *client = m_Clients.Find(req.client_id)->connection;
-		if (client)
-		{
-			if(client->isMaster())
-			{
-				m_Proxy->ConfigureSimulation(req.configuration, req.graphics_settings, false);
-				client->enqueueResponse(new deepdrive::server::ResetSimulationResponse(true));
-			}
-			else
-				client->enqueueResponse(new deepdrive::server::ResetSimulationResponse(false));
-		}
-	}
-}
-#endif
-
 void DeepDriveServer::onCaptureFinished(int32 seqNr)
 {
 	UE_LOG(LogDeepDriveServer, Verbose, TEXT("DeepDriveServer::onCaptureFinished %d"), seqNr);

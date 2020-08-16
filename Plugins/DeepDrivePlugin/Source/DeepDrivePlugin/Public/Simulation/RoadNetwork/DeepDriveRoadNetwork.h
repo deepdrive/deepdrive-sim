@@ -61,7 +61,7 @@ enum class EDeepDriveRightOfWay : uint8
 UENUM(BlueprintType)
 enum class EDeepDriveManeuverType : uint8
 {
-	TURN_BAN	 			= 0 UMETA(DisplayName = "Turn Ban"),
+	UNDEFINED	 			= 0 UMETA(DisplayName = "Undefined"),
 	TURN_RIGHT				= 1 UMETA(DisplayName = "Turn Right"),
 	GO_ON_STRAIGHT			= 2 UMETA(DisplayName = "Go on straight"),
 	TURN_LEFT				= 3 UMETA(DisplayName = "Turn Left"),
@@ -74,7 +74,9 @@ enum class EDeepDriveJunctionType : uint8
 	PASS_THROUGH 			= 0 UMETA(DisplayName = "Pass Through"),
 	FOUR_WAY_JUNCTION		= 1 UMETA(DisplayName = "Four Way Junction"),
 	T_JUNCTION				= 2 UMETA(DisplayName = "T-Junction"),
-	TRAFFIC_CIRCLE			= 3 UMETA(DisplayName = "Traffic Circle")
+	TRAFFIC_CIRCLE			= 3 UMETA(DisplayName = "Traffic Circle"),
+
+	DESTINATION_REACHED		= 255 UMETA(Hidden)
 };
 
 UENUM(BlueprintType)
@@ -249,9 +251,13 @@ struct SDeepDriveRoadNetwork
 	TMap<uint32, SDeepDriveRoadLink>		Links;
 	TMap<uint32, SDeepDriveRoadSegment> 	Segments;
 
+	TMap<uint32, FString>					LinkNameMap;
+
 	uint32 findClosestLink(const FVector &pos) const;
 	uint32 findClosestSegment(const FVector &pos, EDeepDriveLaneType laneType) const;
 	FVector getLocationOnLink(uint32 linkId, EDeepDriveLaneType laneType, float t) const;
+
+	FString getDebugLinkName(uint32 linkId) const;
 
 };
 

@@ -38,18 +38,22 @@ public:
 
 	virtual bool Activate(ADeepDriveAgent &agent, bool keepPosition);
 
-	virtual void Deactivate();
+	virtual void RequestControl();
+
+	virtual void ReleaseControl();
+
+	virtual void Reset();
 
 	virtual void MoveForward(float axisValue);
 
 	virtual void MoveRight(float axisValue);
-	
+
 	virtual void Brake(float axisValue);
-	
+
 	virtual void SetControlValues(float steering, float throttle, float brake, bool handbrake);
-	
+
 	virtual bool ResetAgent( /* const SimulationConfiguration &configuration */);
-	
+
 	virtual void OnRemoveAgent();
 
 	virtual void SetSpeedRange(float MinSpeed, float MaxSpeed);
@@ -79,6 +83,8 @@ public:
 
 	FDeepDrivePath getPath();
 
+	bool isRemotelyControlled() const;
+
 protected:
 
 	enum OperationMode
@@ -103,6 +109,8 @@ protected:
 	ADeepDriveSimulation				*m_DeepDriveSimulation = 0;
 	ADeepDriveAgent						*m_Agent = 0;
 
+	bool								m_isRemotelyControlled = false;
+
 	OperationMode						m_OperationMode = OperationMode::Standard;
 	ScenarionConfiguration				m_ScenarionConfiguration;
 
@@ -123,6 +131,10 @@ protected:
 
 	bool								m_hasCollisionOccured = false;
 	DeepDriveCollisionData				m_CollisionData;
+
+	float								m_InputTimer = -1.0f;
+
+	const float							InputThreshold = 0.01f;
 };
 
 
@@ -144,4 +156,9 @@ inline bool ADeepDriveAgentControllerBase::isPassing() const
 inline void ADeepDriveAgentControllerBase::restoreStartPositionSlot(int32 startPositionSlot)
 {
 	m_StartPositionSlot = startPositionSlot;
+}
+
+inline bool ADeepDriveAgentControllerBase::isRemotelyControlled() const
+{
+	return m_isRemotelyControlled;
 }

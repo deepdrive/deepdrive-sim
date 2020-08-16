@@ -20,6 +20,12 @@ public:
 
 	virtual bool Activate(ADeepDriveAgent &agent, bool keepPosition);
 
+	virtual void MoveForward(float axisValue);
+
+	virtual void MoveRight(float axisValue);
+
+	virtual void Brake(float axisValue);
+
 	void configure(ADeepDriveSimulation* deepDriveSim, const FTransform &transform, bool bindToRoad);
 
 protected:

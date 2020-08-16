@@ -15,6 +15,8 @@ class UCaptureCameraComponent;
 class ADeepDriveAgentControllerBase;
 class ADeepDriveSimulation;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FTurnSignalStateChanged, EDeepDriveAgentTurnSignalState, NewState);
+
 /**
  * 
  */
@@ -28,6 +30,8 @@ public:
 	ADeepDriveAgent();
 
 	void initialize(ADeepDriveSimulation &sim);
+
+	virtual void PostInitializeComponents() override;
 
 	virtual void BeginPlay() override;
 
@@ -113,10 +117,10 @@ public:
 	void SetSpeedRange(float MinSpeed, float MaxSpeed);
 
 	UFUNCTION(BlueprintCallable, Category = "Agents")
-	void SetDirectionIndicatorState(EDeepDriveAgentDirectionIndicatorState DirectionIndicator);
+	EDeepDriveAgentTurnSignalState GetTurnSignalState();
 
-	UFUNCTION(BlueprintCallable, Category = "Agents")
-	EDeepDriveAgentDirectionIndicatorState GetDirectionIndicatorState();
+	UPROPERTY(BlueprintAssignable)
+	FTurnSignalStateChanged OnTurnSignalStateChanged;
 
 	void setCollisionMode(bool simple);
 	void setCollisionVisibility(bool visible);
@@ -134,6 +138,8 @@ public:
 	float getFrontBumperDistance() const;
 	float getBackBumperDistance() const;
 	float getWheelBase() const;
+
+	void setTurnSignalState(EDeepDriveAgentTurnSignalState TurnSignal);
 
 	void setNextAgent(ADeepDriveAgent *agent, float distance);
 	void setPrevAgent(ADeepDriveAgent *agent, float distance);
@@ -235,7 +241,7 @@ private:
 
 	ADeepDriveAgentControllerBase		*m_AgentController = 0;
 
-	EDeepDriveAgentDirectionIndicatorState	m_DirectionIndicator = EDeepDriveAgentDirectionIndicatorState::UNKNOWN;
+	EDeepDriveAgentTurnSignalState	m_TurnSignal = EDeepDriveAgentTurnSignalState::UNKNOWN;
 
 	bool								m_SimpleCollisionMode = false;
 	bool								m_CollisionVisible = false;
