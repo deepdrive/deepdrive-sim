@@ -531,6 +531,16 @@ void ADeepDriveAgent::getPredictedPath(float predictionLength, TDeepDrivePredict
 {
 }
 
+const DeepDrivePredictedPath &ADeepDriveAgent::getPredictedPath(float predictionLength)
+{
+	if(m_PredictedPath.update(predictionLength))
+	{
+		m_curAgentController->predictPath(m_PredictedPath, PathPredictionLength);
+	}
+
+	return m_PredictedPath;
+}
+
 EDeepDriveAgentTurnSignalState ADeepDriveAgent::GetTurnSignalState()
 {
 	return m_TurnSignal;

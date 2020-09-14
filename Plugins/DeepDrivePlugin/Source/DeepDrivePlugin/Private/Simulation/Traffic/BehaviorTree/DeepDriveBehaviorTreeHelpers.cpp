@@ -7,6 +7,7 @@
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 #include "Simulation/TrafficLight/DeepDriveTrafficLight.h"
 #include "Public/Simulation/RoadNetwork/DeepDriveRoadNetworkComponent.h"
+#include "Private/Simulation/Traffic/Path/DeepDrivePredictedPath.h"
 
 float DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue_new(DeepDriveTrafficBlackboard &blackboard, bool ignoreTrafficLights)
 {
@@ -17,8 +18,7 @@ float DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue_new(DeepDriveTra
 	ADeepDriveAgent *egoAgent = blackboard.getAgent();
 	const SDeepDriveJunction &junction = simulation->RoadNetwork->getRoadNetwork().Junctions[maneuver->JunctionId];
 	const float estimatedJunctionClearTime = 4.0f;
-	TDeepDrivePredictedPath egoPredictedPath;
-	egoAgent->getPredictedPath(junction.Entries[maneuver->EntryIndex].MaxConnectionLength, egoPredictedPath);
+	const DeepDrivePredictedPath &egoPredictedPath = egoAgent->getPredictedPath(junction.Entries[maneuver->EntryIndex].MaxConnectionLength);
 
 	for (auto &crossTraffic : maneuver->CrossTrafficRoads)
 	{
@@ -31,8 +31,17 @@ float DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue_new(DeepDriveTra
 				||	crossTraffic.TrafficLight->CurrentPhase != EDeepDriveTrafficLightPhase::RED
 				)
 			{
-				TDeepDrivePredictedPath curPredictedPath;
-				curAgent->getPredictedPath(junction.MaxConnectionLength, curPredictedPath);
+				const DeepDrivePredictedPath &curPredictedPath = curAgent->getPredictedPath(junction.MaxConnectionLength);
+				DeepDrivePredictedPath::SPredictedPathPoint egoPathPoint;
+				DeepDrivePredictedPath::SPredictedPathPoint curPathPoint;
+				if(egoPredictedPath.findIntersection(curPredictedPath, &egoPathPoint, &curPathPoint))
+				{
+					/*
+					 *	- both negative-> no valid info, blocked (?)
+					 * 
+					 * 
+					 */
+				}
 			}
 		}
 	}

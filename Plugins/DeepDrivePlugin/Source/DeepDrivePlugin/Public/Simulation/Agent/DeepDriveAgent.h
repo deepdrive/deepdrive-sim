@@ -141,6 +141,9 @@ public:
 	float getWheelBase() const;
 
 	void getPredictedPath(float predictionLength, TDeepDrivePredictedPath &outPredictedPath);
+
+	const DeepDrivePredictedPath& getPredictedPath();
+
 	void setTurnSignalState(EDeepDriveAgentTurnSignalState TurnSignal);
 
 	void setNextAgent(ADeepDriveAgent *agent, float distance);
@@ -267,6 +270,8 @@ private:
 	USplineComponent					*m_CenterOfTrackSpline = 0;
 	bool								m_isGameDriving;
 	int32								m_NumberOfLaps = 0;
+
+	const float							PathPredictionLength = 2500.0f;
 
 	static int32						s_nextAgentId;
 };
