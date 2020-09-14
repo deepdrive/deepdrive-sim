@@ -32,7 +32,18 @@ struct SDeepDrivePathPoint
 	float				RemainingDistance;
 };
 
-typedef TArray<SDeepDrivePathPoint>	TDeepDrivePathPoints;
+typedef TArray<SDeepDrivePathPoint> TDeepDrivePathPoints;
+
+struct SDeepDrivePredictedPathPoint
+{
+	float				TimeStamp;
+
+	FVector				Location;
+	FVector2D			Direction;
+	float				Velocity;
+};
+
+typedef TArray<SDeepDrivePredictedPathPoint> TDeepDrivePredictedPath;
 
 struct SDeepDriveCrossTrafficRoad
 {
@@ -62,8 +73,10 @@ typedef TArray<SDeepDriveCrossTrafficRoad> TDeepDriveCrossTrafficRoads;
 
 struct SDeepDriveManeuver
 {
+	uint32									JunctionId = 0;
 	uint32									FromLinkId = 0;
 	uint32									ToLinkId = 0;
+	uint32									EntryIndex = 0;
 
 	EDeepDriveJunctionType					JunctionType = EDeepDriveJunctionType::PASS_THROUGH;
 	EDeepDriveJunctionSubType				JunctionSubType = EDeepDriveJunctionSubType::AUTO_DETECT;

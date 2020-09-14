@@ -49,18 +49,20 @@ bool SDeepDriveJunction::findJunctionConnection(uint32 fromLinkId, uint32 fromSe
 	return false;
 }
 
-bool SDeepDriveJunction::findJunctionEntry(uint32 fromLinkId, const SDeepDriveJunctionEntry* &junctionEntry) const
+int32 SDeepDriveJunction::findJunctionEntry(uint32 fromLinkId, const SDeepDriveJunctionEntry* &junctionEntry) const
 {
+	int32 index = 0;
 	for (auto &entry : Entries)
 	{
 		if(entry.LinkId == fromLinkId)
 		{
 			junctionEntry = &entry;
-			return true;
+			return index;
 		}
+		index++;
 	}
 
-	return false;
+	return -1;
 }
 
 bool SDeepDriveJunction::isTurningAllowed(uint32 fromLinkId, uint32 toLinkId) const
@@ -95,6 +97,10 @@ EDeepDriveManeuverType SDeepDriveJunction::getManeuverType(uint32 fromLinkId, ui
 	}
 
 	return EDeepDriveManeuverType::UNDEFINED;
+}
+
+void SDeepDriveJunction::getRelevantAgents(uint32 fromLinkId, uint32 toLinkId, ADeepDriveAgent *egoAgent, TArray<ADeepDriveAgent *> &agents) const
+{
 }
 
 

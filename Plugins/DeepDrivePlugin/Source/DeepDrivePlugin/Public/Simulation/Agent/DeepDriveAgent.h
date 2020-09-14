@@ -4,7 +4,8 @@
 
 #include "WheeledVehicle.h"
 
-#include "Public/Simulation/DeepDriveSimulationDefines.h"
+#include "Simulation/DeepDriveSimulationDefines.h"
+#include "Simulation/Traffic/Path/DeepDrivePathDefines.h"
 
 #include "DeepDriveAgent.generated.h"
 
@@ -139,6 +140,7 @@ public:
 	float getBackBumperDistance() const;
 	float getWheelBase() const;
 
+	void getPredictedPath(float predictionTime, TDeepDrivePredictedPath &outPredictedPath);
 	void setTurnSignalState(EDeepDriveAgentTurnSignalState TurnSignal);
 
 	void setNextAgent(ADeepDriveAgent *agent, float distance);

@@ -113,7 +113,7 @@ void DeepDriveMultiAgentRequests::setControlValues(ADeepDriveSimulation &simulat
 			{
 				ADeepDriveAgentControllerBase *controller = simulation.m_Agents[index]->getAgentController();
 				if(controller && controller->isRemotelyControlled())
-					controller->SetControlValues(req.control_values[i].steering, req.control_values[i].throttle, req.control_values[i].brake, req.control_values[i].handbrake);
+					controller->SetControlValues(req.control_values[i].steering, req.control_values[i].throttle, req.control_values[i].brake, req.control_values[i].handbrake != 0);
 				else
 					UE_LOG(LogDeepDriveMultiAgentRequests, Log, TEXT("Agent %d has no controller (%p) or isn't remotely controlled"), id, controller);
 			}

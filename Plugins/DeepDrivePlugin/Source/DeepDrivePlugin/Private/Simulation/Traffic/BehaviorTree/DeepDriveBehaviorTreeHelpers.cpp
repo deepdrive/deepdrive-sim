@@ -6,6 +6,40 @@
 #include "Public/Simulation/DeepDriveSimulation.h"
 #include "Public/Simulation/Agent/DeepDriveAgent.h"
 #include "Simulation/TrafficLight/DeepDriveTrafficLight.h"
+#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetworkComponent.h"
+
+float DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue_new(DeepDriveTrafficBlackboard &blackboard, bool ignoreTrafficLights)
+{
+	float clearValue = 1.0f;
+
+	ADeepDriveSimulation *simulation = blackboard.getSimulation();
+	const SDeepDriveManeuver *maneuver = blackboard.getManeuver();
+	ADeepDriveAgent *egoAgent = blackboard.getAgent();
+	const SDeepDriveJunction &junction = simulation->RoadNetwork->getRoadNetwork().Junctions[maneuver->JunctionId];
+	const float estimatedJunctionClearTime = 4.0f;
+	TDeepDrivePredictedPath egoPredictedPath;
+	egoAgent->getPredictedPath(estimatedJunctionClearTime, egoPredictedPath);
+
+	for (auto &crossTraffic : maneuver->CrossTrafficRoads)
+	{
+		TArray<ADeepDriveAgent*> agents;
+		junction.getRelevantAgents(crossTraffic.FromLinkId, crossTraffic.ToLinkId, egoAgent, agents);
+
+		for(auto &curAgent : agents)
+		{
+			if	(	crossTraffic.TrafficLight == 0
+				||	crossTraffic.TrafficLight->CurrentPhase != EDeepDriveTrafficLightPhase::RED
+				)
+			{
+				TDeepDrivePredictedPath curPredictedPath;
+				curAgent->getPredictedPath(estimatedJunctionClearTime, egoPredictedPath);
+
+			}
+		}
+	}
+
+	return clearValue;
+}
 
 float DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue(DeepDriveTrafficBlackboard &blackboard, bool ignoreTrafficLights)
 {

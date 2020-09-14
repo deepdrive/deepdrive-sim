@@ -527,6 +527,10 @@ void ADeepDriveAgent::setTurnSignalState(EDeepDriveAgentTurnSignalState TurnSign
 
 }
 
+void ADeepDriveAgent::getPredictedPath(float predictionTime, TDeepDrivePredictedPath &outPredictedPath)
+{
+}
+
 EDeepDriveAgentTurnSignalState ADeepDriveAgent::GetTurnSignalState()
 {
 	return m_TurnSignal;

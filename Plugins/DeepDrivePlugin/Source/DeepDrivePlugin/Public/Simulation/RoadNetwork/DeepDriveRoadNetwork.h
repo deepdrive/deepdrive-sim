@@ -9,6 +9,7 @@
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveRoadNetwork, Log, All);
 
 class ADeepDriveTrafficLight;
+class ADeepDriveAgent;
 
 UENUM(BlueprintType)
 enum class EDeepDriveLaneType : uint8
@@ -228,11 +229,13 @@ struct SDeepDriveJunction
 
 	bool findJunctionConnection(uint32 fromLinkId, uint32 fromSegment, uint32 toSegment, SDeepDriveJunctionConnection &junctionConnection) const;
 
-	bool findJunctionEntry(uint32 fromLinkId, const SDeepDriveJunctionEntry* &junctionEntry) const;
+	int32 findJunctionEntry(uint32 fromLinkId, const SDeepDriveJunctionEntry* &junctionEntry) const;
 
 	bool isTurningAllowed(uint32 fromLinkId, uint32 toLinkId) const;
 
 	EDeepDriveManeuverType getManeuverType(uint32 fromLinkId, uint32 toLinkId) const;
+
+	void getRelevantAgents(uint32 fromLinkId, uint32 toLinkId, ADeepDriveAgent *egoAgent, TArray<ADeepDriveAgent *> &agents) const;
 
 };
 

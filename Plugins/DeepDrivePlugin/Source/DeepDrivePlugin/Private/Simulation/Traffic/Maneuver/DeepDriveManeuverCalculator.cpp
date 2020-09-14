@@ -41,11 +41,14 @@ void DeepDriveManeuverCalculator::calculate(SDeepDriveRoute &route, ADeepDriveAg
 		const uint32 toLinkId = toLink.LinkId;
 
 		const SDeepDriveJunctionEntry *junctionEntry = 0;
-		if(junction.findJunctionEntry(fromLinkId, junctionEntry))
+		const int32 entryIndex = junction.findJunctionEntry(fromLinkId, junctionEntry);
+		if(entryIndex >= 0)
 		{
 			UE_LOG(LogDeepDriveManeuverCalculator, Log, TEXT("Calc maneuver from %s to %s"), *(m_RoadNetwork.getDebugLinkName(fromLinkId)), *(m_RoadNetwork.getDebugLinkName(toLinkId)) );
 
 			SDeepDriveManeuver maneuver;
+			maneuver.JunctionId = junction.JunctionId;
+			maneuver.EntryIndex = static_cast<uint32> (entryIndex);
 			maneuver.JunctionType = junction.JunctionType;
 			maneuver.JunctionSubType = junctionEntry->JunctionSubType;
 			maneuver.ManeuverType = junction.getManeuverType(fromLinkId, toLinkId);
