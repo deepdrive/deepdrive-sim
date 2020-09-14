@@ -18,7 +18,7 @@ float DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue_new(DeepDriveTra
 	const SDeepDriveJunction &junction = simulation->RoadNetwork->getRoadNetwork().Junctions[maneuver->JunctionId];
 	const float estimatedJunctionClearTime = 4.0f;
 	TDeepDrivePredictedPath egoPredictedPath;
-	egoAgent->getPredictedPath(estimatedJunctionClearTime, egoPredictedPath);
+	egoAgent->getPredictedPath(junction.Entries[maneuver->EntryIndex].MaxConnectionLength, egoPredictedPath);
 
 	for (auto &crossTraffic : maneuver->CrossTrafficRoads)
 	{
@@ -32,8 +32,7 @@ float DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue_new(DeepDriveTra
 				)
 			{
 				TDeepDrivePredictedPath curPredictedPath;
-				curAgent->getPredictedPath(estimatedJunctionClearTime, egoPredictedPath);
-
+				curAgent->getPredictedPath(junction.MaxConnectionLength, curPredictedPath);
 			}
 		}
 	}

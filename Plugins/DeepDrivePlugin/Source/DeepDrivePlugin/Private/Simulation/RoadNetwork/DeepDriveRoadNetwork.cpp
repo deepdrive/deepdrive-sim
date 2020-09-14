@@ -236,3 +236,18 @@ FVector SDeepDriveRoadSegment::getLocationOnSegment(float relativePos) const
 	return location;
 }
 
+float SDeepDriveRoadSegment::getLength() const
+{
+	float length = 0.0f;
+
+	if(hasSpline())
+	{
+		length = SplineCurves.GetSplineLength();
+	}
+	else
+	{
+		length = (EndPoint - StartPoint).Size();
+	}
+
+	return length;
+}

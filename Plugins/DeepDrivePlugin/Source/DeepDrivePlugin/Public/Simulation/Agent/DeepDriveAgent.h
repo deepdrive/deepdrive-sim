@@ -140,7 +140,7 @@ public:
 	float getBackBumperDistance() const;
 	float getWheelBase() const;
 
-	void getPredictedPath(float predictionTime, TDeepDrivePredictedPath &outPredictedPath);
+	void getPredictedPath(float predictionLength, TDeepDrivePredictedPath &outPredictedPath);
 	void setTurnSignalState(EDeepDriveAgentTurnSignalState TurnSignal);
 
 	void setNextAgent(ADeepDriveAgent *agent, float distance);

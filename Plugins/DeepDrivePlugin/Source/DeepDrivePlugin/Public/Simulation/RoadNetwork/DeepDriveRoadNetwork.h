@@ -137,6 +137,7 @@ struct SDeepDriveRoadSegment
 
 	FVector getLocationOnSegment(float relativePos) const;
 
+	float getLength() const;
 };
 
 
@@ -211,6 +212,8 @@ struct SDeepDriveJunctionEntry
 	FVector									ManeuverEntryPoint;
 	FVector									LineOfSight;
 
+	float									MaxConnectionLength;
+
 	TArray<SDeepDriveJunctionConnection>	Connections;	
 
 	ADeepDriveTrafficLight* getTrafficLight(uint32 toLinkId) const;
@@ -223,6 +226,7 @@ struct SDeepDriveJunction
 	FVector									Center = FVector::ZeroVector;
 
 	EDeepDriveJunctionType					JunctionType;
+	float									MaxConnectionLength;
 
 	TArray<SDeepDriveJunctionEntry>			Entries;
 	TArray<uint32>				 			LinksOut;

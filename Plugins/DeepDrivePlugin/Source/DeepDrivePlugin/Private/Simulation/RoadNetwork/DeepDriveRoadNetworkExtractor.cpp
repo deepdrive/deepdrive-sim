@@ -45,6 +45,7 @@ void DeepDriveRoadNetworkExtractor::extract()
 			junction.JunctionId = junctionId;
 
 			junction.JunctionType = junctionProxy->getJunctionType();
+			junction.MaxConnectionLength = 0.0f;
 
 			junction.Center = FVector::ZeroVector;
 			int32 count = 0;
@@ -88,6 +89,7 @@ void DeepDriveRoadNetworkExtractor::extract()
 					entry.RightOfWay = entryProxy.RightOfWay;
 					entry.ManeuverEntryPoint = entryProxy.ManeuverEntryPoint;
 					entry.LineOfSight = entryProxy.LineOfSight;
+					entry.MaxConnectionLength = 0.0f;
 
 					for(auto &junctionConnectionProxy : entryProxy.Connections)
 					{
@@ -130,8 +132,10 @@ void DeepDriveRoadNetworkExtractor::extract()
 									break;
 							}
 						}
+						entry.MaxConnectionLength = FMath::Max(entry.MaxConnectionLength, m_RoadNetwork.Segments[junctionConnection.ConnectionSegmentId].getLength());
 						entry.Connections.Add(junctionConnection);
 					}
+					junction.MaxConnectionLength = FMath::Max(junction.MaxConnectionLength, entry.MaxConnectionLength);
 					junction.Entries.Add(entry);
 				}
 			}
