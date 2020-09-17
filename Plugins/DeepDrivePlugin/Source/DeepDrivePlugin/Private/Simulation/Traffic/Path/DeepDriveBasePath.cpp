@@ -73,6 +73,14 @@ void DeepDriveBasePath::showPath(UWorld *world)
         m_PartialPath->showPath(world);
 }
 
+void DeepDriveBasePath::predictPath(DeepDrivePredictedPath &predictedPath, float predictionLength, float curVelocity)
+{
+    if(m_PartialPath)
+    {
+        m_PartialPath->predictPath(predictedPath, predictionLength, curVelocity);
+    }
+}
+
 void DeepDriveBasePath::convertRouteLinks()
 {
 	m_RouteSegments.Empty();

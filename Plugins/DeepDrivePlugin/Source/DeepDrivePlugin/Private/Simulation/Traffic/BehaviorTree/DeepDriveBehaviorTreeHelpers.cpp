@@ -32,8 +32,8 @@ float DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue_new(DeepDriveTra
 				)
 			{
 				const DeepDrivePredictedPath &curPredictedPath = curAgent->getPredictedPath(junction.MaxConnectionLength);
-				DeepDrivePredictedPath::SPredictedPathPoint egoPathPoint;
-				DeepDrivePredictedPath::SPredictedPathPoint curPathPoint;
+				DeepDrivePredictedPath::SPathIntersectionPoint egoPathPoint;
+				DeepDrivePredictedPath::SPathIntersectionPoint curPathPoint;
 				if(egoPredictedPath.findIntersection(curPredictedPath, &egoPathPoint, &curPathPoint))
 				{
 					/*

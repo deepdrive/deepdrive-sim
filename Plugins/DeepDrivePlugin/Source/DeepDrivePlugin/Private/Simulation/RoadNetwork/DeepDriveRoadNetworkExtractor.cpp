@@ -131,8 +131,8 @@ void DeepDriveRoadNetworkExtractor::extract()
 										junctionConnection.ConnectionSegmentId = addStraightConnectionSegment(fromSegment, toSegment, junctionConnectionProxy.SpeedLimit, false);
 									break;
 							}
+							entry.MaxConnectionLength = FMath::Max(entry.MaxConnectionLength, m_RoadNetwork.Segments[junctionConnection.ConnectionSegmentId].getLength());
 						}
-						entry.MaxConnectionLength = FMath::Max(entry.MaxConnectionLength, m_RoadNetwork.Segments[junctionConnection.ConnectionSegmentId].getLength());
 						entry.Connections.Add(junctionConnection);
 					}
 					junction.MaxConnectionLength = FMath::Max(junction.MaxConnectionLength, entry.MaxConnectionLength);

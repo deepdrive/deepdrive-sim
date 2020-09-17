@@ -18,6 +18,8 @@ class USplineComponent;
 class ADeepDriveRoute;
 class ADeepDriveSplineTrack;
 
+class DeepDrivePredictedPath;
+
 struct SimulationConfiguration;
 
 /**
@@ -67,6 +69,8 @@ public:
 	virtual	float getRouteLength();
 
 	virtual	float getDistanceToCenterOfTrack();
+
+	virtual void predictPath(DeepDrivePredictedPath &predictedPath, float predictionLength);
 
 	const FString& getControllerName() const;
 

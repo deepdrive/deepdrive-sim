@@ -49,13 +49,11 @@ bool DeepDriveTBTCheckIsJunctionClearTask::execute(DeepDriveTrafficBlackboard &b
 	if(pathPointIndex >= m_RefLocationIndex)
 	{
 
-#if 0
+		const float junctionClearValue_new = DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue_new(blackboard, m_ignoreTrafficLights);
+		const bool isJunctionClear_new = junctionClearValue_new < 0.1f;
+
 		const float junctionClearValue = DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue(blackboard, m_ignoreTrafficLights);
 		const bool isJunctionClear = junctionClearValue > 0.9f;
-#else
-		const float junctionClearValue = DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue_new(blackboard, m_ignoreTrafficLights);
-		const bool isJunctionClear = junctionClearValue < 0.1f;
-#endif
 
 		if(m_FlagName.IsEmpty() == false)
 			blackboard.setBooleanValue(m_FlagName, isJunctionClear);

@@ -126,6 +126,8 @@ void ADeepDriveAgent::Tick( float DeltaSeconds )
 		UE_LOG(LogDeepDriveAgent, Log, TEXT("Laps finished %d"), m_NumberOfLaps );
 	}
 
+	m_PredictedPath.advance(DeltaSeconds, GetActorLocation());
+
 	AEL_LOG_TRANSFORM(*this, GetActorTransform());
 }
 
@@ -533,9 +535,11 @@ void ADeepDriveAgent::getPredictedPath(float predictionLength, TDeepDrivePredict
 
 const DeepDrivePredictedPath &ADeepDriveAgent::getPredictedPath(float predictionLength)
 {
-	if(m_PredictedPath.update(predictionLength))
+	if(m_PredictedPath.isReliable(predictionLength) == false)
 	{
-		m_curAgentController->predictPath(m_PredictedPath, PathPredictionLength);
+		m_PredictedPath.clear();
+		m_AgentController->predictPath(m_PredictedPath, PathPredictionLength);
+		m_PredictedPath.finalize();
 	}
 
 	return m_PredictedPath;

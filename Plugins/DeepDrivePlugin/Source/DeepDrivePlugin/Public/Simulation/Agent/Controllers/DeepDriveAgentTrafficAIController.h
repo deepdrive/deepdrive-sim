@@ -69,6 +69,8 @@ public:
 
 	virtual float getDistanceToCenterOfTrack();
 
+	virtual void predictPath(DeepDrivePredictedPath &predictedPath, float predictionLength) override;
+
 	UFUNCTION(BlueprintCallable, Category = "Configuration")
 	void Configure(const FDeepDriveTrafficAIControllerConfiguration &Configuration, int32 StartPositionSlot, ADeepDriveSimulation* DeepDriveSimulation);
 

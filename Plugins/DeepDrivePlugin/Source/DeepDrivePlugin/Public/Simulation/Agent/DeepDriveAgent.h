@@ -6,6 +6,7 @@
 
 #include "Simulation/DeepDriveSimulationDefines.h"
 #include "Simulation/Traffic/Path/DeepDrivePathDefines.h"
+#include "Private/Simulation/Traffic/Path/DeepDrivePredictedPath.h"
 
 #include "DeepDriveAgent.generated.h"
 
@@ -142,7 +143,7 @@ public:
 
 	void getPredictedPath(float predictionLength, TDeepDrivePredictedPath &outPredictedPath);
 
-	const DeepDrivePredictedPath& getPredictedPath();
+	const DeepDrivePredictedPath& getPredictedPath(float predictionLength);
 
 	void setTurnSignalState(EDeepDriveAgentTurnSignalState TurnSignal);
 
@@ -244,6 +245,7 @@ private:
 	bool								m_isEgoAgent = false;
 	bool								m_hasFocus = false;
 
+	DeepDrivePredictedPath				m_PredictedPath;
 	ADeepDriveAgentControllerBase		*m_AgentController = 0;
 
 	EDeepDriveAgentTurnSignalState	m_TurnSignal = EDeepDriveAgentTurnSignalState::UNKNOWN;

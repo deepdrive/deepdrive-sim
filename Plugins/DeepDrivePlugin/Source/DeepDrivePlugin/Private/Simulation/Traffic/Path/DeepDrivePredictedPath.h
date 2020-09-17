@@ -4,33 +4,38 @@
 
 class DeepDrivePredictedPath
 {
-public:
+private:
 
 	struct SPredictedPathPoint
 	{
 		float				TimeInFuture;
-
 		FVector				Location;
-		FVector2D			Direction;
 		float				Velocity;
-		float				Probability;
 
+		float				Probability;
 		float				Distance;
 	};
 
+public:
+
+	struct SPathIntersectionPoint
+	{
+		float				TimeInFuture;
+		FVector				Location;
+		float				Velocity;
+	};
 
 	DeepDrivePredictedPath();
 	~DeepDrivePredictedPath();
 
 	void clear();
-	void addPredictedPathPoint(float timeInFuture, const FVector &location, const FVector2D &direction, float velocity);
+	void addPredictedPathPoint(float timeInFuture, const FVector &location, float velocity, float probability);
 	void finalize();
 
-	bool findIntersection(const DeepDrivePredictedPath &otherPath, SPredictedPathPoint *pathPoint, SPredictedPathPoint *otherPathPoint) const;
+	void advance(float deltaSeconds, const FVector &curLocation);
+	bool isReliable(float distance) const;
 
-	bool advance(float DeltaTime);
-
-	bool update(float predictionLength);
+	bool findIntersection(const DeepDrivePredictedPath &otherPath, SPathIntersectionPoint *pathPoint, SPathIntersectionPoint *otherPathPoint) const;
 
 private :
 
@@ -38,6 +43,7 @@ private :
 
 	TPredictedPath                          m_PredictedPath;
 
+	float									m_BaseTime = 0.0f;
 	float									m_predictedDistance = 0.0f;
 
 	const float								IntersectionThreshold = 100.0f;

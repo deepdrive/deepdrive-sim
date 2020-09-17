@@ -241,6 +241,10 @@ float ADeepDriveAgentControllerBase::getDistanceToCenterOfTrack()
 	return res;
 }
 
+void ADeepDriveAgentControllerBase::predictPath(DeepDrivePredictedPath &predictedPath, float predictionLength)
+{
+}
+
 void ADeepDriveAgentControllerBase::resetAgentPosOnSpline(ADeepDriveAgent &agent, USplineComponent *spline, float distance)
 {
 	FVector agentLocation = spline->GetLocationAtDistanceAlongSpline(distance, ESplineCoordinateSpace::World) + FVector(0.0f, 0.0f, 200.0f);

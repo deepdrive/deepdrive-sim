@@ -257,6 +257,14 @@ float ADeepDriveAgentTrafficAIController::getDistanceToCenterOfTrack()
 	return m_PathPlanner && m_Agent ? m_PathPlanner->getDistanceToCenterOfTrack() : 0.0f;
 }
 
+void ADeepDriveAgentTrafficAIController::predictPath(DeepDrivePredictedPath &predictedPath, float predictionLength)
+{
+	if(m_PathPlanner)
+	{
+        m_PathPlanner->predictPath(predictedPath, predictionLength, m_Agent->getSpeed());
+	}
+}
+
 void ADeepDriveAgentTrafficAIController::Configure(const FDeepDriveTrafficAIControllerConfiguration &Configuration, int32 StartPositionSlot, ADeepDriveSimulation* DeepDriveSimulation)
 {
 	m_Configuration = Configuration;

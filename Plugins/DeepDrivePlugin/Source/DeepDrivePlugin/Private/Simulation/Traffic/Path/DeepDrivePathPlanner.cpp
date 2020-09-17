@@ -54,3 +54,11 @@ void DeepDrivePathPlanner::showPath(UWorld *world)
     if(m_curBasePath)
         m_curBasePath->showPath(world);
 }
+
+void DeepDrivePathPlanner::predictPath(DeepDrivePredictedPath &predictedPath, float predictionLength, float curVelocity)
+{
+    if(m_curBasePath)
+    {
+        m_curBasePath->predictPath(predictedPath, predictionLength, curVelocity);
+    }
+}

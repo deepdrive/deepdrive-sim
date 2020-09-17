@@ -8,6 +8,8 @@
 #include "Private/Simulation/Traffic/Path/Annotations/DeepDrivePathManeuverAnnotations.h"
 #include "Simulation/Traffic/BehaviorTree/DeepDriveTrafficBlackboard.h"
 
+#include "Simulation/Traffic/Path/DeepDrivePredictedPath.h"
+
 #include "Simulation/Traffic/BehaviorTree/DeepDriveTrafficBehaviorTree.h"
 
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
@@ -376,6 +378,35 @@ void DeepDrivePartialPath::showPath(UWorld *world)
 		DrawDebugLine(world, m_PathPoints[i - 1].Location, m_PathPoints[i].Location, col, false, 0.0f, prio, 4.0f);
 	}
 }
+
+void DeepDrivePartialPath::predictPath(DeepDrivePredictedPath &predictedPath, float predictionLength, float curVelocity)
+{
+	int32 curPathPointIndex = m_curPathPointIndex;
+	const int32 maxPathPointIndex = m_PathPoints.Num();
+	if(curPathPointIndex >= 0 && curPathPointIndex < maxPathPointIndex)
+	{
+		float predictedDistance = 0.0f;
+		float timeInFuture = 0.0f;
+		FVector lastPoint = m_PathPoints[curPathPointIndex].Location;
+		while	(	curPathPointIndex < maxPathPointIndex
+				&&	predictedDistance < predictionLength
+				)
+		{
+
+			const SDeepDrivePathPoint &curPathPoint = m_PathPoints[curPathPointIndex];
+
+			const float curDistance = (m_PathPoints[curPathPointIndex].Location - lastPoint).Size();
+			const float timeStep = curVelocity > 0.0f ? (curDistance / curVelocity) : -1.0f;
+			timeInFuture = timeStep >= 0.0f ? (timeInFuture + timeStep) : -1.0f;
+			predictedPath.addPredictedPathPoint(timeInFuture, curPathPoint.Location, curVelocity, 1.0f);
+
+			predictedDistance += curDistance;
+			lastPoint = curPathPoint.Location;
+			++curPathPointIndex;
+		}
+	}
+}
+
 
 float DeepDrivePartialPath::SmootherStep(float edge0, float edge1, float val)
 {

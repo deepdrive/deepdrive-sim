@@ -8,6 +8,7 @@ struct SDeepDriveRoadNetwork;
 
 class DeepDrivePartialPath;
 class ADeepDriveAgent;
+class DeepDrivePredictedPath;
 
 class UBezierCurveComponent;
 struct SDeepDrivePathConfiguration;
@@ -36,6 +37,8 @@ public:
 	float getDistanceToCenterOfTrack() const;
 
 	void showPath(UWorld *world);
+
+	void predictPath(DeepDrivePredictedPath &predictedPath, float predictionLength, float curVelocity);
 
 private:
 
