@@ -1,5 +1,4 @@
 
-#include "DeepDrivePlugin.h"
 #include "Simulation/TrafficLight/DeepDriveTrafficLightsCtrlCmp.h"
 
 #include "Simulation/TrafficLight/DeepDriveTrafficLight.h"

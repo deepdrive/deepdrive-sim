@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "Private/Server/DeepDriveConnectionThread.h"
+#include "Server/DeepDriveConnectionThread.h"
 
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveSimulationServer, Log, All);

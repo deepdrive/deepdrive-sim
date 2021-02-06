@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "Public/Server/Messages/DeepDriveServerMessageHeader.h"
+#include "Server/Messages/DeepDriveServerMessageHeader.h"
 
 namespace deepdrive { namespace server {
 

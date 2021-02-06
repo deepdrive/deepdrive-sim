@@ -1,9 +1,8 @@
 
-#include "DeepDrivePluginPrivatePCH.h"
-#include "Private/Simulation/States/DeepDriveSimulationRunningState.h"
-#include "Public/Simulation/DeepDriveSimulation.h"
-#include "Public/Simulation/DeepDriveSimulationServerProxy.h"
-#include "Public/Simulation/DeepDriveSimulationCaptureProxy.h"
+#include "Simulation/States/DeepDriveSimulationRunningState.h"
+#include "Simulation/DeepDriveSimulation.h"
+#include "Simulation/DeepDriveSimulationServerProxy.h"
+#include "Simulation/DeepDriveSimulationCaptureProxy.h"
 
 DeepDriveSimulationRunningState::DeepDriveSimulationRunningState(DeepDriveSimulationStateMachine &stateMachine)
 	: DeepDriveSimulationStateBase(stateMachine, "Running")

@@ -2,8 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
-#include "Public/Simulation/DeepDriveSimulationDefines.h"
+#include "Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
+#include "Simulation/DeepDriveSimulationDefines.h"
 #include "DeepDriveRoute.generated.h"
 
 class ADeepDriveAgent;

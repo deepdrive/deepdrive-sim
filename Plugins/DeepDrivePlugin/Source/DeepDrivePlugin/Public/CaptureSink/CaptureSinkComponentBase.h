@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
-#include "Public/Capture/CaptureCameraComponent.h"
+#include "Capture/CaptureCameraComponent.h"
 #include "CaptureSinkComponentBase.generated.h"
 
 class CaptureBuffer;

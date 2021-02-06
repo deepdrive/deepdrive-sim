@@ -1,9 +1,7 @@
 
-#include "DeepDrivePluginPrivatePCH.h"
-
-#include "Public/Capture/CaptureDefines.h"
-#include "Private/CaptureSink/CaptureSinkWorkerBase.h"
-#include "Private/Capture/CaptureBuffer.h"
+#include "CaptureSink/CaptureSinkWorkerBase.h"
+#include "Capture/CaptureDefines.h"
+#include "Capture/CaptureBuffer.h"
 
 
 CaptureSinkWorkerBase::CaptureSinkWorkerBase(const FString &name)

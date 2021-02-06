@@ -1,11 +1,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Private/Simulation/Traffic/Path/DeepDrivePathDefines.h"
+#include "Simulation/Traffic/Path/DeepDrivePathDefines.h"
 
-#include "Private/Simulation/Misc/MovingAverage.h"
+#include "Simulation/Misc/MovingAverage.h"
 
-#include "Private/Simulation/Misc/PIDController.h"
+#include "Simulation/Misc/PIDController.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDrivePartialPath, Log, All);
 

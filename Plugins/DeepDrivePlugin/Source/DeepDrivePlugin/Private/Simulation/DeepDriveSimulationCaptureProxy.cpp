@@ -1,12 +1,11 @@
 
 
-#include "DeepDrivePluginPrivatePCH.h"
-#include "Public/Simulation/DeepDriveSimulationCaptureProxy.h"
-#include "Public/Simulation/DeepDriveSimulation.h"
-#include "Public/Simulation/Agent/DeepDriveAgent.h"
+#include "Simulation/DeepDriveSimulationCaptureProxy.h"
+#include "Simulation/DeepDriveSimulation.h"
+#include "Simulation/Agent/DeepDriveAgent.h"
 
 
-#include "Private/Capture/DeepDriveCapture.h"
+#include "Capture/DeepDriveCapture.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveSimulationCaptureProxy);
 
@@ -57,7 +56,7 @@ bool DeepDriveSimulationCaptureProxy::beginCapture()
 }
 
 /**
-*		IDeepDriveCaptureProxy methods
+*		IDeepDriveCaptureProxyInterface methods
 */
 
 TArray<UCaptureSinkComponentBase*>& DeepDriveSimulationCaptureProxy::getSinks()

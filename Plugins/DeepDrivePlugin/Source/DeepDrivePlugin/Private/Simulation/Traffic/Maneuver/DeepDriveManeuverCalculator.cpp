@@ -5,7 +5,7 @@
 #include "Simulation/Traffic/Maneuver/DeepDriveFourWayJunctionCalculator.h"
 #include "Simulation/Traffic/Maneuver/DeepDriveTJunctionCalculator.h"
 
-#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
+#include "Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
 
 #include "Simulation/Traffic/BehaviorTree/DeepDriveBehaviorTreeFactory.h"
 

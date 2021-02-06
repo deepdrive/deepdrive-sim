@@ -1,8 +1,7 @@
 
-#include "DeepDrivePluginPrivatePCH.h"
 
-#include "Private/CaptureSink/DiskCaptureSink/DiskCaptureSinkWorker.h"
-#include "Private/Capture/CaptureBuffer.h"
+#include "CaptureSink/DiskCaptureSink/DiskCaptureSinkWorker.h"
+#include "Capture/CaptureBuffer.h"
 
 
 #include "ImageHandling/Image.h"

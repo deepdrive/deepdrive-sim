@@ -1,7 +1,6 @@
 
-#include "DeepDrivePluginPrivatePCH.h"
-#include "Private/Capture/CaptureBufferPool.h"
-#include "Private/Capture/CaptureBuffer.h"
+#include "Capture/CaptureBufferPool.h"
+#include "Capture/CaptureBuffer.h"
 
 DEFINE_LOG_CATEGORY(LogCaptureBufferPool);
 

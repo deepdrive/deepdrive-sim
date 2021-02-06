@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
+#include "Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
 #include "DeepDriveRoadNetworkComponent.generated.h"
 
 class ADeepDriveSimulation;

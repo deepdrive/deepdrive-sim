@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Camera/CameraComponent.h"
-#include "Public/Capture/CaptureDefines.h"
+#include "Capture/CaptureDefines.h"
 #include "CaptureCameraComponent.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(DeepDriveCaptureComponent, Log, All);

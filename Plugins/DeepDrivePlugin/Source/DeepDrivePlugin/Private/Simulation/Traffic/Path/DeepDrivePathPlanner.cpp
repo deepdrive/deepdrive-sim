@@ -1,6 +1,6 @@
 
-#include "Private/Simulation/Traffic/Path/DeepDrivePathPlanner.h"
-#include "Private/Simulation/Traffic/Path/DeepDriveBasePath.h"
+#include "Simulation/Traffic/Path/DeepDrivePathPlanner.h"
+#include "Simulation/Traffic/Path/DeepDriveBasePath.h"
 
 
 DeepDrivePathPlanner::DeepDrivePathPlanner(ADeepDriveAgent &agent, const SDeepDriveRoadNetwork &roadNetwork, UBezierCurveComponent &bezierCmp, const SDeepDrivePathConfiguration &pathCfg)

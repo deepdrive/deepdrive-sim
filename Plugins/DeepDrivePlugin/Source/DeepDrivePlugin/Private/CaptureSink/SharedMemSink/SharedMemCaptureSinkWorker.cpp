@@ -1,11 +1,10 @@
 
-#include "DeepDrivePluginPrivatePCH.h"
 
-#include "Private/CaptureSink/SharedMemSink/SharedMemCaptureSinkWorker.h"
-#include "Private/CaptureSink/SharedMemSink/SharedMemCaptureMessageBuilder.h"
-#include "Public/Messages/DeepDriveMessageHeader.h"
+#include "CaptureSink/SharedMemSink/SharedMemCaptureSinkWorker.h"
+#include "CaptureSink/SharedMemSink/SharedMemCaptureMessageBuilder.h"
+#include "Messages/DeepDriveMessageHeader.h"
 
-#include "Public/SharedMemory/SharedMemory.h"
+#include "SharedMemory/SharedMemory.h"
 
 DEFINE_LOG_CATEGORY(LogSharedMemCaptureSinkWorker);
 

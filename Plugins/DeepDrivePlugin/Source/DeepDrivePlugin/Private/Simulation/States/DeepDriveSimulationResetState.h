@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "Private/Simulation/DeepDriveSimulationStateMachine.h"
+#include "Simulation/DeepDriveSimulationStateMachine.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveSimulationResetState, Log, All);
 

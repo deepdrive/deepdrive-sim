@@ -2,7 +2,7 @@
 #pragma once
 
 #include "Engine.h"
-#include "Public/DeepDriveDataTypes.h"
+#include "DeepDriveDataTypes.h"
 
 enum class DeepDriveMessageType	:	uint32
 {

@@ -1,7 +1,6 @@
 	
-#include "DeepDrivePluginPrivatePCH.h"
-#include "Private/Capture/CaptureBuffer.h"
-#include "Private/Capture/CaptureBufferPool.h"
+#include "Capture/CaptureBuffer.h"
+#include "Capture/CaptureBufferPool.h"
 
 CaptureBuffer::CaptureBuffer(CaptureBufferPool &captureBufferPool, EPixelFormat pixelFormat, uint32 width, uint32 height, uint32 stride)
 	:	m_CaptureBufferPool(captureBufferPool)

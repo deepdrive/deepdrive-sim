@@ -2,7 +2,7 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
-#include "Public/Simulation/DeepDriveSimulationDefines.h"
+#include "Simulation/DeepDriveSimulationDefines.h"
 
 #include "DeepDriveAgentControllerCreator.generated.h"
 

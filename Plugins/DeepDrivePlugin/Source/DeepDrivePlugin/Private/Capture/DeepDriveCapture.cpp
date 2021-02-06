@@ -1,15 +1,14 @@
 
-#include "DeepDrivePluginPrivatePCH.h"
-#include "Private/Capture/DeepDriveCapture.h"
+#include "Capture/DeepDriveCapture.h"
 
-#include "Public/Capture/CaptureDefines.h"
-#include "Private/Capture/CaptureJob.h"
-#include "Private/Capture/CaptureBuffer.h"
+#include "Capture/CaptureDefines.h"
+#include "Capture/CaptureJob.h"
+#include "Capture/CaptureBuffer.h"
 
-#include "Public/Capture/CaptureCameraComponent.h"
-#include "Public/Capture/IDeepDriveCaptureProxy.h"
-#include "Public/CaptureSink/CaptureSinkComponentBase.h"
-#include "Public/CaptureSink/SharedMemSink/SharedMemCaptureSinkComponent.h"
+#include "Capture/CaptureCameraComponent.h"
+#include "Capture/IDeepDriveCaptureProxyInterface.h"
+#include "CaptureSink/CaptureSinkComponentBase.h"
+#include "CaptureSink/SharedMemSink/SharedMemCaptureSinkComponent.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveCapture);
 
@@ -41,7 +40,7 @@ DeepDriveCapture::DeepDriveCapture()
 {
 }
 
-void DeepDriveCapture::RegisterProxy(IDeepDriveCaptureProxy &proxy)
+void DeepDriveCapture::RegisterProxy(IDeepDriveCaptureProxyInterface &proxy)
 {
 	reset();
 
@@ -49,7 +48,7 @@ void DeepDriveCapture::RegisterProxy(IDeepDriveCaptureProxy &proxy)
 	m_Proxy = &proxy;
 }
 
-void DeepDriveCapture::UnregisterProxy(IDeepDriveCaptureProxy &proxy)
+void DeepDriveCapture::UnregisterProxy(IDeepDriveCaptureProxyInterface &proxy)
 {
 	if(&proxy == m_Proxy)
 		m_Proxy = 0;
@@ -216,18 +215,16 @@ void DeepDriveCapture::processCapturing()
 		captureJob->result_queue = &m_FinishedJobs;
 		captureJob->capture_buffer_pool = &m_CaptureBufferPool;
 
-		// TypeName, ParamType1, ParamName1, ParamValue1, Code
-		ENQUEUE_UNIQUE_RENDER_COMMAND_ONEPARAMETER
+		ENQUEUE_RENDER_COMMAND(ExecuteCaptureJob)
 		(
-			ExecuteCaptureJob, SCaptureJob*, job, captureJob,
-			{
+			[captureJob](FRHICommandListImmediate &RHICmdList) {
 				const double before = FPlatformTime::Seconds();
-		
-				DeepDriveCapture::executeCaptureJob(*job);
+
+				DeepDriveCapture::executeCaptureJob(*captureJob);
 
 				const double after = FPlatformTime::Seconds();
 				double duration = after - before;
-				DeepDriveCapture::m_TotalCaptureTime += static_cast<float> (duration * 1000.0);
+				DeepDriveCapture::m_TotalCaptureTime += static_cast<float>(duration * 1000.0);
 				DeepDriveCapture::m_CaptureCount = DeepDriveCapture::m_CaptureCount + 1.0f;
 
 				if (after - DeepDriveCapture::m_lastLoggingTimestamp > 10.0f && DeepDriveCapture::m_CaptureCount > 1.0f)
@@ -237,8 +234,7 @@ void DeepDriveCapture::processCapturing()
 					DeepDriveCapture::m_TotalCaptureTime = 0.0f;
 					DeepDriveCapture::m_lastLoggingTimestamp = after;
 				}
-			}
-		);
+			});
 
 	}
 	else

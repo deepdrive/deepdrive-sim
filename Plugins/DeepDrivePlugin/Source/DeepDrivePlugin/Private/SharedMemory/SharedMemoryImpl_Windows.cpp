@@ -1,8 +1,7 @@
 
 #ifdef DEEPDRIVE_PLATFORM_WINDOWS
 
-#include "DeepDrivePluginPrivatePCH.h"
-#include "Private/SharedMemory/SharedMemoryImpl_Windows.h"
+#include "SharedMemory/SharedMemoryImpl_Windows.h"
 
 #ifdef DEEPDRIVE_WITH_UE4_LOGGING
 DEFINE_LOG_CATEGORY(LogSharedMemoryImpl_Windows);

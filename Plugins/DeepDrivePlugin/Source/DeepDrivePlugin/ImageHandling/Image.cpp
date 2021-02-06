@@ -1,5 +1,4 @@
 
-#include "DeepDrivePluginPrivatePCH.h"
 #include "Image.h"
 
 namespace deepdrive

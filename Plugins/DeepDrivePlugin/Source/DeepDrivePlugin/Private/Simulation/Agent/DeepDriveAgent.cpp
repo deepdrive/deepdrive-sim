@@ -1,12 +1,11 @@
 
-#include "DeepDrivePluginPrivatePCH.h"
-#include "Public/Simulation/DeepDriveSimulation.h"
-#include "Public/Simulation/Agent/DeepDriveAgent.h"
-#include "Public/Capture/CaptureCameraComponent.h"
-#include "Public/DeepDriveData.h"
+#include "Simulation/Agent/DeepDriveAgent.h"
+#include "Simulation/DeepDriveSimulation.h"
+#include "Capture/CaptureCameraComponent.h"
+#include "DeepDriveData.h"
 #include "Components/SplineComponent.h"
 #include "Simulation/Agent/DeepDriveAgentControllerBase.h"
-#include "Private/Capture/DeepDriveCapture.h"
+#include "Capture/DeepDriveCapture.h"
 
 #include "ActorEventLogging/Public/ActorEventLoggingMacros.h"
 

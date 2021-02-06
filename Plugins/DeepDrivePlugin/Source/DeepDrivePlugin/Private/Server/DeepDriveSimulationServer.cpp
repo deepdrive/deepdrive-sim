@@ -1,10 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "DeepDrivePluginPrivatePCH.h"
 #include "DeepDriveSimulationServer.h"
 
-#include "Public/Simulation/DeepDriveSimulation.h"
-#include "Public/Server/Messages/DeepDriveServerMessageHeader.h"
+#include "Simulation/DeepDriveSimulation.h"
+#include "Server/Messages/DeepDriveServerMessageHeader.h"
 
 #include "Runtime/Networking/Public/Interfaces/IPv4/IPv4SubnetMask.h"
 #include "Runtime/Networking/Public/Interfaces/IPv4/IPv4Address.h"

@@ -3,7 +3,7 @@
 
 #include "CoreMinimal.h"
 
-#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
+#include "Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveRoadNetworkExtractor, Log, All);
 

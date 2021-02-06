@@ -1,5 +1,4 @@
 
-#include "DeepDrivePluginPrivatePCH.h"
 #include "ImageHandling/BmpSaveHandler.h"
 #include "ImageHandling/Image.h"
 

@@ -3,13 +3,13 @@
 #pragma once
 
 #include "Simulation/Agent/DeepDriveAgentControllerBase.h"
-#include "Public/Capture/IDeepDriveCaptureProxy.h"
+#include "Capture/IDeepDriveCaptureProxyInterface.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveSimulationCaptureProxy, Log, All);
 
 class ADeepDriveSimulation;
 
-class DeepDriveSimulationCaptureProxy	:	public IDeepDriveCaptureProxy
+class DeepDriveSimulationCaptureProxy	:	public IDeepDriveCaptureProxyInterface
 {
 public:
 
@@ -20,7 +20,7 @@ public:
 	void shutdown();
 
 	/**
-	*		IDeepDriveCaptureProxy methods
+	*		IDeepDriveCaptureProxyInterface methods
 	*/
 
 	virtual TArray<UCaptureSinkComponentBase*>& getSinks();

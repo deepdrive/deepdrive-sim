@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "Public/Server/Messages/DeepDriveServerMessageHeader.h"
-#include "Public/Simulation/DeepDriveSimulationTypes.h"
+#include "Server/Messages/DeepDriveServerMessageHeader.h"
+#include "Simulation/DeepDriveSimulationTypes.h"
 
 namespace deepdrive { namespace server {
 

@@ -1,6 +1,6 @@
 
-#include "Private/Simulation/Traffic/Path/Annotations/DeepDrivePathCurveAnnotation.h"
-#include "Private/Simulation/Misc/MedianLowPassFilter.h"
+#include "Simulation/Traffic/Path/Annotations/DeepDrivePathCurveAnnotation.h"
+#include "Simulation/Misc/MedianLowPassFilter.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDrivePathCurveAnnotation);
 

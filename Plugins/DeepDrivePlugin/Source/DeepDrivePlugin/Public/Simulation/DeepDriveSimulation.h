@@ -4,7 +4,7 @@
 
 #include "GameFramework/Actor.h"
 
-#include "Public/Simulation/DeepDriveSimulationDefines.h"
+#include "Simulation/DeepDriveSimulationDefines.h"
 
 #include <map>
 #include <functional>

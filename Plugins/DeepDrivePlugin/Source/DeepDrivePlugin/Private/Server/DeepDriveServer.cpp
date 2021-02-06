@@ -1,14 +1,13 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "DeepDrivePluginPrivatePCH.h"
-#include "Private/Server/DeepDriveServer.h"
-#include "Private/Server/DeepDriveConnectionListener.h"
-#include "Private/Server/DeepDriveClientConnection.h"
-#include "Private/Capture/DeepDriveCapture.h"
+#include "Server/DeepDriveServer.h"
+#include "Server/DeepDriveConnectionListener.h"
+#include "Server/DeepDriveClientConnection.h"
+#include "Capture/DeepDriveCapture.h"
 
-#include "Public/Server/IDeepDriveServerProxy.h"
-#include "Public/Server/Messages/DeepDriveServerConfigurationMessages.h"
-#include "Public/Server/Messages/DeepDriveServerControlMessages.h"
+#include "Server/IDeepDriveServerProxy.h"
+#include "Server/Messages/DeepDriveServerConfigurationMessages.h"
+#include "Server/Messages/DeepDriveServerControlMessages.h"
 
 #include "Runtime/Networking/Public/Interfaces/IPv4/IPv4SubnetMask.h"
 #include "Runtime/Networking/Public/Interfaces/IPv4/IPv4Address.h"

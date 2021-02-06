@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Simulation/Agent/DeepDriveAgentControllerBase.h"
-#include "Public/Server/IDeepDriveServerProxy.h"
+#include "Server/IDeepDriveServerProxy.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveSimulationServerProxy, Log, All);
 

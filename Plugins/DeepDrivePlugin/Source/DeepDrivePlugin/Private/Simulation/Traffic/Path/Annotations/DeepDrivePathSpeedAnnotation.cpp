@@ -1,5 +1,5 @@
 
-#include "Private/Simulation/Traffic/Path/Annotations/DeepDrivePathSpeedAnnotation.h"
+#include "Simulation/Traffic/Path/Annotations/DeepDrivePathSpeedAnnotation.h"
 
 DeepDrivePathSpeedAnnotation::DeepDrivePathSpeedAnnotation(const SDeepDriveRoadNetwork &roadNetwork, float speedDownRange, float speedUpRange)
 	:	m_RoadNetwork(roadNetwork)

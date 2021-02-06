@@ -1,13 +1,12 @@
 
 
-#include "DeepDrivePlugin.h"
 #include "DeepDriveSimulationConfigurator.h"
 
-#include "Public/Simulation/DeepDriveSimulationDefines.h"
-#include "Public/Simulation/DeepDriveSimulation.h"
-#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetworkComponent.h"
-#include "Public/Simulation/RoadNetwork/DeepDriveRoadLinkProxy.h"
-#include "Public/Simulation/RoadNetwork/DeepDriveRoadSegmentProxy.h"
+#include "Simulation/DeepDriveSimulationDefines.h"
+#include "Simulation/DeepDriveSimulation.h"
+#include "Simulation/RoadNetwork/DeepDriveRoadNetworkComponent.h"
+#include "Simulation/RoadNetwork/DeepDriveRoadLinkProxy.h"
+#include "Simulation/RoadNetwork/DeepDriveRoadSegmentProxy.h"
 
 #include "Runtime/Engine/Classes/Commandlets/Commandlet.h"
 

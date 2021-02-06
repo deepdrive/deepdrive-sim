@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Private/Simulation/Misc/PIDController.h"
+#include "Simulation/Misc/PIDController.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveAgentSpeedController, Log, All);
 

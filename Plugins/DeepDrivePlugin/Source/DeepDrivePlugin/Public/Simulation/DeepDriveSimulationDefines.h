@@ -4,7 +4,7 @@
 #include "Engine.h"
 #include "Runtime/CoreUObject/Public/UObject/ObjectMacros.h"
 
-#include "Public/Capture/CaptureDefines.h"
+#include "Capture/CaptureDefines.h"
 
 #include "DeepDriveSimulationDefines.generated.h"
 

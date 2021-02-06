@@ -5,7 +5,7 @@
 #include "GameFramework/Actor.h"
 #include "DeepDriveData.h"
 #include "CaptureDefines.h"
-#include "Public/Capture/IDeepDriveCaptureProxy.h"
+#include "Capture/IDeepDriveCaptureProxyInterface.h"
 #include "DeepDriveCaptureProxy.generated.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(DeepDriveCaptureProxy, Log, All);
@@ -24,7 +24,7 @@ struct FCaptureCyle
 
 UCLASS()
 class DEEPDRIVEPLUGIN_API ADeepDriveCaptureProxy	:	public AActor
-													,	public IDeepDriveCaptureProxy
+													,	public IDeepDriveCaptureProxyInterface
 {
 	GENERATED_BODY()
 	
@@ -45,7 +45,7 @@ public:
 	virtual void Tick( float DeltaSeconds ) override;
 
 	/*
-	*	IDeepDriveCaptureProxy
+	*	IDeepDriveCaptureProxyInterface
 	*/
 
 	TArray<UCaptureSinkComponentBase*>& getSinks();

@@ -1,33 +1,32 @@
 
 
-#include "DeepDrivePluginPrivatePCH.h"
 #include "DeepDriveSimulation.h"
-#include "Private/Server/DeepDriveSimulationServer.h"
-#include "Private/Simulation/DeepDriveSimulationRequestHandler.h"
-#include "Private/Simulation/DeepDriveSimulationStateMachine.h"
-#include "Private/Simulation/States/DeepDriveSimulationInitializeState.h"
-#include "Private/Simulation/States/DeepDriveSimulationRunningState.h"
-#include "Private/Simulation/States/DeepDriveSimulationConfigureState.h"
-#include "Private/Simulation/States/DeepDriveSimulationResetState.h"
-#include "Public/Simulation/Agent/Controllers/DeepDriveAgentOneOffController.h"
+#include "Server/DeepDriveSimulationServer.h"
+#include "Simulation/DeepDriveSimulationRequestHandler.h"
+#include "Simulation/DeepDriveSimulationStateMachine.h"
+#include "Simulation/States/DeepDriveSimulationInitializeState.h"
+#include "Simulation/States/DeepDriveSimulationRunningState.h"
+#include "Simulation/States/DeepDriveSimulationConfigureState.h"
+#include "Simulation/States/DeepDriveSimulationResetState.h"
+#include "Simulation/Agent/Controllers/DeepDriveAgentOneOffController.h"
 
-#include "Private/Simulation/Requests/DeepDriveSimulationRequests.h"
-#include "Private/Simulation/Requests/DeepDriveMultiAgentRequests.h"
+#include "Simulation/Requests/DeepDriveSimulationRequests.h"
+#include "Simulation/Requests/DeepDriveMultiAgentRequests.h"
 
-#include "Private/Server/DeepDriveServer.h"
-#include "Public/Simulation/DeepDriveSimulationServerProxy.h"
-#include "Public/Simulation/DeepDriveSimulationCaptureProxy.h"
+#include "Server/DeepDriveServer.h"
+#include "Simulation/DeepDriveSimulationServerProxy.h"
+#include "Simulation/DeepDriveSimulationCaptureProxy.h"
 
-#include "Public/Simulation/DeepDriveSimulationTypes.h"
+#include "Simulation/DeepDriveSimulationTypes.h"
 
-#include "Public/Simulation/Agent/DeepDriveAgent.h"
-#include "Public/Simulation/Agent/DeepDriveAgentControllerCreator.h"
-#include "Public/Simulation/Misc/DeepDriveSimulationFreeCamera.h"
-#include "Public/Simulation/Misc/DeepDriveRandomStream.h"
-#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetworkComponent.h"
-#include "Private/Simulation/Traffic/Maneuver/DeepDriveManeuverCalculator.h"
+#include "Simulation/Agent/DeepDriveAgent.h"
+#include "Simulation/Agent/DeepDriveAgentControllerCreator.h"
+#include "Simulation/Misc/DeepDriveSimulationFreeCamera.h"
+#include "Simulation/Misc/DeepDriveRandomStream.h"
+#include "Simulation/RoadNetwork/DeepDriveRoadNetworkComponent.h"
+#include "Simulation/Traffic/Maneuver/DeepDriveManeuverCalculator.h"
 
-#include "Public/CaptureSink/CaptureSinkComponentBase.h"
+#include "CaptureSink/CaptureSinkComponentBase.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveSimulation);
 

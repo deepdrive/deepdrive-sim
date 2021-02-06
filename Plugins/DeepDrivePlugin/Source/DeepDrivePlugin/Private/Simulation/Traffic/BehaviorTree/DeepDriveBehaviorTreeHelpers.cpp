@@ -3,8 +3,8 @@
 
 #include "Simulation/Traffic/BehaviorTree/DeepDriveTrafficBlackboard.h"
 #include "Simulation/Traffic/Path/DeepDrivePathDefines.h"
-#include "Public/Simulation/DeepDriveSimulation.h"
-#include "Public/Simulation/Agent/DeepDriveAgent.h"
+#include "Simulation/DeepDriveSimulation.h"
+#include "Simulation/Agent/DeepDriveAgent.h"
 #include "Simulation/TrafficLight/DeepDriveTrafficLight.h"
 
 float DeepDriveBehaviorTreeHelpers::calculateJunctionClearValue(DeepDriveTrafficBlackboard &blackboard, bool ignoreTrafficLights)

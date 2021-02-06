@@ -3,7 +3,7 @@
 #include "Simulation/Traffic/BehaviorTree/DeepDriveTrafficBlackboard.h"
 #include "Simulation/Traffic/Path/DeepDrivePathDefines.h"
 #include "Simulation/Agent/DeepDriveAgent.h"
-#include "Private/Simulation/Traffic/Path/DeepDrivePartialPath.h"
+#include "Simulation/Traffic/Path/DeepDrivePartialPath.h"
 
 DeepDriveTBTCheckFlagDecorator::DeepDriveTBTCheckFlagDecorator(const FString &flagName, bool refValue, bool defaultValue)
 	:	m_FlagName(flagName)

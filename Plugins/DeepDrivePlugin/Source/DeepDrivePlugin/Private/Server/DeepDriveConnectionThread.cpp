@@ -1,15 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "DeepDrivePluginPrivatePCH.h"
 #include "DeepDriveConnectionThread.h"
 
 #include "Runtime/Sockets/Public/Sockets.h"
-#include "Public/Server/Messages/DeepDriveServerMessageHeader.h"
-#include "Public/Server/Messages/DeepDriveServerConnectionMessages.h"
-#include "Public/Server/Messages/DeepDriveServerConfigurationMessages.h"
+#include "Server/Messages/DeepDriveServerMessageHeader.h"
+#include "Server/Messages/DeepDriveServerConnectionMessages.h"
+#include "Server/Messages/DeepDriveServerConfigurationMessages.h"
 
-#include "Public/CaptureSink/SharedMemSink/SharedMemCaptureSinkComponent.h"
-#include "Private/Server/DeepDriveServer.h"
+#include "CaptureSink/SharedMemSink/SharedMemCaptureSinkComponent.h"
+#include "Server/DeepDriveServer.h"
 
 using namespace deepdrive::server;
 

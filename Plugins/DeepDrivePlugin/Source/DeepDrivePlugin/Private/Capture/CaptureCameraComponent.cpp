@@ -1,11 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "DeepDrivePluginPrivatePCH.h"
-#include "Public/Capture/CaptureCameraComponent.h"
-#include "Private/Capture/DeepDriveCapture.h"
-#include "Public/Capture/CaptureDefines.h"
-#include "Public/Simulation/DeepDriveSimulationDefines.h"
-#include "Private/Capture/CaptureJob.h"
+#include "Capture/CaptureCameraComponent.h"
+#include "Capture/DeepDriveCapture.h"
+#include "Capture/CaptureDefines.h"
+#include "Simulation/DeepDriveSimulationDefines.h"
+#include "Capture/CaptureJob.h"
 
 
 DEFINE_LOG_CATEGORY(DeepDriveCaptureComponent);

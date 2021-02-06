@@ -2,7 +2,7 @@
 #pragma once
 
 #include "Engine.h"
-#include "Public/Messages/DeepDriveMessageHeader.h"
+#include "Messages/DeepDriveMessageHeader.h"
 
 struct DeepDriveCaptureCamera
 {

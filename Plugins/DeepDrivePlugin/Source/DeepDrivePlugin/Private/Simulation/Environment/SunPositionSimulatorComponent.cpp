@@ -1,8 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "DeepDrivePluginPrivatePCH.h"
 
-#include "Public/Simulation/Environment/SunPositionSimulatorComponent.h"
+#include "Simulation/Environment/SunPositionSimulatorComponent.h"
 
 
 void USunPositionSimulatorComponent::SetDate(int32 year, int32 month, int32 day, int32 hour)

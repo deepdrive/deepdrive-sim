@@ -1,12 +1,11 @@
 
-#include "DeepDrivePluginPrivatePCH.h"
 
-#include "Public/SharedMemory/SharedMemory.h"
+#include "SharedMemory/SharedMemory.h"
 
 #ifdef DEEPDRIVE_PLATFORM_LINUX
-#include "Private/SharedMemory/SharedMemoryImpl_Linux.h"
+#include "SharedMemory/SharedMemoryImpl_Linux.h"
 #elif DEEPDRIVE_PLATFORM_WINDOWS
-#include "Private/SharedMemory/SharedMemoryImpl_Windows.h"
+#include "SharedMemory/SharedMemoryImpl_Windows.h"
 #endif
 
 

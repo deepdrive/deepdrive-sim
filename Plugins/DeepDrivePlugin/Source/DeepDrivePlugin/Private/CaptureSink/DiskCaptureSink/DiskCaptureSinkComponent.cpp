@@ -1,13 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "DeepDrivePluginPrivatePCH.h"
 
-#include "DeepDrivePlugin.h"
-#include "Public/CaptureSink/DiskCaptureSink/DiskCaptureSinkComponent.h"
+#include "CaptureSink/DiskCaptureSink/DiskCaptureSinkComponent.h"
 
 
-#include "Public/Capture/CaptureDefines.h"
-#include "Private/CaptureSink/DiskCaptureSink/DiskCaptureSinkWorker.h"
+#include "Capture/CaptureDefines.h"
+#include "CaptureSink/DiskCaptureSink/DiskCaptureSinkWorker.h"
 
 DEFINE_LOG_CATEGORY(LogDiskCaptureSinkComponent);
 

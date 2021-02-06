@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "Private/SharedMemory/ISharedMemoryImpl.h"
+#include "SharedMemory/ISharedMemoryImpl.h"
 
 #ifdef DEEPDRIVE_PLATFORM_LINUX
 

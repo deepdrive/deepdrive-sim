@@ -1,13 +1,12 @@
 
-#include "DeepDrivePluginPrivatePCH.h"
-#include "Private/Simulation/DeepDriveSimulationRequestHandler.h"
-#include "Private/Server/DeepDriveSimulationServer.h"
-#include "Public/Server/Messages/DeepDriveServerSimulationMessages.h"
-#include "Public/Simulation/Agent/DeepDriveAgent.h"
-#include "Public/Simulation/Agent/DeepDriveAgentControllerBase.h"
-#include "Public/Simulation/Misc/DeepDriveRandomStream.h"
+#include "Simulation/DeepDriveSimulationRequestHandler.h"
+#include "Server/DeepDriveSimulationServer.h"
+#include "Server/Messages/DeepDriveServerSimulationMessages.h"
+#include "Simulation/Agent/DeepDriveAgent.h"
+#include "Simulation/Agent/DeepDriveAgentControllerBase.h"
+#include "Simulation/Misc/DeepDriveRandomStream.h"
 
-#include "Public/Simulation/DeepDriveSimulation.h"
+#include "Simulation/DeepDriveSimulation.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveSimulationRequestHandler);
 

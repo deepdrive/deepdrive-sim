@@ -1,7 +1,7 @@
 
 #include "Simulation/Traffic/BehaviorTree/Creators/DeepDriveJunctionRightOfWayBTCreator.h"
 
-#include "Private/Simulation/Traffic/Path/DeepDrivePathDefines.h"
+#include "Simulation/Traffic/Path/DeepDrivePathDefines.h"
 
 #include "Simulation/Traffic/BehaviorTree/DeepDriveTrafficBehaviorTree.h"
 #include "Simulation/Traffic/BehaviorTree/DeepDriveTrafficBehaviorTreeNode.h"

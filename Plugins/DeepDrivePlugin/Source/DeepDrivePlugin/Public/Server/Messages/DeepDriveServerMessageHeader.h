@@ -2,7 +2,7 @@
 #pragma once
 
 #include "Engine.h"
-#include "Public/Server/Messages/DeepDriveMessageIds.h"
+#include "Server/Messages/DeepDriveMessageIds.h"
 
 namespace deepdrive { namespace server {
 

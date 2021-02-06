@@ -1,11 +1,10 @@
 
-#include "DeepDrivePluginPrivatePCH.h"
-#include "Private/Simulation/States/DeepDriveSimulationResetState.h"
-#include "Public/Simulation/DeepDriveSimulation.h"
-#include "Public/Simulation/Agent/DeepDriveAgent.h"
-#include "Public/Simulation/Agent/DeepDriveAgentControllerBase.h"
-#include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
-#include "Public/Simulation/Misc/DeepDriveRandomStream.h"
+#include "Simulation/States/DeepDriveSimulationResetState.h"
+#include "Simulation/DeepDriveSimulation.h"
+#include "Simulation/Agent/DeepDriveAgent.h"
+#include "Simulation/Agent/DeepDriveAgentControllerBase.h"
+#include "Simulation/Misc/DeepDriveSplineTrack.h"
+#include "Simulation/Misc/DeepDriveRandomStream.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveSimulationResetState);
 

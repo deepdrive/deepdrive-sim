@@ -1,8 +1,7 @@
 
-#include "DeepDrivePluginPrivatePCH.h"
-#include "Private/Simulation/States/DeepDriveSimulationInitializeState.h"
-#include "Public/Simulation/DeepDriveSimulation.h"
-#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetworkComponent.h"
+#include "Simulation/States/DeepDriveSimulationInitializeState.h"
+#include "Simulation/DeepDriveSimulation.h"
+#include "Simulation/RoadNetwork/DeepDriveRoadNetworkComponent.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveSimulationState);
 

@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "Private/Utils/StateMachine/TStateMachine.hpp"
-#include "Private/Utils/StateMachine/TStateBase.hpp"
+#include "Utils/StateMachine/TStateMachine.hpp"
+#include "Utils/StateMachine/TStateBase.hpp"
 
 class ADeepDriveAgentLocalAIController;
 class ADeepDriveAgent;

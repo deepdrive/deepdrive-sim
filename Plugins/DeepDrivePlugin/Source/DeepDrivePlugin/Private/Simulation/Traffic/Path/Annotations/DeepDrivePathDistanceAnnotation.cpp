@@ -1,5 +1,5 @@
 
-#include "Private/Simulation/Traffic/Path/Annotations/DeepDrivePathDistanceAnnotation.h"
+#include "Simulation/Traffic/Path/Annotations/DeepDrivePathDistanceAnnotation.h"
 
 
 void DeepDrivePathDistanceAnnotation::annotate(TDeepDrivePathPoints &pathPoints, float startDistance)

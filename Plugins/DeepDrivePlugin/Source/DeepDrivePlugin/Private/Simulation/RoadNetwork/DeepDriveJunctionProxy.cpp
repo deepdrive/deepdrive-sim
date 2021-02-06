@@ -1,10 +1,9 @@
 
-#include "DeepDrivePluginPrivatePCH.h"
 #include "DeepDriveJunctionProxy.h"
 
-#include "Public/Simulation/RoadNetwork/DeepDriveRoadLinkProxy.h"
-#include "Public/Simulation/RoadNetwork/DeepDriveRoadSegmentProxy.h"
-#include "Public/Simulation/Misc/BezierCurveComponent.h"
+#include "Simulation/RoadNetwork/DeepDriveRoadLinkProxy.h"
+#include "Simulation/RoadNetwork/DeepDriveRoadSegmentProxy.h"
+#include "Simulation/Misc/BezierCurveComponent.h"
 
 // Sets default values
 ADeepDriveJunctionProxy::ADeepDriveJunctionProxy()

@@ -1,15 +1,14 @@
 
-#include "DeepDrivePluginPrivatePCH.h"
-#include "Private/Simulation/Requests/DeepDriveMultiAgentRequests.h"
-#include "Private/Simulation/DeepDriveSimulationRequestHandler.h"
-#include "Private/Server/DeepDriveSimulationServer.h"
-#include "Public/Server/Messages/DeepDriveServerSimulationMessages.h"
-#include "Public/Simulation/Agent/DeepDriveAgent.h"
-#include "Public/Simulation/Agent/DeepDriveAgentControllerBase.h"
+#include "Simulation/Requests/DeepDriveMultiAgentRequests.h"
+#include "Simulation/DeepDriveSimulationRequestHandler.h"
+#include "Server/DeepDriveSimulationServer.h"
+#include "Server/Messages/DeepDriveServerSimulationMessages.h"
+#include "Simulation/Agent/DeepDriveAgent.h"
+#include "Simulation/Agent/DeepDriveAgentControllerBase.h"
 
-#include "Public/Simulation/DeepDriveSimulation.h"
+#include "Simulation/DeepDriveSimulation.h"
 
-#include "Public/Server/Messages/DeepDriveMessageIds.h"
+#include "Server/Messages/DeepDriveMessageIds.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveMultiAgentRequests);
 
@@ -113,7 +112,7 @@ void DeepDriveMultiAgentRequests::setControlValues(ADeepDriveSimulation &simulat
 			{
 				ADeepDriveAgentControllerBase *controller = simulation.m_Agents[index]->getAgentController();
 				if(controller && controller->isRemotelyControlled())
-					controller->SetControlValues(req.control_values[i].steering, req.control_values[i].throttle, req.control_values[i].brake, req.control_values[i].handbrake);
+					controller->SetControlValues(req.control_values[i].steering, req.control_values[i].throttle, req.control_values[i].brake, req.control_values[i].handbrake != 0);
 				else
 					UE_LOG(LogDeepDriveMultiAgentRequests, Log, TEXT("Agent %d has no controller (%p) or isn't remotely controlled"), id, controller);
 			}

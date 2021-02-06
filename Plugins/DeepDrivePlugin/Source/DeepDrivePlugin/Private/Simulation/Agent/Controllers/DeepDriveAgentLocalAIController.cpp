@@ -1,21 +1,20 @@
 
 
-#include "DeepDrivePluginPrivatePCH.h"
 #include "DeepDriveAgentLocalAIController.h"
-#include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
-#include "Public/Simulation/Misc/DeepDriveRandomStream.h"
-#include "Public/Simulation/DeepDriveSimulation.h"
-#include "Public/Simulation/Agent/DeepDriveAgent.h"
-#include "Private/Simulation/Agent/Controllers/DeepDriveAgentSpeedController.h"
-#include "Private/Simulation/Agent/Controllers/DeepDriveAgentSteeringController.h"
+#include "Simulation/Misc/DeepDriveSplineTrack.h"
+#include "Simulation/Misc/DeepDriveRandomStream.h"
+#include "Simulation/DeepDriveSimulation.h"
+#include "Simulation/Agent/DeepDriveAgent.h"
+#include "Simulation/Agent/Controllers/DeepDriveAgentSpeedController.h"
+#include "Simulation/Agent/Controllers/DeepDriveAgentSteeringController.h"
 
-#include "Private/Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentCruiseState.h"
-#include "Private/Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentPullOutState.h"
-#include "Private/Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentPassingState.h"
-#include "Private/Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentPullInState.h"
-#include "Private/Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentPullBackInState.h"
+#include "Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentCruiseState.h"
+#include "Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentPullOutState.h"
+#include "Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentPassingState.h"
+#include "Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentPullInState.h"
+#include "Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentPullBackInState.h"
 
-#include "Private/Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentAbortOvertakingState.h"
+#include "Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentAbortOvertakingState.h"
 
 #include "WheeledVehicleMovementComponent.h"
 

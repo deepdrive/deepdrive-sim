@@ -1,7 +1,7 @@
 
 
-#include "DeepDrivePluginPrivatePCH.h"
 #include "DeepDriveSimulationFreeCamera.h"
+#include "Camera/CameraComponent.h"
 
 
 // Sets default values

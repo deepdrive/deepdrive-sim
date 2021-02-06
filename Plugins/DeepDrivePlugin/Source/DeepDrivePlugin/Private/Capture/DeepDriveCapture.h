@@ -3,13 +3,13 @@
 
 #include "Engine.h"
 
-#include "Public/Capture/CaptureDefines.h"
-#include "Private/Capture/CaptureBufferPool.h"
+#include "Capture/CaptureDefines.h"
+#include "Capture/CaptureBufferPool.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveCapture, Log, All);
 
 class UCaptureCameraComponent;
-class IDeepDriveCaptureProxy;
+class IDeepDriveCaptureProxyInterface;
 struct SCaptureJob;
 class USharedMemCaptureSinkComponent;
 
@@ -48,9 +48,9 @@ public:
 
 	static void Destroy();
 
-	void RegisterProxy(IDeepDriveCaptureProxy &proxy);
+	void RegisterProxy(IDeepDriveCaptureProxyInterface &proxy);
 
-	void UnregisterProxy(IDeepDriveCaptureProxy &proxy);
+	void UnregisterProxy(IDeepDriveCaptureProxyInterface &proxy);
 
 	int32 RegisterCaptureComponent(UCaptureCameraComponent *captureComponent);
 	
@@ -78,7 +78,7 @@ private:
 
 	static CaptureBuffer* capture(CaptureBufferPool &pool, FRHITexture2D *srcTexture);
 
-	IDeepDriveCaptureProxy			*m_Proxy = 0;
+	IDeepDriveCaptureProxyInterface			*m_Proxy = 0;
 
 	uint32							m_nextSequenceNumber = 1;
 

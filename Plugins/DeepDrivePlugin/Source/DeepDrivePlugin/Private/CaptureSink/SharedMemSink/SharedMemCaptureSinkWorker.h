@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "Private/CaptureSink/CaptureSinkWorkerBase.h"
-#include "Public/DeepDriveData.h"
+#include "CaptureSink/CaptureSinkWorkerBase.h"
+#include "DeepDriveData.h"
 
 
 DECLARE_LOG_CATEGORY_EXTERN(LogSharedMemCaptureSinkWorker, Log, All);

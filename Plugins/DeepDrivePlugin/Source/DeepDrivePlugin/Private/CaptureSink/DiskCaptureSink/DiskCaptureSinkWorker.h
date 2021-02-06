@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "Private/CaptureSink/CaptureSinkWorkerBase.h"
+#include "CaptureSink/CaptureSinkWorkerBase.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDiskCaptureSinkWorker, Log, All);
 

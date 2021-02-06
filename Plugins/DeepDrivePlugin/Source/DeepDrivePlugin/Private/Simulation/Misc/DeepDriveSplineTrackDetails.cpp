@@ -1,9 +1,8 @@
 #if WITH_EDITOR
 
-#include "DeepDrivePluginPrivatePCH.h"
 
-#include "Private/Simulation/Misc/DeepDriveSplineTrackDetails.h"
-#include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
+#include "Simulation/Misc/DeepDriveSplineTrackDetails.h"
+#include "Simulation/Misc/DeepDriveSplineTrack.h"
 
 #include "Components/SceneComponent.h"
 #include "Widgets/DeclarativeSyntaxSupport.h"

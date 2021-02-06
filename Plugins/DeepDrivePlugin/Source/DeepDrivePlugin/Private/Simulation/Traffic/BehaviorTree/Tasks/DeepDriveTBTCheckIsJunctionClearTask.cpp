@@ -5,7 +5,7 @@
 #include "Simulation/Traffic/BehaviorTree/DeepDriveTrafficBlackboard.h"
 
 #include "Simulation/Agent/DeepDriveAgent.h"
-#include "Private/Simulation/Traffic/Path/DeepDrivePartialPath.h"
+#include "Simulation/Traffic/Path/DeepDrivePartialPath.h"
 
 #include "ActorEventLogging/Public/ActorEventLoggingMacros.h"
 

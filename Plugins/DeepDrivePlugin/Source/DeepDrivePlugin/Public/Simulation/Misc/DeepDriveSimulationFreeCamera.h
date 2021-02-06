@@ -6,6 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "DeepDriveSimulationFreeCamera.generated.h"
 
+class UCameraComponent;
+
+
 UCLASS()
 class DEEPDRIVEPLUGIN_API ADeepDriveSimulationFreeCamera : public AActor
 {

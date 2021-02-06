@@ -1,17 +1,16 @@
 
 
-#include "DeepDrivePluginPrivatePCH.h"
 #include "DeepDriveAgentTrafficAIController.h"
-#include "Public/Simulation/DeepDriveSimulation.h"
-#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetworkComponent.h"
-#include "Public/Simulation/RoadNetwork/DeepDriveRoute.h"
-#include "Public/Simulation/Agent/DeepDriveAgent.h"
-#include "Private/Simulation/Agent/Controllers/DeepDriveAgentSpeedController.h"
-#include "Private/Simulation/Agent/Controllers/DeepDriveAgentSteeringController.h"
-#include "Public/Simulation/Misc/BezierCurveComponent.h"
+#include "Simulation/DeepDriveSimulation.h"
+#include "Simulation/RoadNetwork/DeepDriveRoadNetworkComponent.h"
+#include "Simulation/RoadNetwork/DeepDriveRoute.h"
+#include "Simulation/Agent/DeepDriveAgent.h"
+#include "Simulation/Agent/Controllers/DeepDriveAgentSpeedController.h"
+#include "Simulation/Agent/Controllers/DeepDriveAgentSteeringController.h"
+#include "Simulation/Misc/BezierCurveComponent.h"
 
-#include "Private/Simulation/Traffic/Path/DeepDrivePathDefines.h"
-#include "Private/Simulation/Traffic/Path/DeepDrivePathPlanner.h"
+#include "Simulation/Traffic/Path/DeepDrivePathDefines.h"
+#include "Simulation/Traffic/Path/DeepDrivePathPlanner.h"
 #include "Simulation/Traffic/Maneuver/DeepDriveManeuverCalculator.h"
 
 #include "WheeledVehicleMovementComponent.h"

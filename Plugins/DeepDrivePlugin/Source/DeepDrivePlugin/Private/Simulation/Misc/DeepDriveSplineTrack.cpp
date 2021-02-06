@@ -1,10 +1,9 @@
 
 
-#include "DeepDrivePluginPrivatePCH.h"
 #include "DeepDriveSplineTrack.h"
 #include "Runtime/Engine/Classes/Components/SplineComponent.h"
-#include "Public/Simulation/Agent/DeepDriveAgent.h"
-#include "Public/Simulation/Misc/DeepDriveRandomStream.h"
+#include "Simulation/Agent/DeepDriveAgent.h"
+#include "Simulation/Misc/DeepDriveRandomStream.h"
 
 #include <fstream>
 

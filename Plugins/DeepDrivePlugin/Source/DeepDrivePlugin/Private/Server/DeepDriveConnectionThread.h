@@ -5,9 +5,9 @@
 #include "Engine.h"
 #include "Runtime/Core/Public/HAL/Runnable.h"
 
-#include "Private/Server/DeepDriveMessageAssembler.h"
+#include "Server/DeepDriveMessageAssembler.h"
 
-#include "Public/Server/Messages/DeepDriveMessageIds.h"
+#include "Server/Messages/DeepDriveMessageIds.h"
 
 #include <map>
 #include <functional>

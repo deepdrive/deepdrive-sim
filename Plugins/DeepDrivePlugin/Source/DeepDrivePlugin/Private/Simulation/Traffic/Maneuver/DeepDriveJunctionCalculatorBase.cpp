@@ -1,6 +1,6 @@
 
 #include "Simulation/Traffic/Maneuver/DeepDriveJunctionCalculatorBase.h"
-#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
+#include "Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
 
 DeepDriveJunctionCalculatorBase::DeepDriveJunctionCalculatorBase(const SDeepDriveRoadNetwork &roadNetwork)
 	:	m_RoadNetwork(roadNetwork)

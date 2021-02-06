@@ -1,10 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "DeepDrivePluginPrivatePCH.h"
-#include "DeepDrivePlugin.h"
 
-#include "Public/CaptureSink/SharedMemSink/SharedMemCaptureSinkComponent.h"
-#include "Private/CaptureSink/SharedMemSink/SharedMemCaptureSinkWorker.h"
+#include "CaptureSink/SharedMemSink/SharedMemCaptureSinkComponent.h"
+#include "CaptureSink/SharedMemSink/SharedMemCaptureSinkWorker.h"
 
 DEFINE_LOG_CATEGORY(LogSharedMemCaptureSinkComponent);
 

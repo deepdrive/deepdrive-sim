@@ -2,7 +2,7 @@
 #pragma once
 
 #include "Engine.h"
-#include "Public/Simulation/DeepDriveSimulationDefines.h"
+#include "Simulation/DeepDriveSimulationDefines.h"
 
 class CaptureBufferPool;
 

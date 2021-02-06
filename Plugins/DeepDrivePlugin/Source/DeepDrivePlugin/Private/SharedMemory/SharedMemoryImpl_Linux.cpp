@@ -2,8 +2,7 @@
 #ifdef DEEPDRIVE_PLATFORM_LINUX
 
 
-#include "DeepDrivePluginPrivatePCH.h"
-#include "Private/SharedMemory/SharedMemoryImpl_Linux.h"
+#include "SharedMemory/SharedMemoryImpl_Linux.h"
 
 #include <stdio.h>
 #include <stdlib.h>

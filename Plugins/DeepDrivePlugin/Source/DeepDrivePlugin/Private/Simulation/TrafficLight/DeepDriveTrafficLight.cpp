@@ -1,5 +1,4 @@
 
-#include "DeepDrivePlugin.h"
 #include "DeepDriveTrafficLight.h"
 
 // Sets default values

@@ -1,10 +1,9 @@
 
-#include "DeepDrivePluginPrivatePCH.h"
-#include "Private/Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentCruiseState.h"
-#include "Private/Simulation/Agent/Controllers/DeepDriveAgentSpeedController.h"
-#include "Private/Simulation/Agent/Controllers/DeepDriveAgentSteeringController.h"
-#include "Public/Simulation/Agent/Controllers/DeepDriveAgentLocalAIController.h"
-#include "Public/Simulation/Agent/DeepDriveAgent.h"
+#include "Simulation/Agent/Controllers/LocalAI/States/DeepDriveAgentCruiseState.h"
+#include "Simulation/Agent/Controllers/DeepDriveAgentSpeedController.h"
+#include "Simulation/Agent/Controllers/DeepDriveAgentSteeringController.h"
+#include "Simulation/Agent/Controllers/DeepDriveAgentLocalAIController.h"
+#include "Simulation/Agent/DeepDriveAgent.h"
 
 
 DeepDriveAgentCruiseState::DeepDriveAgentCruiseState(DeepDriveAgentLocalAIStateMachine &stateMachine)

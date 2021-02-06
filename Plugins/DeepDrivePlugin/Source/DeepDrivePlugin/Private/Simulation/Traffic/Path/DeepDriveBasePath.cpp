@@ -1,9 +1,9 @@
 
-#include "Private/Simulation/Traffic/Path/DeepDriveBasePath.h"
-#include "Private/Simulation/Traffic/Path/DeepDrivePartialPath.h"
+#include "Simulation/Traffic/Path/DeepDriveBasePath.h"
+#include "Simulation/Traffic/Path/DeepDrivePartialPath.h"
 #include "Simulation/Traffic/Path/DeepDrivePathBuilder.h"
-#include "Private/Utils/DeepDriveUtils.h"
-#include "Private/Simulation/Traffic/Path/Annotations/DeepDrivePathDistanceAnnotation.h"
+#include "Utils/DeepDriveUtils.h"
+#include "Simulation/Traffic/Path/Annotations/DeepDrivePathDistanceAnnotation.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDriveBasePath);
 

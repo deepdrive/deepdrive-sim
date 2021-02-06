@@ -4,7 +4,7 @@
 
 #include "WheeledVehicle.h"
 
-#include "Public/Simulation/DeepDriveSimulationDefines.h"
+#include "Simulation/DeepDriveSimulationDefines.h"
 
 #include "DeepDriveAgent.generated.h"
 

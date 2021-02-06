@@ -3,7 +3,7 @@
 
 #include "Engine.h"
 #include "Runtime/Core/Public/HAL/Runnable.h"
-#include "Public/Capture/CaptureDefines.h"
+#include "Capture/CaptureDefines.h"
 
 class CaptureBuffer;
 

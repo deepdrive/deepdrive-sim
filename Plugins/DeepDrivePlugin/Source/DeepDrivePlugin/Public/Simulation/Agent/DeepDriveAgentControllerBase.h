@@ -4,8 +4,8 @@
 
 #include "GameFramework/Controller.h"
 
-#include "Public/DeepDriveData.h"
-#include "Public/Simulation/DeepDriveSimulationDefines.h"
+#include "DeepDriveData.h"
+#include "Simulation/DeepDriveSimulationDefines.h"
 
 #include "DeepDriveAgentControllerBase.generated.h"
 

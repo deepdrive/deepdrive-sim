@@ -1,6 +1,6 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
-#include "DeepDrivePluginPrivatePCH.h"
+#include "DeepDrivePlugin.h"
 
 #define LOCTEXT_NAMESPACE "FDeepDrivePluginModule"
 

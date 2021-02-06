@@ -3,7 +3,7 @@
 
 #include "Engine.h"
 
-#include "Public/Server/Messages/DeepDriveMessageIds.h"
+#include "Server/Messages/DeepDriveMessageIds.h"
 
 #include <functional>
 #include <map>

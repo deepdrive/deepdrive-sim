@@ -1,18 +1,17 @@
 
 
-#include "DeepDrivePluginPrivatePCH.h"
 #include "DeepDriveRoadNetworkComponent.h"
 
-#include "Public/Simulation/DeepDriveSimulation.h"
-#include "Public/Simulation/RoadNetwork/DeepDriveRoadLinkProxy.h"
-#include "Public/Simulation/RoadNetwork/DeepDriveJunctionProxy.h"
-#include "Public/Simulation/RoadNetwork/DeepDriveRoadSegmentProxy.h"
-#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetworkExtractor.h"
-#include "Public/Simulation/RoadNetwork/DeepDriveRoute.h"
-#include "Public/Simulation/Agent/DeepDriveAgent.h"
-#include "Public/Simulation/Misc/DeepDriveRandomStream.h"
+#include "Simulation/DeepDriveSimulation.h"
+#include "Simulation/RoadNetwork/DeepDriveRoadLinkProxy.h"
+#include "Simulation/RoadNetwork/DeepDriveJunctionProxy.h"
+#include "Simulation/RoadNetwork/DeepDriveRoadSegmentProxy.h"
+#include "Simulation/RoadNetwork/DeepDriveRoadNetworkExtractor.h"
+#include "Simulation/RoadNetwork/DeepDriveRoute.h"
+#include "Simulation/Agent/DeepDriveAgent.h"
+#include "Simulation/Misc/DeepDriveRandomStream.h"
 
-#include "Private/Simulation/RoadNetwork/DeepDriveRouteCalculator.h"
+#include "Simulation/RoadNetwork/DeepDriveRouteCalculator.h"
 
 // Sets default values for this component's properties
 UDeepDriveRoadNetworkComponent::UDeepDriveRoadNetworkComponent()

@@ -1,10 +1,9 @@
 
 
-#include "DeepDrivePluginPrivatePCH.h"
-#include "Private/Simulation/Agent/Controllers/DeepDriveAgentSteeringController.h"
-#include "Public/Simulation/Misc/DeepDriveSplineTrack.h"
-#include "Public/Simulation/Agent/DeepDriveAgent.h"
-#include "Public/Simulation/RoadNetwork/DeepDriveRoute.h"
+#include "Simulation/Agent/Controllers/DeepDriveAgentSteeringController.h"
+#include "Simulation/Misc/DeepDriveSplineTrack.h"
+#include "Simulation/Agent/DeepDriveAgent.h"
+#include "Simulation/RoadNetwork/DeepDriveRoute.h"
 #include "WheeledVehicleMovementComponent.h"
 #include "Runtime/Engine/Classes/Components/SplineComponent.h"
 

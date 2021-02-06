@@ -1,10 +1,9 @@
 
 
-#include "DeepDrivePluginPrivatePCH.h"
-#include "Public/Simulation/RoadNetwork/DeepDriveRoute.h"
+#include "Simulation/RoadNetwork/DeepDriveRoute.h"
 #include "Runtime/Engine/Classes/Components/SplineComponent.h"
-#include "Public/Simulation/Agent/DeepDriveAgent.h"
-#include "Public/Simulation/Misc/BezierCurveComponent.h"
+#include "Simulation/Agent/DeepDriveAgent.h"
+#include "Simulation/Misc/BezierCurveComponent.h"
 
 
 DEFINE_LOG_CATEGORY(LogDeepDriveRoute);

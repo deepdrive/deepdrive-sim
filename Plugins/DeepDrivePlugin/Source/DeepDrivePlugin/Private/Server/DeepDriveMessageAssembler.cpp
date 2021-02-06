@@ -1,8 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "DeepDrivePluginPrivatePCH.h"
 #include "DeepDriveMessageAssembler.h"
-#include "Public/Server/Messages/DeepDriveServerMessageHeader.h"
+#include "Server/Messages/DeepDriveServerMessageHeader.h"
 
 DeepDriveMessageAssembler::DeepDriveMessageAssembler()
 {

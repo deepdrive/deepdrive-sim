@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
+#include "Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
 #include "Runtime/Core/Public/Containers/BinaryHeap.h"
 
 DECLARE_LOG_CATEGORY_EXTERN(LogDeepDriveRouteCalc, Log, All);

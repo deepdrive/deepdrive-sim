@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "Private/Simulation/DeepDriveSimulationStateMachine.h"
+#include "Simulation/DeepDriveSimulationStateMachine.h"
 
 class DeepDriveSimulationInitializeState : public DeepDriveSimulationStateBase
 {

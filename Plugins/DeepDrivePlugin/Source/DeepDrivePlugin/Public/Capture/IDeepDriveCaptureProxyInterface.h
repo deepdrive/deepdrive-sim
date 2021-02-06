@@ -2,11 +2,11 @@
 #pragma once
 
 #include "Engine.h"
-#include "Public/DeepDriveData.h"
+#include "DeepDriveData.h"
 
 class UCaptureSinkComponentBase;
 
-class IDeepDriveCaptureProxy
+class IDeepDriveCaptureProxyInterface
 {
 	
 public:	

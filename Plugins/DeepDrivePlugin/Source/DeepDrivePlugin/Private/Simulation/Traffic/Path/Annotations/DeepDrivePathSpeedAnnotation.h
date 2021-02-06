@@ -1,7 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Private/Simulation/Traffic/Path/DeepDrivePathDefines.h"
+#include "Simulation/Traffic/Path/DeepDrivePathDefines.h"
 
 struct SDeepDriveRoadNetwork;
 

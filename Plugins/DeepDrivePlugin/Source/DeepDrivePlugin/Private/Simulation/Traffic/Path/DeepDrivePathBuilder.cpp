@@ -1,8 +1,8 @@
 
 #include "Simulation/Traffic/Path/DeepDrivePathBuilder.h"
-#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
-#include "Public/Simulation/Misc/BezierCurveComponent.h"
-#include "Private/Utils/DeepDriveUtils.h"
+#include "Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
+#include "Simulation/Misc/BezierCurveComponent.h"
+#include "Utils/DeepDriveUtils.h"
 
 DEFINE_LOG_CATEGORY(LogDeepDrivePathBuilder);
 

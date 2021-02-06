@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "Public/Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
+#include "Simulation/RoadNetwork/DeepDriveRoadNetwork.h"
 
 class DeepDriveTrafficBehaviorTree;
 

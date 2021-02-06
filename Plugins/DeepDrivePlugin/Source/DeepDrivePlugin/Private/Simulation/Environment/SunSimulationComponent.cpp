@@ -1,8 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "DeepDrivePluginPrivatePCH.h"
 
-#include "Public/Simulation/Environment/SunSimulationComponent.h"
+#include "Simulation/Environment/SunSimulationComponent.h"
 
 #undef UpdateResource
 
