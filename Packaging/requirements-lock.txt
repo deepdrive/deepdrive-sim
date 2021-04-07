@@ -5,7 +5,7 @@ bleach==3.1.0
 boto==2.49.0
 boto3==1.9.216
 botocore==1.12.216
-bottle==0.12.17
+bottle==0.12.19
 cachetools==3.1.1
 certifi==2019.6.16
 chardet==3.0.4
