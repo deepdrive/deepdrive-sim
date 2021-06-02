@@ -64,7 +64,7 @@ twine==1.13.0
 typed-ast==1.4.0
 ue4-ci-helpers==0.0.9
 ue4cli==0.0.37
-urllib3==1.25.3
+urllib3==1.26.5
 webencodings==0.5.1
 websocket-client==0.56.0
 wrapt==1.11.2
