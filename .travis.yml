@@ -20,11 +20,21 @@ matrix:
     env:
       - DOCKER_IMAGE=quay.io/pypa/manylinux1_i686
       - PRE_CMD=linux32
+  - sudo: required
+    dist: focal
+    arch: arm64
+    services:
+    - docker
+    env:
+      - DOCKER_IMAGE=quay.io/pypa/manylinux2014_aarch64
 before_install:
   - sudo apt-get update
   - sudo apt-get install -y cppcheck
   - pip install -r .ci/requirements.txt
   - pip install --upgrade --force-reinstall --ignore-installed --no-cache-dir git+git://github.com/deepdrive/problem-constants#egg=problem-constants
+  - if [ "${TRAVIS_CPU_ARCH}" == "arm64" ]; then
+    pip install --upgrade pip;
+    fi
   - pip install --upgrade --force-reinstall --ignore-installed --no-cache-dir git+git://github.com/botleague/botleague-helpers#egg=botleague-helpers
 install:
 - docker pull $DOCKER_IMAGE
