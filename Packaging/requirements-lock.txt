@@ -41,7 +41,7 @@ packaging==19.1
 patch==1.16
 pkginfo==1.5.0.1
 pluginbase==0.7
-protobuf==3.9.1
+protobuf==3.18.3
 pyasn1==0.4.6
 pyasn1-modules==0.2.6
 Pygments==2.4.2
